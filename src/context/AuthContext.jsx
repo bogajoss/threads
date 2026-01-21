@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
                 .from('users')
                 .select('*')
                 .eq('id', user.id)
-                .single();
+                .maybeSingle();
 
             if (error) {
                 console.error('Error fetching user profile:', error);
@@ -60,6 +60,10 @@ export const AuthProvider = ({ children }) => {
                     name: data.display_name,
                     handle: data.username,
                     avatar: data.avatar_url || 'https://static.hey.xyz/images/brands/lens.svg',
+                    cover: data.cover_url || 'https://static.hey.xyz/images/hero.webp',
+                    website: data.website,
+                    location: data.location,
+                    bio: data.bio,
                     verified: data.is_verified
                 };
                 setCurrentUser(formattedUser);
@@ -117,15 +121,16 @@ export const AuthProvider = ({ children }) => {
                 username: updatedFields.handle,
                 avatar_url: updatedFields.avatar,
                 bio: updatedFields.bio,
-                cover_url: updatedFields.cover
+                cover_url: updatedFields.cover,
+                website: updatedFields.website,
+                location: updatedFields.location
             })
             .eq('id', currentUser.id);
 
         if (error) throw error;
 
-        const updated = { ...currentUser, ...updatedFields };
-        setCurrentUser(updated);
-        setProfiles(prev => ({ ...prev, [updated.handle]: updated }));
+        // Fetch updated profile to ensure local state is perfectly in sync
+        await fetchUserProfile(currentUser);
     };
 
     const getProfileByHandle = async (handle) => {
@@ -137,14 +142,18 @@ export const AuthProvider = ({ children }) => {
             .from('users')
             .select('*')
             .eq('username', handle)
-            .single();
+            .maybeSingle();
 
         if (data && !error) {
             const formatted = {
                 ...data,
-                name: data.display_name,
                 handle: data.username,
-                avatar: data.avatar_url,
+                name: data.display_name,
+                avatar: data.avatar_url || 'https://static.hey.xyz/images/brands/lens.svg',
+                cover: data.cover_url || 'https://static.hey.xyz/images/hero.webp',
+                website: data.website,
+                location: data.location,
+                bio: data.bio,
                 verified: data.is_verified
             };
             setProfiles(prev => ({ ...prev, [handle]: formatted }));

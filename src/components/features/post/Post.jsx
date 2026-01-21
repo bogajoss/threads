@@ -3,8 +3,6 @@ import {
     MessageCircle,
     Repeat2,
     Heart,
-    Layers,
-    CircleDollarSign,
     MoreHorizontal,
     Plus,
     MapPin,
@@ -69,9 +67,9 @@ const MediaGrid = ({ items = [] }) => {
         <div className="mt-3 space-y-2">
             {media.length > 0 && (
                 <div className={`grid gap-2 rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 ${media.length === 1 ? 'grid-cols-1' :
-                        media.length === 2 ? 'grid-cols-2 aspect-[16/9]' :
-                            media.length === 3 ? 'grid-cols-2 grid-rows-2 aspect-[16/9]' :
-                                'grid-cols-2 grid-rows-2 aspect-[16/9]'
+                    media.length === 2 ? 'grid-cols-2 aspect-[16/9]' :
+                        media.length === 3 ? 'grid-cols-2 grid-rows-2 aspect-[16/9]' :
+                            'grid-cols-2 grid-rows-2 aspect-[16/9]'
                     }`}>
                     {media.map((item, idx) => (
                         <div
@@ -146,7 +144,7 @@ const Post = ({
     isDetail,
     initialComments
 }) => {
-    const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } = usePostInteraction(stats, currentUser, showToast);
+    const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } = usePostInteraction(id, stats, currentUser, showToast);
     const [comments, setComments] = useState(initialComments || []);
     const [newComment, setNewComment] = useState("");
     const [loadingComments, setLoadingComments] = useState(false);
@@ -251,17 +249,14 @@ const Post = ({
                     <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4 flex items-center gap-x-6 text-zinc-500 dark:text-zinc-400 text-sm">
                         <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.comments || 0}</span> <span className="opacity-70">Comments</span></div>
                         <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.likes || 0}</span> <span className="opacity-70">Likes</span></div>
-                        <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.collects || 0}</span> <span className="opacity-70">Collects</span></div>
                     </div>
 
                     <div className="mt-4 flex w-full items-center justify-around py-1">
                         <ActionButton icon={MessageCircle} onClick={() => document.getElementById('comment-input')?.focus()} />
                         <ActionButton icon={Repeat2} onClick={handleRepost} active={reposted} activeColorClass="text-emerald-500" />
                         <ActionButton icon={Heart} onClick={handleLike} active={liked} activeColorClass="text-rose-500" />
-                        <ActionButton icon={Layers} />
-                        <ActionButton icon={CircleDollarSign} />
                     </div>
-                </article>
+                </article >
 
                 <CommentInput
                     currentUser={currentUser}
@@ -286,7 +281,7 @@ const Post = ({
                         ))
                     )}
                 </div>
-            </div>
+            </div >
         );
     }
 
@@ -356,8 +351,6 @@ const Post = ({
                                 onClick={handleLike}
                                 activeColorClass="text-rose-500"
                             />
-                            <ActionButton icon={Layers} count={localStats.collects} />
-                            <ActionButton icon={CircleDollarSign} />
                         </div>
                     </div>
                 </div>

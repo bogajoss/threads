@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   is_verified BOOLEAN DEFAULT FALSE,
   following_count INTEGER DEFAULT 0,
   follower_count INTEGER DEFAULT 0,
+  posts_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -45,6 +46,10 @@ CREATE TABLE IF NOT EXISTS public.posts (
   media JSONB DEFAULT '[]'::jsonb, -- Store objects like {type: 'image', src: '...'}
   poll JSONB, -- Store {options: [...], totalVotes: 0}
   quoted_post_id UUID REFERENCES public.posts(id) ON DELETE SET NULL,
+  likes_count INTEGER DEFAULT 0,
+  comments_count INTEGER DEFAULT 0,
+  mirrors_count INTEGER DEFAULT 0,
+  collects_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

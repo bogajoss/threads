@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     ArrowLeft,
     Search,
@@ -12,14 +12,10 @@ import {
 import Button from '../../ui/Button';
 import VerifiedBadge from '../../ui/VerifiedBadge';
 
-const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
-    const [isFollowing, setIsFollowing] = useState(false);
+import { useFollow } from '../../../hooks/useFollow';
 
-    const handleFollow = () => {
-        if (!currentUser) return showToast("Please login to follow!", "error");
-        setIsFollowing(!isFollowing);
-        showToast(isFollowing ? "Unfollowed" : "Followed");
-    };
+const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
+    const { isFollowing, stats, loading, handleFollow } = useFollow(profile.id, currentUser?.id, showToast);
 
     return (
         <div className="flex flex-col">
@@ -39,13 +35,18 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
                     </div>
                     <div className="flex gap-2 shrink-0">
                         {isCurrentUser ? (
-                            <Button variant="secondary" onClick={onEditProfile} className="text-sm px-5">Edit profile</Button>
+                            <Button variant="secondary" onClick={() => onEditProfile(profile)} className="text-sm px-5">Edit profile</Button>
                         ) : (
                             <>
                                 <button className="rounded-full p-2 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 dark:border-zinc-800 transition-colors"><Mail size={20} /></button>
                                 <button className="rounded-full p-2 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 dark:border-zinc-800 transition-colors"><Bell size={20} /></button>
-                                <Button variant={isFollowing ? "secondary" : "primary"} onClick={handleFollow} className="text-sm px-6">
-                                    {isFollowing ? 'Following' : 'Follow'}
+                                <Button
+                                    variant={isFollowing ? "secondary" : "primary"}
+                                    onClick={handleFollow}
+                                    className="text-sm px-6 min-w-[100px]"
+                                    disabled={loading}
+                                >
+                                    {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : (isFollowing ? 'Following' : 'Follow')}
                                 </Button>
                                 <button className="rounded-full p-2 hover:bg-zinc-100 text-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"><MoreHorizontal size={20} /></button>
                             </>
@@ -69,11 +70,20 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
 
                 <div className="whitespace-pre-line text-zinc-900 dark:text-zinc-100 leading-relaxed text-sm sm:text-[15px]">{profile.bio}</div>
 
-                {profile.website && (
+                {(profile.website || profile.location) && (
                     <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm pt-1">
-                        <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                            <LinkIcon size={14} /><a href={`https://${profile.website}`} target="_blank" rel="noreferrer" className="text-violet-600 hover:underline font-semibold text-black dark:text-white">{profile.website}</a>
-                        </div>
+                        {profile.location && (
+                            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+                                <MapPin size={14} />
+                                <span>{profile.location}</span>
+                            </div>
+                        )}
+                        {profile.website && (
+                            <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+                                <LinkIcon size={14} />
+                                <a href={`https://${profile.website}`} target="_blank" rel="noreferrer" className="text-violet-600 hover:underline font-semibold text-black dark:text-white">{profile.website}</a>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -82,8 +92,8 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
                         <button className="flex gap-x-1 hover:underline group"><span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">{profile.members}</span><span className="text-zinc-500 dark:text-zinc-400">Members</span></button>
                     ) : (
                         <>
-                            <button className="flex gap-x-1 hover:underline group"><span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">{profile.following}</span><span className="text-zinc-500 dark:text-zinc-400">Following</span></button>
-                            <button className="flex gap-x-1 hover:underline group"><span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">{profile.followers}</span><span className="text-zinc-500 dark:text-zinc-400">Followers</span></button>
+                            <button className="flex gap-x-1 hover:underline group"><span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">{stats.following}</span><span className="text-zinc-500 dark:text-zinc-400">Following</span></button>
+                            <button className="flex gap-x-1 hover:underline group"><span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">{stats.followers}</span><span className="text-zinc-500 dark:text-zinc-400">Followers</span></button>
                         </>
                     )}
                 </div>

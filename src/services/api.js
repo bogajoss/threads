@@ -54,6 +54,12 @@ export const fetchPosts = async () => {
 
     return data.map(post => ({
         ...post,
+        stats: {
+            comments: post.comments_count || 0,
+            likes: post.likes_count || 0,
+            collects: post.collects_count || 0,
+            mirrors: post.mirrors_count || 0
+        },
         user: {
             ...post.user,
             handle: post.user.username,
@@ -88,6 +94,12 @@ export const fetchPostById = async (id) => {
 
     return {
         ...data,
+        stats: {
+            comments: data.comments_count || 0,
+            likes: data.likes_count || 0,
+            collects: data.collects_count || 0,
+            mirrors: data.mirrors_count || 0
+        },
         user: {
             ...data.user,
             handle: data.user.username,
@@ -117,7 +129,10 @@ export const addPost = async ({ content, media = [], type = 'text', userId, poll
         .select();
 
     if (error) throw error;
-    return data[0];
+    return {
+        ...data[0],
+        stats: { comments: 0, likes: 0, collects: 0, mirrors: 0 }
+    };
 };
 
 /**
@@ -295,5 +310,111 @@ export const addComment = async (postId, userId, content) => {
         .select();
 
     if (error) throw error;
-    return data[0];
+    return {
+        ...data[0],
+        stats: { comments: 0, likes: 0, collects: 0, mirrors: 0 }
+    };
+};
+
+/**
+ * Toggles a like on a post.
+ */
+export const toggleLike = async (postId, userId) => {
+    // Check if already liked
+    const { data: existingLike } = await supabase
+        .from('likes')
+        .select('*')
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (existingLike) {
+        const { error } = await supabase
+            .from('likes')
+            .delete()
+            .eq('post_id', postId)
+            .eq('user_id', userId);
+        if (error) throw error;
+        return false; // Unliked
+    } else {
+        const { error } = await supabase
+            .from('likes')
+            .insert([{ post_id: postId, user_id: userId }]);
+        if (error) throw error;
+        return true; // Liked
+    }
+};
+
+/**
+ * Checks if a user has liked a post.
+ */
+export const checkIfLiked = async (postId, userId) => {
+    if (!userId) return false;
+    const { data } = await supabase
+        .from('likes')
+        .select('*')
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    return !!data;
+};
+
+/**
+ * Toggles a follow on a user.
+ */
+export const toggleFollow = async (followerId, followingId) => {
+    const { data: existingFollow } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('follower_id', followerId)
+        .eq('following_id', followingId)
+        .maybeSingle();
+
+    if (existingFollow) {
+        const { error } = await supabase
+            .from('follows')
+            .delete()
+            .eq('follower_id', followerId)
+            .eq('following_id', followingId);
+        if (error) throw error;
+        return false;
+    } else {
+        const { error } = await supabase
+            .from('follows')
+            .insert([{ follower_id: followerId, following_id: followingId }]);
+        if (error) throw error;
+        return true;
+    }
+};
+
+/**
+ * Checks if a user is following another user.
+ */
+export const checkIfFollowing = async (followerId, followingId) => {
+    if (!followerId) return false;
+    const { data } = await supabase
+        .from('follows')
+        .select('*')
+        .eq('follower_id', followerId)
+        .eq('following_id', followingId)
+        .maybeSingle();
+    return !!data;
+};
+
+/**
+ * Fetches follow stats (follower/following counts).
+ */
+export const fetchFollowStats = async (userId) => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('follower_count, following_count')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (error || !data) return { followers: 0, following: 0 };
+
+    return {
+        followers: data.follower_count || 0,
+        following: data.following_count || 0
+    };
 };

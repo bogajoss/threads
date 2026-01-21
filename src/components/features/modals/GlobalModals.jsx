@@ -26,8 +26,12 @@ const GlobalModals = ({
     const [showPoll, setShowPoll] = useState(false);
     const [pollData, setPollData] = useState({ options: ["", ""], duration: "1 day" });
     const [loading, setLoading] = useState(false);
+    const [newAvatarFile, setNewAvatarFile] = useState(null);
+    const [newCoverFile, setNewCoverFile] = useState(null);
 
     const fileInputRef = useRef(null);
+    const avatarInputRef = useRef(null);
+    const coverInputRef = useRef(null);
 
     const handleFileSelect = (e) => {
         const files = Array.from(e.target.files);
@@ -106,7 +110,27 @@ const GlobalModals = ({
     const handleUpdateProfile = async () => {
         setLoading(true);
         try {
-            await updateProfile(editProfileData);
+            let avatarUrl = editProfileData.avatar;
+            let coverUrl = editProfileData.cover;
+
+            if (newAvatarFile) {
+                const res = await uploadFile(newAvatarFile);
+                avatarUrl = res.url;
+            }
+
+            if (newCoverFile) {
+                const res = await uploadFile(newCoverFile);
+                coverUrl = res.url;
+            }
+
+            await updateProfile({
+                ...editProfileData,
+                avatar: avatarUrl,
+                cover: coverUrl
+            });
+
+            setNewAvatarFile(null);
+            setNewCoverFile(null);
             setIsEditProfileOpen(false);
             addToast("Profile updated!");
         } catch (err) {
@@ -229,23 +253,37 @@ const GlobalModals = ({
             {/* Edit Profile Modal */}
             <Modal isOpen={isEditProfileOpen} onClose={() => !loading && setIsEditProfileOpen(false)} title="Edit Profile">
                 <div className="space-y-6">
-                    <div className="relative h-32 bg-zinc-100 dark:bg-zinc-800 rounded-xl overflow-hidden group cursor-pointer">
-                        {editProfileData?.cover && <img src={editProfileData.cover} className="w-full h-full object-cover opacity-60" alt="" />}
+                    <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={(e) => e.target.files[0] && setNewCoverFile(e.target.files[0])} />
+                    <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={(e) => e.target.files[0] && setNewAvatarFile(e.target.files[0])} />
+
+                    <div
+                        className="relative h-32 bg-zinc-100 dark:bg-zinc-800 rounded-xl overflow-hidden group cursor-pointer"
+                        onClick={() => coverInputRef.current?.click()}
+                    >
+                        {(newCoverFile || editProfileData?.cover) && (
+                            <img src={newCoverFile ? URL.createObjectURL(newCoverFile) : editProfileData.cover} className="w-full h-full object-cover opacity-60" alt="" />
+                        )}
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="bg-black/50 p-2 rounded-full text-white"><Plus size={20} /></div>
+                            <div className="bg-black/50 p-2 rounded-full text-white group-hover:scale-110 transition-transform"><Plus size={20} /></div>
                         </div>
                     </div>
                     <div className="relative -mt-16 ml-4">
-                        <div className="relative size-24 rounded-full border-4 border-white dark:border-black overflow-hidden group cursor-pointer shadow-lg bg-white dark:bg-black">
-                            {editProfileData?.avatar && <img src={editProfileData.avatar} className="w-full h-full object-cover opacity-60" alt="" />}
+                        <div
+                            className="relative size-24 rounded-full border-4 border-white dark:border-black overflow-hidden group cursor-pointer shadow-lg bg-white dark:bg-black"
+                            onClick={() => avatarInputRef.current?.click()}
+                        >
+                            {(newAvatarFile || editProfileData?.avatar) && (
+                                <img src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : editProfileData.avatar} className="w-full h-full object-cover opacity-60" alt="" />
+                            )}
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="bg-black/50 p-2 rounded-full text-white"><Plus size={16} /></div>
+                                <div className="bg-black/50 p-2 rounded-full text-white group-hover:scale-110 transition-transform"><Plus size={16} /></div>
                             </div>
                         </div>
                     </div>
                     <div className="space-y-4">
                         <Input label="Name" value={editProfileData?.name || ''} onChange={(e) => setEditProfileData({ ...editProfileData, name: e.target.value })} />
                         <Input label="Bio" textarea={true} value={editProfileData?.bio || ''} onChange={(e) => setEditProfileData({ ...editProfileData, bio: e.target.value })} />
+                        <Input label="Location" value={editProfileData?.location || ''} onChange={(e) => setEditProfileData({ ...editProfileData, location: e.target.value })} />
                         <Input label="Website" value={editProfileData?.website || ''} onChange={(e) => setEditProfileData({ ...editProfileData, website: e.target.value })} />
                     </div>
                     <Button className="w-full py-3" disabled={loading} onClick={handleUpdateProfile}>

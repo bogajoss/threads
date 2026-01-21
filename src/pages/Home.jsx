@@ -71,16 +71,6 @@ const Home = ({ onStoryClick, onAddStory }) => {
                 ))}
             </div>
 
-            <div
-                className="relative h-48 sm:h-64 w-full gap-y-5 rounded-none md:rounded-xl bg-black overflow-hidden bg-cover bg-center mb-6 shadow-sm mt-4 group"
-                style={{ backgroundImage: `url("https://static.hey.xyz/images/hero.webp")` }}
-            >
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-500"></div>
-                <div className="absolute bottom-6 left-6 z-10 transition-transform duration-500 group-hover:translate-x-2">
-                    <div className="font-extrabold text-3xl sm:text-4xl text-white tracking-tight drop-shadow-lg">Welcome to Hey</div>
-                    <div className="font-bold text-zinc-200 text-lg opacity-90">a decentralized social network</div>
-                </div>
-            </div>
 
             <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen shadow-sm pb-24">
                 {homePosts.length > 0 ? (

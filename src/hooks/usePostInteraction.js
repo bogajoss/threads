@@ -1,19 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toggleLike, checkIfLiked } from '../services/api';
 
-export const usePostInteraction = (initialStats, currentUser, showToast) => {
+export const usePostInteraction = (postId, initialStats, currentUser, showToast) => {
     const [liked, setLiked] = useState(false);
     const [reposted, setReposted] = useState(false);
     const [localStats, setLocalStats] = useState(initialStats || { comments: 0, likes: 0, collects: 0, mirrors: 0 });
 
-    const handleLike = (e) => {
+    // Check if current user has liked this post
+    useEffect(() => {
+        if (currentUser && postId) {
+            checkIfLiked(postId, currentUser.id).then(setLiked);
+        }
+    }, [postId, currentUser]);
+
+    const handleLike = async (e) => {
         e && e.stopPropagation();
         if (!currentUser) return showToast("Please login to like!", "error");
-        setLiked(!liked);
-        setLocalStats(prev => ({
-            ...prev,
-            likes: liked ? prev.likes - 1 : prev.likes + 1
-        }));
-        showToast(liked ? "Unliked" : "Liked");
+
+        try {
+            const isLiked = await toggleLike(postId, currentUser.id);
+            setLiked(isLiked);
+            setLocalStats(prev => ({
+                ...prev,
+                likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1
+            }));
+            showToast(isLiked ? "Liked" : "Unliked");
+        } catch (err) {
+            console.error('Failed to toggle like:', err);
+            showToast("Failed to update like state", "error");
+        }
     };
 
     const handleRepost = (e) => {
