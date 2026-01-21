@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+    --color-brand-primary: #7c3aed;
+    --color-brand-secondary: #f59e0b;
+
+    --color-bg-light: #ffffff;
+    --color-bg-dark: #000000;
+
+    --color-text-primary-light: #18181b;
+    --color-text-primary-dark: #f4f4f5;
+
+    --color-border-light: #f4f4f5;
+    --color-border-dark: #27272a;
+}
+
+@layer base {
+    :root {
+        --background: #ffffff;
+        --foreground: #09090b;
+        --card: #ffffff;
+        --card-foreground: #09090b;
+        --border: #e4e4e7;
+        --input: #e4e4e7;
+        --ring: #7c3aed;
+    }
+
+    .dark {
+        --background: #000000;
+        --foreground: #fafafa;
+        --card: #000000;
+        --card-foreground: #fafafa;
+        --border: #27272a;
+        --input: #27272a;
+        --ring: #7c3aed;
+    }
+
+    * {
+        @apply border-[--border];
+    }
+
+    body {
+        @apply bg-[--background] text-[--foreground] transition-colors duration-200;
+        background-color: var(--background);
+        color: var(--foreground);
+    }
+}
+
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
+/* Ensure Tailwind v4 knows about our dark class */
+@custom-variant dark (&:where(.dark, .dark *));

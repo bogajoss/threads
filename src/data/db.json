@@ -1,0 +1,468 @@
+{
+    "currentUser": {
+        "name": "Demo User",
+        "handle": "demouser",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "cover": "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "bio": "Just exploring the decentralized web.\nBuilding cool things.",
+        "following": "42",
+        "followers": "10",
+        "website": "demo.xyz",
+        "isCurrentUser": true,
+        "verified": true
+    },
+    "profiles": {
+        "kolin": {
+            "name": "Kolin Din",
+            "handle": "kolin",
+            "avatar": "https://ik.imagekit.io/lens/tr:w-350,h-350/4a67baab97a63fee1b583385e0ae02e87322f415a67e3d6d771edf9fec7cb8d1_aodohgJQ6.webp",
+            "cover": "https://ik.imagekit.io/lens/tr:w-1350,h-350/be11e5e13134f50396c2ce7099922812a611ed00b95d9cf5e461a1aa88d04663_QZK383PW8.webp",
+            "bio": "Minimalism is the key. It's still photography.\nkolindin.eth",
+            "following": "226",
+            "followers": "18,968",
+            "website": "art.kolindin.com",
+            "verified": true
+        },
+        "ogunkizmaz": {
+            "name": "I'mOK",
+            "handle": "ogunkizmaz",
+            "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/292e4b889c83e5b2673076e1d9137c160d5bd2620ada3d4fc83b25f873e6bb26_OXKlfU-fMx.jpeg",
+            "cover": "https://static.hey.xyz/images/hero.webp",
+            "bio": "Painter, tattooist, muralist, digital 2d, 3d artist, web3 addict.",
+            "following": "1.2K",
+            "followers": "5.4K",
+            "website": "hey.xyz",
+            "verified": true
+        },
+        "tereth": {
+            "name": "Tereth",
+            "handle": "tereth",
+            "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/03174b40d9659f54dfc2c5e0d966eb589dcb9b9189fcdeb5fd7070e6fbcee470_iYnoFCROu.png",
+            "cover": "https://static.hey.xyz/images/hero.webp",
+            "bio": "Web3 enthusiast and explorer.",
+            "following": "300",
+            "followers": "1.5K",
+            "website": "lens.xyz/tereth",
+            "verified": true
+        },
+        "sunshinevendetta": {
+            "name": "Sunshine",
+            "handle": "sunshinevendetta",
+            "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/3151b50e5ab1743d9dd9de476072af90b615da6ac9dcf15d7b9531ff64ba4e6c_y4E0LWW--.webp",
+            "cover": "https://static.hey.xyz/images/hero.webp",
+            "bio": "Lens Creator. Building cool stuff.",
+            "following": "50",
+            "followers": "500",
+            "verified": true
+        },
+        "nzhouses": {
+            "name": "NZ Houses",
+            "handle": "nzhouses",
+            "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/b29bc731a9b0134fdd142c13d5a0ca8dec4fe1ff76c2aa61753dfcf5e870853f_lSPVVK37H.webp",
+            "cover": "https://static.hey.xyz/images/hero.webp",
+            "bio": "Showcasing NZ architecture",
+            "following": "10",
+            "followers": "2K"
+        },
+        "ArchitectureDesign": {
+            "type": "community",
+            "name": "ArchitectureDesign",
+            "handle": "ArchitectureDesign",
+            "avatar": "https://api.grove.storage/c8c829130b1bd660b7489a813e4254054df983a2eeaeedf74c1b43a0bfcdcca6",
+            "cover": "https://api.grove.storage/e92983306252d2fabd90e490c1608979b66f7da29f461235c8c97627b2427f61",
+            "bio": "Exploring the beauty in Architecture + Design from around the globe ~",
+            "members": "164",
+            "verified": true
+        },
+        "demouser": {
+            "name": "Demo User",
+            "handle": "demouser",
+            "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+            "cover": "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+            "bio": "Just exploring the decentralized web.\nBuilding cool things.",
+            "following": "42",
+            "followers": "10",
+            "website": "demo.xyz",
+            "isCurrentUser": true,
+            "verified": true
+        }
+    },
+    "posts": [
+        {
+            "id": "h1",
+            "type": "text",
+            "userHandle": "sunshinevendetta",
+            "timeAgo": "1d",
+            "content": "💠",
+            "contentClass": "text-2xl",
+            "media": {
+                "type": "video",
+                "poster": "https://ik.imagekit.io/lens/b550a05214325a2c03e0e145502375f6ba2934137cd2ee1fc7d6869a62380cc4_CEkJ1-VSu.jpeg",
+                "duration": "0:15"
+            },
+            "stats": {
+                "comments": 5,
+                "likes": 40,
+                "collects": 2,
+                "tips": 1,
+                "mirrors": 4
+            },
+            "timestamp": "10:00 AM · Jan 19, 2026",
+            "category": "video"
+        },
+        {
+            "id": "p_poll_1",
+            "type": "poll",
+            "userHandle": "kolin",
+            "timeAgo": "1h",
+            "content": "What is your favorite frontend framework?",
+            "contentClass": "text-lg font-medium mb-2",
+            "poll": {
+                "options": [
+                    {
+                        "id": 1,
+                        "text": "React",
+                        "votes": 45
+                    },
+                    {
+                        "id": 2,
+                        "text": "Vue",
+                        "votes": 20
+                    },
+                    {
+                        "id": 3,
+                        "text": "Svelte",
+                        "votes": 15
+                    },
+                    {
+                        "id": 4,
+                        "text": "Angular",
+                        "votes": 10
+                    }
+                ],
+                "totalVotes": 90
+            },
+            "stats": {
+                "comments": 12,
+                "likes": 85,
+                "collects": 5,
+                "tips": 2,
+                "mirrors": 3
+            },
+            "timestamp": "9:00 AM · Jan 21, 2026",
+            "category": "text"
+        },
+        {
+            "id": "h2",
+            "type": "text",
+            "userHandle": "tereth",
+            "timeAgo": "2d",
+            "content": "Great post from @inferenco on how they are using @pond3r to get their own Web3 Intel 🔥🔥",
+            "quotedPost": {
+                "user": {
+                    "handle": "inferenco",
+                    "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/d428fc9beb7d8d4b434f03a25865836c3df8a0d8a61589a2816cbd08317d419c_iDySmGR2Z.webp"
+                },
+                "time": "2d",
+                "content": "Automated Crypto Intelligence Reports: Your AI-Powered Market Analyst - fountain.ink/p/inferenco/auto...",
+                "link": "fountain.ink/p/inferenco/auto..."
+            },
+            "stats": {
+                "comments": 2,
+                "likes": 17,
+                "collects": 1,
+                "tips": 1,
+                "mirrors": 8
+            },
+            "timestamp": "4:20 PM · Jan 18, 2026",
+            "category": "text"
+        },
+        {
+            "id": "e1",
+            "type": "repost",
+            "repostedBy": {
+                "name": "Kolin Din",
+                "handle": "kolin"
+            },
+            "userHandle": "nzhouses",
+            "timeAgo": "Jan 13",
+            "content": "27 Nugent Street\n📸 2024, Auckland\nart.kolindin.com/27-nugent-st...",
+            "media": {
+                "type": "image",
+                "src": "https://ik.imagekit.io/lens/tr:w-1000/6d06a47e1042365b20fbed23f6d462a696b7dfde4f52d2597040c1c660cb5939_ZNihGyWE8.jpeg"
+            },
+            "stats": {
+                "comments": 2,
+                "likes": 35,
+                "collects": 0,
+                "tips": 1,
+                "mirrors": 0
+            },
+            "timestamp": "1:00 AM · Jan 20, 2026",
+            "category": "images"
+        },
+        {
+            "id": "e2",
+            "type": "image",
+            "userHandle": "kolin",
+            "timeAgo": "6h",
+            "content": "Facing incomprehensible.\n📷 2022",
+            "media": {
+                "type": "image",
+                "src": "https://ik.imagekit.io/lens/tr:w-1000/9f44178f7517e026ef69ef4294060209be75560eda610b0b1257c1af66f9ff5d_zCIEf-sum.jpeg"
+            },
+            "stats": {
+                "comments": 2,
+                "likes": 35,
+                "collects": 5,
+                "tips": 1,
+                "mirrors": 3
+            },
+            "timestamp": "4:00 AM · Jan 20, 2026",
+            "category": "images"
+        },
+        {
+            "id": "e4",
+            "type": "image",
+            "userHandle": "ogunkizmaz",
+            "timeAgo": "2d",
+            "content": "gM!☀️",
+            "media": {
+                "type": "image",
+                "src": "https://ik.imagekit.io/lens/tr:w-1000/1bc475132a2c09576840b15a4ff0985a4098d8406080d7baf29c062368b168d4_27BORIvbR.jpeg"
+            },
+            "stats": {
+                "comments": 9,
+                "likes": 71,
+                "collects": 12,
+                "tips": 1,
+                "mirrors": 10
+            },
+            "timestamp": "2:34 PM · Jan 18, 2026 · Edited · Orb",
+            "category": "images"
+        },
+        {
+            "id": "d1",
+            "type": "text",
+            "userHandle": "demouser",
+            "timeAgo": "Just now",
+            "content": "Hello Hey.xyz! Excited to be here.",
+            "stats": {
+                "comments": 0,
+                "likes": 0,
+                "collects": 0,
+                "tips": 0,
+                "mirrors": 0
+            },
+            "timestamp": "Now",
+            "category": "text"
+        }
+    ],
+    "reels": [
+        {
+            "id": "r1",
+            "url": "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1188-large.mp4",
+            "userHandle": "kolin",
+            "caption": "Nature vibes 🌿 #nature #calm",
+            "song": "Original Audio - kolin",
+            "stats": {
+                "likes": 1200,
+                "comments": 45,
+                "shares": 12
+            }
+        },
+        {
+            "id": "r2",
+            "url": "https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4",
+            "userHandle": "ogunkizmaz",
+            "caption": "Ocean waves 🌊 #sea #relax",
+            "song": "Ocean Sounds - Nature",
+            "stats": {
+                "likes": 850,
+                "comments": 20,
+                "shares": 5
+            }
+        }
+    ],
+    "notifications": [
+        {
+            "id": 1,
+            "type": "like",
+            "user": "kolin",
+            "text": "liked your post",
+            "time": "2m"
+        },
+        {
+            "id": 2,
+            "type": "follow",
+            "user": "ogunkizmaz",
+            "text": "followed you",
+            "time": "1h"
+        },
+        {
+            "id": 3,
+            "type": "mention",
+            "user": "tereth",
+            "text": "mentioned you in a post",
+            "time": "3h"
+        },
+        {
+            "id": 4,
+            "type": "collect",
+            "user": "sunshinevendetta",
+            "text": "collected your post",
+            "time": "5h"
+        }
+    ],
+    "conversations": [
+        {
+            "id": "c1",
+            "userHandle": "kolin",
+            "lastMessage": "Hey, loved your photo!",
+            "time": "2m",
+            "unread": 2
+        },
+        {
+            "id": "c2",
+            "userHandle": "tereth",
+            "lastMessage": "Did you see the news?",
+            "time": "1h",
+            "unread": 0
+        },
+        {
+            "id": "c3",
+            "userHandle": "ogunkizmaz",
+            "lastMessage": "Thanks for the follow!",
+            "time": "5h",
+            "unread": 0
+        }
+    ],
+    "chats": {
+        "c1": [
+            {
+                "id": 1,
+                "sender": "them",
+                "text": "Hi! How are you?",
+                "time": "10:00 AM"
+            },
+            {
+                "id": 2,
+                "sender": "me",
+                "text": "I'm good, thanks! Just posted some new photos.",
+                "time": "10:05 AM"
+            },
+            {
+                "id": 3,
+                "sender": "them",
+                "text": "Hey, loved your photo!",
+                "time": "10:06 AM"
+            }
+        ],
+        "c2": [
+            {
+                "id": 1,
+                "sender": "me",
+                "text": "Hey Tereth!",
+                "time": "9:00 AM"
+            },
+            {
+                "id": 2,
+                "sender": "them",
+                "text": "Did you see the news?",
+                "time": "9:30 AM"
+            }
+        ],
+        "c3": [
+            {
+                "id": 1,
+                "sender": "them",
+                "text": "Thanks for the follow!",
+                "time": "5:00 AM"
+            }
+        ]
+    },
+    "mockComments": [
+        {
+            "id": "c1",
+            "user": {
+                "handle": "serjant_ens",
+                "avatar": "https://gw.ipfs-lens.dev/ipfs/bafybeieeyjkiwnsyo37gafyx7ntpl5nbmzptmckjrbexdkenthlx6d7lhy",
+                "context": {
+                    "name": "orb",
+                    "icon": "https://api.grove.storage/296fa244ab7ee9a223efd877acc4689946d86afe1176f5306bc42317586e9429"
+                }
+            },
+            "timeAgo": "27m",
+            "content": "hours making a door for",
+            "stats": {
+                "comments": null,
+                "likes": 2,
+                "collects": null,
+                "showCollect": false,
+                "mirrors": 0
+            }
+        },
+        {
+            "id": "c2",
+            "user": {
+                "handle": "orbbro",
+                "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/3d2e90873a33154147e9477caa0108fbbb10a6ffb84ea3008fefce262f90b71d_yWFmGbu6t.jpeg",
+                "context": {
+                    "name": "orb",
+                    "icon": "https://api.grove.storage/296fa244ab7ee9a223efd877acc4689946d86afe1176f5306bc42317586e9429"
+                }
+            },
+            "timeAgo": "2d",
+            "content": "gM champ",
+            "stats": {
+                "comments": null,
+                "likes": 1,
+                "collects": null,
+                "showCollect": false,
+                "mirrors": 0
+            }
+        }
+    ],
+    "trendingTopics": [
+        {
+            "tag": "Lens",
+            "posts": "52.4K"
+        },
+        {
+            "tag": "Web3",
+            "posts": "12.1K"
+        },
+        {
+            "tag": "Art",
+            "posts": "9.8K"
+        },
+        {
+            "tag": "Photography",
+            "posts": "5.2K"
+        },
+        {
+            "tag": "Tech",
+            "posts": "3.4K"
+        }
+    ],
+    "stories": [
+        {
+            "id": "s1",
+            "user": {
+                "handle": "kolin",
+                "avatar": "https://ik.imagekit.io/lens/tr:w-350,h-350/4a67baab97a63fee1b583385e0ae02e87322f415a67e3d6d771edf9fec7cb8d1_aodohgJQ6.webp"
+            },
+            "media": "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200",
+            "type": "image"
+        },
+        {
+            "id": "s2",
+            "user": {
+                "handle": "ogunkizmaz",
+                "avatar": "https://ik.imagekit.io/lens/tr:w-100,h-100/292e4b889c83e5b2673076e1d9137c160d5bd2620ada3d4fc83b25f873e6bb26_OXKlfU-fMx.jpeg"
+            },
+            "media": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800",
+            "type": "image"
+        }
+    ]
+}
