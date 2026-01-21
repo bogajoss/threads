@@ -16,7 +16,7 @@ const SidebarLeft = () => {
     ];
 
     return (
-        <aside className="sticky top-0 flex h-screen w-[68px] flex-col items-center py-5 border-r border-zinc-100 dark:border-zinc-800 shrink-0 bg-white dark:bg-black transition-colors duration-200">
+        <aside className="sticky top-0 hidden md:flex h-screen w-[68px] flex-col items-center py-5 border-r border-zinc-100 dark:border-zinc-800 shrink-0 bg-white dark:bg-black transition-colors duration-200">
             <Link to="/" className="mb-8 hover:scale-110 transition-transform">
                 <img src="https://static.hey.xyz/images/app-icon/0.png" alt="Logo" className="size-8" />
             </Link>
