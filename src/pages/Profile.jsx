@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Search } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ArrowLeft, Search, Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProfileHeader from '../components/features/profile/ProfileHeader';
 import Post from '../components/features/post/Post';
@@ -10,22 +10,26 @@ import { useToast } from '../context/ToastContext';
 const Profile = ({ onEditProfile }) => {
     const { handle } = useParams();
     const navigate = useNavigate();
-    const { profiles, currentUser } = useAuth();
+    const { profiles, currentUser, getProfileByHandle } = useAuth();
     const { getUserPosts } = usePosts();
     const { addToast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('Feed');
+    const [loading, setLoading] = useState(!profiles[handle]);
+    const [profile, setProfile] = useState(profiles[handle]);
 
-    const profile = useMemo(() => {
-        return profiles[handle] || {
-            name: handle,
-            handle: handle,
-            avatar: 'https://static.hey.xyz/images/brands/lens.svg',
-            cover: 'https://static.hey.xyz/images/hero.webp',
-            bio: 'Lens Profile',
-            following: '0',
-            followers: '0',
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!profiles[handle]) {
+                setLoading(true);
+                const fetched = await getProfileByHandle(handle);
+                setProfile(fetched);
+                setLoading(false);
+            } else {
+                setProfile(profiles[handle]);
+            }
         };
-    }, [handle, profiles]);
+        fetchProfile();
+    }, [handle, profiles, getProfileByHandle]);
 
     const posts = useMemo(() => getUserPosts(handle, activeProfileTab.toLowerCase()), [handle, activeProfileTab, getUserPosts]);
 
@@ -38,6 +42,24 @@ const Profile = ({ onEditProfile }) => {
         navigate(`/u/${targetHandle}`);
     };
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 size={40} className="animate-spin text-violet-500" />
+            </div>
+        );
+    }
+
+    const displayProfile = profile || {
+        name: handle,
+        handle: handle,
+        avatar: 'https://static.hey.xyz/images/brands/lens.svg',
+        cover: 'https://static.hey.xyz/images/hero.webp',
+        bio: 'Profile not found',
+        following: '0',
+        followers: '0',
+    };
+
     return (
         <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20">
             <div className="border-y md:border-b-0 border-zinc-100 dark:border-zinc-800">
@@ -45,15 +67,15 @@ const Profile = ({ onEditProfile }) => {
                     <div className="flex items-center gap-x-4">
                         <button onClick={() => navigate(-1)} className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:text-white transition-colors"><ArrowLeft size={22} /></button>
                         <div className="flex flex-col">
-                            <h5 className="text-lg font-bold dark:text-white leading-none">{profile.name}</h5>
+                            <h5 className="text-lg font-bold dark:text-white leading-none">{displayProfile.name}</h5>
                             <span className="text-xs text-zinc-500 mt-0.5">{posts ? posts.length : 0} Posts</span>
                         </div>
                     </div>
                 </div>
                 <ProfileHeader
-                    profile={profile}
+                    profile={displayProfile}
                     currentUser={currentUser}
-                    isCurrentUser={currentUser?.handle === profile.handle}
+                    isCurrentUser={currentUser?.handle === displayProfile.handle}
                     onEditProfile={onEditProfile}
                     showToast={addToast}
                 />

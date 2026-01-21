@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     MessageCircle,
     Repeat2,
@@ -7,7 +7,8 @@ import {
     CircleDollarSign,
     MoreHorizontal,
     Plus,
-    MapPin
+    MapPin,
+    Loader2
 } from 'lucide-react';
 import Button from '../../ui/Button';
 import VerifiedBadge from '../../ui/VerifiedBadge';
@@ -16,6 +17,8 @@ import ImageAttachment from './ImageAttachment';
 import PollDisplay from './PollDisplay';
 import QuotedPost from './QuotedPost';
 import { usePostInteraction } from '../../../hooks/usePostInteraction';
+import { fetchCommentsByPostId, addComment } from '../../../services/api';
+import { supabase } from '../../../lib/supabase';
 
 const ActionButton = ({ icon, count, onClick, active, activeColorClass = "text-violet-600" }) => {
     const Icon = icon;
@@ -32,7 +35,7 @@ const ActionButton = ({ icon, count, onClick, active, activeColorClass = "text-v
     );
 };
 
-const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComment }) => (
+const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComment, loading }) => (
     currentUser ? (
         <div className="p-4 border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/10">
             <div className="flex gap-3">
@@ -50,7 +53,9 @@ const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComm
                             <button className="text-violet-600 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full p-2"><Plus size={20} /></button>
                             <button className="text-violet-600 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full p-2"><MapPin size={20} /></button>
                         </div>
-                        <Button className="!w-auto px-5 py-1.5 text-sm font-bold" onClick={handleSubmitComment} disabled={!newComment.trim()}>Reply</Button>
+                        <Button className="!w-auto px-5 py-1.5 text-sm font-bold min-w-[70px]" onClick={handleSubmitComment} disabled={!newComment.trim() || loading}>
+                            {loading ? <Loader2 size={16} className="animate-spin text-white mx-auto" /> : "Reply"}
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -63,6 +68,7 @@ const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComm
 );
 
 const Post = ({
+    id,
     user,
     timeAgo,
     content,
@@ -82,10 +88,55 @@ const Post = ({
     const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } = usePostInteraction(stats, currentUser, showToast);
     const [comments, setComments] = useState(initialComments || []);
     const [newComment, setNewComment] = useState("");
+    const [loadingComments, setLoadingComments] = useState(false);
+    const [submittingComment, setSubmittingComment] = useState(false);
+
+    const loadComments = useCallback(async () => {
+        if (!id) return;
+        setLoadingComments(true);
+        try {
+            const data = await fetchCommentsByPostId(id);
+            setComments(data);
+        } catch (err) {
+            console.error('Failed to load comments:', err);
+        } finally {
+            setLoadingComments(false);
+        }
+    }, [id]);
+
+    // Fetch comments if in detail mode
+    useEffect(() => {
+        if (isDetail && id) {
+            loadComments();
+
+            // Realtime subscription for new comments
+            const channel = supabase
+                .channel(`comments:${id}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'posts',
+                    filter: `parent_id=eq.${id}`
+                }, () => {
+                    loadComments();
+                })
+                .subscribe();
+
+            return () => supabase.removeChannel(channel);
+        }
+    }, [isDetail, id, loadComments]);
 
     const renderMedia = (m) => {
         if (!m) return null;
         if (React.isValidElement(m)) return m;
+        // Supabase media is JSONB
+        if (Array.isArray(m)) {
+            return m.map((item, idx) => (
+                <div key={idx} className="mt-3">
+                    {item.type === 'video' ? <VideoPlayer poster={item.poster} duration={item.duration} /> : <ImageAttachment src={item.src} />}
+                </div>
+            ));
+        }
         if (m.type === 'video') return <VideoPlayer poster={m.poster} duration={m.duration} />;
         if (m.type === 'image') return <ImageAttachment src={m.src} />;
         return null;
@@ -104,25 +155,23 @@ const Post = ({
         return <QuotedPost {...q} />;
     };
 
-    const handleSubmitComment = (e) => {
+    const handleSubmitComment = async (e) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || !currentUser) return;
 
-        const commentObj = {
-            id: Date.now().toString(),
-            user: {
-                ...currentUser,
-                verified: currentUser.verified
-            },
-            timeAgo: 'Just now',
-            content: newComment,
-            stats: { comments: 0, likes: 0, collects: 0 },
-        };
-
-        setComments([commentObj, ...comments]);
-        setNewComment("");
-        setLocalStats(prev => ({ ...prev, comments: (prev.comments || 0) + 1 }));
-        if (showToast) showToast("Reply posted!");
+        setSubmittingComment(true);
+        try {
+            await addComment(id, currentUser.id, newComment);
+            setNewComment("");
+            setLocalStats(prev => ({ ...prev, comments: (prev.comments || 0) + 1 }));
+            if (showToast) showToast("Reply posted!");
+            loadComments();
+        } catch (err) {
+            console.error('Failed to post comment:', err);
+            if (showToast) showToast("Failed to post reply.");
+        } finally {
+            setSubmittingComment(false);
+        }
     };
 
     if (isDetail) {
@@ -176,18 +225,23 @@ const Post = ({
                     newComment={newComment}
                     setNewComment={setNewComment}
                     handleSubmitComment={handleSubmitComment}
+                    loading={submittingComment}
                 />
 
                 <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                    {comments.map(c => (
-                        <Post
-                            key={c.id}
-                            {...c}
-                            onUserClick={onUserClick}
-                            currentUser={currentUser}
-                            showToast={showToast}
-                        />
-                    ))}
+                    {loadingComments ? (
+                        <div className="p-8 flex justify-center"><Loader2 className="animate-spin text-violet-500" /></div>
+                    ) : (
+                        comments.map(c => (
+                            <Post
+                                key={c.id}
+                                {...c}
+                                onUserClick={onUserClick}
+                                currentUser={currentUser}
+                                showToast={showToast}
+                            />
+                        ))
+                    )}
                 </div>
             </div>
         );

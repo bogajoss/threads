@@ -1,19 +1,62 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState } from 'react';
-import db from '../data/db.json';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { fetchPosts } from '../services/api';
 
 const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
-    const [posts, setPosts] = useState(() =>
-        db.posts.map(p => ({
-            ...p,
-            user: db.profiles[p.userHandle]
-        }))
-    );
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const addPost = (newPost) => {
-        setPosts(prev => [newPost, ...prev]);
+    // Initial load from Supabase
+    useEffect(() => {
+        loadPosts();
+
+        // Optional: Realtime subscription
+        const channel = supabase
+            .channel('public:posts')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+                loadPosts();
+            })
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
+    }, []);
+
+    const loadPosts = async () => {
+        try {
+            const data = await fetchPosts();
+            setPosts(data);
+        } catch (err) {
+            console.error('Failed to load posts:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const addPost = async (content, media = [], type = 'text', userId) => {
+        if (!userId) return;
+
+        const { data, error } = await supabase
+            .from('posts')
+            .insert([
+                {
+                    user_id: userId,
+                    content,
+                    media,
+                    type,
+                    created_at: new Date().toISOString()
+                }
+            ])
+            .select();
+
+        if (error) throw error;
+
+        // The list will update automatically if realtime is on, 
+        // but we can manually reload or append for speed.
+        loadPosts();
+        return data[0];
     };
 
     const getPostById = (id) => posts.find(p => p.id === id);
@@ -25,17 +68,12 @@ export const PostProvider = ({ children }) => {
             return false;
         });
 
-        // Add mock posts from profile data if exists
-        const profileData = db.profiles[handle];
-        if (profileData && profileData.posts) {
-            userPosts = [...userPosts, ...profileData.posts];
-        }
-
         if (filter === 'media') {
-            return userPosts.filter(p => p.category === 'video' || p.category === 'images' || p.media);
+            return userPosts.filter(p => p.category === 'video' || p.category === 'images' || p.media?.length > 0);
         }
         if (filter === 'replies') {
-            return userPosts.filter(p => p.content && p.content.length < 50);
+            // In a real app, we'd check if post has a parent_id
+            return userPosts.filter(p => p.parent_id !== null);
         }
 
         return userPosts;
@@ -47,7 +85,9 @@ export const PostProvider = ({ children }) => {
             setPosts,
             addPost,
             getPostById,
-            getUserPosts
+            getUserPosts,
+            loading,
+            refreshPosts: loadPosts
         }}>
             {children}
         </PostContext.Provider>

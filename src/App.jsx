@@ -24,7 +24,6 @@ import Profile from './pages/Profile';
 import PostDetails from './pages/PostDetails';
 
 import { Plus } from 'lucide-react';
-import db from './data/db.json';
 
 // --- Utils ---
 const ScrollToTop = () => {
@@ -70,7 +69,7 @@ export default function HeyClone() {
           <Route path="/" element={<Home onStoryClick={setViewingStory} onAddStory={() => addToast("Add story feature coming soon!")} />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/reels" element={<Reels reels={db.reels.map(r => ({ ...r, user: db.profiles[r.userHandle] }))} />} />
+          <Route path="/reels" element={<Reels />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/post/:id" element={<PostDetails />} />
@@ -93,13 +92,14 @@ export default function HeyClone() {
         <StoryViewer story={viewingStory} onClose={() => setViewingStory(null)} />
       )}
 
-      {/* Floating Action Button (Mobile Only) */}
+      {/* Floating Action Button */}
       {currentUser && !['/messages', '/reels'].includes(location.pathname) && (
         <button
           onClick={() => setIsPostModalOpen(true)}
-          className="fixed bottom-20 right-5 z-40 bg-zinc-900 dark:bg-white text-white dark:text-black size-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform md:hidden"
+          className="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-14 md:size-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
+          title="Create Post"
         >
-          <Plus size={28} />
+          <Plus size={32} className="group-hover:rotate-90 transition-transform duration-300" />
         </button>
       )}
     </>

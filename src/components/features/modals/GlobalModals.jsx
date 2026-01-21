@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
-import { Plus, MapPin } from 'lucide-react';
+import { Plus, MapPin, Loader2 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { usePosts } from '../../../context/PostContext';
 import { useToast } from '../../../context/ToastContext';
@@ -19,26 +19,38 @@ const GlobalModals = ({
     const { addPost } = usePosts();
     const { addToast } = useToast();
     const [postContent, setPostContent] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleCreatePost = (e) => {
+    const handleCreatePost = async (e) => {
         e.preventDefault();
-        if (!postContent.trim()) return;
+        if (!postContent.trim() || !currentUser) return;
 
-        const newPost = {
-            id: `new_${Date.now()}`,
-            type: 'text',
-            user: currentUser,
-            timeAgo: 'Just now',
-            content: postContent,
-            stats: { comments: 0, likes: 0, collects: 0, mirrors: 0 },
-            timestamp: "Just now",
-            category: 'text'
-        };
+        setLoading(true);
+        try {
+            await addPost(postContent, [], 'text', currentUser.id);
+            setPostContent("");
+            setIsPostModalOpen(false);
+            addToast("Post published!");
+        } catch (err) {
+            console.error('Failed to create post:', err);
+            addToast("Failed to publish post.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        addPost(newPost);
-        setPostContent("");
-        setIsPostModalOpen(false);
-        addToast("Post published!");
+    const handleUpdateProfile = async () => {
+        setLoading(true);
+        try {
+            await updateProfile(editProfileData);
+            setIsEditProfileOpen(false);
+            addToast("Profile updated!");
+        } catch (err) {
+            console.error('Failed to update profile:', err);
+            addToast("Failed to update profile.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -61,7 +73,9 @@ const GlobalModals = ({
                             <button type="button" className="p-2 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full transition-colors"><Plus size={22} /></button>
                             <button type="button" className="p-2 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full transition-colors"><MapPin size={22} /></button>
                         </div>
-                        <Button type="submit" disabled={!postContent.trim()} className="px-6 py-2">Post</Button>
+                        <Button type="submit" disabled={!postContent.trim() || loading} className="px-6 py-2 min-w-[80px]">
+                            {loading ? <Loader2 size={18} className="animate-spin text-white" /> : "Post"}
+                        </Button>
                     </div>
                 </form>
             </Modal>
@@ -88,7 +102,9 @@ const GlobalModals = ({
                         <Input label="Bio" textarea={true} value={editProfileData?.bio || ''} onChange={(e) => setEditProfileData({ ...editProfileData, bio: e.target.value })} />
                         <Input label="Website" value={editProfileData?.website || ''} onChange={(e) => setEditProfileData({ ...editProfileData, website: e.target.value })} />
                     </div>
-                    <Button className="w-full py-3" onClick={() => { updateProfile(editProfileData); setIsEditProfileOpen(false); addToast("Profile updated!"); }}>Save changes</Button>
+                    <Button className="w-full py-3" disabled={loading} onClick={handleUpdateProfile}>
+                        {loading ? <Loader2 size={24} className="animate-spin text-white mx-auto" /> : "Save changes"}
+                    </Button>
                 </div>
             </Modal>
         </>

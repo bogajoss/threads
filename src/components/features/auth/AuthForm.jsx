@@ -1,19 +1,43 @@
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
+import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 
 const AuthForm = ({ type, onComplete, onSwitch }) => {
+    const { login, signup } = useAuth();
+    const { addToast } = useToast();
     const [formData, setFormData] = useState({ name: '', email: '', username: '', password: '' });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
+        setError(null);
+
+        try {
+            if (type === 'login') {
+                await login({ email: formData.email, password: formData.password });
+                addToast("Welcome back!");
+            } else {
+                await signup({
+                    email: formData.email,
+                    password: formData.password,
+                    username: formData.username,
+                    name: formData.name
+                });
+                addToast("Account created successfully!");
+            }
+            onComplete();
+        } catch (err) {
+            console.error('Auth error:', err);
+            setError(err.message || "Authentication failed. Please check your credentials.");
+            addToast("Authentication failed!");
+        } finally {
             setLoading(false);
-            onComplete(formData);
-        }, 1000);
+        }
     };
 
     return (
@@ -28,7 +52,23 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
                 <p className="text-zinc-500 font-medium">The decentralized social network</p>
             </div>
 
+            {error && (
+                <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-xl flex items-center gap-3 text-rose-600 dark:text-rose-400 text-sm">
+                    <AlertCircle size={18} />
+                    <span>{error}</span>
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                    label="Email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                />
+
                 {type === 'signup' && (
                     <>
                         <Input
@@ -39,22 +79,15 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
                             required
                         />
                         <Input
-                            label="Email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            label="Username"
+                            placeholder="johndoe"
+                            value={formData.username}
+                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                             required
                         />
                     </>
                 )}
-                <Input
-                    label="Username"
-                    placeholder="johndoe"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    required
-                />
+
                 <Input
                     label="Password"
                     type="password"
