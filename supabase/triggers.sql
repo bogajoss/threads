@@ -4,14 +4,12 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.users (id, email, username, display_name, avatar_url, is_verified)
+  INSERT INTO public.users (id, email, username, display_name)
   VALUES (
     new.id,
     new.email,
-    SPLIT_PART(new.email, '@', 1), -- Default username from email
-    SPLIT_PART(new.email, '@', 1), -- Default display name from email
-    'https://static.hey.xyz/images/brands/lens.svg',
-    false
+    COALESCE(new.raw_user_meta_data->>'username', SPLIT_PART(new.email, '@', 1)),
+    COALESCE(new.raw_user_meta_data->>'name', SPLIT_PART(new.email, '@', 1))
   );
   RETURN new;
 END;

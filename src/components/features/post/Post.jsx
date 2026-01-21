@@ -8,7 +8,9 @@ import {
     MoreHorizontal,
     Plus,
     MapPin,
-    Loader2
+    Loader2,
+    FileText,
+    Download
 } from 'lucide-react';
 import Button from '../../ui/Button';
 import VerifiedBadge from '../../ui/VerifiedBadge';
@@ -32,6 +34,65 @@ const ActionButton = ({ icon, count, onClick, active, activeColorClass = "text-v
             </div>
             {count !== undefined && count !== null && <span className={active ? 'font-bold' : ''}>{count || 0}</span>}
         </button>
+    );
+};
+
+const FileCard = ({ file }) => (
+    <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/10 group hover:border-violet-500/30 transition-colors">
+        <div className="size-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
+            <FileText size={20} />
+        </div>
+        <div className="flex-1 min-w-0">
+            <div className="text-sm font-bold truncate dark:text-white">{file.name}</div>
+            <div className="text-xs text-zinc-500 uppercase">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+        </div>
+        <a
+            href={file.url}
+            download={file.name}
+            className="p-2 text-zinc-400 hover:text-violet-600 transition-colors"
+            onClick={(e) => e.stopPropagation()}
+        >
+            <Download size={18} />
+        </a>
+    </div>
+);
+
+const MediaGrid = ({ items = [] }) => {
+    if (!items || items.length === 0) return null;
+
+    // items can be a single object from old schema or array from new
+    const normalizedItems = Array.isArray(items) ? items : [items];
+    const media = normalizedItems.filter(i => i.type === 'image' || i.type === 'video');
+    const files = normalizedItems.filter(i => i.type === 'file');
+
+    return (
+        <div className="mt-3 space-y-2">
+            {media.length > 0 && (
+                <div className={`grid gap-2 rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 ${media.length === 1 ? 'grid-cols-1' :
+                        media.length === 2 ? 'grid-cols-2 aspect-[16/9]' :
+                            media.length === 3 ? 'grid-cols-2 grid-rows-2 aspect-[16/9]' :
+                                'grid-cols-2 grid-rows-2 aspect-[16/9]'
+                    }`}>
+                    {media.map((item, idx) => (
+                        <div
+                            key={idx}
+                            className={`relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${media.length === 3 && idx === 0 ? 'row-span-2' : ''
+                                }`}
+                        >
+                            {item.type === 'video' ? (
+                                <VideoPlayer src={item.url} poster={item.poster} />
+                            ) : (
+                                <img src={item.url || item.src} className="size-full object-cover" alt="" loading="lazy" />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {files.map((file, idx) => (
+                <FileCard key={idx} file={file} />
+            ))}
+        </div>
     );
 };
 
@@ -104,12 +165,10 @@ const Post = ({
         }
     }, [id]);
 
-    // Fetch comments if in detail mode
     useEffect(() => {
         if (isDetail && id) {
             loadComments();
 
-            // Realtime subscription for new comments
             const channel = supabase
                 .channel(`comments:${id}`)
                 .on('postgres_changes', {
@@ -125,35 +184,6 @@ const Post = ({
             return () => supabase.removeChannel(channel);
         }
     }, [isDetail, id, loadComments]);
-
-    const renderMedia = (m) => {
-        if (!m) return null;
-        if (React.isValidElement(m)) return m;
-        // Supabase media is JSONB
-        if (Array.isArray(m)) {
-            return m.map((item, idx) => (
-                <div key={idx} className="mt-3">
-                    {item.type === 'video' ? <VideoPlayer poster={item.poster} duration={item.duration} /> : <ImageAttachment src={item.src} />}
-                </div>
-            ));
-        }
-        if (m.type === 'video') return <VideoPlayer poster={m.poster} duration={m.duration} />;
-        if (m.type === 'image') return <ImageAttachment src={m.src} />;
-        return null;
-    };
-
-    const renderContent = (c, className) => {
-        if (typeof c === 'string') {
-            return <p className={`whitespace-pre-line ${className || ''}`}>{c}</p>;
-        }
-        return c;
-    };
-
-    const renderQuotedPost = (q) => {
-        if (!q) return null;
-        if (React.isValidElement(q)) return q;
-        return <QuotedPost {...q} />;
-    };
 
     const handleSubmitComment = async (e) => {
         e.preventDefault();
@@ -172,6 +202,19 @@ const Post = ({
         } finally {
             setSubmittingComment(false);
         }
+    };
+
+    const renderMedia = (m) => {
+        if (!m) return null;
+        if (React.isValidElement(m)) return m;
+        return <MediaGrid items={m} />;
+    };
+
+    const renderContent = (c, className) => {
+        if (typeof c === 'string') {
+            return <p className={`whitespace-pre-line ${className || ''}`}>{c}</p>;
+        }
+        return c;
     };
 
     if (isDetail) {
@@ -200,10 +243,10 @@ const Post = ({
                     {poll && <PollDisplay poll={poll} />}
                     {quotedPost && (
                         <div className="mt-4 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm">
-                            {renderQuotedPost(quotedPost)}
+                            <QuotedPost {...quotedPost} />
                         </div>
                     )}
-                    <div className="my-4 flex items-center text-zinc-500 dark:text-zinc-400 text-sm border-b border-zinc-100 dark:border-zinc-800 pb-4">{timeAgo}</div>
+                    <div className="my-4 flex items-center text-zinc-500 dark:text-zinc-400 text-sm border-b border-zinc-100 dark:border-zinc-800 pb-4">{timeAgo || 'Recent'}</div>
 
                     <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4 flex items-center gap-x-6 text-zinc-500 dark:text-zinc-400 text-sm">
                         <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.comments || 0}</span> <span className="opacity-70">Comments</span></div>
@@ -273,20 +316,7 @@ const Post = ({
                                     <span className="truncate">{user.handle}</span>
                                     {user.verified && <VerifiedBadge />}
                                 </button>
-                                {user.context && (
-                                    <>
-                                        <span className="text-zinc-400 text-xs px-0.5">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-3">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                                            </svg>
-                                        </span>
-                                        <button className="flex items-center gap-x-1 hover:underline text-zinc-900 dark:text-zinc-200 truncate max-w-[120px]" onClick={(e) => { e.stopPropagation(); onUserClick && onUserClick(user.context.name); }}>
-                                            {user.context.icon && <img src={user.context.icon} className="size-4 rounded-sm" alt="" />}
-                                            <span className="truncate text-sm font-semibold">{user.context.name}</span>
-                                        </button>
-                                    </>
-                                )}
-                                <span className="text-zinc-400 text-sm ml-1 whitespace-nowrap">• {timeAgo}</span>
+                                <span className="text-zinc-400 text-sm ml-1 whitespace-nowrap">• {timeAgo || 'Recent'}</span>
                             </div>
                         </div>
                         <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors" onClick={(e) => e.stopPropagation()}>
@@ -300,7 +330,7 @@ const Post = ({
                         {poll && <PollDisplay poll={poll} onVote={() => showToast && showToast("Voted!")} />}
                         {quotedPost && (
                             <div className="mt-3 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                                {renderQuotedPost(quotedPost)}
+                                <QuotedPost {...quotedPost} />
                             </div>
                         )}
                     </div>
@@ -329,14 +359,6 @@ const Post = ({
                             <ActionButton icon={Layers} count={localStats.collects} />
                             <ActionButton icon={CircleDollarSign} />
                         </div>
-                        {stats && stats.showCollect !== false && (
-                            <button
-                                className="rounded-full font-bold inline-flex items-center justify-center px-3 py-1 text-xs text-zinc-900 border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 dark:text-white dark:border-zinc-700 dark:hover:bg-zinc-800 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                Collect
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>

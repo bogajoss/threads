@@ -35,7 +35,9 @@ export const PostProvider = ({ children }) => {
         }
     };
 
-    const addPost = async (content, media = [], type = 'text', userId) => {
+    const addPost = async (postData) => {
+        const { content, media = [], type = 'text', userId, poll = null, parentId = null } = postData;
+
         if (!userId) return;
 
         const { data, error } = await supabase
@@ -46,6 +48,8 @@ export const PostProvider = ({ children }) => {
                     content,
                     media,
                     type,
+                    poll,
+                    parent_id: parentId,
                     created_at: new Date().toISOString()
                 }
             ])

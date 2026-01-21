@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.follows (
 -- 2. CONTENT (POSTS, COMMENTS, REELS)
 -- ==========================================
 
-CREATE TYPE post_type AS ENUM ('text', 'image', 'video', 'poll', 'repost');
+CREATE TYPE post_type AS ENUM ('text', 'image', 'video', 'poll', 'repost', 'file');
 
 CREATE TABLE IF NOT EXISTS public.posts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS public.stories (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE TYPE notification_type AS ENUM ('like', 'mention', 'follow', 'repost', 'comment');
+CREATE TYPE notification_type AS ENUM ('like', 'mention', 'follow', 'repost', 'comment', 'collect');
 
 CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -150,3 +150,25 @@ ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- 7. STORAGE (MEDIA BUCKET)
+-- ==========================================
+
+-- Enable storage if not already enabled (this is usually enabled by default)
+-- CREATE EXTENSION IF NOT EXISTS "storage";
+
+-- Create the 'media' bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('media', 'media', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies
+-- 1. Allow public access to read files
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'media');
+
+-- 2. Allow authenticated users to upload files
+CREATE POLICY "Authenticated Users Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'media' AND auth.role() = 'authenticated');
+
+-- 3. Allow owners to delete their files
+CREATE POLICY "Owners Delete" ON storage.objects FOR DELETE USING (bucket_id = 'media' AND auth.uid() = owner);

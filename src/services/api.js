@@ -1,6 +1,35 @@
 import { supabase } from '../lib/supabase';
 
 /**
+ * Uploads a file to Supabase Storage.
+ * @param {File} file 
+ * @param {string} bucket 
+ */
+export const uploadFile = async (file, bucket = 'media') => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(data.path);
+
+    return {
+        url: publicUrl,
+        name: file.name,
+        type: file.type.startsWith('image/') ? 'image' :
+            file.type.startsWith('video/') ? 'video' : 'file',
+        size: file.size
+    };
+};
+
+/**
  * Fetches all posts with user details.
  */
 export const fetchPosts = async () => {
@@ -31,7 +60,8 @@ export const fetchPosts = async () => {
             name: post.user.display_name,
             avatar: post.user.avatar_url,
             verified: post.user.is_verified
-        }
+        },
+        timeAgo: new Date(post.created_at).toLocaleDateString()
     }));
 };
 
@@ -64,8 +94,30 @@ export const fetchPostById = async (id) => {
             name: data.user.display_name,
             avatar: data.user.avatar_url,
             verified: data.user.is_verified
-        }
+        },
+        timeAgo: new Date(data.created_at).toLocaleDateString()
     };
+};
+
+/**
+ * Adds a new post with media and optional poll.
+ */
+export const addPost = async ({ content, media = [], type = 'text', userId, poll = null, parentId = null }) => {
+    const { data, error } = await supabase
+        .from('posts')
+        .insert([{
+            user_id: userId,
+            content,
+            media,
+            type,
+            poll,
+            parent_id: parentId,
+            created_at: new Date().toISOString()
+        }])
+        .select();
+
+    if (error) throw error;
+    return data[0];
 };
 
 /**
@@ -185,7 +237,6 @@ export const sendMessage = async (conversationId, senderId, content) => {
 
     if (error) throw error;
 
-    // Update last_message_at in conversation
     await supabase
         .from('conversations')
         .update({ last_message_at: new Date().toISOString() })
@@ -195,7 +246,7 @@ export const sendMessage = async (conversationId, senderId, content) => {
 };
 
 /**
- * Fetches all comments (nested posts) for a given post.
+ * Fetches all comments for a post.
  */
 export const fetchCommentsByPostId = async (postId) => {
     const { data, error } = await supabase
@@ -223,12 +274,13 @@ export const fetchCommentsByPostId = async (postId) => {
             name: comment.user.display_name,
             avatar: comment.user.avatar_url,
             verified: comment.user.is_verified
-        }
+        },
+        timeAgo: new Date(comment.created_at).toLocaleDateString()
     }));
 };
 
 /**
- * Adds a comment (reply) to a post.
+ * Adds a comment to a post.
  */
 export const addComment = async (postId, userId, content) => {
     const { data, error } = await supabase
@@ -237,7 +289,8 @@ export const addComment = async (postId, userId, content) => {
             parent_id: postId,
             user_id: userId,
             content,
-            type: 'text'
+            type: 'text',
+            created_at: new Date().toISOString()
         }])
         .select();
 
