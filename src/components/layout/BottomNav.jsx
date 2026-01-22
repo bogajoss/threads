@@ -17,13 +17,13 @@ const BottomNav = ({ handleProfileClick }) => {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-[40] flex h-16 items-center justify-around border-t border-zinc-100 bg-white/90 px-2 pb-safe backdrop-blur-md dark:border-zinc-800 dark:bg-black/90 md:hidden">
+        <nav className="fixed bottom-0 left-0 right-0 z-[40] flex h-16 items-center border-t border-zinc-100 bg-white/90 pb-safe backdrop-blur-md dark:border-zinc-800 dark:bg-black/90 md:hidden">
             {navItems.map(item => (
                 <NavLink
                     key={item.id}
                     to={item.path}
                     className={({ isActive }) =>
-                        `flex flex-col items-center justify-center p-2 rounded-full transition-all duration-200 ${isActive ? 'text-black dark:text-white' : 'text-zinc-400 opacity-70'}`
+                        `flex flex-1 flex-col items-center justify-center h-full transition-all duration-200 ${isActive ? 'text-black dark:text-white' : 'text-zinc-400 opacity-70'}`
                     }
                 >
                     {({ isActive }) => (
@@ -33,7 +33,7 @@ const BottomNav = ({ handleProfileClick }) => {
             ))}
             <button
                 onClick={() => { if (currentUser) handleProfileClick(currentUser.handle); }}
-                className="flex-1 flex justify-center py-3"
+                className="flex-1 flex flex-col items-center justify-center h-full"
             >
                 <Avatar className={`size-7 border-2 ${location.pathname.startsWith('/u/') ? 'border-black dark:border-white' : 'border-transparent opacity-70'}`}>
                     <AvatarImage src={currentUser?.avatar || 'https://static.hey.xyz/images/brands/lens.svg'} alt="Profile" className="object-cover" />

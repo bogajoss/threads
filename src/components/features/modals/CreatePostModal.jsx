@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
-import { Plus, MapPin, Loader2, Image as ImageIcon, FileText, BarChart2, X, Trash2 } from 'lucide-react';
+import { Plus, MapPin, Loader2, Image as ImageIcon, FileText, BarChart2, X, Trash2, Crop } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePosts } from '@/context/PostContext';
 import { useToast } from '@/context/ToastContext';
 import { uploadFile } from '@/services/api';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import ImageCropper from '@/components/ui/ImageCropper';
 
 const CreatePostModal = ({ isOpen, onClose }) => {
     const { currentUser } = useAuth();
@@ -19,6 +20,10 @@ const CreatePostModal = ({ isOpen, onClose }) => {
     const [pollData, setPollData] = useState({ options: ["", ""], duration: "1 day" });
     const [loading, setLoading] = useState(false);
 
+    // Cropping State
+    const [tempCropImage, setTempCropImage] = useState(null);
+    const [croppingIndex, setCroppingIndex] = useState(null);
+
     const fileInputRef = useRef(null);
 
     const handleFileSelect = (e) => {
@@ -28,6 +33,25 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
     const removeFile = (index) => {
         setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleStartCrop = (index) => {
+        const file = selectedFiles[index];
+        const reader = new FileReader();
+        reader.onload = () => {
+            setTempCropImage(reader.result);
+            setCroppingIndex(index);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const onCropComplete = (blob) => {
+        const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const newFiles = [...selectedFiles];
+        newFiles[croppingIndex] = croppedFile;
+        setSelectedFiles(newFiles);
+        setTempCropImage(null);
+        setCroppingIndex(null);
     };
 
     const handleAddPollOption = () => {
@@ -96,7 +120,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={() => !loading && onClose()} title="Create Post">
+        <Modal isOpen={isOpen} onClose={() => !loading && onClose()} title="Create Post" className="sm:max-w-xl">
             <form onSubmit={handleCreatePost} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2 no-scrollbar">
                 <div className="flex gap-3">
                     <Avatar className="size-12 border border-zinc-200 dark:border-zinc-800">
@@ -161,6 +185,17 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                                         >
                                             <X size={14} strokeWidth={3} />
                                         </button>
+                                        
+                                        {file.type.startsWith('image/') && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleStartCrop(idx)}
+                                                className="absolute bottom-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                title="Crop image"
+                                            >
+                                                <Crop size={14} strokeWidth={3} />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -201,6 +236,16 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                     </Button>
                 </div>
             </form>
+
+            {tempCropImage && (
+                <ImageCropper 
+                    src={tempCropImage}
+                    isOpen={!!tempCropImage}
+                    onClose={() => { setTempCropImage(null); setCroppingIndex(null); }}
+                    onCropComplete={onCropComplete}
+                    aspect={undefined} // Free-form for posts
+                />
+            )}
         </Modal>
     );
 };
