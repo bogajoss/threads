@@ -15,7 +15,7 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { useFollow } from '@/hooks/useFollow';
 
 const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
-    const { isFollowing, stats, loading, handleFollow } = useFollow(profile.id, currentUser?.id, showToast);
+    const { isFollowing, stats, loading, handleFollow } = useFollow(profile, currentUser?.id, showToast);
 
     return (
         <div className="flex flex-col">

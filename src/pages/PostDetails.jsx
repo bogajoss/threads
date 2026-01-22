@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { fetchPostById } from '@/services/api';
 import SkeletonPost from '@/components/ui/SkeletonPost';
+import { isValidUUID } from '@/lib/utils';
 import db from '@/data/db.json';
 
 const PostDetails = () => {
@@ -17,8 +18,33 @@ const PostDetails = () => {
 
     const { data: post, isLoading, isError } = useQuery({
         queryKey: ['post', id],
-        queryFn: () => fetchPostById(id),
-        enabled: !!id
+        queryFn: async () => {
+            if (!isValidUUID(id)) {
+                // Find in mock data
+                const mockPost = db.posts.find(p => p.id === id);
+                if (mockPost) {
+                    const user = db.profiles[mockPost.userHandle] || {
+                        handle: mockPost.userHandle,
+                        name: mockPost.userHandle,
+                        avatar: 'https://static.hey.xyz/images/brands/lens.svg'
+                    };
+                    return {
+                        ...mockPost,
+                        user: {
+                            id: mockPost.userHandle,
+                            handle: user.handle,
+                            name: user.name,
+                            avatar: user.avatar,
+                            verified: user.verified
+                        }
+                    };
+                }
+                throw new Error('Post not found');
+            }
+            return fetchPostById(id);
+        },
+        enabled: !!id,
+        retry: false
     });
 
     if (isLoading) {

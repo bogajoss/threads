@@ -7,11 +7,13 @@ import { AnimatePresence } from 'framer-motion';
 // Context
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useLightbox } from '@/context/LightboxContext';
 
 // Layout & Components
 import MainLayout from '@/components/layout/MainLayout';
 import GlobalModals from '@/components/features/modals/GlobalModals';
 import StoryViewer from '@/components/features/story/StoryViewer';
+import ImageViewer from '@/components/ui/ImageViewer';
 import AuthForm from '@/components/features/auth/AuthForm';
 import PageTransition from '@/components/layout/PageTransition';
 
@@ -31,6 +33,7 @@ export default function HeyClone() {
   const location = useLocation();
   const { currentUser, authMode, setAuthMode } = useAuth();
   const { darkMode } = useTheme();
+  const { isOpen, images, currentIndex, closeLightbox, setIndex } = useLightbox();
 
   // Modal States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -89,6 +92,15 @@ export default function HeyClone() {
 
       {viewingStory && (
         <StoryViewer story={viewingStory} onClose={() => setViewingStory(null)} />
+      )}
+
+      {isOpen && (
+        <ImageViewer 
+          images={images} 
+          currentIndex={currentIndex} 
+          onClose={closeLightbox} 
+          onNavigate={setIndex} 
+        />
       )}
 
       {/* Floating Action Button */}

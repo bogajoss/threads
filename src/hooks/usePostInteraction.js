@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toggleLike, checkIfLiked } from '@/services/api';
+import { isValidUUID } from '@/lib/utils';
 
 export const usePostInteraction = (postId, initialStats, currentUser, showToast) => {
     const [liked, setLiked] = useState(false);
@@ -8,14 +9,26 @@ export const usePostInteraction = (postId, initialStats, currentUser, showToast)
 
     // Check if current user has liked this post
     useEffect(() => {
-        if (currentUser && postId) {
-            checkIfLiked(postId, currentUser.id).then(setLiked);
+        if (currentUser && postId && isValidUUID(postId) && isValidUUID(currentUser.id)) {
+            checkIfLiked(postId, currentUser.id).then(setLiked).catch(() => setLiked(false));
         }
     }, [postId, currentUser]);
 
     const handleLike = async (e) => {
         e && e.stopPropagation();
         if (!currentUser) return showToast("Please login to like!", "error");
+
+        if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) {
+            // Handle mock data interaction locally
+            const isLiked = !liked;
+            setLiked(isLiked);
+            setLocalStats(prev => ({
+                ...prev,
+                likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1
+            }));
+            showToast(isLiked ? "Liked (Demo)" : "Unliked (Demo)");
+            return;
+        }
 
         try {
             const isLiked = await toggleLike(postId, currentUser.id);

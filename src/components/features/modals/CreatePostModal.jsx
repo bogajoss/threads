@@ -63,7 +63,11 @@ const CreatePostModal = ({ isOpen, onClose }) => {
             let poll = null;
             if (showPoll && pollData.options.some(o => o.trim())) {
                 poll = {
-                    options: pollData.options.filter(o => o.trim()).map(text => ({ text, votes: 0 })),
+                    options: pollData.options.filter(o => o.trim()).map((text, idx) => ({ 
+                        id: idx + 1, 
+                        text, 
+                        votes: 0 
+                    })),
                     ends_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
                 };
             }

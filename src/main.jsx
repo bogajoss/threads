@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { ToastProvider } from '@/context/ToastContext'
 import { PostProvider } from '@/context/PostContext'
+import { LightboxProvider } from '@/context/LightboxContext'
 import 'plyr/dist/plyr.css'
 import './index.css'
 import App from '@/App.jsx'
@@ -20,7 +21,9 @@ createRoot(document.getElementById('root')).render(
           <AuthProvider>
             <PostProvider>
               <ToastProvider>
-                <App />
+                <LightboxProvider>
+                  <App />
+                </LightboxProvider>
               </ToastProvider>
             </PostProvider>
           </AuthProvider>

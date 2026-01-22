@@ -13,13 +13,13 @@ const PollDisplay = ({ poll, onVote }) => {
 
     return (
         <div className="mt-3 space-y-2">
-            {poll.options.map((option) => {
+            {poll.options.map((option, idx) => {
                 const percentage = totalVotes > 0 ? Math.round(((option.votes + (votedOption === option.id ? 1 : 0)) / (totalVotes + (votedOption ? 1 : 0))) * 100) : 0;
                 const isSelected = votedOption === option.id;
 
                 return (
                     <div
-                        key={option.id}
+                        key={option.id || idx}
                         onClick={(e) => { e.stopPropagation(); handleVote(option.id); }}
                         className={`relative h-10 w-full rounded-xl overflow-hidden cursor-pointer border ${isSelected ? 'border-violet-500 dark:border-violet-500' : 'border-zinc-200 dark:border-zinc-700'}`}
                     >
