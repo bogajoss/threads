@@ -1,48 +1,41 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 // Context
-import { useAuth } from './context/AuthContext';
-import { useTheme } from './context/ThemeContext';
-import { useToast } from './context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 // Layout & Components
-import MainLayout from './components/layout/MainLayout';
-import GlobalModals from './components/features/modals/GlobalModals';
-import StoryViewer from './components/features/story/StoryViewer';
-import AuthForm from './components/features/auth/AuthForm';
+import MainLayout from '@/components/layout/MainLayout';
+import GlobalModals from '@/components/features/modals/GlobalModals';
+import StoryViewer from '@/components/features/story/StoryViewer';
+import AuthForm from '@/components/features/auth/AuthForm';
+import PageTransition from '@/components/layout/PageTransition';
 
 // Pages
-import Home from './pages/Home';
-import Explore from './pages/Explore';
-import Reels from './pages/Reels';
-import Messages from './pages/Messages';
-import Notifications from './pages/Notifications';
-import Profile from './pages/Profile';
-import PostDetails from './pages/PostDetails';
+import Home from '@/pages/Home';
+import Explore from '@/pages/Explore';
+import Reels from '@/pages/Reels';
+import Messages from '@/pages/Messages';
+import Notifications from '@/pages/Notifications';
+import Profile from '@/pages/Profile';
+import PostDetails from '@/pages/PostDetails';
 
 import { Plus } from 'lucide-react';
-
-// --- Utils ---
-const ScrollToTop = () => {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-};
+import { ScrollToTop } from '@/lib/utils';
 
 export default function HeyClone() {
   const location = useLocation();
   const { currentUser, authMode, setAuthMode } = useAuth();
-  const { addToast } = useToast();
   const { darkMode } = useTheme();
 
   // Modal States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({});
   const [viewingStory, setViewingStory] = useState(null);
 
@@ -50,11 +43,13 @@ export default function HeyClone() {
     return (
       <div className={darkMode ? 'dark' : ''}>
         <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center p-4">
-          <AuthForm
-            type={authMode}
-            onComplete={() => setAuthMode(null)}
-            onSwitch={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-          />
+          <PageTransition>
+            <AuthForm
+              type={authMode}
+              onComplete={() => setAuthMode(null)}
+              onSwitch={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+            />
+          </PageTransition>
         </div>
       </div>
     );
@@ -64,19 +59,21 @@ export default function HeyClone() {
     <>
       <ScrollToTop />
 
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home onStoryClick={setViewingStory} onAddStory={() => addToast("Add story feature coming soon!")} />} />
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/reels" element={<Reels />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/post/:id" element={<PostDetails />} />
-          <Route path="/u/:handle" element={<Profile onEditProfile={(profile) => { setEditProfileData(profile); setIsEditProfileOpen(true); }} />} />
-          <Route path="*" element={<Navigate to="/explore" />} />
-        </Route>
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<PageTransition><Home onStoryClick={setViewingStory} onAddStory={() => setIsStoryModalOpen(true)} /></PageTransition>} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route path="/explore" element={<PageTransition><Explore /></PageTransition>} />
+            <Route path="/reels" element={<PageTransition><Reels /></PageTransition>} />
+            <Route path="/messages" element={<PageTransition><Messages /></PageTransition>} />
+            <Route path="/notifications" element={<PageTransition><Notifications /></PageTransition>} />
+            <Route path="/post/:id" element={<PageTransition><PostDetails /></PageTransition>} />
+            <Route path="/u/:handle" element={<PageTransition><Profile onEditProfile={(profile) => { setEditProfileData(profile); setIsEditProfileOpen(true); }} /></PageTransition>} />
+            <Route path="*" element={<Navigate to="/explore" />} />
+          </Route>
+        </Routes>
+      </AnimatePresence>
 
       {/* Global Overlays */}
       <GlobalModals
@@ -84,6 +81,8 @@ export default function HeyClone() {
         setIsPostModalOpen={setIsPostModalOpen}
         isEditProfileOpen={isEditProfileOpen}
         setIsEditProfileOpen={setIsEditProfileOpen}
+        isStoryModalOpen={isStoryModalOpen}
+        setIsStoryModalOpen={setIsStoryModalOpen}
         editProfileData={editProfileData}
         setEditProfileData={setEditProfileData}
       />

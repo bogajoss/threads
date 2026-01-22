@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Compass, Film, Mail, Bell, User } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 const SidebarLeft = () => {
     const { currentUser } = useAuth();

@@ -9,10 +9,10 @@ import {
     Mail,
     Bell
 } from 'lucide-react';
-import Button from '../../ui/Button';
-import VerifiedBadge from '../../ui/VerifiedBadge';
+import Button from '@/components/ui/Button';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
-import { useFollow } from '../../../hooks/useFollow';
+import { useFollow } from '@/hooks/useFollow';
 
 const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
     const { isFollowing, stats, loading, handleFollow } = useFollow(profile.id, currentUser?.id, showToast);

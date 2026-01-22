@@ -1,88 +1,32 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import ChatList from '../components/features/chat/ChatList';
-import ChatWindow from '../components/features/chat/ChatWindow';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import ChatList from '@/components/features/chat/ChatList';
+import ChatWindow from '@/components/features/chat/ChatWindow';
 import { Mail, Loader2, Zap } from 'lucide-react';
-import { fetchConversations, fetchMessages, sendMessage } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { fetchMessages } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
+import { useMessages } from '@/hooks/useMessages';
 
 const Messages = () => {
     const { currentUser } = useAuth();
-    const queryClient = useQueryClient();
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [msgSearchQuery, setMsgSearchQuery] = useState("");
-    const [realtimeMessagesMap, setRealtimeMessagesMap] = useState({});
 
-    // 1. Fetch Conversations
-    const { data: conversations = [], isLoading: isConvLoading } = useQuery({
-        queryKey: ['conversations', currentUser?.id],
-        queryFn: () => fetchConversations(currentUser?.id),
-        enabled: !!currentUser?.id
-    });
+    const { 
+        conversations, 
+        isConvLoading, 
+        sendMessage, 
+        getMessagesForConversation 
+    } = useMessages(currentUser);
 
-    // 2. Fetch Messages for selected conversation
+    // Fetch base messages for selected conversation
     const { data: fetchedMessages = [], isLoading: isMsgLoading } = useQuery({
         queryKey: ['messages', selectedConversation?.id],
         queryFn: () => fetchMessages(selectedConversation?.id),
         enabled: !!selectedConversation?.id
     });
 
-    // Combine fetched and realtime messages
-    const localMessages = useMemo(() => {
-        const convId = selectedConversation?.id;
-        if (!convId) return [];
-
-        const fetched = fetchedMessages || [];
-        const realtime = realtimeMessagesMap[convId] || [];
-
-        const combined = [...fetched];
-
-        realtime.forEach(rm => {
-            if (!combined.find(m => m.id === rm.id)) {
-                combined.push(rm);
-            }
-        });
-
-        return combined.map(m => ({
-            id: m.id,
-            sender: m.sender_id === currentUser?.id ? 'me' : 'them',
-            text: m.content,
-            time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }));
-    }, [fetchedMessages, realtimeMessagesMap, selectedConversation, currentUser]);
-
-    // 3. Realtime subscription for messages
-    useEffect(() => {
-        const convId = selectedConversation?.id;
-        if (!convId) return;
-
-        const channel = supabase
-            .channel(`msg:${convId}`)
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'messages',
-                filter: `conversation_id=eq.${convId}`
-            }, (payload) => {
-                const newM = payload.new;
-                setRealtimeMessagesMap(prev => ({
-                    ...prev,
-                    [convId]: [...(prev[convId] || []), newM]
-                }));
-            })
-            .subscribe();
-
-        return () => supabase.removeChannel(channel);
-    }, [selectedConversation, currentUser]);
-
-    // 4. Send Message Mutation
-    const sendMutation = useMutation({
-        mutationFn: ({ convId, text }) => sendMessage(convId, currentUser.id, text),
-        onSuccess: () => {
-            queryClient.invalidateQueries(['conversations', currentUser?.id]);
-        }
-    });
+    const localMessages = getMessagesForConversation(selectedConversation?.id, fetchedMessages);
 
     if (!currentUser) {
         return (
@@ -105,13 +49,9 @@ const Messages = () => {
     }
 
     const filteredConversations = conversations.filter(c =>
-        c.user.name.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
-        c.user.handle.toLowerCase().includes(msgSearchQuery.toLowerCase())
+        c.user?.name?.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
+        c.user?.handle?.toLowerCase().includes(msgSearchQuery.toLowerCase())
     );
-
-    const onSendMessage = async (convId, text) => {
-        sendMutation.mutate({ convId, text });
-    };
 
     return (
         <div className="flex h-screen bg-white dark:bg-black overflow-hidden md:rounded-xl md:border border-zinc-100 dark:border-zinc-800">
@@ -132,7 +72,7 @@ const Messages = () => {
                     conversation={selectedConversation}
                     messages={localMessages}
                     onBack={() => setSelectedConversation(null)}
-                    onSendMessage={onSendMessage}
+                    onSendMessage={sendMessage}
                     isLoading={isMsgLoading}
                 />
             ) : (

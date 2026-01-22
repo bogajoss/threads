@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Compass, Film, Mail, Bell } from 'lucide-react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 const BottomNav = ({ handleProfileClick }) => {
     const { currentUser } = useAuth();

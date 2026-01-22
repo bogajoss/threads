@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toggleLike, checkIfLiked } from '../services/api';
+import { toggleLike, checkIfLiked } from '@/services/api';
 
 export const usePostInteraction = (postId, initialStats, currentUser, showToast) => {
     const [liked, setLiked] = useState(false);

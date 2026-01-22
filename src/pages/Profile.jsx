@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, Search, Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ProfileHeader from '../components/features/profile/ProfileHeader';
-import Post from '../components/features/post/Post';
-import { useAuth } from '../context/AuthContext';
-import { usePosts } from '../context/PostContext';
-import { useToast } from '../context/ToastContext';
+import ProfileHeader from '@/components/features/profile/ProfileHeader';
+import Post from '@/components/features/post/Post';
+import { useAuth } from '@/context/AuthContext';
+import { usePosts } from '@/context/PostContext';
+import { useToast } from '@/context/ToastContext';
 
 const Profile = ({ onEditProfile }) => {
     const { handle } = useParams();

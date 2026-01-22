@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import StoryCircle from '../components/features/story/StoryCircle';
-import Post from '../components/features/post/Post';
-import SkeletonPost from '../components/ui/SkeletonPost';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { fetchPosts, fetchProfiles } from '../services/api';
+import StoryCircle from '@/components/features/story/StoryCircle';
+import Post from '@/components/features/post/Post';
+import SkeletonPost from '@/components/ui/SkeletonPost';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { fetchPosts, fetchStories } from '@/services/api';
 
 const Home = ({ onStoryClick, onAddStory }) => {
     const { currentUser } = useAuth();
@@ -19,25 +19,16 @@ const Home = ({ onStoryClick, onAddStory }) => {
         queryFn: fetchPosts
     });
 
-    // 2. Fetch Profiles for stories (simplified for now)
-    const { data: profiles = {}, isLoading: isProfilesLoading } = useQuery({
-        queryKey: ['profiles'],
-        queryFn: fetchProfiles
+    // 2. Fetch Stories
+    const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
+        queryKey: ['stories'],
+        queryFn: fetchStories
     });
 
     // Filter out replies, show only top-level posts on the home feed
     const homePosts = useMemo(() => {
         return posts.filter(p => !p.parent_id);
     }, [posts]);
-
-    // Use fetched profiles for stories if mock data is not available
-    const stories = useMemo(() => {
-        // Ideally we'd have a separate fetchStories, but using profiles for now as a demo
-        return Object.values(profiles).slice(0, 10).map(p => ({
-            id: p.id,
-            user: p
-        }));
-    }, [profiles]);
 
     const handlePostClick = (id) => {
         navigate(`/post/${id}`);
@@ -47,7 +38,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
         navigate(`/u/${handle}`);
     };
 
-    if (isPostsLoading || isProfilesLoading) {
+    if (isPostsLoading || isStoriesLoading) {
         return (
             <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
                 <div className="flex gap-3 overflow-x-auto no-scrollbar py-4 px-4 bg-white dark:bg-black border-b border-zinc-100 dark:border-zinc-800">

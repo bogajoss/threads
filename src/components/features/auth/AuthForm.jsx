@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
-import Button from '../../ui/Button';
-import Input from '../../ui/Input';
-import { useAuth } from '../../../context/AuthContext';
-import { useToast } from '../../../context/ToastContext';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 
 const AuthForm = ({ type, onComplete, onSwitch }) => {
     const { login, signup } = useAuth();

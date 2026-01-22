@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import SidebarLeft from './SidebarLeft';
-import SidebarRight from './SidebarRight';
-import BottomNav from './BottomNav';
-import { useTheme } from '../../context/ThemeContext';
-import FeedHeader from './FeedHeader';
-import db from '../../data/db.json';
+import SidebarLeft from '@/components/layout/SidebarLeft';
+import SidebarRight from '@/components/layout/SidebarRight';
+import BottomNav from '@/components/layout/BottomNav';
+import { useTheme } from '@/context/ThemeContext';
+import FeedHeader from '@/components/layout/FeedHeader';
+import db from '@/data/db.json';
 
 const MainLayout = () => {
     const location = useLocation();

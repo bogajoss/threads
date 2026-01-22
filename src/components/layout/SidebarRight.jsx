@@ -1,11 +1,13 @@
-import React from 'react';
-import { Search, Sun, Moon } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import SearchBar from '@/components/ui/SearchBar';
 
 const SidebarRight = ({ trendingTopics = [] }) => {
     const { currentUser, setAuthMode } = useAuth();
     const { darkMode, toggleDarkMode } = useTheme();
+    const [searchQuery, setSearchQuery] = useState("");
 
     const footerLinks = [
         "© 2026 Hey.xyz", "Terms", "Privacy", "Guidelines", "Discord",
@@ -26,11 +28,11 @@ const SidebarRight = ({ trendingTopics = [] }) => {
         return (
             <aside className="sticky top-5 hidden w-[320px] shrink-0 flex-col gap-y-6 lg:flex overflow-y-auto max-h-screen">
                 <div className="flex items-center gap-3">
-                    <div className="relative group flex-1">
-                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-violet-500 transition-colors" />
-                        <input
-                            className="w-full rounded-full border border-[--border] bg-[--card] text-[--foreground] px-12 py-3 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-sans"
-                            placeholder="Search..."
+                    <div className="flex-1">
+                        <SearchBar 
+                            value={searchQuery} 
+                            onChange={setSearchQuery} 
+                            onClear={() => setSearchQuery("")} 
                         />
                     </div>
                     {themeToggleBtn}
@@ -83,13 +85,11 @@ const SidebarRight = ({ trendingTopics = [] }) => {
             </div>
 
             {/* Search */}
-            <div className="relative group w-full">
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-violet-500 transition-colors" />
-                <input
-                    className="w-full rounded-xl border border-[--border] bg-[--card] text-[--foreground] px-12 py-3 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all font-sans"
-                    placeholder="Search..."
-                />
-            </div>
+            <SearchBar 
+                value={searchQuery} 
+                onChange={setSearchQuery} 
+                onClear={() => setSearchQuery("")} 
+            />
 
             {/* Account Card */}
             <div className="border border-[--border] rounded-2xl p-8 flex flex-col items-center text-center gap-4 bg-[--card] shadow-sm">

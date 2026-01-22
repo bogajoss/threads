@@ -1,9 +1,8 @@
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { transformUser, transformPost, transformNotification, transformConversation, transformStory } from '@/lib/transformers';
 
 /**
  * Uploads a file to Supabase Storage.
- * @param {File} file 
- * @param {string} bucket 
  */
 export const uploadFile = async (file, bucket = 'media') => {
     const fileExt = file.name.split('.').pop();
@@ -42,33 +41,18 @@ export const fetchPosts = async () => {
                 username,
                 display_name,
                 avatar_url,
-                is_verified
+                is_verified,
+                bio,
+                location,
+                website,
+                follower_count,
+                following_count
             )
         `)
         .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error('Error fetching posts:', error);
-        throw error;
-    }
-
-    return data.map(post => ({
-        ...post,
-        stats: {
-            comments: post.comments_count || 0,
-            likes: post.likes_count || 0,
-            collects: post.collects_count || 0,
-            mirrors: post.mirrors_count || 0
-        },
-        user: {
-            ...post.user,
-            handle: post.user.username,
-            name: post.user.display_name,
-            avatar: post.user.avatar_url,
-            verified: post.user.is_verified
-        },
-        timeAgo: new Date(post.created_at).toLocaleDateString()
-    }));
+    if (error) throw error;
+    return data.map(transformPost);
 };
 
 /**
@@ -84,31 +68,19 @@ export const fetchPostById = async (id) => {
                 username,
                 display_name,
                 avatar_url,
-                is_verified
+                is_verified,
+                bio,
+                location,
+                website,
+                follower_count,
+                following_count
             )
         `)
         .eq('id', id)
         .single();
 
     if (error) throw error;
-
-    return {
-        ...data,
-        stats: {
-            comments: data.comments_count || 0,
-            likes: data.likes_count || 0,
-            collects: data.collects_count || 0,
-            mirrors: data.mirrors_count || 0
-        },
-        user: {
-            ...data.user,
-            handle: data.user.username,
-            name: data.user.display_name,
-            avatar: data.user.avatar_url,
-            verified: data.user.is_verified
-        },
-        timeAgo: new Date(data.created_at).toLocaleDateString()
-    };
+    return transformPost(data);
 };
 
 /**
@@ -126,13 +98,19 @@ export const addPost = async ({ content, media = [], type = 'text', userId, poll
             parent_id: parentId,
             created_at: new Date().toISOString()
         }])
-        .select();
+        .select(`
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified
+            )
+        `);
 
     if (error) throw error;
-    return {
-        ...data[0],
-        stats: { comments: 0, likes: 0, collects: 0, mirrors: 0 }
-    };
+    return transformPost(data[0]);
 };
 
 /**
@@ -146,15 +124,44 @@ export const fetchProfiles = async () => {
     if (error) throw error;
 
     return data.reduce((acc, user) => {
-        acc[user.username] = {
-            ...user,
-            handle: user.username,
-            name: user.display_name,
-            avatar: user.avatar_url,
-            verified: user.is_verified
-        };
+        const transformed = transformUser(user);
+        acc[transformed.handle] = transformed;
         return acc;
     }, {});
+};
+
+/**
+ * Fetches a single profile by handle.
+ */
+export const fetchProfileByHandle = async (handle) => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', handle)
+        .maybeSingle();
+
+    if (error) throw error;
+    return transformUser(data);
+};
+
+/**
+ * Updates a user profile.
+ */
+export const updateProfile = async (userId, updatedFields) => {
+    const { error } = await supabase
+        .from('users')
+        .update({
+            display_name: updatedFields.name,
+            username: updatedFields.handle,
+            avatar_url: updatedFields.avatar,
+            bio: updatedFields.bio,
+            cover_url: updatedFields.cover,
+            website: updatedFields.website,
+            location: updatedFields.location
+        })
+        .eq('id', userId);
+
+    if (error) throw error;
 };
 
 /**
@@ -176,12 +183,7 @@ export const fetchNotifications = async (userId) => {
         .order('created_at', { ascending: false });
 
     if (error) throw error;
-
-    return data.map(n => ({
-        ...n,
-        user: n.actor.username,
-        avatar: n.actor.avatar_url
-    }));
+    return data.map(transformNotification);
 };
 
 /**
@@ -198,33 +200,19 @@ export const fetchConversations = async (userId) => {
                 last_message_at
             ),
             other_participants:conversation_participants!inner (
+                user_id,
                 user:users (
+                    id,
                     username,
                     display_name,
                     avatar_url
                 )
             )
         `)
-        .eq('user_id', userId)
-        .neq('other_participants.user_id', userId);
+        .eq('user_id', userId);
 
     if (error) throw error;
-
-    return data.map(item => {
-        const otherUser = item.other_participants[0]?.user;
-        return {
-            id: item.conversation.id,
-            handle: otherUser?.username,
-            user: {
-                handle: otherUser?.username,
-                name: otherUser?.display_name,
-                avatar: otherUser?.avatar_url
-            },
-            lastMessage: 'Open to see messages',
-            time: new Date(item.conversation.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            unread: 0
-        };
-    });
+    return data.map(item => transformConversation(item, userId));
 };
 
 /**
@@ -280,18 +268,7 @@ export const fetchCommentsByPostId = async (postId) => {
         .order('created_at', { ascending: true });
 
     if (error) throw error;
-
-    return data.map(comment => ({
-        ...comment,
-        user: {
-            ...comment.user,
-            handle: comment.user.username,
-            name: comment.user.display_name,
-            avatar: comment.user.avatar_url,
-            verified: comment.user.is_verified
-        },
-        timeAgo: new Date(comment.created_at).toLocaleDateString()
-    }));
+    return data.map(transformPost);
 };
 
 /**
@@ -307,20 +284,25 @@ export const addComment = async (postId, userId, content) => {
             type: 'text',
             created_at: new Date().toISOString()
         }])
-        .select();
+        .select(`
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified
+            )
+        `);
 
     if (error) throw error;
-    return {
-        ...data[0],
-        stats: { comments: 0, likes: 0, collects: 0, mirrors: 0 }
-    };
+    return transformPost(data[0]);
 };
 
 /**
  * Toggles a like on a post.
  */
 export const toggleLike = async (postId, userId) => {
-    // Check if already liked
     const { data: existingLike } = await supabase
         .from('likes')
         .select('*')
@@ -329,19 +311,11 @@ export const toggleLike = async (postId, userId) => {
         .maybeSingle();
 
     if (existingLike) {
-        const { error } = await supabase
-            .from('likes')
-            .delete()
-            .eq('post_id', postId)
-            .eq('user_id', userId);
-        if (error) throw error;
-        return false; // Unliked
+        await supabase.from('likes').delete().eq('post_id', postId).eq('user_id', userId);
+        return false;
     } else {
-        const { error } = await supabase
-            .from('likes')
-            .insert([{ post_id: postId, user_id: userId }]);
-        if (error) throw error;
-        return true; // Liked
+        await supabase.from('likes').insert([{ post_id: postId, user_id: userId }]);
+        return true;
     }
 };
 
@@ -371,18 +345,10 @@ export const toggleFollow = async (followerId, followingId) => {
         .maybeSingle();
 
     if (existingFollow) {
-        const { error } = await supabase
-            .from('follows')
-            .delete()
-            .eq('follower_id', followerId)
-            .eq('following_id', followingId);
-        if (error) throw error;
+        await supabase.from('follows').delete().eq('follower_id', followerId).eq('following_id', followingId);
         return false;
     } else {
-        const { error } = await supabase
-            .from('follows')
-            .insert([{ follower_id: followerId, following_id: followingId }]);
-        if (error) throw error;
+        await supabase.from('follows').insert([{ follower_id: followerId, following_id: followingId }]);
         return true;
     }
 };
@@ -402,7 +368,7 @@ export const checkIfFollowing = async (followerId, followingId) => {
 };
 
 /**
- * Fetches follow stats (follower/following counts).
+ * Fetches follow stats.
  */
 export const fetchFollowStats = async (userId) => {
     const { data, error } = await supabase
@@ -412,9 +378,58 @@ export const fetchFollowStats = async (userId) => {
         .maybeSingle();
 
     if (error || !data) return { followers: 0, following: 0 };
-
     return {
         followers: data.follower_count || 0,
         following: data.following_count || 0
     };
+};
+
+/**
+ * Fetches recent stories.
+ */
+export const fetchStories = async () => {
+    const { data, error } = await supabase
+        .from('stories')
+        .select(`
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified
+            )
+        `)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data.map(transformStory);
+};
+
+/**
+ * Adds a new story.
+ */
+export const addStory = async (userId, mediaUrl, type = 'image') => {
+    const { data, error } = await supabase
+        .from('stories')
+        .insert([{
+            user_id: userId,
+            media_url: mediaUrl,
+            type,
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        }])
+        .select(`
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified
+            )
+        `);
+
+    if (error) throw error;
+    return transformStory(data[0]);
 };

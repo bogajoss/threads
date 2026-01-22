@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Heart, UserPlus, AtSign, Layers, Loader2, MessageSquare, Zap } from 'lucide-react';
-import { fetchNotifications } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { fetchNotifications } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 
 const Notifications = () => {
     const { currentUser } = useAuth();

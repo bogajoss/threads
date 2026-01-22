@@ -2,12 +2,12 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import Post from '../components/features/post/Post';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { fetchPostById } from '../services/api';
-import SkeletonPost from '../components/ui/SkeletonPost';
-import db from '../data/db.json';
+import Post from '@/components/features/post/Post';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { fetchPostById } from '@/services/api';
+import SkeletonPost from '@/components/ui/SkeletonPost';
+import db from '@/data/db.json';
 
 const PostDetails = () => {
     const { id } = useParams();

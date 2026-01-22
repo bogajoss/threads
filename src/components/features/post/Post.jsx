@@ -4,127 +4,17 @@ import {
     Repeat2,
     Heart,
     MoreHorizontal,
-    Plus,
-    MapPin,
-    Loader2,
-    FileText,
-    Download
+    Loader2
 } from 'lucide-react';
-import Button from '../../ui/Button';
-import VerifiedBadge from '../../ui/VerifiedBadge';
-import VideoPlayer from './VideoPlayer';
-import ImageAttachment from './ImageAttachment';
-import PollDisplay from './PollDisplay';
-import QuotedPost from './QuotedPost';
-import { usePostInteraction } from '../../../hooks/usePostInteraction';
-import { fetchCommentsByPostId, addComment } from '../../../services/api';
-import { supabase } from '../../../lib/supabase';
-
-const ActionButton = ({ icon, count, onClick, active, activeColorClass = "text-violet-600" }) => {
-    const Icon = icon;
-    return (
-        <button
-            onClick={(e) => { e.stopPropagation(); onClick && onClick(e); }}
-            className={`group flex items-center gap-x-2 text-[13px] font-medium transition-all ${active ? activeColorClass : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-        >
-            <div className={`rounded-full p-2 transition-colors ${active ? 'bg-current/10' : 'group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800'}`}>
-                <Icon size={18} strokeWidth={active ? 2.5 : 2} className={active ? 'fill-current' : ''} />
-            </div>
-            {count !== undefined && count !== null && <span className={active ? 'font-bold' : ''}>{count || 0}</span>}
-        </button>
-    );
-};
-
-const FileCard = ({ file }) => (
-    <div className="mt-3 flex items-center gap-3 p-3 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/10 group hover:border-violet-500/30 transition-colors">
-        <div className="size-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600">
-            <FileText size={20} />
-        </div>
-        <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold truncate dark:text-white">{file.name}</div>
-            <div className="text-xs text-zinc-500 uppercase">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
-        </div>
-        <a
-            href={file.url}
-            download={file.name}
-            className="p-2 text-zinc-400 hover:text-violet-600 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-        >
-            <Download size={18} />
-        </a>
-    </div>
-);
-
-const MediaGrid = ({ items = [] }) => {
-    if (!items || items.length === 0) return null;
-
-    // items can be a single object from old schema or array from new
-    const normalizedItems = Array.isArray(items) ? items : [items];
-    const media = normalizedItems.filter(i => i.type === 'image' || i.type === 'video');
-    const files = normalizedItems.filter(i => i.type === 'file');
-
-    return (
-        <div className="mt-3 space-y-2">
-            {media.length > 0 && (
-                <div className={`grid gap-2 rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 ${media.length === 1 ? 'grid-cols-1' :
-                    media.length === 2 ? 'grid-cols-2 aspect-[16/9]' :
-                        media.length === 3 ? 'grid-cols-2 grid-rows-2 aspect-[16/9]' :
-                            'grid-cols-2 grid-rows-2 aspect-[16/9]'
-                    }`}>
-                    {media.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className={`relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${media.length === 3 && idx === 0 ? 'row-span-2' : ''
-                                }`}
-                        >
-                            {item.type === 'video' ? (
-                                <VideoPlayer src={item.url} poster={item.poster} />
-                            ) : (
-                                <img src={item.url || item.src} className="size-full object-cover" alt="" loading="lazy" />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {files.map((file, idx) => (
-                <FileCard key={idx} file={file} />
-            ))}
-        </div>
-    );
-};
-
-const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComment, loading }) => (
-    currentUser ? (
-        <div className="p-4 border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/10">
-            <div className="flex gap-3">
-                <img src={currentUser.avatar} className="size-9 rounded-full object-cover shrink-0 border border-zinc-200 dark:border-zinc-700" alt="" />
-                <div className="flex-1">
-                    <textarea
-                        id="comment-input"
-                        className="w-full bg-transparent outline-none text-base min-h-[60px] resize-none dark:text-white placeholder:text-zinc-500"
-                        placeholder="Post your reply..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <div className="flex justify-between items-center mt-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                        <div className="flex text-violet-600 gap-1">
-                            <button className="text-violet-600 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full p-2"><Plus size={20} /></button>
-                            <button className="text-violet-600 hover:bg-violet-50 dark:hover:bg-zinc-800 rounded-full p-2"><MapPin size={20} /></button>
-                        </div>
-                        <Button className="!w-auto px-5 py-1.5 text-sm font-bold min-w-[70px]" onClick={handleSubmitComment} disabled={!newComment.trim() || loading}>
-                            {loading ? <Loader2 size={16} className="animate-spin text-white mx-auto" /> : "Reply"}
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    ) : (
-        <div className="p-6 text-center border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/10">
-            <p className="text-zinc-500 text-sm">Please login to join the conversation.</p>
-        </div>
-    )
-);
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import PollDisplay from '@/components/features/post/PollDisplay';
+import QuotedPost from '@/components/features/post/QuotedPost';
+import ActionButton from '@/components/features/post/ActionButton';
+import MediaGrid from '@/components/features/post/MediaGrid';
+import CommentInput from '@/components/features/post/CommentInput';
+import { usePostInteraction } from '@/hooks/usePostInteraction';
+import { fetchCommentsByPostId, addComment } from '@/services/api';
+import { supabase } from '@/lib/supabase';
 
 const Post = ({
     id,

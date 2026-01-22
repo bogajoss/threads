@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, MoreVertical, Send, Smile, Paperclip } from 'lucide-react';
-import Button from '../../ui/Button';
+import { ArrowLeft, MoreVertical, Send, Smile, Paperclip, Loader2 } from 'lucide-react';
+import Button from '@/components/ui/Button';
 
-const ChatWindow = ({ conversation, messages, onBack, onSendMessage }) => {
+const ChatWindow = ({ conversation, messages, onBack, onSendMessage, isLoading }) => {
     const [text, setText] = useState("");
     const scrollRef = useRef(null);
 
@@ -41,14 +41,20 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage }) => {
                     <p className="text-xs text-zinc-400 mt-4 max-w-xs mx-auto">This is the beginning of your direct message history with <span className="font-bold">@{conversation.user.handle}</span></p>
                 </div>
 
-                {messages.map(msg => (
-                    <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-[15px] shadow-sm ${msg.sender === 'me' ? 'bg-violet-600 text-white rounded-tr-none' : 'bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none'}`}>
-                            <p>{msg.text}</p>
-                            <div className={`text-[10px] mt-1 ${msg.sender === 'me' ? 'text-violet-200' : 'text-zinc-400'}`}>{msg.time}</div>
-                        </div>
+                {isLoading && messages.length === 0 ? (
+                    <div className="flex justify-center p-8">
+                        <Loader2 className="animate-spin text-violet-500" size={32} />
                     </div>
-                ))}
+                ) : (
+                    messages.map(msg => (
+                        <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-[15px] shadow-sm ${msg.sender === 'me' ? 'bg-violet-600 text-white rounded-tr-none' : 'bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none'}`}>
+                                <p>{msg.text}</p>
+                                <div className={`text-[10px] mt-1 ${msg.sender === 'me' ? 'text-violet-200' : 'text-zinc-400'}`}>{msg.time}</div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black shrink-0">
@@ -68,5 +74,6 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage }) => {
         </div>
     );
 };
+
 
 export default ChatWindow;
