@@ -7,27 +7,29 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const dependenciesToChunk = {
-  react: [
-    "react",
-    "react-dom",
-    "react-router-dom"
-  ],
-  supabase: ["@supabase/supabase-js"],
-  query: ["@tanstack/react-query"],
-  ui: [
-    "lucide-react",
-    "framer-motion"
-  ]
-};
-
 // https://vite.dev/config/
 export default defineConfig({
   build: {
     cssMinify: "lightningcss",
     rollupOptions: {
       output: {
-        manualChunks: dependenciesToChunk
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('router')) {
+              return 'react';
+            }
+            if (id.includes('supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('tanstack')) {
+              return 'query';
+            }
+            if (id.includes('lucide') || id.includes('framer-motion')) {
+              return 'ui';
+            }
+            return 'vendor';
+          }
+        }
       }
     },
     sourcemap: true,

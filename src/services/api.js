@@ -1,17 +1,24 @@
 import { supabase } from '@/lib/supabase';
 import { transformUser, transformPost, transformNotification, transformConversation, transformStory } from '@/lib/transformers';
+import { compressImage } from '@/lib/compression';
 
 /**
  * Uploads a file to Supabase Storage.
  */
 export const uploadFile = async (file, bucket = 'media') => {
+    // Compress if it's an image
+    let fileToUpload = file;
+    if (file.type.startsWith('image/')) {
+        fileToUpload = await compressImage(file);
+    }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { data, error } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file);
+        .upload(filePath, fileToUpload);
 
     if (error) throw error;
 
@@ -24,7 +31,7 @@ export const uploadFile = async (file, bucket = 'media') => {
         name: file.name,
         type: file.type.startsWith('image/') ? 'image' :
             file.type.startsWith('video/') ? 'video' : 'file',
-        size: file.size
+        size: fileToUpload.size
     };
 };
 

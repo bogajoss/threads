@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { ToastProvider } from '@/context/ToastContext'
 import { PostProvider } from '@/context/PostContext'
+import 'plyr/dist/plyr.css'
 import './index.css'
 import App from '@/App.jsx'
 

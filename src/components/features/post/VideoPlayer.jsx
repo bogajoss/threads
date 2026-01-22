@@ -1,20 +1,58 @@
-import React from 'react';
-import { Play, Volume2, Maximize2 } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Plyr } from 'plyr-react';
 
-const VideoPlayer = ({ poster, duration }) => {
+const VideoPlayer = ({ src, poster }) => {
+    const playerRef = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (playerRef.current?.plyr) {
+                    if (entry.isIntersecting) {
+                        playerRef.current.plyr.play().catch(() => {
+                            // Autoplay might be blocked if not muted
+                            playerRef.current.plyr.muted = true;
+                            playerRef.current.plyr.play();
+                        });
+                    } else {
+                        playerRef.current.plyr.pause();
+                    }
+                }
+            },
+            { threshold: 0.6 }
+        );
+
+        const currentElement = playerRef.current?.elements?.container;
+        if (currentElement) {
+            observer.observe(currentElement);
+        }
+
+        return () => {
+            if (currentElement) {
+                observer.unobserve(currentElement);
+            }
+        };
+    }, []);
+
+    const plyrProps = {
+        source: {
+            type: 'video',
+            sources: [{ src, type: 'video/mp4' }],
+            poster: poster
+        },
+        options: {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+            settings: ['quality', 'speed'],
+            ratio: '16:9',
+            clickToPlay: true,
+            hideControls: true,
+            resetOnEnd: true
+        }
+    };
+
     return (
-        <div className="mt-3 relative w-full overflow-hidden rounded-2xl bg-black aspect-video group cursor-pointer shadow-sm" onClick={(e) => e.stopPropagation()}>
-            <img src={poster} alt="Video Poster" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-b from-transparent via-black/20 to-black/70 opacity-100">
-                <div className="p-3 flex items-center justify-between text-white gap-4">
-                    <div className="flex items-center gap-3">
-                        <button className="hover:scale-110 transition p-1"><Play size={20} fill="white" /></button>
-                        <span className="text-xs font-semibold tabular-nums">0:00 / {duration}</span>
-                        <button className="hover:scale-110 transition p-1"><Volume2 size={20} /></button>
-                    </div>
-                    <button className="hover:scale-110 transition p-1"><Maximize2 size={20} /></button>
-                </div>
-            </div>
+        <div className="mt-3 overflow-hidden rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 bg-black" onClick={(e) => e.stopPropagation()}>
+            <Plyr ref={playerRef} {...plyrProps} />
         </div>
     );
 };
