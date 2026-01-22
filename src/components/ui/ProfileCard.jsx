@@ -1,16 +1,16 @@
 import React from 'react';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import Button from '@/components/ui/Button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
     return (
         <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors group cursor-pointer" onClick={() => onUserClick(profile.handle)}>
             <div className="flex items-center gap-3">
-                <img 
-                    src={profile.avatar} 
-                    className={`size-12 object-cover border border-zinc-200 dark:border-zinc-800 shadow-sm ${isCommunity ? 'rounded-2xl' : 'rounded-full'}`} 
-                    alt={profile.handle} 
-                />
+                <Avatar className={`size-12 border border-zinc-200 dark:border-zinc-800 shadow-sm ${isCommunity ? 'rounded-2xl' : ''}`}>
+                    <AvatarImage src={profile.avatar} alt={profile.handle} className="object-cover" />
+                    <AvatarFallback className={isCommunity ? 'rounded-2xl' : ''}>{profile.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col">
                     <div className="flex items-center gap-1">
                         <span className="font-bold text-zinc-900 dark:text-white group-hover:underline leading-none">

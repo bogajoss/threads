@@ -18,7 +18,7 @@ const FeedBanner = () => {
 
             {/* Floating Icons/Sparkles to match image feel */}
             <div className="absolute bottom-4 right-8">
-                <img src="https://static.hey.xyz/images/app-icon/0.png" className="size-12 animate-pulse opacity-80" alt="" />
+                <img src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png" className="size-12 animate-pulse opacity-80 rounded-xl" alt="" />
             </div>
         </div>
     );

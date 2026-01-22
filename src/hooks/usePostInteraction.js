@@ -5,7 +5,7 @@ import { isValidUUID } from '@/lib/utils';
 export const usePostInteraction = (postId, initialStats, currentUser, showToast) => {
     const [liked, setLiked] = useState(false);
     const [reposted, setReposted] = useState(false);
-    const [localStats, setLocalStats] = useState(initialStats || { comments: 0, likes: 0, collects: 0, mirrors: 0 });
+    const [localStats, setLocalStats] = useState(initialStats || { comments: 0, likes: 0, mirrors: 0 });
 
     // Check if current user has liked this post
     useEffect(() => {
@@ -26,7 +26,7 @@ export const usePostInteraction = (postId, initialStats, currentUser, showToast)
                 ...prev,
                 likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1
             }));
-            showToast(isLiked ? "Liked (Demo)" : "Unliked (Demo)");
+            showToast(isLiked ? "Liked" : "Unliked");
             return;
         }
 

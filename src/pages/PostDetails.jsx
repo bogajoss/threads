@@ -8,7 +8,6 @@ import { useToast } from '@/context/ToastContext';
 import { fetchPostById } from '@/services/api';
 import SkeletonPost from '@/components/ui/SkeletonPost';
 import { isValidUUID } from '@/lib/utils';
-import db from '@/data/db.json';
 
 const PostDetails = () => {
     const { id } = useParams();
@@ -20,26 +19,7 @@ const PostDetails = () => {
         queryKey: ['post', id],
         queryFn: async () => {
             if (!isValidUUID(id)) {
-                // Find in mock data
-                const mockPost = db.posts.find(p => p.id === id);
-                if (mockPost) {
-                    const user = db.profiles[mockPost.userHandle] || {
-                        handle: mockPost.userHandle,
-                        name: mockPost.userHandle,
-                        avatar: 'https://static.hey.xyz/images/brands/lens.svg'
-                    };
-                    return {
-                        ...mockPost,
-                        user: {
-                            id: mockPost.userHandle,
-                            handle: user.handle,
-                            name: user.name,
-                            avatar: user.avatar,
-                            verified: user.verified
-                        }
-                    };
-                }
-                throw new Error('Post not found');
+                throw new Error('Invalid post ID');
             }
             return fetchPostById(id);
         },
@@ -64,12 +44,6 @@ const PostDetails = () => {
         );
     }
 
-    // Determine initial comments to show
-    const getComments = () => {
-        // Use post's own mocked comments if they exist, otherwise fallback to global mock comments
-        return post.comments || db.mockComments;
-    };
-
     return (
         <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen shadow-sm mb-20 animate-in slide-in-from-right-5 duration-300">
             <div className="border-b border-zinc-100 dark:border-zinc-800">
@@ -86,7 +60,7 @@ const PostDetails = () => {
                     {...post}
                     isDetail={true}
                     currentUser={currentUser}
-                    initialComments={getComments()}
+                    initialComments={post.comments || []}
                     showToast={addToast}
                     onUserClick={(handle) => navigate(`/u/${handle}`)}
                 />

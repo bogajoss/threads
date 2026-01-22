@@ -18,7 +18,7 @@ const SidebarLeft = () => {
     return (
         <aside className="sticky top-0 hidden md:flex h-screen w-[68px] flex-col items-center py-5 border-r border-zinc-100 dark:border-zinc-800 shrink-0 bg-white dark:bg-black transition-colors duration-200">
             <Link to="/" className="mb-8 hover:scale-110 transition-transform">
-                <img src="https://static.hey.xyz/images/app-icon/0.png" alt="Logo" className="size-8" />
+                <img src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png" alt="Logo" className="size-8 rounded-lg" />
             </Link>
 
             <nav className="flex flex-col gap-y-4 w-full items-center">

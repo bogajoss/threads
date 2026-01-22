@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share2, Music } from 'lucide-react';
 import { Plyr } from 'plyr-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const ReelItem = ({ reel }) => {
     const playerRef = useRef(null);
@@ -89,7 +90,10 @@ const ReelItem = ({ reel }) => {
             
             <div className="absolute bottom-20 left-4 right-16 text-white pointer-events-none">
                 <div className="flex items-center gap-2 mb-3 pointer-events-auto">
-                    <img src={reel.user?.avatar} className="size-10 rounded-full border-2 border-white object-cover" alt="" />
+                    <Avatar className="size-10 border-2 border-white">
+                        <AvatarImage src={reel.user?.avatar} alt={reel.user?.handle} className="object-cover" />
+                        <AvatarFallback>{reel.user?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
                     <span className="font-bold">@{reel.user?.handle}</span>
                     <button className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full ml-2 hover:scale-105 active:scale-95 transition-all">Follow</button>
                 </div>

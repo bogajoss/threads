@@ -30,7 +30,6 @@ export const transformPost = (post) => {
         stats: {
             comments: post.comments_count || 0,
             likes: post.likes_count || 0,
-            collects: post.collects_count || 0,
             mirrors: post.mirrors_count || 0
         },
         user: transformUser(post.user),

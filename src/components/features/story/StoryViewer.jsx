@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const StoryViewer = ({ story, onClose }) => {
     const [progress, setProgress] = useState(0);
@@ -25,7 +26,10 @@ const StoryViewer = ({ story, onClose }) => {
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <img src={story.user.avatar} className="size-10 rounded-full border border-white/20" alt="" />
+                        <Avatar className="size-10 border border-white/20">
+                            <AvatarImage src={story.user.avatar} alt={story.user.handle} className="object-cover" />
+                            <AvatarFallback>{story.user.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
                         <span className="text-white font-bold">{story.user.handle}</span>
                     </div>
                     <button onClick={onClose} className="text-white p-2 hover:bg-white/10 rounded-full">

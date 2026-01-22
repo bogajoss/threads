@@ -56,7 +56,7 @@ export const useFollow = (profile, currentUserId, showToast) => {
                 };
             });
             
-            showToast(following ? "Followed (Demo)" : "Unfollowed (Demo)");
+            showToast(following ? "Followed" : "Unfollowed");
             return;
         }
 

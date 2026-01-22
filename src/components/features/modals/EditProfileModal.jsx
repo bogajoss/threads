@@ -6,6 +6,7 @@ import { Plus, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { uploadFile } from '@/services/api';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const EditProfileModal = ({ isOpen, onClose, editProfileData, setEditProfileData }) => {
     const { updateProfile } = useAuth();
@@ -74,7 +75,10 @@ const EditProfileModal = ({ isOpen, onClose, editProfileData, setEditProfileData
                         onClick={() => avatarInputRef.current?.click()}
                     >
                         {(newAvatarFile || editProfileData?.avatar) && (
-                            <img src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : editProfileData.avatar} className="w-full h-full object-cover opacity-60" alt="" />
+                            <Avatar className="size-full opacity-60 rounded-none">
+                                <AvatarImage src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : editProfileData.avatar} className="object-cover" />
+                                <AvatarFallback>{editProfileData?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                            </Avatar>
                         )}
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="bg-black/50 p-2 rounded-full text-white group-hover:scale-110 transition-transform"><Plus size={16} /></div>

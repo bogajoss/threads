@@ -1,35 +1,35 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState } from 'react';
-import Toast from '@/components/ui/Toast';
+import React, { createContext, useContext } from 'react';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
-    const [toasts, setToasts] = useState([]);
-
+    /**
+     * Adds a toast message using Sonner.
+     * @param {string} message - The message to display.
+     * @param {string} type - 'success' | 'error' | 'info'
+     */
     const addToast = (message, type = 'success') => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { id, message, type }]);
-    };
-
-    const removeToast = (id) => {
-        setToasts(prev => prev.filter(t => t.id !== id));
+        if (type === 'error') {
+            toast.error(message);
+        } else if (type === 'info') {
+            toast.info(message);
+        } else {
+            toast.success(message);
+        }
     };
 
     return (
         <ToastContext.Provider value={{ addToast }}>
             {children}
-            <div className="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center pointer-events-none">
-                {toasts.map(toast => (
-                    <div key={toast.id} className="pointer-events-auto">
-                        <Toast
-                            message={toast.message}
-                            type={toast.type}
-                            onClose={() => removeToast(toast.id)}
-                        />
-                    </div>
-                ))}
-            </div>
+            <Toaster 
+                position="bottom-center"
+                toastOptions={{
+                    className: 'rounded-full font-bold',
+                }}
+            />
         </ToastContext.Provider>
     );
 };

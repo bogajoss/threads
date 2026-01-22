@@ -4,8 +4,20 @@ import {
     Repeat2,
     Heart,
     MoreHorizontal,
-    Loader2
+    Loader2,
+    Link as LinkIcon,
+    Flag,
+    Trash2,
+    UserMinus
 } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import PollDisplay from '@/components/features/post/PollDisplay';
 import QuotedPost from '@/components/features/post/QuotedPost';
@@ -92,6 +104,48 @@ const Post = ({
         }
     };
 
+    const handleCopyLink = (e) => {
+        e.stopPropagation();
+        const url = `${window.location.origin}/post/${id}`;
+        navigator.clipboard.writeText(url);
+        if (showToast) showToast("Link copied to clipboard!");
+    };
+
+    const PostActionsMenu = ({ trigger }) => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                {trigger}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 rounded-xl bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800">
+                <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5" onClick={handleCopyLink}>
+                    <LinkIcon size={16} />
+                    <span>Copy link to post</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5" onClick={(e) => { e.stopPropagation(); showToast && showToast("Post reported"); }}>
+                    <Flag size={16} />
+                    <span>Report post</span>
+                </DropdownMenuItem>
+                {!isCurrentUser && (
+                    <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5 text-rose-500 focus:text-rose-500" onClick={(e) => { e.stopPropagation(); showToast && showToast("User blocked"); }}>
+                        <UserMinus size={16} />
+                        <span>Block @{user.handle}</span>
+                    </DropdownMenuItem>
+                )}
+                {isCurrentUser && (
+                    <>
+                        <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                        <DropdownMenuItem className="gap-2 cursor-pointer focus:bg-rose-50 dark:focus:bg-rose-900/20 py-2.5 text-rose-500 focus:text-rose-500" onClick={(e) => { e.stopPropagation(); showToast && showToast("Delete not implemented yet"); }}>
+                            <Trash2 size={16} />
+                            <span>Delete post</span>
+                        </DropdownMenuItem>
+                    </>
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+
+    const isCurrentUser = currentUser?.handle === user.handle;
+
     const renderMedia = (m) => {
         if (!m) return null;
         if (React.isValidElement(m)) return m;
@@ -112,7 +166,10 @@ const Post = ({
                     <div className="flex items-start justify-between">
                         <div className="flex items-start gap-x-3">
                             <button className="shrink-0" onClick={() => onUserClick && onUserClick(user.handle)}>
-                                <img src={user.avatar} alt={user.handle} className="size-12 rounded-full border border-zinc-200 bg-zinc-200 object-cover dark:border-zinc-700 dark:bg-zinc-800" />
+                                <Avatar className="size-12 border border-zinc-200 dark:border-zinc-700">
+                                    <AvatarImage src={user.avatar} alt={user.handle} className="object-cover" />
+                                    <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                                </Avatar>
                             </button>
                             <div className="flex flex-col">
                                 <div className="flex flex-wrap items-center gap-x-1">
@@ -124,7 +181,11 @@ const Post = ({
                                 <span className="text-sm text-zinc-500 dark:text-zinc-400">@{user.handle}</span>
                             </div>
                         </div>
-                        <button className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2"><MoreHorizontal size={20} /></button>
+                        <PostActionsMenu trigger={
+                            <button className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors">
+                                <MoreHorizontal size={20} />
+                            </button>
+                        } />
                     </div>
                     <div className={`break-words text-zinc-900 dark:text-zinc-100 mt-4 text-xl leading-8 whitespace-pre-line`}>{renderContent(content, contentClass)}</div>
                     {renderMedia(media)}
@@ -183,7 +244,7 @@ const Post = ({
             {repostedBy && (
                 <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-500 font-semibold ml-1">
                     <Repeat2 size={14} className="text-zinc-400" />
-                    <span className="hover:underline cursor-pointer flex items-center text-zinc-600 dark:text-zinc-400" onClick={(e) => { e.stopPropagation(); onUserClick && onUserClick(repostedBy.handle || 'kolin'); }}>
+                    <span className="hover:underline cursor-pointer flex items-center text-zinc-600 dark:text-zinc-400" onClick={(e) => { e.stopPropagation(); onUserClick && onUserClick(repostedBy.handle); }}>
                         <span className="truncate max-w-[150px]">{typeof repostedBy === 'object' ? repostedBy.name : repostedBy}</span>
                     </span>
                     <span className="text-zinc-400">reposted</span>
@@ -191,7 +252,10 @@ const Post = ({
             )}
             <div className="flex items-start gap-x-3">
                 <button className="shrink-0 group" onClick={(e) => { e.stopPropagation(); onUserClick && onUserClick(user.handle); }}>
-                    <img src={user.avatar} alt={user.handle} className="size-11 rounded-full border border-zinc-200 bg-zinc-200 object-cover dark:border-zinc-700 dark:bg-zinc-800 group-hover:brightness-95 transition-all" />
+                    <Avatar className="size-11 border border-zinc-200 dark:border-zinc-700 group-hover:brightness-95 transition-all">
+                        <AvatarImage src={user.avatar} alt={user.handle} className="object-cover" />
+                        <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
                 </button>
                 <div className="min-w-0 flex-1">
                     <div className="flex w-full items-start justify-between">
@@ -204,9 +268,11 @@ const Post = ({
                                 <span className="text-zinc-400 text-sm ml-1 whitespace-nowrap">• {timeAgo || 'Recent'}</span>
                             </div>
                         </div>
-                        <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors" onClick={(e) => e.stopPropagation()}>
-                            <MoreHorizontal size={18} />
-                        </button>
+                        <PostActionsMenu trigger={
+                            <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors">
+                                <MoreHorizontal size={18} />
+                            </button>
+                        } />
                     </div>
 
                     <div className="break-words text-zinc-900 dark:text-zinc-100 mt-1 whitespace-pre-line text-[15px] leading-relaxed">

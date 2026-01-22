@@ -45,7 +45,7 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
             <div className="text-center mb-8">
                 <div className="flex justify-center mb-4">
                     <div className="bg-black dark:bg-white dark:text-black text-white p-3 rounded-2xl shadow-lg">
-                        <img src="https://static.hey.xyz/images/app-icon/0.png" alt="Logo" className="w-10 h-10 filter invert dark:filter-none" />
+                        <img src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png" alt="Logo" className="w-10 h-10 rounded-xl" />
                     </div>
                 </div>
                 <h2 className="text-3xl font-extrabold mb-2 dark:text-white tracking-tight">{type === 'login' ? 'Welcome back!' : 'Join Hey today'}</h2>

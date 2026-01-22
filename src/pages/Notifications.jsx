@@ -37,7 +37,6 @@ const Notifications = () => {
             case 'like': return <Heart size={20} className="text-rose-500 fill-rose-500" />;
             case 'follow': return <UserPlus size={20} className="text-blue-500" />;
             case 'mention': return <AtSign size={20} className="text-emerald-500" />;
-            case 'collect': return <Layers size={20} className="text-violet-500" />;
             case 'comment': return <MessageSquare size={20} className="text-violet-500" />;
             case 'repost': return <Layers size={20} className="text-amber-500" />;
             default: return <AtSign size={20} className="text-zinc-500" />;
@@ -67,7 +66,6 @@ const Notifications = () => {
                                 {notif.type === 'like' && 'liked your post'}
                                 {notif.type === 'follow' && 'followed you'}
                                 {notif.type === 'mention' && 'mentioned you in a post'}
-                                {notif.type === 'collect' && 'collected your post'}
                                 {notif.type === 'comment' && 'commented on your post'}
                                 {notif.type === 'repost' && 'reposted your post'}
                             </p>

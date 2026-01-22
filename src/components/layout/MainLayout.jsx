@@ -5,7 +5,7 @@ import SidebarRight from '@/components/layout/SidebarRight';
 import BottomNav from '@/components/layout/BottomNav';
 import { useTheme } from '@/context/ThemeContext';
 import FeedHeader from '@/components/layout/FeedHeader';
-import db from '@/data/db.json';
+import { TRENDING_TOPICS } from '@/lib/constants';
 
 const MainLayout = () => {
     const location = useLocation();
@@ -37,7 +37,7 @@ const MainLayout = () => {
                     </div>
 
                     {/* Right Sidebar - Now on all pages */}
-                    <SidebarRight trendingTopics={db.trendingTopics} />
+                    <SidebarRight trendingTopics={TRENDING_TOPICS} />
                 </div>
             </div>
 

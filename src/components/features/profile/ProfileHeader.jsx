@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 import { useFollow } from '@/hooks/useFollow';
 
@@ -23,7 +24,10 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
                 {profile.cover && <img src={profile.cover} className="h-full w-full object-cover transition-opacity duration-500" alt="Cover" />}
                 <div className="absolute -bottom-12 sm:-bottom-16 left-4 sm:left-6">
                     <div className="p-1 bg-white dark:bg-black rounded-full overflow-hidden shadow-xl ring-4 ring-white dark:ring-black">
-                        <img src={profile.avatar} className="size-24 sm:size-32 rounded-full object-cover" alt={profile.handle} />
+                        <Avatar className="size-24 sm:size-32">
+                            <AvatarImage src={profile.avatar} alt={profile.handle} className="object-cover" />
+                            <AvatarFallback className="text-4xl font-bold">{profile.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
                     </div>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { usePosts } from '@/context/PostContext';
 import { useToast } from '@/context/ToastContext';
 import { uploadFile } from '@/services/api';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const CreatePostModal = ({ isOpen, onClose }) => {
     const { currentUser } = useAuth();
@@ -98,7 +99,10 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         <Modal isOpen={isOpen} onClose={() => !loading && onClose()} title="Create Post">
             <form onSubmit={handleCreatePost} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2 no-scrollbar">
                 <div className="flex gap-3">
-                    <img src={currentUser?.avatar} className="size-12 rounded-full border border-zinc-200 dark:border-zinc-800 object-cover" alt="" />
+                    <Avatar className="size-12 border border-zinc-200 dark:border-zinc-800">
+                        <AvatarImage src={currentUser?.avatar} className="object-cover" />
+                        <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
                     <div className="flex-1">
                         <textarea
                             className="w-full bg-transparent border-none outline-none text-lg min-h-[100px] resize-none dark:text-white"

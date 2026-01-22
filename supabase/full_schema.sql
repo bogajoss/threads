@@ -1,5 +1,5 @@
 -- Hey.clone Full Database Schema
--- Last Updated: 2026-01-21
+-- Last Updated: 2026-01-22
 
 -- ==========================================
 -- 1. IDENTITY & PROFILES
@@ -49,19 +49,11 @@ CREATE TABLE IF NOT EXISTS public.posts (
   likes_count INTEGER DEFAULT 0,
   comments_count INTEGER DEFAULT 0,
   mirrors_count INTEGER DEFAULT 0,
-  collects_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Interaction Tables
 CREATE TABLE IF NOT EXISTS public.likes (
-  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  PRIMARY KEY (post_id, user_id)
-);
-
-CREATE TABLE IF NOT EXISTS public.collects (
   post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -106,7 +98,7 @@ CREATE TABLE IF NOT EXISTS public.stories (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-CREATE TYPE notification_type AS ENUM ('like', 'mention', 'follow', 'repost', 'comment', 'collect');
+CREATE TYPE notification_type AS ENUM ('like', 'mention', 'follow', 'repost', 'comment');
 
 CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -149,7 +141,6 @@ ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follows DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.likes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.collects DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;

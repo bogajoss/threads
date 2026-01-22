@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const ChatList = ({ conversations, onSelect, selectedId, searchQuery, onSearchChange }) => (
     <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-black">
@@ -22,7 +23,10 @@ const ChatList = ({ conversations, onSelect, selectedId, searchQuery, onSearchCh
                     onClick={() => onSelect(conv)}
                     className={`flex items-center gap-3 p-4 cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900 ${selectedId === conv.id ? 'bg-zinc-50 dark:bg-zinc-900 border-r-2 border-violet-500' : ''}`}
                 >
-                    <img src={conv.user.avatar} className="size-12 rounded-full object-cover shrink-0" alt="" />
+                    <Avatar className="size-12">
+                        <AvatarImage src={conv.user.avatar} alt={conv.user.name} className="object-cover" />
+                        <AvatarFallback>{conv.user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
                     <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center mb-0.5">
                             <span className="font-bold dark:text-white truncate">{conv.user.name}</span>

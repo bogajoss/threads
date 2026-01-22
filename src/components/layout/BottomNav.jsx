@@ -2,6 +2,7 @@ import React from 'react';
 import { Home, Compass, Film, Mail, Bell } from 'lucide-react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const BottomNav = ({ handleProfileClick }) => {
     const { currentUser } = useAuth();
@@ -30,13 +31,15 @@ const BottomNav = ({ handleProfileClick }) => {
                     )}
                 </NavLink>
             ))}
-            <Link
-                to={currentUser ? `/u/${currentUser.handle}` : '/explore'}
-                onClick={() => { if (!currentUser) handleProfileClick('demouser'); }}
-                className="flex flex-col items-center justify-center p-2"
+            <button
+                onClick={() => { if (currentUser) handleProfileClick(currentUser.handle); }}
+                className="flex-1 flex justify-center py-3"
             >
-                <img src={currentUser?.avatar || 'https://static.hey.xyz/images/brands/lens.svg'} className={`size-7 rounded-full object-cover border-2 ${location.pathname.startsWith('/u/') ? 'border-black dark:border-white' : 'border-transparent opacity-70'}`} alt="" />
-            </Link>
+                <Avatar className={`size-7 border-2 ${location.pathname.startsWith('/u/') ? 'border-black dark:border-white' : 'border-transparent opacity-70'}`}>
+                    <AvatarImage src={currentUser?.avatar || 'https://static.hey.xyz/images/brands/lens.svg'} alt="Profile" className="object-cover" />
+                    <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
+            </button>
         </nav>
     );
 };

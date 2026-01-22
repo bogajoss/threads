@@ -3,14 +3,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { fetchProfileByHandle, updateProfile } from '@/services/api';
 import { transformUser } from '@/lib/transformers';
-import db from '@/data/db.json';
+import { MOCK_PROFILES } from '@/lib/constants';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [authMode, setAuthMode] = useState(null);
-    const [profiles, setProfiles] = useState(db.profiles);
+    const [profiles, setProfiles] = useState({});
     const [loading, setLoading] = useState(true);
 
     const fetchUserProfile = async (user) => {

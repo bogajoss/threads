@@ -1,12 +1,16 @@
 import React from 'react';
 import { Plus, MapPin, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const CommentInput = ({ currentUser, newComment, setNewComment, handleSubmitComment, loading }) => (
     currentUser ? (
         <div className="p-4 border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/10">
             <div className="flex gap-3">
-                <img src={currentUser.avatar} className="size-9 rounded-full object-cover shrink-0 border border-zinc-200 dark:border-zinc-700" alt="" />
+                <Avatar className="size-9 border border-zinc-200 dark:border-zinc-700">
+                    <AvatarImage src={currentUser.avatar} alt={currentUser.handle} className="object-cover" />
+                    <AvatarFallback>{currentUser.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div className="flex-1">
                     <textarea
                         id="comment-input"
