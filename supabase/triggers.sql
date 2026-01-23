@@ -138,6 +138,23 @@ CREATE OR REPLACE TRIGGER on_new_message
   AFTER INSERT ON public.messages
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_message();
 
+-- Function to handle conversation update when a message is deleted
+CREATE OR REPLACE FUNCTION public.handle_message_delete()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.conversations
+  SET 
+    last_message_at = (SELECT created_at FROM public.messages WHERE conversation_id = OLD.conversation_id ORDER BY created_at DESC LIMIT 1),
+    last_message_content = (SELECT content FROM public.messages WHERE conversation_id = OLD.conversation_id ORDER BY created_at DESC LIMIT 1)
+  WHERE id = OLD.conversation_id;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_message_deleted
+  AFTER DELETE ON public.messages
+  FOR EACH ROW EXECUTE FUNCTION public.handle_message_delete();
+
 -- ==========================================
 -- 7. NOTIFICATIONS AUTOMATION
 -- ==========================================

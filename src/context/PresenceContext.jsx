@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
+import { updateLastSeen } from "@/services/api";
 
 const PresenceContext = createContext();
 
@@ -33,10 +34,16 @@ export const PresenceProvider = ({ children }) => {
             userId: currentUser.id,
             online_at: new Date().toISOString(),
           });
+          // Update DB that user is online now
+          updateLastSeen(currentUser.id);
         }
       });
 
     return () => {
+      // Update DB one last time before unmounting (logout/tab switch)
+      if (currentUser?.id) {
+        updateLastSeen(currentUser.id);
+      }
       supabase.removeChannel(channel);
       setOnlineUsers(new Set());
     };

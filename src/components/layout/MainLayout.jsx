@@ -15,10 +15,10 @@ const MainLayout = ({ onPostClick }) => {
 
   const isHomePage = location.pathname === "/";
 
-  // Show bottom nav on main messages list and reels, but hide it when a specific chat is open for better UX
+  // Hide bottom nav on reels and specific messages for better UX
   const isNavHidden =
-    location.pathname.split("/").length > 2 &&
-    location.pathname.startsWith("/messages");
+    location.pathname.startsWith("/reels") ||
+    (location.pathname.startsWith("/messages") && location.pathname.split("/").length > 2);
 
   const handleProfileClick = (handle) => {
     navigate(`/u/${handle}`);

@@ -6,6 +6,7 @@ import StoryCircle from "@/components/features/story/StoryCircle";
 import Post from "@/components/features/post/Post";
 import SkeletonPost from "@/components/ui/SkeletonPost";
 import SignupCard from "@/components/ui/SignupCard";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
@@ -72,11 +73,14 @@ const Home = ({ onStoryClick, onAddStory }) => {
   if (isPostsLoading || isStoriesLoading) {
     return (
       <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-4 px-4 bg-white dark:bg-black border-b border-zinc-100 dark:border-zinc-800">
-          <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
-          <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
-          <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
-        </div>
+        <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex w-max gap-3 py-4 px-4">
+            <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
+            <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
+            <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
+          </div>
+          <ScrollBar orientation="horizontal" className="hidden" />
+        </ScrollArea>
         {[1, 2, 3].map((i) => (
           <SkeletonPost key={i} />
         ))}
@@ -86,22 +90,25 @@ const Home = ({ onStoryClick, onAddStory }) => {
 
   return (
     <div>
-      <div className="flex gap-4 overflow-x-auto no-scrollbar py-4 px-4 bg-white dark:bg-black border-b border-zinc-100 dark:border-zinc-800">
-        {currentUser && (
-          <StoryCircle
-            user={currentUser}
-            isAddStory={true}
-            onClick={onAddStory}
-          />
-        )}
-        {groupedStories.map((group) => (
-          <StoryCircle
-            key={group.user.id}
-            user={group.user}
-            onClick={() => onStoryClick(group)}
-          />
-        ))}
-      </div>
+      <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black">
+        <div className="flex w-max gap-4 py-4 px-4">
+          {currentUser && (
+            <StoryCircle
+              user={currentUser}
+              isAddStory={true}
+              onClick={onAddStory}
+            />
+          )}
+          {groupedStories.map((group) => (
+            <StoryCircle
+              key={group.user.id}
+              user={group.user}
+              onClick={() => onStoryClick(group)}
+            />
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" className="hidden" />
+      </ScrollArea>
 
       {!currentUser && (
         <div className="px-4 py-2 md:hidden">

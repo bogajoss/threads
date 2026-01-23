@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState, useCallback } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   Heart,
   UserPlus,
@@ -7,23 +8,55 @@ import {
   Layers,
   Loader2,
   MessageSquare,
-  Zap,
 } from "lucide-react";
 import { fetchNotifications, markNotificationsAsRead } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 const Notifications = () => {
   const { currentUser } = useAuth();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ["notifications", currentUser?.id],
-    queryFn: () => fetchNotifications(currentUser?.id),
-    enabled: !!currentUser?.id,
-  });
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const loadNotifications = useCallback(async (isLoadMore = false) => {
+    if (!currentUser?.id) return;
+    
+    if (isLoadMore) setIsFetchingMore(true);
+    else setIsLoading(true);
+
+    try {
+      const lastTimestamp = isLoadMore && notifications.length > 0 
+        ? notifications[notifications.length - 1].created_at 
+        : null;
+      
+      const data = await fetchNotifications(currentUser.id, lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMore(false);
+      else setHasMore(true);
+
+      if (isLoadMore) {
+        setNotifications(prev => [...prev, ...data]);
+      } else {
+        setNotifications(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+    } finally {
+      setIsLoading(false);
+      setIsFetchingMore(false);
+    }
+  }, [currentUser?.id, notifications]);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [currentUser?.id]);
 
   // Realtime subscription for notifications
   useEffect(() => {
@@ -39,32 +72,39 @@ const Notifications = () => {
           table: "notifications",
           filter: `recipient_id=eq.${currentUser.id}`,
         },
-        () => {
-          queryClient.invalidateQueries({
-            queryKey: ["notifications", currentUser.id],
-          });
+        (payload) => {
+          // Add new notification to the top optimistically
+          // In a real app we'd fetch the actor details, but for now we'll just refresh
+          loadNotifications();
         },
       )
       .subscribe();
 
     return () => supabase.removeChannel(channel);
-  }, [currentUser?.id, queryClient]);
+  }, [currentUser?.id, loadNotifications]);
 
   const markReadMutation = useMutation({
     mutationFn: () => markNotificationsAsRead(currentUser.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notifications", currentUser.id],
-      });
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     },
   });
 
-  // Mark notifications as read when the component mounts
+  const handleNotificationClick = (notif) => {
+    if (notif.type === "follow") {
+      navigate(`/u/${notif.user}`);
+    } else if (notif.post_id) {
+      navigate(`/post/${notif.post_id}`);
+    }
+  };
+
+  // Mark notifications as read when the component mounts or updates
   useEffect(() => {
     if (currentUser?.id && notifications.some((n) => !n.is_read)) {
       markReadMutation.mutate();
     }
-  }, [currentUser?.id, notifications, markReadMutation]);
+  }, [currentUser?.id, notifications.length]); // Only trigger when count changes
+
 
   if (isLoading) {
     return (
@@ -78,7 +118,7 @@ const Notifications = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center">
         <div className="bg-zinc-100 dark:bg-zinc-900 p-4 rounded-full">
-          <Zap size={40} className="text-zinc-400" />
+          <AtSign size={40} className="text-zinc-400" />
         </div>
         <h3 className="text-xl font-bold dark:text-white">
           Sign in to see notifications
@@ -118,6 +158,7 @@ const Notifications = () => {
         notifications.map((notif) => (
           <div
             key={notif.id}
+            onClick={() => handleNotificationClick(notif)}
             className={`p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-start gap-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer ${!notif.is_read ? "bg-violet-50/30 dark:bg-violet-500/5" : ""}`}
           >
             <div className="shrink-0 pt-1">{getIcon(notif.type)}</div>
@@ -154,6 +195,28 @@ const Notifications = () => {
       ) : (
         <div className="p-16 text-center text-zinc-500">
           <p className="font-medium">No notifications yet.</p>
+        </div>
+      )}
+
+      {notifications.length > 0 && hasMore && (
+        <div className="p-6 flex justify-center border-t border-zinc-100 dark:border-zinc-800">
+          <Button
+            variant="secondary"
+            className="w-full max-w-xs"
+            onClick={() => loadNotifications(true)}
+            disabled={isFetchingMore}
+          >
+            {isFetchingMore ? (
+              <Loader2 size={18} className="animate-spin mr-2" />
+            ) : null}
+            Load more
+          </Button>
+        </div>
+      )}
+
+      {notifications.length > 0 && !hasMore && (
+        <div className="p-8 text-center text-zinc-500 text-sm">
+          You've caught up with everything!
         </div>
       )}
     </div>

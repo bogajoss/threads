@@ -26,27 +26,45 @@ const Profile = ({ onEditProfile }) => {
   const [followModalType, setFollowModalType] = useState("Followers"); // 'Followers' or 'Following'
   const [followListData, setFollowListData] = useState([]);
   const [isListLoading, setIsListLoading] = useState(false);
+  const [isFetchingMoreFollows, setIsFetchingMoreFollows] = useState(false);
+  const [hasMoreFollows, setHasMoreFollows] = useState(true);
 
-  const openFollowModal = async (type) => {
+  const openFollowModal = async (type, isLoadMore = false) => {
     const userId = profile?.id || displayProfile?.id;
-    if (!userId) {
-      console.warn("Cannot open follow modal: No user ID found", { profile, displayProfile });
-      return;
+    if (!userId) return;
+
+    if (isLoadMore) setIsFetchingMoreFollows(true);
+    else {
+      setFollowModalType(type);
+      setIsFollowModalOpen(true);
+      setIsListLoading(true);
+      setFollowListData([]);
     }
-    setFollowModalType(type);
-    setIsFollowModalOpen(true);
-    setIsListLoading(true);
+
     try {
+      const lastTimestamp = isLoadMore && followListData.length > 0
+        ? followListData[followListData.length - 1].followed_at
+        : null;
+
       const data =
         type === "Followers"
-          ? await fetchFollowers(userId)
-          : await fetchFollowing(userId);
-      setFollowListData(data);
+          ? await fetchFollowers(userId, lastTimestamp, 10)
+          : await fetchFollowing(userId, lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMoreFollows(false);
+      else setHasMoreFollows(true);
+
+      if (isLoadMore) {
+        setFollowListData((prev) => [...prev, ...data]);
+      } else {
+        setFollowListData(data);
+      }
     } catch (err) {
       console.error(`Failed to fetch ${type}:`, err);
       addToast(`Failed to load ${type}`);
     } finally {
       setIsListLoading(false);
+      setIsFetchingMoreFollows(false);
     }
   };
 
@@ -206,6 +224,22 @@ const Profile = ({ onEditProfile }) => {
                   }}
                 />
               ))}
+              
+              {hasMoreFollows && (
+                <div className="p-4 flex justify-center">
+                  <Button
+                    variant="secondary"
+                    className="w-full text-xs"
+                    onClick={() => openFollowModal(followModalType, true)}
+                    disabled={isFetchingMoreFollows}
+                  >
+                    {isFetchingMoreFollows ? (
+                      <Loader2 size={14} className="animate-spin mr-2" />
+                    ) : null}
+                    Load more
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-zinc-500">

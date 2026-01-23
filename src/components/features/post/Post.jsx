@@ -39,7 +39,7 @@ import ActionButton from "@/components/features/post/ActionButton";
 import MediaGrid from "@/components/features/post/MediaGrid";
 import CommentInput from "@/components/features/post/CommentInput";
 import { usePostInteraction } from "@/hooks/usePostInteraction";
-import { fetchCommentsByPostId, addComment } from "@/services/api";
+import { fetchCommentsByPostId, addComment, uploadFile } from "@/services/api";
 import { usePosts } from "@/context/PostContext";
 import { isBangla } from "@/lib/utils";
 
@@ -69,6 +69,10 @@ const Post = ({
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [isFetchingMoreComments, setIsFetchingMoreComments] = useState(false);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
@@ -109,18 +113,33 @@ const Post = ({
     }
   };
 
-  const loadComments = useCallback(async () => {
+  const loadComments = useCallback(async (isLoadMore = false) => {
     if (!id) return;
-    setLoadingComments(true);
+    if (isLoadMore) setIsFetchingMoreComments(true);
+    else setLoadingComments(true);
+
     try {
-      const data = await fetchCommentsByPostId(id);
-      setComments(data);
+      const lastTimestamp = isLoadMore && comments.length > 0
+        ? comments[comments.length - 1].created_at
+        : null;
+
+      const data = await fetchCommentsByPostId(id, lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMoreComments(false);
+      else setHasMoreComments(true);
+
+      if (isLoadMore) {
+        setComments(prev => [...prev, ...data]);
+      } else {
+        setComments(data);
+      }
     } catch (err) {
       console.error("Failed to load comments:", err);
     } finally {
       setLoadingComments(false);
+      setIsFetchingMoreComments(false);
     }
-  }, [id]);
+  }, [id, comments]);
 
   useEffect(() => {
     if (isDetail && id) {
@@ -130,12 +149,20 @@ const Post = ({
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !currentUser) return;
+    if ((!newComment.trim() && selectedFiles.length === 0) || !currentUser) return;
 
     setSubmittingComment(true);
+    setIsUploading(true);
     try {
-      await addComment(id, currentUser.id, newComment);
+      const uploadedMedia = [];
+      for (const file of selectedFiles) {
+        const res = await uploadFile(file);
+        uploadedMedia.push(res);
+      }
+
+      await addComment(id, currentUser.id, newComment, uploadedMedia);
       setNewComment("");
+      setSelectedFiles([]);
       setLocalStats((prev) => ({
         ...prev,
         comments: (prev.comments || 0) + 1,
@@ -147,6 +174,7 @@ const Post = ({
       if (showToast) showToast("Failed to post reply.");
     } finally {
       setSubmittingComment(false);
+      setIsUploading(false);
     }
   };
 
@@ -419,6 +447,9 @@ const Post = ({
           setNewComment={setNewComment}
           handleSubmitComment={handleSubmitComment}
           loading={submittingComment}
+          selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
+          isUploading={isUploading}
         />
 
         <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -427,18 +458,30 @@ const Post = ({
               <Loader2 className="animate-spin text-violet-500" />
             </div>
           ) : (
-            comments.map((c) => (
-              <Post
-                key={c.id}
-                {...c}
-                onUserClick={onUserClick}
-                currentUser={currentUser}
-                showToast={showToast}
-                onDelete={(deletedId) =>
-                  setComments((prev) => prev.filter((pc) => pc.id !== deletedId))
-                }
-              />
-            ))
+            <>
+              {hasMoreComments && comments.length > 0 && (
+                <button
+                  onClick={() => loadComments(true)}
+                  disabled={isFetchingMoreComments}
+                  className="w-full py-3 text-sm font-bold text-violet-600 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-center gap-2"
+                >
+                  {isFetchingMoreComments && <Loader2 size={14} className="animate-spin" />}
+                  View more replies
+                </button>
+              )}
+              {comments.map((c) => (
+                <Post
+                  key={c.id}
+                  {...c}
+                  onUserClick={onUserClick}
+                  currentUser={currentUser}
+                  showToast={showToast}
+                  onDelete={(deletedId) =>
+                    setComments((prev) => prev.filter((pc) => pc.id !== deletedId))
+                  }
+                />
+              ))}
+            </>
           )}
         </div>
 

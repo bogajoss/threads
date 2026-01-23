@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Post from "@/components/features/post/Post";
 import ProfileCard from "@/components/ui/ProfileCard";
@@ -10,6 +9,8 @@ import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
 import { fetchProfiles } from "@/services/api";
+import { Loader2 } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 const Explore = () => {
   const { currentUser } = useAuth();
@@ -19,13 +20,44 @@ const Explore = () => {
   const [activeTab, setActiveTab] = useState("users");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: profiles = {}, isLoading: isProfilesLoading } = useQuery({
-    queryKey: ["profiles"],
-    queryFn: fetchProfiles,
-  });
+  const [profiles, setProfiles] = useState([]);
+  const [isProfilesLoading, setIsProfilesLoading] = useState(true);
+  const [isFetchingMoreProfiles, setIsFetchingMoreProfiles] = useState(false);
+  const [hasMoreProfiles, setHasMoreProfiles] = useState(true);
+
+  const loadProfiles = useCallback(async (isLoadMore = false) => {
+    if (isLoadMore) setIsFetchingMoreProfiles(true);
+    else setIsProfilesLoading(true);
+
+    try {
+      const lastTimestamp = isLoadMore && profiles.length > 0
+        ? profiles[profiles.length - 1].created_at
+        : null;
+
+      const data = await fetchProfiles(lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMoreProfiles(false);
+      else setHasMoreProfiles(true);
+
+      if (isLoadMore) {
+        setProfiles(prev => [...prev, ...data]);
+      } else {
+        setProfiles(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profiles:", err);
+    } finally {
+      setIsProfilesLoading(false);
+      setIsFetchingMoreProfiles(false);
+    }
+  }, [profiles]);
+
+  useEffect(() => {
+    loadProfiles();
+  }, []);
 
   const users = useMemo(() => {
-    let list = Object.values(profiles).filter((p) => p.type !== "community");
+    let list = profiles.filter((p) => p.type !== "community");
     if (searchQuery) {
       list = list.filter(
         (u) =>
@@ -37,7 +69,7 @@ const Explore = () => {
   }, [profiles, searchQuery]);
 
   const communities = useMemo(() => {
-    let list = Object.values(profiles).filter((p) => p.type === "community");
+    let list = profiles.filter((p) => p.type === "community");
     if (searchQuery) {
       list = list.filter(
         (c) =>
@@ -118,6 +150,20 @@ const Explore = () => {
                 <p className="font-bold">No users found</p>
               </div>
             )}
+            
+            {hasMoreProfiles && users.length > 0 && (
+              <div className="p-6 flex justify-center border-t border-zinc-100 dark:border-zinc-800">
+                <Button
+                  variant="secondary"
+                  className="w-full max-w-xs"
+                  onClick={() => loadProfiles(true)}
+                  disabled={isFetchingMoreProfiles}
+                >
+                  {isFetchingMoreProfiles && <Loader2 size={18} className="animate-spin mr-2" />}
+                  Load more
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -135,6 +181,20 @@ const Explore = () => {
             ) : (
               <div className="p-20 text-center text-zinc-500">
                 <p className="font-bold">No communities found</p>
+              </div>
+            )}
+
+            {hasMoreProfiles && communities.length > 0 && (
+              <div className="p-6 flex justify-center border-t border-zinc-100 dark:border-zinc-800">
+                <Button
+                  variant="secondary"
+                  className="w-full max-w-xs"
+                  onClick={() => loadProfiles(true)}
+                  disabled={isFetchingMoreProfiles}
+                >
+                  {isFetchingMoreProfiles && <Loader2 size={18} className="animate-spin mr-2" />}
+                  Load more
+                </Button>
               </div>
             )}
           </div>

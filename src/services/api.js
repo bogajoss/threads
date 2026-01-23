@@ -238,18 +238,24 @@ export const getOrCreateConversation = async (userId, targetUserId) => {
 };
 
 /**
- * Fetches all user profiles.
+ * Fetches all user profiles with pagination.
  */
-export const fetchProfiles = async () => {
-  const { data, error } = await supabase.from("users").select("*");
+export const fetchProfiles = async (lastTimestamp = null, limit = 10) => {
+  let query = supabase
+    .from("users")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 
-  return data.reduce((acc, user) => {
-    const transformed = transformUser(user);
-    acc[transformed.handle] = transformed;
-    return acc;
-  }, {});
+  return data.map(transformUser);
 };
 
 /**
@@ -264,6 +270,18 @@ export const fetchProfileByHandle = async (handle) => {
 
   if (error) throw error;
   return transformUser(data);
+};
+
+/**
+ * Updates the user's last seen timestamp.
+ */
+export const updateLastSeen = async (userId) => {
+  if (!userId) return;
+  const { error } = await supabase
+    .from("users")
+    .update({ last_seen_at: new Date().toISOString() })
+    .eq("id", userId);
+  if (error) console.error("Error updating last seen:", error);
 };
 
 /**
@@ -287,12 +305,12 @@ export const updateProfile = async (userId, updatedFields) => {
 };
 
 /**
- * Fetches notifications for the recipient_id.
+ * Fetches notifications for the recipient_id with pagination.
  */
-export const fetchNotifications = async (userId) => {
+export const fetchNotifications = async (userId, lastTimestamp = null, limit = 10) => {
   if (!userId) return [];
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("notifications")
     .select(
       `
@@ -304,7 +322,14 @@ export const fetchNotifications = async (userId) => {
         `,
     )
     .eq("recipient_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data.map(transformNotification);
@@ -538,10 +563,10 @@ export const deleteMessage = async (messageId) => {
 };
 
 /**
- * Fetches all comments for a post.
+ * Fetches comments for a post with pagination.
  */
-export const fetchCommentsByPostId = async (postId) => {
-  const { data, error } = await supabase
+export const fetchCommentsByPostId = async (postId, lastTimestamp = null, limit = 10) => {
+  let query = supabase
     .from("posts")
     .select(
       `
@@ -556,7 +581,14 @@ export const fetchCommentsByPostId = async (postId) => {
         `,
     )
     .eq("parent_id", postId)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true }) // Comments usually show oldest first, or we can use descending
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.gt("created_at", lastTimestamp); // gt because ascending
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data.map(transformPost);
@@ -565,13 +597,14 @@ export const fetchCommentsByPostId = async (postId) => {
 /**
  * Adds a comment to a post.
  */
-export const addComment = async (postId, userId, content) => {
+export const addComment = async (postId, userId, content, media = []) => {
   const { data, error } = await supabase.from("posts").insert([
     {
       parent_id: postId,
       user_id: userId,
       content,
-      type: "text",
+      media,
+      type: media.length > 0 ? (media[0].type === "video" ? "video" : "image") : "text",
       created_at: new Date().toISOString(),
     },
   ]).select(`
@@ -668,12 +701,13 @@ export const checkIfFollowing = async (followerId, followingId) => {
 };
 
 /**
- * Fetches followers of a user.
+ * Fetches followers of a user with pagination.
  */
-export const fetchFollowers = async (userId) => {
-  const { data, error } = await supabase
+export const fetchFollowers = async (userId, lastTimestamp = null, limit = 10) => {
+  let query = supabase
     .from("follows")
     .select(`
+      created_at,
       user:users!follower_id (
         id,
         username,
@@ -683,19 +717,31 @@ export const fetchFollowers = async (userId) => {
         bio
       )
     `)
-    .eq("following_id", userId);
+    .eq("following_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
-  return data.map((item) => transformUser(item.user));
+  return data.map((item) => ({
+    ...transformUser(item.user),
+    followed_at: item.created_at
+  }));
 };
 
 /**
- * Fetches users followed by a user.
+ * Fetches users followed by a user with pagination.
  */
-export const fetchFollowing = async (userId) => {
-  const { data, error } = await supabase
+export const fetchFollowing = async (userId, lastTimestamp = null, limit = 10) => {
+  let query = supabase
     .from("follows")
     .select(`
+      created_at,
       user:users!following_id (
         id,
         username,
@@ -705,10 +751,21 @@ export const fetchFollowing = async (userId) => {
         bio
       )
     `)
-    .eq("follower_id", userId);
+    .eq("follower_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
-  return data.map((item) => transformUser(item.user));
+  return data.map((item) => ({
+    ...transformUser(item.user),
+    followed_at: item.created_at
+  }));
 };
 
 /**
