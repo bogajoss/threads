@@ -129,7 +129,7 @@ const Messages = () => {
     selectedConversation && onlineUsers.has(selectedConversation.user?.id);
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] md:h-[calc(100vh-2rem)] bg-white dark:bg-black overflow-hidden md:rounded-xl md:border border-zinc-100 dark:border-zinc-800">
+    <div className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} md:h-[calc(100vh-2rem)] bg-white dark:bg-black overflow-hidden md:rounded-xl md:border border-zinc-100 dark:border-zinc-800`}>
       <div
         className={`w-full md:w-80 flex flex-col border-r border-zinc-100 dark:border-zinc-800 ${selectedConversation ? "hidden md:flex" : "flex"}`}
       >
