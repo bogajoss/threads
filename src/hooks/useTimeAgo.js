@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
-import { formatTimeAgo } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { formatTimeAgo } from "@/lib/utils";
 
 /**
  * A hook that returns a formatted time ago string and updates it every minute.
  */
 export const useTimeAgo = (date) => {
-    const [timeAgo, setTimeAgo] = useState(() => formatTimeAgo(date));
+  const [timeAgo, setTimeAgo] = useState(() => formatTimeAgo(date));
 
-    useEffect(() => {
-        if (!date) return;
+  useEffect(() => {
+    if (!date) return;
 
-        // Schedule update to avoid synchronous setState in effect
-        const timeout = setTimeout(() => {
-            setTimeAgo(formatTimeAgo(date));
-        }, 0);
+    // Schedule update to avoid synchronous setState in effect
+    const timeout = setTimeout(() => {
+      setTimeAgo(formatTimeAgo(date));
+    }, 0);
 
-        // Set up interval to update every 60 seconds
-        const interval = setInterval(() => {
-            setTimeAgo(formatTimeAgo(date));
-        }, 60000);
+    // Set up interval to update every 60 seconds
+    const interval = setInterval(() => {
+      setTimeAgo(formatTimeAgo(date));
+    }, 60000);
 
-        return () => {
-            clearTimeout(timeout);
-            clearInterval(interval);
-        };
-    }, [date]);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, [date]);
 
-    return timeAgo;
+  return timeAgo;
 };

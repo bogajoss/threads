@@ -1,21 +1,11 @@
-import React from 'react';
-import { motion as Motion } from 'framer-motion';
+import React from "react";
 
 const PageTransition = ({ children }) => {
-    return (
-        <Motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ 
-                duration: 0.3,
-                ease: "easeOut"
-            }}
-            className="w-full"
-        >
-            {children}
-        </Motion.div>
-    );
+  return (
+    <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
+      {children}
+    </div>
+  );
 };
 
 export default PageTransition;
