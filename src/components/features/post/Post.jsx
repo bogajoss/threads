@@ -18,6 +18,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import PollDisplay from "@/components/features/post/PollDisplay";
 import QuotedPost from "@/components/features/post/QuotedPost";
@@ -60,11 +70,10 @@ const Post = ({
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDelete = async (e) => {
-    e.stopPropagation();
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
-
+    if (e) e.stopPropagation();
     try {
       await deletePost(id);
       if (showToast) showToast("Post deleted successfully");
@@ -72,6 +81,8 @@ const Post = ({
     } catch (err) {
       console.error("Failed to delete post:", err);
       if (showToast) showToast("Failed to delete post");
+    } finally {
+      setIsDeleteDialogOpen(false);
     }
   };
 
@@ -166,7 +177,10 @@ const Post = ({
             <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
             <DropdownMenuItem
               className="gap-2 cursor-pointer focus:bg-rose-50 dark:focus:bg-rose-900/20 py-2.5 text-rose-500 focus:text-rose-500"
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+              }}
             >
               <Trash2 size={16} />
               <span>Delete post</span>
@@ -308,10 +322,39 @@ const Post = ({
                 onUserClick={onUserClick}
                 currentUser={currentUser}
                 showToast={showToast}
+                onDelete={(deletedId) =>
+                  setComments((prev) => prev.filter((pc) => pc.id !== deletedId))
+                }
               />
             ))
           )}
         </div>
+
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                post and all its comments.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-rose-500 hover:bg-rose-600"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
@@ -427,6 +470,29 @@ const Post = ({
           </div>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              post and all its comments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-rose-500 hover:bg-rose-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </article>
   );
 };
