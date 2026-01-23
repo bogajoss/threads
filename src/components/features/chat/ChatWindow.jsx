@@ -143,7 +143,7 @@ const ChatWindow = ({
   const findMessage = (id) => messages.find((m) => m.id === id);
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white dark:bg-black md:border-l md:border-zinc-100 dark:md:border-zinc-800">
+    <div className="flex-1 flex flex-col h-full min-w-0 bg-white dark:bg-black md:border-l md:border-zinc-100 dark:md:border-zinc-800">
       <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0 bg-white/80 dark:bg-black/80 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button
@@ -436,7 +436,7 @@ const ChatWindow = ({
 
           <input
             type="text"
-            className="flex-1 bg-transparent border-none outline-none dark:text-white py-1 px-1"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none dark:text-white py-1 px-1"
             placeholder="Start a new message"
             value={text}
             onChange={handleTextChange}
