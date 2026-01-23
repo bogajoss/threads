@@ -40,7 +40,7 @@ const MainLayout = ({ onPostClick }) => {
           )}
         >
           {/* Center Feed */}
-          <div className="w-full flex flex-col flex-1">
+          <div className="w-full flex flex-col flex-1 min-w-0">
             {isHomePage && <FeedHeader />}
 
             <div className="w-full">

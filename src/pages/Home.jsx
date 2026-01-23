@@ -45,6 +45,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
   const groupedStories = useMemo(() => {
     const groups = {};
     stories.forEach((s) => {
+      if (!s.user) return;
       const userId = s.user.id;
       if (!groups[userId]) {
         groups[userId] = {
