@@ -34,11 +34,27 @@ const Home = ({ onStoryClick, onAddStory }) => {
     }
   }, [inView, hasMore, isFetchingNextPage, fetchNextPage]);
 
-  // 1. Fetch Stories
+  // 2. Fetch Stories
   const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
     queryKey: ["stories"],
     queryFn: fetchStories,
   });
+
+  // Group stories by user
+  const groupedStories = useMemo(() => {
+    const groups = {};
+    stories.forEach((s) => {
+      const userId = s.user.id;
+      if (!groups[userId]) {
+        groups[userId] = {
+          user: s.user,
+          stories: [],
+        };
+      }
+      groups[userId].stories.push(s);
+    });
+    return Object.values(groups);
+  }, [stories]);
 
   // Filter out replies, show only top-level posts on the home feed
   const homePosts = useMemo(() => {
@@ -78,11 +94,11 @@ const Home = ({ onStoryClick, onAddStory }) => {
             onClick={onAddStory}
           />
         )}
-        {stories.map((story) => (
+        {groupedStories.map((group) => (
           <StoryCircle
-            key={story.id}
-            user={story.user}
-            onClick={() => onStoryClick(story)}
+            key={group.user.id}
+            user={group.user}
+            onClick={() => onStoryClick(group)}
           />
         ))}
       </div>
