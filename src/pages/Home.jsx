@@ -91,7 +91,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black">
+      <ScrollArea className="w-full border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black">
         <div className="flex w-max gap-4 py-4 px-4">
           {currentUser && (
             <StoryCircle
