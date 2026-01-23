@@ -147,13 +147,10 @@ export const deletePost = async (postId) => {
 };
 
 /**
- * Updates a post's content by ID.
+ * Updates a post's content or media by ID.
  */
-export const updatePost = async (postId, content) => {
-  const { error } = await supabase
-    .from("posts")
-    .update({ content })
-    .eq("id", postId);
+export const updatePost = async (postId, data) => {
+  const { error } = await supabase.from("posts").update(data).eq("id", postId);
   if (error) throw error;
 };
 

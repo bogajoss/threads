@@ -10,6 +10,8 @@ import {
   Trash2,
   UserMinus,
   Pencil,
+  X,
+  Film,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -69,17 +71,19 @@ const Post = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
+  const [editedMedia, setEditedMedia] = useState(media || []);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUpdate = async () => {
-    if (!editedContent.trim() || editedContent === content) {
+    const hasMediaChanged = JSON.stringify(editedMedia) !== JSON.stringify(media || []);
+    if (!editedContent.trim() || (editedContent === content && !hasMediaChanged)) {
       setIsEditing(false);
       return;
     }
 
     setIsUpdating(true);
     try {
-      await updatePost(id, editedContent);
+      await updatePost(id, { content: editedContent, media: editedMedia });
       setIsEditing(false);
       if (showToast) showToast("Post updated");
     } catch (err) {
@@ -223,8 +227,47 @@ const Post = ({
 
   const renderMedia = (m) => {
     if (!m) return null;
-    if (React.isValidElement(m)) return m;
-    return <MediaGrid items={m} />;
+
+    const currentMedia = isEditing ? editedMedia : m;
+    if (!currentMedia || (Array.isArray(currentMedia) && currentMedia.length === 0))
+      return null;
+
+    if (isEditing) {
+      return (
+        <div className="mt-3 grid gap-2 grid-cols-2 sm:grid-cols-3">
+          {currentMedia.map((item, idx) => (
+            <div
+              key={idx}
+              className="relative aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 group"
+            >
+              {item.type === "video" ? (
+                <div className="size-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                  <Film size={24} className="text-zinc-400" />
+                </div>
+              ) : (
+                <img
+                  src={item.url || item.src}
+                  className="size-full object-cover"
+                  alt=""
+                />
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditedMedia((prev) => prev.filter((_, i) => i !== idx));
+                }}
+                className="absolute top-1.5 right-1.5 size-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (React.isValidElement(currentMedia)) return currentMedia;
+    return <MediaGrid items={currentMedia} />;
   };
 
   const renderContent = (c, className) => {
@@ -242,6 +285,7 @@ const Post = ({
               onClick={() => {
                 setIsEditing(false);
                 setEditedContent(content);
+                setEditedMedia(media || []);
               }}
               className="px-4 py-1.5 text-sm font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
             >

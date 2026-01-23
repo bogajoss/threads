@@ -41,10 +41,10 @@ export const PostProvider = ({ children }) => {
     setPosts((prev) => prev.filter((post) => post.id !== postId));
   };
 
-  const updatePost = async (postId, content) => {
-    await updatePostApi(postId, content);
+  const updatePost = async (postId, data) => {
+    await updatePostApi(postId, data);
     setPosts((prev) =>
-      prev.map((post) => (post.id === postId ? { ...post, content } : post)),
+      prev.map((post) => (post.id === postId ? { ...post, ...data } : post)),
     );
   };
 
