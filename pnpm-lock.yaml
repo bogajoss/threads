@@ -77,6 +77,9 @@ importers:
       react-image-crop:
         specifier: ^11.0.10
         version: 11.0.10(react@19.2.3)
+      react-intersection-observer:
+        specifier: ^10.0.2
+        version: 10.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-router-dom:
         specifier: ^7.12.0
         version: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1695,6 +1698,15 @@ packages:
     resolution: {integrity: sha512-+5FfDXUgYLLqBh1Y/uQhIycpHCbXkI50a+nbfkB1C0xXXUTwkisHDo2QCB1SQJyHCqIuia4FeyReqXuMDKWQTQ==}
     peerDependencies:
       react: '>=16.13.1'
+
+  react-intersection-observer@10.0.2:
+    resolution: {integrity: sha512-lAMzxVWrBko6SLd1jx6l84fVrzJu91hpxHlvD2as2Wec9mDCjdYXwc5xNOFBchpeBir0Y7AGBW+C/AYMa7CSFg==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   react-refresh@0.18.0:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
@@ -3367,6 +3379,12 @@ snapshots:
   react-image-crop@11.0.10(react@19.2.3):
     dependencies:
       react: 19.2.3
+
+  react-intersection-observer@10.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+    optionalDependencies:
+      react-dom: 19.2.3(react@19.2.3)
 
   react-refresh@0.18.0: {}
 

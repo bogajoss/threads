@@ -12,16 +12,43 @@ const PostContext = createContext();
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
-  const loadPosts = async () => {
+  const loadPosts = async (isNextPage = false) => {
+    if (isNextPage) setIsFetchingNextPage(true);
+    else setLoading(true);
+
     try {
-      const data = await fetchPosts();
-      setPosts(data);
+      const lastTimestamp =
+        isNextPage && posts.length > 0
+          ? posts[posts.length - 1].created_at
+          : null;
+
+      const data = await fetchPosts(lastTimestamp, 10);
+
+      if (data.length < 10) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
+      if (isNextPage) {
+        setPosts((prev) => [...prev, ...data]);
+      } else {
+        setPosts(data);
+      }
     } catch (err) {
       console.error("Failed to load posts:", err);
     } finally {
       setLoading(false);
+      setIsFetchingNextPage(false);
     }
+  };
+
+  const fetchNextPage = () => {
+    if (!hasMore || isFetchingNextPage) return;
+    loadPosts(true);
   };
 
   useEffect(() => {
@@ -85,7 +112,10 @@ export const PostProvider = ({ children }) => {
         getPostById,
         getUserPosts,
         loading,
-        refreshPosts: loadPosts,
+        hasMore,
+        isFetchingNextPage,
+        fetchNextPage,
+        refreshPosts: () => loadPosts(false),
       }}
     >
       {children}

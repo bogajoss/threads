@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
 import StoryCircle from "@/components/features/story/StoryCircle";
 import Post from "@/components/features/post/Post";
 import SkeletonPost from "@/components/ui/SkeletonPost";
@@ -9,12 +10,29 @@ import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
 import { fetchStories } from "@/services/api";
+import { Loader2 } from "lucide-react";
 
 const Home = ({ onStoryClick, onAddStory }) => {
   const { currentUser } = useAuth();
-  const { posts, loading: isPostsLoading } = usePosts();
+  const {
+    posts,
+    loading: isPostsLoading,
+    hasMore,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = usePosts();
   const { addToast } = useToast();
   const navigate = useNavigate();
+
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+  });
+
+  useEffect(() => {
+    if (inView && hasMore && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasMore, isFetchingNextPage, fetchNextPage]);
 
   // 1. Fetch Stories
   const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
@@ -91,6 +109,21 @@ const Home = ({ onStoryClick, onAddStory }) => {
           <div className="p-20 text-center text-zinc-500">
             <p className="text-lg font-medium">No posts yet.</p>
             <p className="text-sm">Be the first to share something amazing!</p>
+          </div>
+        )}
+
+        {/* Sentinel for infinite scroll */}
+        {homePosts.length > 0 && (
+          <div ref={ref} className="py-8 flex justify-center">
+            {isFetchingNextPage ? (
+              <Loader2 className="animate-spin text-violet-500" size={24} />
+            ) : hasMore ? (
+              <div className="h-4" /> // Placeholder to trigger view
+            ) : (
+              <p className="text-sm text-zinc-500 font-medium">
+                You've reached the end of the feed.
+              </p>
+            )}
           </div>
         )}
       </div>

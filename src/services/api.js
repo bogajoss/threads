@@ -44,10 +44,10 @@ export const uploadFile = async (file, bucket = "media") => {
 };
 
 /**
- * Fetches all posts with user details.
+ * Fetches posts with user details and pagination support.
  */
-export const fetchPosts = async () => {
-  const { data, error } = await supabase
+export const fetchPosts = async (lastTimestamp = null, limit = 10) => {
+  let query = supabase
     .from("posts")
     .select(
       `
@@ -66,7 +66,14 @@ export const fetchPosts = async () => {
             )
         `,
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data.map(transformPost);
