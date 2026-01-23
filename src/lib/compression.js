@@ -17,6 +17,7 @@ export const compressImage = async (file, options = {}) => {
     maxWidthOrHeight: 1920, // Max dimension
     useWebWorker: true, // Performance boost
     initialQuality: 0.8, // Quality level
+    fileType: "image/webp", // Force conversion to WebP
     ...options,
   };
 

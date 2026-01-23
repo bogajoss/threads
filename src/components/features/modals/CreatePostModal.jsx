@@ -26,6 +26,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
   const [postContent, setPostContent] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [customThumbnails, setCustomThumbnails] = useState({}); // { fileIndex: thumbnailFile }
   const [showPoll, setShowPoll] = useState(false);
   const [pollData, setPollData] = useState({
     options: ["", ""],
@@ -38,14 +39,30 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   const [croppingIndex, setCroppingIndex] = useState(null);
 
   const fileInputRef = useRef(null);
+  const thumbnailInputRef = useRef(null);
+  const [activeThumbnailIndex, setActiveThumbnailIndex] = useState(null);
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles((prev) => [...prev, ...files]);
   };
 
+  const handleThumbnailSelect = (e) => {
+    const file = e.target.files[0];
+    if (file && activeThumbnailIndex !== null) {
+      setCustomThumbnails((prev) => ({
+        ...prev,
+        [activeThumbnailIndex]: file,
+      }));
+    }
+    setActiveThumbnailIndex(null);
+  };
+
   const removeFile = (index) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    const newThumbs = { ...customThumbnails };
+    delete newThumbs[index];
+    setCustomThumbnails(newThumbs);
   };
 
   const handleStartCrop = (index) => {
@@ -96,8 +113,10 @@ const CreatePostModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const uploadedMedia = [];
-      for (const file of selectedFiles) {
-        const res = await uploadFile(file);
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const customPoster = customThumbnails[i] || null;
+        const res = await uploadFile(file, "media", customPoster);
         uploadedMedia.push(res);
       }
 
@@ -169,17 +188,25 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         >
           <MapPin size={22} />
         </button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileSelect}
-          multiple
-          className="hidden"
-          accept="image/*,video/*,application/pdf"
-        />
-      </div>
-      <Button
-        onClick={handleCreatePost}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    multiple
+                    className="hidden"
+                    accept="image/*,video/*,application/pdf"
+                  />
+                  <input
+                    type="file"
+                    ref={thumbnailInputRef}
+                    onChange={handleThumbnailSelect}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </div>
+                <Button
+                  onClick={handleCreatePost}
+        
         disabled={
           (!postContent.trim() && selectedFiles.length === 0) || loading
         }
@@ -275,9 +302,29 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                           alt=""
                         />
                       ) : (
-                        <div className="size-full flex items-center justify-center text-zinc-500">
+                        <div className="size-full flex flex-col items-center justify-center text-zinc-500 bg-zinc-100 dark:bg-zinc-800">
                           {file.type.startsWith("video/") ? (
-                            <Plus size={24} className="animate-pulse" />
+                            <>
+                              {customThumbnails[idx] ? (
+                                <img
+                                  src={URL.createObjectURL(customThumbnails[idx])}
+                                  className="size-full object-cover"
+                                  alt="Custom thumbnail"
+                                />
+                              ) : (
+                                <Plus size={24} className="animate-pulse" />
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveThumbnailIndex(idx);
+                                  thumbnailInputRef.current?.click();
+                                }}
+                                className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] font-bold py-1 backdrop-blur-sm hover:bg-black transition-colors"
+                              >
+                                {customThumbnails[idx] ? "Change Thumbnail" : "Add Thumbnail"}
+                              </button>
+                            </>
                           ) : (
                             <FileText size={24} />
                           )}

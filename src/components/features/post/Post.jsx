@@ -41,6 +41,7 @@ import CommentInput from "@/components/features/post/CommentInput";
 import { usePostInteraction } from "@/hooks/usePostInteraction";
 import { fetchCommentsByPostId, addComment } from "@/services/api";
 import { usePosts } from "@/context/PostContext";
+import { isBangla } from "@/lib/utils";
 
 const Post = ({
   id,
@@ -271,13 +272,15 @@ const Post = ({
   };
 
   const renderContent = (c, className) => {
+    const isTxtBangla = typeof c === "string" && isBangla(c);
+
     if (isEditing) {
       return (
         <div className="flex flex-col gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
           <Textarea
             value={editedContent}
             onChange={(e) => setEditedContent(e.target.value)}
-            className="min-h-[100px] w-full bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-violet-500"
+            className={`min-h-[100px] w-full bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-violet-500 ${isTxtBangla ? "font-bangla text-lg" : "font-english"}`}
             autoFocus
           />
           <div className="flex justify-end gap-2">
@@ -304,7 +307,13 @@ const Post = ({
     }
 
     if (typeof c === "string") {
-      return <p className={`whitespace-pre-line ${className || ""}`}>{c}</p>;
+      return (
+        <p
+          className={`whitespace-pre-line ${className || ""} ${isTxtBangla ? "font-bangla text-[1.15em] leading-relaxed" : "font-english text-[1.05em]"}`}
+        >
+          {c}
+        </p>
+      );
     }
     return c;
   };

@@ -6,18 +6,40 @@ import {
   transformStory,
 } from "@/lib/transformers";
 import { compressImage } from "@/lib/compression";
+import { generateVideoThumbnail } from "@/lib/video";
 
 /**
  * Uploads a file to Supabase Storage.
  */
-export const uploadFile = async (file, bucket = "media") => {
+export const uploadFile = async (file, bucket = "media", customPoster = null) => {
   // Compress if it's an image
   let fileToUpload = file;
+  let fileExt = file.name.split(".").pop();
+  let posterUrl = null;
+
   if (file.type.startsWith("image/")) {
     fileToUpload = await compressImage(file);
+    fileExt = "webp"; // Forced conversion in compression.js
   }
 
-  const fileExt = file.name.split(".").pop();
+  // Handle video poster
+  if (file.type.startsWith("video/")) {
+    try {
+      if (customPoster) {
+        // Use user provided thumbnail
+        const thumbRes = await uploadFile(customPoster, bucket);
+        posterUrl = thumbRes.url;
+      } else {
+        // Generate automatic thumbnail
+        const thumbnailFile = await generateVideoThumbnail(file);
+        const thumbRes = await uploadFile(thumbnailFile, bucket);
+        posterUrl = thumbRes.url;
+      }
+    } catch (err) {
+      console.error("Failed to handle video poster:", err);
+    }
+  }
+
   const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
   const filePath = `${fileName}`;
 
@@ -33,6 +55,7 @@ export const uploadFile = async (file, bucket = "media") => {
 
   return {
     url: publicUrl,
+    poster: posterUrl,
     name: file.name,
     type: file.type.startsWith("image/")
       ? "image"

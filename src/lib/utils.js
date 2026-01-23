@@ -99,3 +99,8 @@ export const formatTimeAgo = (date) => {
   if (days < 7) return `${days}d ago`;
   return new Date(date).toLocaleDateString();
 };
+
+export const isBangla = (text) => {
+  if (typeof text !== "string") return false;
+  return /[\u0980-\u09FF]/.test(text);
+};

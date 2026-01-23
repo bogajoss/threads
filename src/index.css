@@ -2,6 +2,30 @@
 @import "tw-animate-css";
 @import "tailwind-scrollbar-hide/v4";
 
+@font-face {
+  font-family: 'Hind Siliguri';
+  src: url('/fonts/HindSiliguri-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-bangla {
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+.font-english {
+  font-family: 'Poppins', sans-serif;
+}
+
 @theme {
   --color-brand-primary: #7c3aed;
   --color-brand-secondary: #f59e0b;
