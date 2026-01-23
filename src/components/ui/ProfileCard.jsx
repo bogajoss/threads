@@ -3,10 +3,24 @@ import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePresence } from "@/context/PresenceContext";
+import { useFollow } from "@/hooks/useFollow";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import { Loader2 } from "lucide-react";
 
 const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
   const { onlineUsers } = usePresence();
+  const { currentUser } = useAuth();
+  const { addToast } = useToast();
   const isOnline = onlineUsers.has(profile.id);
+
+  const { isFollowing, loading, handleFollow } = useFollow(
+    profile,
+    currentUser?.id,
+    addToast,
+  );
+
+  const isMe = currentUser?.id === profile.id;
 
   return (
     <div
@@ -33,7 +47,7 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            <span className="font-bold text-zinc-900 dark:text-white group-hover:underline leading-none">
+            <span className="font-bold text-zinc-900 dark:text-white leading-none">
               {profile.name}
             </span>
             {profile.verified && <VerifiedBadge />}
@@ -53,15 +67,28 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
           )}
         </div>
       </div>
-      <Button
-        variant="outline"
-        className="!w-auto !py-1.5 !px-4 text-sm font-bold rounded-full border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        {isCommunity ? "Join" : "Follow"}
-      </Button>
+
+      {!isMe && (
+        <Button
+          variant={isFollowing ? "secondary" : "outline"}
+          className="!w-auto !py-1.5 !px-4 text-sm font-bold rounded-full border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFollow();
+          }}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : isFollowing ? (
+            "Following"
+          ) : isCommunity ? (
+            "Join"
+          ) : (
+            "Follow"
+          )}
+        </Button>
+      )}
     </div>
   );
 };

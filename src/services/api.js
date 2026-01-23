@@ -668,6 +668,50 @@ export const checkIfFollowing = async (followerId, followingId) => {
 };
 
 /**
+ * Fetches followers of a user.
+ */
+export const fetchFollowers = async (userId) => {
+  const { data, error } = await supabase
+    .from("follows")
+    .select(`
+      user:users!follower_id (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        is_verified,
+        bio
+      )
+    `)
+    .eq("following_id", userId);
+
+  if (error) throw error;
+  return data.map((item) => transformUser(item.user));
+};
+
+/**
+ * Fetches users followed by a user.
+ */
+export const fetchFollowing = async (userId) => {
+  const { data, error } = await supabase
+    .from("follows")
+    .select(`
+      user:users!following_id (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        is_verified,
+        bio
+      )
+    `)
+    .eq("follower_id", userId);
+
+  if (error) throw error;
+  return data.map((item) => transformUser(item.user));
+};
+
+/**
  * Fetches follow stats.
  */
 export const fetchFollowStats = async (userId) => {

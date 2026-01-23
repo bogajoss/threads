@@ -25,6 +25,8 @@ const ProfileHeader = ({
   onEditProfile,
   showToast,
   isCommunity,
+  onShowFollowers,
+  onShowFollowing,
 }) => {
   const { isFollowing, stats, loading, handleFollow } = useFollow(
     profile,
@@ -174,9 +176,9 @@ const ProfileHeader = ({
           </div>
         )}
 
-        <div className="flex gap-4 sm:gap-6 text-sm pt-2">
+        <div className="flex gap-4 sm:gap-6 text-sm pt-2 relative z-10">
           {isCommunity ? (
-            <button className="flex gap-x-1 hover:underline group">
+            <button className="flex gap-x-1 hover:underline group cursor-pointer">
               <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
                 {profile.members}
               </span>
@@ -184,7 +186,14 @@ const ProfileHeader = ({
             </button>
           ) : (
             <>
-              <button className="flex gap-x-1 hover:underline group">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onShowFollowing();
+                }}
+                className="flex gap-x-1 hover:underline group cursor-pointer"
+              >
                 <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
                   {stats.following}
                 </span>
@@ -192,7 +201,14 @@ const ProfileHeader = ({
                   Following
                 </span>
               </button>
-              <button className="flex gap-x-1 hover:underline group">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onShowFollowers();
+                }}
+                className="flex gap-x-1 hover:underline group cursor-pointer"
+              >
                 <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
                   {stats.followers}
                 </span>

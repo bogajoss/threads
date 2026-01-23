@@ -3,10 +3,13 @@ import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import Post from "@/components/features/post/Post";
+import Modal from "@/components/ui/Modal";
+import ProfileCard from "@/components/ui/ProfileCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
+import { fetchFollowers, fetchFollowing } from "@/services/api";
 
 const Profile = ({ onEditProfile }) => {
   const { handle } = useParams();
@@ -17,6 +20,35 @@ const Profile = ({ onEditProfile }) => {
   const [activeProfileTab, setActiveProfileTab] = useState("feed");
   const [loading, setLoading] = useState(!profiles[handle]);
   const [profile, setProfile] = useState(profiles[handle]);
+
+  // Followers/Following Modal State
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalType, setFollowModalType] = useState("Followers"); // 'Followers' or 'Following'
+  const [followListData, setFollowListData] = useState([]);
+  const [isListLoading, setIsListLoading] = useState(false);
+
+  const openFollowModal = async (type) => {
+    const userId = profile?.id || displayProfile?.id;
+    if (!userId) {
+      console.warn("Cannot open follow modal: No user ID found", { profile, displayProfile });
+      return;
+    }
+    setFollowModalType(type);
+    setIsFollowModalOpen(true);
+    setIsListLoading(true);
+    try {
+      const data =
+        type === "Followers"
+          ? await fetchFollowers(userId)
+          : await fetchFollowing(userId);
+      setFollowListData(data);
+    } catch (err) {
+      console.error(`Failed to fetch ${type}:`, err);
+      addToast(`Failed to load ${type}`);
+    } finally {
+      setIsListLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -115,6 +147,8 @@ const Profile = ({ onEditProfile }) => {
           isCurrentUser={currentUser?.handle === displayProfile.handle}
           onEditProfile={onEditProfile}
           showToast={addToast}
+          onShowFollowers={() => openFollowModal("Followers")}
+          onShowFollowing={() => openFollowModal("Following")}
         />
 
         <Tabs
@@ -147,6 +181,39 @@ const Profile = ({ onEditProfile }) => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Followers/Following Modal */}
+      <Modal
+        isOpen={isFollowModalOpen}
+        onClose={() => setIsFollowModalOpen(false)}
+        title={followModalType}
+        className="sm:max-w-md"
+      >
+        <div className="min-h-[300px]">
+          {isListLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="animate-spin text-violet-500" size={32} />
+            </div>
+          ) : followListData.length > 0 ? (
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800 -mx-6">
+              {followListData.map((user) => (
+                <ProfileCard
+                  key={user.id}
+                  profile={user}
+                  onUserClick={(h) => {
+                    setIsFollowModalOpen(false);
+                    navigate(`/u/${h}`);
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+              <p className="font-medium">No {followModalType.toLowerCase()} yet.</p>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
