@@ -117,3 +117,23 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_post_user_stats_change
   AFTER INSERT OR DELETE ON public.posts
   FOR EACH ROW EXECUTE FUNCTION public.handle_user_posts_count();
+
+-- ==========================================
+-- 6. CHAT METADATA (LAST MESSAGE)
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_message()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.conversations
+  SET 
+    last_message_at = NEW.created_at,
+    last_message_content = NEW.content
+  WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_new_message
+  AFTER INSERT ON public.messages
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_message();

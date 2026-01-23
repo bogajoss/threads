@@ -1,23 +1,67 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ChatList from '@/components/features/chat/ChatList';
 import ChatWindow from '@/components/features/chat/ChatWindow';
 import { Mail, Loader2, Zap } from 'lucide-react';
-import { fetchMessages } from '@/services/api';
+import { fetchMessages, searchUsers, getOrCreateConversation } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { usePresence } from '@/context/PresenceContext';
 import { useMessages } from '@/hooks/useMessages';
 
 const Messages = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const [selectedConversation, setSelectedConversation] = useState(null);
+    const { onlineUsers } = usePresence();
+    const queryClient = useQueryClient();
     const [msgSearchQuery, setMsgSearchQuery] = useState("");
+    const [userSearchResults, setUserSearchResults] = useState([]);
 
-    const { 
-        conversations, 
-        isConvLoading, 
-        sendMessage, 
-        getMessagesForConversation 
+    const {
+        conversations,
+        isConvLoading,
+        sendMessage,
+        sendTypingStatus,
+        typingStatus,
+        formatMessages
     } = useMessages(currentUser);
+
+    // Derive selected conversation from URL ID
+    const selectedConversation = useMemo(() => {
+        if (!id || conversations.length === 0) return null;
+        return conversations.find(c => c.id === id) || null;
+    }, [id, conversations]);
+
+    // Search for new users when query changes
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (msgSearchQuery.length > 1) {
+                const results = await searchUsers(msgSearchQuery);
+                // Filter out users we already have a conversation with
+                const existingUserIds = conversations.map(c => c.user?.id);
+                setUserSearchResults(results.filter(u => u.id !== currentUser?.id && !existingUserIds.includes(u.id)));
+            } else {
+                setUserSearchResults([]);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [msgSearchQuery, conversations, currentUser?.id]);
+
+    const handleStartConversation = async (user) => {
+        try {
+            const convId = await getOrCreateConversation(currentUser.id, user.id);
+            queryClient.invalidateQueries(['conversations', currentUser.id]);
+            setMsgSearchQuery("");
+            navigate(`/messages/${convId}`);
+        } catch (error) {
+            console.error("Failed to start conversation:", error);
+        }
+    };
+
+    const handleSelectConversation = (conv) => {
+        navigate(`/messages/${conv.id}`);
+    };
 
     // Fetch base messages for selected conversation
     const { data: fetchedMessages = [], isLoading: isMsgLoading } = useQuery({
@@ -26,7 +70,7 @@ const Messages = () => {
         enabled: !!selectedConversation?.id
     });
 
-    const localMessages = getMessagesForConversation(selectedConversation?.id, fetchedMessages);
+    const localMessages = formatMessages(fetchedMessages);
 
     if (!currentUser) {
         return (
@@ -50,8 +94,12 @@ const Messages = () => {
 
     const filteredConversations = conversations.filter(c =>
         c.user?.name?.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
-        c.user?.handle?.toLowerCase().includes(msgSearchQuery.toLowerCase())
+        c.user?.handle?.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
+        c.lastMessage?.toLowerCase().includes(msgSearchQuery.toLowerCase())
     );
+
+    const currentIsTyping = selectedConversation && typingStatus[selectedConversation.id];
+    const otherUserIsOnline = selectedConversation && onlineUsers.has(selectedConversation.user?.id);
 
     return (
         <div className="flex h-screen bg-white dark:bg-black overflow-hidden md:rounded-xl md:border border-zinc-100 dark:border-zinc-800">
@@ -61,19 +109,25 @@ const Messages = () => {
                 </div>
                 <ChatList
                     conversations={filteredConversations}
-                    onSelect={setSelectedConversation}
-                    selectedId={selectedConversation?.id}
+                    userResults={userSearchResults}
+                    onSelect={handleSelectConversation}
+                    onStartNew={handleStartConversation}
+                    selectedId={id}
                     searchQuery={msgSearchQuery}
                     onSearchChange={setMsgSearchQuery}
+                    onlineUsers={onlineUsers}
                 />
             </div>
             {selectedConversation ? (
                 <ChatWindow
                     conversation={selectedConversation}
                     messages={localMessages}
-                    onBack={() => setSelectedConversation(null)}
+                    onBack={() => navigate('/messages')}
                     onSendMessage={sendMessage}
+                    onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
                     isLoading={isMsgLoading}
+                    isTyping={currentIsTyping}
+                    isOnline={otherUserIsOnline}
                 />
             ) : (
                 <div className="hidden md:flex flex-1 items-center justify-center text-zinc-500 flex-col gap-4">

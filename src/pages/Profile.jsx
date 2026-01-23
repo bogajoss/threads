@@ -5,6 +5,7 @@ import ProfileHeader from '@/components/features/profile/ProfileHeader';
 import Post from '@/components/features/post/Post';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from '@/context/AuthContext';
+import { usePresence } from '@/context/PresenceContext';
 import { usePosts } from '@/context/PostContext';
 import { useToast } from '@/context/ToastContext';
 
@@ -12,6 +13,7 @@ const Profile = ({ onEditProfile }) => {
     const { handle } = useParams();
     const navigate = useNavigate();
     const { profiles, currentUser, getProfileByHandle } = useAuth();
+    const { onlineUsers } = usePresence();
     const { getUserPosts } = usePosts();
     const { addToast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
@@ -52,6 +54,7 @@ const Profile = ({ onEditProfile }) => {
     }
 
     const displayProfile = profile || {
+        id: null,
         name: handle,
         handle: handle,
         avatar: 'https://static.hey.xyz/images/brands/lens.svg',
@@ -60,6 +63,8 @@ const Profile = ({ onEditProfile }) => {
         following: '0',
         followers: '0',
     };
+
+    const isOnline = onlineUsers.has(displayProfile.id);
 
     const renderPosts = () => {
         if (posts.length > 0) {
@@ -100,6 +105,7 @@ const Profile = ({ onEditProfile }) => {
                     isCurrentUser={currentUser?.handle === displayProfile.handle}
                     onEditProfile={onEditProfile}
                     showToast={addToast}
+                    isOnline={isOnline}
                 />
 
                 <Tabs value={activeProfileTab} onValueChange={setActiveProfileTab} className="w-full">

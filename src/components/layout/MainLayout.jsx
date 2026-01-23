@@ -14,9 +14,9 @@ const MainLayout = () => {
     const { darkMode } = useTheme();
 
     const isHomePage = location.pathname === '/';
-    const isReelsPage = location.pathname === '/reels';
-    const isMessagesPage = location.pathname === '/messages';
-    const isNavHidden = isReelsPage || isMessagesPage;
+    
+    // Show bottom nav on main messages list and reels, but hide it when a specific chat is open for better UX
+    const isNavHidden = location.pathname.split('/').length > 2 && location.pathname.startsWith('/messages');
 
     const handleProfileClick = (handle) => {
         navigate(`/u/${handle}`);

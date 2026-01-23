@@ -12,10 +12,11 @@ import {
 import Button from '@/components/ui/Button';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { formatTimeAgo } from '@/lib/utils';
 
 import { useFollow } from '@/hooks/useFollow';
 
-const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
+const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity, isOnline }) => {
     const { isFollowing, stats, loading, handleFollow } = useFollow(profile, currentUser?.id, showToast);
 
     return (
@@ -23,11 +24,14 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
             <div className="relative h-32 sm:h-48 w-full bg-zinc-200 dark:bg-zinc-800">
                 {profile.cover && <img src={profile.cover} className="h-full w-full object-cover transition-opacity duration-500" alt="Cover" />}
                 <div className="absolute -bottom-12 sm:-bottom-16 left-4 sm:left-6">
-                    <div className="p-1 bg-white dark:bg-black rounded-full overflow-hidden shadow-xl ring-4 ring-white dark:ring-black">
+                    <div className="p-1 bg-white dark:bg-black rounded-full overflow-hidden shadow-xl ring-4 ring-white dark:ring-black relative">
                         <Avatar className="size-24 sm:size-32">
                             <AvatarImage src={profile.avatar} alt={profile.handle} className="object-cover" />
                             <AvatarFallback className="text-4xl font-bold">{profile.handle?.[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
+                        {isOnline && (
+                            <span className="absolute bottom-2 right-2 size-5 bg-emerald-500 border-4 border-white dark:border-black rounded-full animate-in zoom-in duration-300"></span>
+                        )}
                     </div>
                 </div>
             </div>
@@ -35,7 +39,20 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
             <div className="flex flex-col p-4 sm:p-6 pt-16 sm:pt-20 space-y-4">
                 <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0 pr-4">
-                        {/* Name moved below avatar in mobile for more space */}
+                        <div className="flex items-center gap-2">
+                            {isOnline ? (
+                                <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    Online
+                                </span>
+                            ) : (
+                                profile.lastSeen && (
+                                    <span className="text-[11px] font-bold text-zinc-500 bg-zinc-100 dark:bg-zinc-800/50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                        Last seen {formatTimeAgo(profile.lastSeen)}
+                                    </span>
+                                )
+                            )}
+                        </div>
                     </div>
                     <div className="flex gap-2 shrink-0">
                         {isCurrentUser ? (

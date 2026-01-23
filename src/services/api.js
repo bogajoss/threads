@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { transformUser, transformPost, transformNotification, transformConversation, transformStory } from '@/lib/transformers';
+import { transformUser, transformPost, transformNotification, transformStory } from '@/lib/transformers';
 import { compressImage } from '@/lib/compression';
 
 /**
@@ -121,6 +121,61 @@ export const addPost = async ({ content, media = [], type = 'text', userId, poll
 };
 
 /**
+ * Searches for users by username or display name.
+ */
+export const searchUsers = async (query) => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+        .limit(5);
+
+    if (error) throw error;
+    return data.map(transformUser);
+};
+
+/**
+ * Finds an existing conversation between two users or creates a new one.
+ */
+export const getOrCreateConversation = async (userId, targetUserId) => {
+    // 1. Find conversations where both users are participants
+    const { data: myParticipants } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', userId);
+
+    const myConvIds = myParticipants.map(p => p.conversation_id);
+
+    const { data: existing } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', targetUserId)
+        .in('conversation_id', myConvIds)
+        .maybeSingle();
+
+    if (existing) return existing.conversation_id;
+
+    // 2. Create new conversation
+    const { data: newConv, error: convError } = await supabase
+        .from('conversations')
+        .insert([{}])
+        .select()
+        .single();
+
+    if (convError) throw convError;
+
+    // 3. Add both participants
+    await supabase
+        .from('conversation_participants')
+        .insert([
+            { conversation_id: newConv.id, user_id: userId },
+            { conversation_id: newConv.id, user_id: targetUserId }
+        ]);
+
+    return newConv.id;
+};
+
+/**
  * Fetches all user profiles.
  */
 export const fetchProfiles = async () => {
@@ -199,27 +254,46 @@ export const fetchNotifications = async (userId) => {
 export const fetchConversations = async (userId) => {
     if (!userId) return [];
 
+    // Fetch conversations where the user is a participant
     const { data, error } = await supabase
         .from('conversation_participants')
         .select(`
             conversation:conversations (
                 id,
-                last_message_at
-            ),
-            other_participants:conversation_participants!inner (
-                user_id,
-                user:users (
-                    id,
-                    username,
-                    display_name,
-                    avatar_url
+                last_message_at,
+                last_message_content,
+                participants:conversation_participants (
+                    user:users (
+                        id,
+                        username,
+                        display_name,
+                        avatar_url
+                    )
                 )
             )
         `)
         .eq('user_id', userId);
 
-    if (error) throw error;
-    return data.map(item => transformConversation(item, userId));
+    if (error) {
+        console.error("Supabase Error in fetchConversations:", error.message);
+        throw error;
+    }
+
+    // Map the nested data structure
+    return data.map(item => {
+        const conv = item.conversation;
+        const otherParticipant = conv.participants.find(p => p.user?.id !== userId) || conv.participants[0];
+        
+        return {
+            id: conv.id,
+            user: transformUser(otherParticipant?.user),
+            lastMessage: conv.last_message_content || 'No messages yet',
+            time: conv.last_message_at 
+                ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : '',
+            unread: 0
+        };
+    });
 };
 
 /**
@@ -246,12 +320,6 @@ export const sendMessage = async (conversationId, senderId, content) => {
         .select();
 
     if (error) throw error;
-
-    await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', conversationId);
-
     return data[0];
 };
 

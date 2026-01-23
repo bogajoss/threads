@@ -179,3 +179,18 @@
     @apply bg-background text-foreground;
     }
 }
+
+@keyframes dot-pulse {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 1.4s infinite ease-in-out;
+}

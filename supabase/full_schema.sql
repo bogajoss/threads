@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   following_count INTEGER DEFAULT 0,
   follower_count INTEGER DEFAULT 0,
   posts_count INTEGER DEFAULT 0,
+  last_seen_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -67,7 +68,8 @@ CREATE TABLE IF NOT EXISTS public.likes (
 CREATE TABLE IF NOT EXISTS public.conversations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  last_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  last_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  last_message_content TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.conversation_participants (
@@ -168,3 +170,11 @@ CREATE POLICY "Authenticated Users Upload" ON storage.objects FOR INSERT WITH CH
 
 -- 3. Allow owners to delete their files
 CREATE POLICY "Owners Delete" ON storage.objects FOR DELETE USING (bucket_id = 'media' AND auth.uid() = owner);
+
+-- ==========================================
+-- 8. REALTIME SUBSCRIPTIONS
+-- ==========================================
+
+-- Enable Realtime for the messages table
+-- Note: You must run this in your Supabase SQL Editor to enable realtime.
+alter publication supabase_realtime add table messages;

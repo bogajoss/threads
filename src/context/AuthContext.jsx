@@ -47,6 +47,22 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        let interval;
+        if (currentUser?.id) {
+            // Update last_seen_at immediately
+            supabase.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+
+            // Update every 2 minutes
+            interval = setInterval(() => {
+                supabase.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+            }, 120000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [currentUser?.id]);
+
+    useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 fetchUserProfile(session.user);

@@ -16,6 +16,7 @@ export const transformUser = (supabaseUser) => {
         website: supabaseUser.website,
         follower_count: supabaseUser.follower_count || 0,
         following_count: supabaseUser.following_count || 0,
+        lastSeen: supabaseUser.last_seen_at
     };
 };
 
@@ -58,22 +59,5 @@ export const transformStory = (s) => {
         ...s,
         media: s.media_url, // Map media_url to media for the UI
         user: transformUser(s.user)
-    };
-};
-
-/**
- * Transforms a Supabase conversation participant object.
- */
-export const transformConversation = (item, userId) => {
-    const otherParticipant = item.other_participants?.find(p => p.user_id !== userId) || item.other_participants?.[0];
-    const otherUser = otherParticipant?.user;
-    
-    return {
-        id: item.conversation.id,
-        handle: otherUser?.username,
-        user: transformUser(otherUser),
-        lastMessage: 'Open to see messages',
-        time: new Date(item.conversation.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        unread: 0
     };
 };

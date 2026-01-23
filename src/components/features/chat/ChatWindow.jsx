@@ -2,20 +2,47 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MoreVertical, Send, Smile, Paperclip, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import TypingIndicator from '@/components/ui/TypingIndicator';
+import { formatTimeAgo } from '@/lib/utils';
 
-const ChatWindow = ({ conversation, messages, onBack, onSendMessage, isLoading }) => {
+const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, isLoading, isTyping, isOnline }) => {
     const [text, setText] = useState("");
     const scrollRef = useRef(null);
+    const typingTimeoutRef = useRef(null);
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [messages, isTyping]);
+
+    const handleTextChange = (e) => {
+        const val = e.target.value;
+        setText(val);
+
+        if (onTyping) {
+            // Signal that we are typing
+            onTyping(true);
+
+            // Clear existing timeout
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+            // Set timeout to signal we stopped typing
+            typingTimeoutRef.current = setTimeout(() => {
+                onTyping(false);
+            }, 2000);
+        }
+    };
 
     const handleSend = (e) => {
         e.preventDefault();
         if (!text.trim()) return;
+        
+        if (onTyping) {
+            clearTimeout(typingTimeoutRef.current);
+            onTyping(false);
+        }
+        
         onSendMessage(conversation.id, text);
         setText("");
     };
@@ -31,7 +58,13 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, isLoading }
                     </Avatar>
                     <div>
                         <div className="font-bold dark:text-white">{conversation.user.name}</div>
-                        <div className="text-xs text-emerald-500 font-medium">Online</div>
+                        {isOnline ? (
+                            <div className="text-xs text-emerald-500 font-medium">Online</div>
+                        ) : (
+                            <div className="text-xs text-zinc-500 font-medium">
+                                {conversation.user.lastSeen ? `Last seen ${formatTimeAgo(conversation.user.lastSeen)}` : 'Offline'}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <button className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full dark:text-zinc-400"><MoreVertical size={20} /></button>
@@ -62,6 +95,14 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, isLoading }
                         </div>
                     ))
                 )}
+
+                {isTyping && (
+                    <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="bg-zinc-100 dark:bg-zinc-800/50 px-3 py-2 rounded-2xl rounded-tl-none border border-zinc-200/50 dark:border-zinc-700/30 shadow-sm">
+                            <TypingIndicator />
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black shrink-0">
@@ -72,7 +113,7 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, isLoading }
                         className="flex-1 bg-transparent border-none outline-none dark:text-white py-1 px-1"
                         placeholder="Start a new message"
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={handleTextChange}
                     />
                     <button type="button" className="p-2 text-zinc-500 hover:text-violet-600 transition-colors"><Paperclip size={20} /></button>
                     <Button type="submit" className="size-10 !p-0 rounded-xl" disabled={!text.trim()}><Send size={18} /></Button>

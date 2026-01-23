@@ -70,6 +70,7 @@ export default function HeyClone() {
             <Route path="/explore" element={<PageTransition><Explore /></PageTransition>} />
             <Route path="/reels" element={<PageTransition><Reels /></PageTransition>} />
             <Route path="/messages" element={<PageTransition><Messages /></PageTransition>} />
+            <Route path="/messages/:id" element={<PageTransition><Messages /></PageTransition>} />
             <Route path="/notifications" element={<PageTransition><Notifications /></PageTransition>} />
             <Route path="/post/:id" element={<PageTransition><PostDetails /></PageTransition>} />
             <Route path="/u/:handle" element={<PageTransition><Profile onEditProfile={(profile) => { setEditProfileData(profile); setIsEditProfileOpen(true); }} /></PageTransition>} />
@@ -104,7 +105,7 @@ export default function HeyClone() {
       )}
 
       {/* Floating Action Button */}
-      {currentUser && !['/messages', '/reels'].includes(location.pathname) && (
+      {currentUser && location.pathname === '/' && (
         <button
           onClick={() => setIsPostModalOpen(true)}
           className="fixed bottom-20 right-5 md:bottom-10 md:right-10 z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 md:size-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
