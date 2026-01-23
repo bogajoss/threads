@@ -47,21 +47,21 @@ const ImageCropper = ({ src, isOpen, onClose, onCropComplete, aspect, circular }
                     <DialogTitle>Crop Image</DialogTitle>
                 </DialogHeader>
                 
-                <div className="p-6 flex justify-center bg-zinc-50 dark:bg-black/20 min-h-[300px] max-h-[60vh] overflow-auto">
+                <div className="p-6 flex items-center justify-center bg-zinc-100/50 dark:bg-zinc-950/50 min-h-[300px] max-h-[65vh] overflow-auto">
                     <ReactCrop
                         crop={crop}
                         onChange={(c) => setCrop(c)}
                         onComplete={(c) => setCompletedCrop(c)}
                         aspect={aspect}
                         circularCrop={circular}
-                        className="max-w-full"
+                        className="max-w-full shadow-2xl"
                     >
                         <img 
                             ref={imgRef}
                             src={src} 
                             alt="Crop preview" 
                             onLoad={onImageLoad}
-                            className="max-h-[50vh] object-contain"
+                            className="max-h-[60vh] w-auto block"
                         />
                     </ReactCrop>
                 </div>

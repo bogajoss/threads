@@ -6,6 +6,7 @@ import BottomNav from '@/components/layout/BottomNav';
 import { useTheme } from '@/context/ThemeContext';
 import FeedHeader from '@/components/layout/FeedHeader';
 import { TRENDING_TOPICS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 const MainLayout = () => {
     const location = useLocation();
@@ -13,6 +14,9 @@ const MainLayout = () => {
     const { darkMode } = useTheme();
 
     const isHomePage = location.pathname === '/';
+    const isReelsPage = location.pathname === '/reels';
+    const isMessagesPage = location.pathname === '/messages';
+    const isNavHidden = isReelsPage || isMessagesPage;
 
     const handleProfileClick = (handle) => {
         navigate(`/u/${handle}`);
@@ -26,7 +30,10 @@ const MainLayout = () => {
                 <SidebarLeft />
 
                 {/* Main Content Area */}
-                <div className="flex-1 flex justify-center gap-x-2 md:gap-x-8 py-0 md:py-5 px-0 md:px-4">
+                <div className={cn(
+                    "flex-1 flex justify-center gap-x-2 md:gap-x-8 py-0 md:py-5 px-0 md:px-4",
+                    !isNavHidden && "pb-24 md:pb-0"
+                )}>
                     {/* Center Feed */}
                     <div className="w-full flex flex-col flex-1">
                         {isHomePage && <FeedHeader />}
@@ -41,7 +48,7 @@ const MainLayout = () => {
                 </div>
             </div>
 
-            <BottomNav handleProfileClick={handleProfileClick} />
+            {!isNavHidden && <BottomNav handleProfileClick={handleProfileClick} />}
         </div>
     );
 };

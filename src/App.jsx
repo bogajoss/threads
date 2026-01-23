@@ -107,10 +107,10 @@ export default function HeyClone() {
       {currentUser && !['/messages', '/reels'].includes(location.pathname) && (
         <button
           onClick={() => setIsPostModalOpen(true)}
-          className="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-14 md:size-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
+          className="fixed bottom-20 right-5 md:bottom-10 md:right-10 z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 md:size-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
           title="Create Post"
         >
-          <Plus size={32} className="group-hover:rotate-90 transition-transform duration-300" />
+          <Plus size={28} className="md:w-8 md:h-8 group-hover:rotate-90 transition-transform duration-300" />
         </button>
       )}
     </>

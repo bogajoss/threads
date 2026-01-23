@@ -63,7 +63,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
             </div>
 
 
-            <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen shadow-sm pb-24">
+            <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen shadow-sm">
                 {homePosts.length > 0 ? (
                     homePosts.map((post) => (
                         <Post
