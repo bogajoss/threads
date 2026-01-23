@@ -5,7 +5,6 @@ import ProfileHeader from '@/components/features/profile/ProfileHeader';
 import Post from '@/components/features/post/Post';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from '@/context/AuthContext';
-import { usePresence } from '@/context/PresenceContext';
 import { usePosts } from '@/context/PostContext';
 import { useToast } from '@/context/ToastContext';
 
@@ -13,7 +12,6 @@ const Profile = ({ onEditProfile }) => {
     const { handle } = useParams();
     const navigate = useNavigate();
     const { profiles, currentUser, getProfileByHandle } = useAuth();
-    const { onlineUsers } = usePresence();
     const { getUserPosts } = usePosts();
     const { addToast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
@@ -57,14 +55,12 @@ const Profile = ({ onEditProfile }) => {
         id: null,
         name: handle,
         handle: handle,
-        avatar: 'https://static.hey.xyz/images/brands/lens.svg',
-        cover: 'https://static.hey.xyz/images/hero.webp',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
+        cover: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
         bio: 'Profile not found',
         following: '0',
         followers: '0',
     };
-
-    const isOnline = onlineUsers.has(displayProfile.id);
 
     const renderPosts = () => {
         if (posts.length > 0) {
@@ -105,7 +101,6 @@ const Profile = ({ onEditProfile }) => {
                     isCurrentUser={currentUser?.handle === displayProfile.handle}
                     onEditProfile={onEditProfile}
                     showToast={addToast}
-                    isOnline={isOnline}
                 />
 
                 <Tabs value={activeProfileTab} onValueChange={setActiveProfileTab} className="w-full">

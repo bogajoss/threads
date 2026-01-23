@@ -3,11 +3,13 @@ import { Home, Compass, Film, Mail, Bell } from 'lucide-react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useMessages } from '@/hooks/useMessages';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const BottomNav = ({ handleProfileClick }) => {
     const { currentUser } = useAuth();
-    const { unreadCount } = useNotifications(currentUser);
+    const { unreadCount: notificationsCount } = useNotifications(currentUser);
+    const { unreadCount: messagesCount } = useMessages(currentUser);
     const location = useLocation();
 
     const navItems = [
@@ -31,7 +33,10 @@ const BottomNav = ({ handleProfileClick }) => {
                     {({ isActive }) => (
                         <>
                             <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
-                            {item.id === 'notifications' && unreadCount > 0 && (
+                            {item.id === 'notifications' && notificationsCount > 0 && (
+                                <span className="absolute top-3 right-[30%] size-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-black"></span>
+                            )}
+                            {item.id === 'messages' && messagesCount > 0 && (
                                 <span className="absolute top-3 right-[30%] size-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-black"></span>
                             )}
                         </>
@@ -43,7 +48,7 @@ const BottomNav = ({ handleProfileClick }) => {
                 className="flex-1 flex flex-col items-center justify-center h-full"
             >
                 <Avatar className={`size-7 border-2 ${location.pathname.startsWith('/u/') ? 'border-black dark:border-white' : 'border-transparent opacity-70'}`}>
-                    <AvatarImage src={currentUser?.avatar || 'https://static.hey.xyz/images/brands/lens.svg'} alt="Profile" className="object-cover" />
+                    <AvatarImage src={currentUser?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm'} alt="Profile" className="object-cover" />
                     <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
             </button>

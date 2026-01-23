@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
                     email: user.email,
                     name: user.email.split('@')[0],
                     handle: user.email.split('@')[0],
-                    avatar: 'https://static.hey.xyz/images/brands/lens.svg',
+                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
                     verified: false
                 };
                 setCurrentUser(demoUser);

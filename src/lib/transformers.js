@@ -8,8 +8,8 @@ export const transformUser = (supabaseUser) => {
         id: supabaseUser.id,
         handle: supabaseUser.username,
         name: supabaseUser.display_name,
-        avatar: supabaseUser.avatar_url || 'https://static.hey.xyz/images/brands/lens.svg',
-        cover: supabaseUser.cover_url || 'https://static.hey.xyz/images/hero.webp',
+        avatar: supabaseUser.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
+        cover: supabaseUser.cover_url || 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
         verified: supabaseUser.is_verified,
         bio: supabaseUser.bio,
         location: supabaseUser.location,
@@ -46,7 +46,7 @@ export const transformNotification = (n) => {
     return {
         ...n,
         user: n.actor?.username,
-        avatar: n.actor?.avatar_url || 'https://static.hey.xyz/images/brands/lens.svg'
+        avatar: n.actor?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm'
     };
 };
 

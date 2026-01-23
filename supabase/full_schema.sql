@@ -1,4 +1,4 @@
--- Hey.clone Full Database Schema
+-- Sysm Full Database Schema
 -- Last Updated: 2026-01-22
 
 -- ==========================================
@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS public.users (
   display_name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   bio TEXT,
-  avatar_url TEXT DEFAULT 'https://static.hey.xyz/images/brands/lens.svg',
-  cover_url TEXT DEFAULT 'https://static.hey.xyz/images/hero.webp',
+  avatar_url TEXT DEFAULT 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
+  cover_url TEXT DEFAULT 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
   website TEXT,
   location TEXT,
   is_verified BOOLEAN DEFAULT FALSE,
@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS public.messages (
   conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE NOT NULL,
   sender_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   content TEXT NOT NULL,
+  type TEXT DEFAULT 'text',
+  media JSONB DEFAULT '[]'::jsonb,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

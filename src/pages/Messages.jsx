@@ -24,6 +24,7 @@ const Messages = () => {
         sendMessage,
         sendTypingStatus,
         typingStatus,
+        markAsRead,
         formatMessages
     } = useMessages(currentUser);
 
@@ -32,6 +33,13 @@ const Messages = () => {
         if (!id || conversations.length === 0) return null;
         return conversations.find(c => c.id === id) || null;
     }, [id, conversations]);
+
+    // Mark messages as read when a conversation is viewed
+    useEffect(() => {
+        if (id) {
+            markAsRead(id);
+        }
+    }, [id, markAsRead]);
 
     // Search for new users when query changes
     useEffect(() => {
@@ -51,7 +59,7 @@ const Messages = () => {
     const handleStartConversation = async (user) => {
         try {
             const convId = await getOrCreateConversation(currentUser.id, user.id);
-            queryClient.invalidateQueries(['conversations', currentUser.id]);
+            queryClient.invalidateQueries({ queryKey: ['conversations', currentUser.id] });
             setMsgSearchQuery("");
             navigate(`/messages/${convId}`);
         } catch (error) {

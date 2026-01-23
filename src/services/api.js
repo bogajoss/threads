@@ -277,6 +277,42 @@ export const fetchUnreadNotificationsCount = async (userId) => {
 };
 
 /**
+ * Fetches the count of unread messages for a user across all conversations.
+ */
+export const fetchUnreadMessagesCount = async (userId) => {
+    if (!userId) return 0;
+    const { count, error } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .neq('sender_id', userId) // Don't count my own sent messages as unread
+        .in('conversation_id', (
+            await supabase
+                .from('conversation_participants')
+                .select('conversation_id')
+                .eq('user_id', userId)
+        ).data?.map(c => c.conversation_id) || []);
+
+    if (error) throw error;
+    return count || 0;
+};
+
+/**
+ * Marks all messages in a conversation as read for the current user.
+ */
+export const markMessagesAsRead = async (conversationId, userId) => {
+    if (!conversationId || !userId) return;
+    const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', userId)
+        .eq('is_read', false);
+
+    if (error) throw error;
+};
+
+/**
  * Fetches conversations for the current user.
  */
 export const fetchConversations = async (userId) => {
@@ -297,6 +333,11 @@ export const fetchConversations = async (userId) => {
                         display_name,
                         avatar_url
                     )
+                ),
+                messages (
+                    id,
+                    is_read,
+                    sender_id
                 )
             )
         `)
@@ -311,6 +352,7 @@ export const fetchConversations = async (userId) => {
     return data.map(item => {
         const conv = item.conversation;
         const otherParticipant = conv.participants.find(p => p.user?.id !== userId) || conv.participants[0];
+        const unreadCount = conv.messages?.filter(m => !m.is_read && m.sender_id !== userId).length || 0;
         
         return {
             id: conv.id,
@@ -319,7 +361,7 @@ export const fetchConversations = async (userId) => {
             time: conv.last_message_at 
                 ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 : '',
-            unread: 0
+            unread: unreadCount
         };
     });
 };
@@ -341,10 +383,16 @@ export const fetchMessages = async (conversationId) => {
 /**
  * Sends a new message and updates conversation timestamp.
  */
-export const sendMessage = async (conversationId, senderId, content) => {
+export const sendMessage = async (conversationId, senderId, content, type = 'text', media = []) => {
     const { data, error } = await supabase
         .from('messages')
-        .insert([{ conversation_id: conversationId, sender_id: senderId, content }])
+        .insert([{ 
+            conversation_id: conversationId, 
+            sender_id: senderId, 
+            content,
+            type,
+            media 
+        }])
         .select();
 
     if (error) throw error;
