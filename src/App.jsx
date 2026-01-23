@@ -29,7 +29,7 @@ import PostDetails from '@/pages/PostDetails';
 import { Plus } from 'lucide-react';
 import { ScrollToTop } from '@/lib/utils';
 
-export default function HeyClone() {
+export default function Sysm() {
   const location = useLocation();
   const { currentUser, authMode, setAuthMode } = useAuth();
   const { darkMode } = useTheme();

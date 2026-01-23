@@ -10,8 +10,8 @@ const SidebarRight = ({ trendingTopics = [] }) => {
     const [searchQuery, setSearchQuery] = useState("");
 
     const footerLinks = [
-        "© 2026 Hey.xyz", "Terms", "Privacy", "Guidelines", "Discord",
-        "Hey", "GitHub", "Support", "Status"
+        "© 2026 Sysm", "Terms", "Privacy", "Guidelines", "Discord",
+        "Sysm", "GitHub", "Support", "Status"
     ];
 
     const themeToggleBtn = (
@@ -78,7 +78,7 @@ const SidebarRight = ({ trendingTopics = [] }) => {
                     onClick={() => setAuthMode('login')}
                     className="flex-1 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 py-2.5 rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer"
                 >
-                    <img src="https://static.hey.xyz/images/brands/lens.svg" alt="" className="size-4 filter brightness-0 invert dark:invert-0" />
+                    <img src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png" alt="" className="size-4 rounded-sm" />
                     Login
                 </button>
                 {themeToggleBtn}
@@ -97,7 +97,7 @@ const SidebarRight = ({ trendingTopics = [] }) => {
                     <div className="size-16 rounded-full border-4 border-amber-400 border-t-transparent animate-spin duration-[3000ms]" />
                     <span className="absolute inset-0 flex items-center justify-center text-2xl">💫</span>
                 </div>
-                <h3 className="font-extrabold text-lg text-[--foreground] mt-2 leading-tight">Get your Hey account now!</h3>
+                <h3 className="font-extrabold text-lg text-[--foreground] mt-2 leading-tight">Get your Sysm account now!</h3>
                 <button
                     onClick={() => setAuthMode('signup')}
                     className="w-full bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 py-2.5 rounded-full font-black text-sm uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-lg cursor-pointer"

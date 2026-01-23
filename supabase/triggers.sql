@@ -105,7 +105,7 @@ RETURNS trigger AS $$
 BEGIN
   IF (TG_OP = 'INSERT') THEN
     -- Increment only for top-level posts (optional: include comments too?)
-    -- Hey usually shows total posts including comments in the count
+    -- Sysm usually shows total posts including comments in the count
     UPDATE public.users SET posts_count = posts_count + 1 WHERE id = NEW.user_id;
   ELSIF (TG_OP = 'DELETE') THEN
     UPDATE public.users SET posts_count = posts_count - 1 WHERE id = OLD.user_id;

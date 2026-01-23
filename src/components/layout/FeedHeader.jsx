@@ -12,7 +12,7 @@ const FeedBanner = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
             <div className="absolute bottom-6 left-8 text-white">
-                <h1 className="text-3xl sm:text-4xl font-black mb-1 drop-shadow-lg">Welcome to Hey</h1>
+                <h1 className="text-3xl sm:text-4xl font-black mb-1 drop-shadow-lg">Welcome to Sysm</h1>
                 <p className="text-sm sm:text-base font-medium opacity-90 tracking-wide drop-shadow-md">a social network built on Lens</p>
             </div>
 

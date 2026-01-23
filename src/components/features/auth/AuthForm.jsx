@@ -48,7 +48,7 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
                         <img src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png" alt="Logo" className="w-10 h-10 rounded-xl" />
                     </div>
                 </div>
-                <h2 className="text-3xl font-extrabold mb-2 dark:text-white tracking-tight">{type === 'login' ? 'Welcome back!' : 'Join Hey today'}</h2>
+                <h2 className="text-3xl font-extrabold mb-2 dark:text-white tracking-tight">{type === 'login' ? 'Welcome back!' : 'Join Sysm today'}</h2>
                 <p className="text-zinc-500 font-medium">The decentralized social network</p>
             </div>
 

@@ -7,7 +7,8 @@ import {
     Calendar,
     MoreHorizontal,
     Mail,
-    Bell
+    Bell,
+    Loader2
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
