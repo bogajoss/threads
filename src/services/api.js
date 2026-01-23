@@ -147,6 +147,17 @@ export const deletePost = async (postId) => {
 };
 
 /**
+ * Updates a post's content by ID.
+ */
+export const updatePost = async (postId, content) => {
+  const { error } = await supabase
+    .from("posts")
+    .update({ content })
+    .eq("id", postId);
+  if (error) throw error;
+};
+
+/**
  * Searches for users by username or display name.
  */
 export const searchUsers = async (query) => {

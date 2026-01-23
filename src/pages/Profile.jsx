@@ -104,7 +104,7 @@ const Profile = ({ onEditProfile }) => {
                 {displayProfile.name}
               </h5>
               <span className="text-xs text-zinc-500 mt-0.5">
-                {posts ? posts.length : 0} Posts
+                {getUserPosts(handle, "feed").length} Posts
               </span>
             </div>
           </div>

@@ -9,6 +9,7 @@ import {
   Flag,
   Trash2,
   UserMinus,
+  Pencil,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -28,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import PollDisplay from "@/components/features/post/PollDisplay";
 import QuotedPost from "@/components/features/post/QuotedPost";
@@ -57,20 +59,36 @@ const Post = ({
   initialComments,
   onDelete,
 }) => {
-  const {
-    liked,
-    reposted,
-    localStats,
-    setLocalStats,
-    handleLike,
-    handleRepost,
-  } = usePostInteraction(id, stats, currentUser, showToast);
-  const { deletePost } = usePosts();
+  const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } =
+    usePostInteraction(id, stats, currentUser, showToast);
+  const { deletePost, updatePost } = usePosts();
   const [comments, setComments] = useState(initialComments || []);
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(content);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdate = async () => {
+    if (!editedContent.trim() || editedContent === content) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await updatePost(id, editedContent);
+      setIsEditing(false);
+      if (showToast) showToast("Post updated");
+    } catch (err) {
+      console.error("Failed to update post:", err);
+      if (showToast) showToast("Failed to update post");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleDelete = async (e) => {
     if (e) e.stopPropagation();
@@ -176,6 +194,16 @@ const Post = ({
           <>
             <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
             <DropdownMenuItem
+              className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-900 py-2.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+            >
+              <Pencil size={16} />
+              <span>Edit post</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
               className="gap-2 cursor-pointer focus:bg-rose-50 dark:focus:bg-rose-900/20 py-2.5 text-rose-500 focus:text-rose-500"
               onClick={(e) => {
                 e.stopPropagation();
@@ -200,6 +228,37 @@ const Post = ({
   };
 
   const renderContent = (c, className) => {
+    if (isEditing) {
+      return (
+        <div className="flex flex-col gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+          <Textarea
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            className="min-h-[100px] w-full bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-violet-500"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => {
+                setIsEditing(false);
+                setEditedContent(content);
+              }}
+              className="px-4 py-1.5 text-sm font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdate}
+              disabled={isUpdating || !editedContent.trim() || editedContent === content}
+              className="px-4 py-1.5 text-sm font-bold bg-violet-600 text-white rounded-full hover:bg-violet-700 disabled:opacity-50 transition-all active:scale-95"
+            >
+              {isUpdating ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     if (typeof c === "string") {
       return <p className={`whitespace-pre-line ${className || ""}`}>{c}</p>;
     }

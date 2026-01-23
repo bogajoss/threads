@@ -4,6 +4,7 @@ import {
   fetchPosts,
   addPost as addPostApi,
   deletePost as deletePostApi,
+  updatePost as updatePostApi,
 } from "@/services/api";
 
 const PostContext = createContext();
@@ -40,6 +41,13 @@ export const PostProvider = ({ children }) => {
     setPosts((prev) => prev.filter((post) => post.id !== postId));
   };
 
+  const updatePost = async (postId, content) => {
+    await updatePostApi(postId, content);
+    setPosts((prev) =>
+      prev.map((post) => (post.id === postId ? { ...post, content } : post)),
+    );
+  };
+
   const getPostById = (id) => posts.find((p) => p.id === id);
 
   const getUserPosts = (handle, filter = "feed") => {
@@ -49,9 +57,14 @@ export const PostProvider = ({ children }) => {
       return false;
     });
 
+    if (filter === "feed") {
+      return userPosts.filter((p) => p.parent_id === null);
+    }
     if (filter === "media") {
       return userPosts.filter(
-        (p) => p.type === "video" || p.type === "image" || p.media?.length > 0,
+        (p) =>
+          p.parent_id === null &&
+          (p.type === "video" || p.type === "image" || p.media?.length > 0),
       );
     }
     if (filter === "replies") {
@@ -68,6 +81,7 @@ export const PostProvider = ({ children }) => {
         setPosts,
         addPost,
         deletePost,
+        updatePost,
         getPostById,
         getUserPosts,
         loading,
