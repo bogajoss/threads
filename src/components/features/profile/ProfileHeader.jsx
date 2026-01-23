@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     ArrowLeft,
     Search,
@@ -10,14 +10,36 @@ import {
     Bell,
     Loader2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { getOrCreateConversation } from '@/services/api';
 
 import { useFollow } from '@/hooks/useFollow';
 
 const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity }) => {
     const { isFollowing, stats, loading, handleFollow } = useFollow(profile, currentUser?.id, showToast);
+    const navigate = useNavigate();
+    const [isStartingChat, setIsStartingChat] = useState(false);
+
+    const handleMessageClick = async () => {
+        if (!currentUser) {
+            showToast("Please sign in to message users");
+            return;
+        }
+        
+        setIsStartingChat(true);
+        try {
+            const convId = await getOrCreateConversation(currentUser.id, profile.id);
+            navigate(`/messages/${convId}`);
+        } catch (error) {
+            console.error("Failed to start conversation:", error);
+            showToast("Failed to open chat");
+        } finally {
+            setIsStartingChat(false);
+        }
+    };
 
     return (
         <div className="flex flex-col">
@@ -43,7 +65,13 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
                             <Button variant="secondary" onClick={() => onEditProfile(profile)} className="text-sm px-5">Edit profile</Button>
                         ) : (
                             <>
-                                <button className="rounded-full p-2 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 dark:border-zinc-800 transition-colors"><Mail size={20} /></button>
+                                <button 
+                                    onClick={handleMessageClick}
+                                    disabled={isStartingChat}
+                                    className="rounded-full p-2 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 dark:border-zinc-800 transition-colors disabled:opacity-50"
+                                >
+                                    {isStartingChat ? <Loader2 size={20} className="animate-spin" /> : <Mail size={20} />}
+                                </button>
                                 <button className="rounded-full p-2 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 dark:border-zinc-800 transition-colors"><Bell size={20} /></button>
                                 <Button
                                     variant={isFollowing ? "secondary" : "primary"}

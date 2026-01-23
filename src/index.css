@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "tailwind-scrollbar-hide/v4";
 
 @theme {
     --color-brand-primary: #7c3aed;
@@ -173,11 +174,19 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50  scrollbar-hide;
     }
+  html {
+    @apply scrollbar-hide;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground  scrollbar-hide;
     }
+  @media (min-width: 1024px) {
+    html {
+      zoom: 0.9;
+    }
+  }
 }
 
 @keyframes dot-pulse {

@@ -4,11 +4,13 @@ import Button from '@/components/ui/Button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import TypingIndicator from '@/components/ui/TypingIndicator';
 import { useTimeAgo } from '@/hooks/useTimeAgo';
+import { useLightbox } from '@/context/LightboxContext';
 import { uploadFile } from '@/services/api';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import EmojiPicker from '@/components/ui/EmojiPicker';
 
 const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, isLoading, isTyping, isOnline }) => {
+    const { openLightbox } = useLightbox();
     const [text, setText] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [attachments, setAttachments] = useState([]);
@@ -84,6 +86,12 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, i
         setAttachments(prev => prev.filter(a => a.url !== url));
     };
 
+    const handleImageClick = (msg) => {
+        if (!msg.media || msg.media.length === 0) return;
+        const imageUrls = msg.media.map(m => m.url);
+        openLightbox(imageUrls, 0);
+    };
+
     // Find the ID of the last message sent by 'me' to show the read receipt
     const lastMyMessageId = useMemo(() => {
         const myMessages = messages.filter(m => m.sender === 'me');
@@ -144,16 +152,19 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, i
                 ) : (
                     messages.map(msg => (
                         <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-[15px] shadow-sm ${msg.sender === 'me' ? 'bg-violet-600 text-white rounded-tr-none' : 'bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none'}`}>
+                            <div className={`max-w-[75%] p-1 rounded-2xl text-[15px] shadow-sm ${msg.sender === 'me' ? 'bg-violet-600 text-white rounded-tr-none' : 'bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none'}`}>
                                 {msg.media?.length > 0 && (
-                                    <div className="mb-2 grid gap-1 grid-cols-1 overflow-hidden rounded-lg">
+                                    <div 
+                                        className="mb-2 grid gap-1 grid-cols-1 overflow-hidden rounded-lg cursor-pointer"
+                                        onClick={() => handleImageClick(msg)}
+                                    >
                                         {msg.media.map((m, i) => (
-                                            <img key={i} src={m.url} alt="" className="max-h-60 w-full object-cover rounded-md" />
+                                            <img key={i} src={m.url} alt="" className="max-h-60 w-full object-cover rounded-md hover:brightness-90 transition-all" />
                                         ))}
                                     </div>
                                 )}
-                                <p>{msg.text}</p>
-                                <div className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${msg.sender === 'me' ? 'text-violet-200' : 'text-zinc-400'}`}>
+                                {msg.text && <p className="m-0 leading-tight px-3 py-1">{msg.text}</p>}
+                                <div className={`text-[10px] flex items-center justify-end gap-1 px-3 pb-1 ${msg.sender === 'me' ? 'text-violet-200' : 'text-zinc-400'}`}>
                                     {msg.time}
                                     {msg.sender === 'me' && msg.id === lastMyMessageId && (
                                         <span className="ml-0.5">

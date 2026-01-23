@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import StoryCircle from '@/components/features/story/StoryCircle';
 import Post from '@/components/features/post/Post';
 import SkeletonPost from '@/components/ui/SkeletonPost';
+import SignupCard from '@/components/ui/SignupCard';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { fetchPosts, fetchStories } from '@/services/api';
@@ -62,6 +63,11 @@ const Home = ({ onStoryClick, onAddStory }) => {
                 ))}
             </div>
 
+            {!currentUser && (
+                <div className="px-4 py-2 md:hidden">
+                    <SignupCard className="p-6" />
+                </div>
+            )}
 
             <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen shadow-sm">
                 {homePosts.length > 0 ? (

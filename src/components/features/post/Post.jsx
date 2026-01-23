@@ -183,14 +183,14 @@ const Post = ({
                     <div className="my-4 flex items-center text-zinc-500 dark:text-zinc-400 text-sm border-b border-zinc-100 dark:border-zinc-800 pb-4">{timeAgo || 'Recent'}</div>
 
                     <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4 flex items-center gap-x-6 text-zinc-500 dark:text-zinc-400 text-sm">
-                        <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.comments || 0}</span> <span className="opacity-70">Comments</span></div>
                         <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.likes || 0}</span> <span className="opacity-70">Likes</span></div>
+                        <div className="flex items-center gap-x-1"><span className="font-bold text-black dark:text-white">{localStats.comments || 0}</span> <span className="opacity-70">Comments</span></div>
                     </div>
 
                     <div className="mt-4 flex w-full items-center justify-around py-1">
-                        <ActionButton icon={MessageCircle} onClick={() => document.getElementById('comment-input')?.focus()} />
-                        <ActionButton icon={Repeat2} onClick={handleRepost} active={reposted} activeColorClass="text-emerald-500" />
                         <ActionButton icon={Heart} onClick={handleLike} active={liked} activeColorClass="text-rose-500" />
+                        <ActionButton icon={Repeat2} onClick={handleRepost} active={reposted} activeColorClass="text-emerald-500" />
+                        <ActionButton icon={MessageCircle} onClick={() => document.getElementById('comment-input')?.focus()} />
                     </div>
                 </article >
 
@@ -274,9 +274,11 @@ const Post = ({
                     <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3 pr-4">
                         <div className="flex items-center gap-x-6">
                             <ActionButton
-                                icon={MessageCircle}
-                                count={localStats.comments}
-                                onClick={onClick}
+                                icon={Heart}
+                                count={localStats.likes}
+                                active={liked}
+                                onClick={handleLike}
+                                activeColorClass="text-rose-500"
                             />
                             <ActionButton
                                 icon={Repeat2}
@@ -286,11 +288,9 @@ const Post = ({
                                 activeColorClass="text-emerald-500"
                             />
                             <ActionButton
-                                icon={Heart}
-                                count={localStats.likes}
-                                active={liked}
-                                onClick={handleLike}
-                                activeColorClass="text-rose-500"
+                                icon={MessageCircle}
+                                count={localStats.comments}
+                                onClick={onClick}
                             />
                         </div>
                     </div>

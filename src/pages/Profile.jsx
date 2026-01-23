@@ -56,7 +56,7 @@ const Profile = ({ onEditProfile }) => {
         name: handle,
         handle: handle,
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
-        cover: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
+        cover: 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
         bio: 'Profile not found',
         following: '0',
         followers: '0',

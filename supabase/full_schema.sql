@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   email TEXT UNIQUE NOT NULL,
   bio TEXT,
   avatar_url TEXT DEFAULT 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
-  cover_url TEXT DEFAULT 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
+  cover_url TEXT DEFAULT 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
   website TEXT,
   location TEXT,
   is_verified BOOLEAN DEFAULT FALSE,

@@ -9,7 +9,7 @@ export const transformUser = (supabaseUser) => {
         handle: supabaseUser.username,
         name: supabaseUser.display_name,
         avatar: supabaseUser.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm',
-        cover: supabaseUser.cover_url || 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop',
+        cover: supabaseUser.cover_url || 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
         verified: supabaseUser.is_verified,
         bio: supabaseUser.bio,
         location: supabaseUser.location,
