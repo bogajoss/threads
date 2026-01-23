@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import { fetchPosts, addPost as addPostApi } from '@/services/api';
 
 const PostContext = createContext();
@@ -22,15 +21,6 @@ export const PostProvider = ({ children }) => {
 
     useEffect(() => {
         loadPosts();
-
-        const channel = supabase
-            .channel('public:posts')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
-                loadPosts();
-            })
-            .subscribe();
-
-        return () => supabase.removeChannel(channel);
     }, []);
 
     const addPost = async (postData) => {

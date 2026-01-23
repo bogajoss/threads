@@ -47,18 +47,35 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        let interval;
-        if (currentUser?.id) {
-            // Update last_seen_at immediately
-            supabase.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+        if (!currentUser?.id) return;
 
-            // Update every 2 minutes
-            interval = setInterval(() => {
-                supabase.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', currentUser.id).then();
-            }, 120000);
-        }
+        const updateLastSeen = async () => {
+            await supabase
+                .from('users')
+                .update({ last_seen_at: new Date().toISOString() })
+                .eq('id', currentUser.id);
+        };
+
+        // Update immediately on mount/login
+        updateLastSeen();
+
+        // Update every 30 seconds for higher accuracy
+        const interval = setInterval(updateLastSeen, 30000);
+
+        // Update when user returns to the tab
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                updateLastSeen();
+            }
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', updateLastSeen);
+
         return () => {
-            if (interval) clearInterval(interval);
+            clearInterval(interval);
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', updateLastSeen);
         };
     }, [currentUser?.id]);
 

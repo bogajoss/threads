@@ -137,3 +137,40 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_new_message
   AFTER INSERT ON public.messages
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_message();
+
+-- ==========================================
+-- 7. NOTIFICATIONS AUTOMATION
+-- ==========================================
+
+-- Function to handle notification creation
+CREATE OR REPLACE FUNCTION public.create_notification()
+RETURNS trigger AS $$
+BEGIN
+  -- 1. For LIKES
+  IF (TG_TABLE_NAME = 'likes') THEN
+    INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
+    SELECT user_id, NEW.user_id, 'like', NEW.post_id
+    FROM public.posts WHERE id = NEW.post_id
+    AND user_id != NEW.user_id; -- Don't notify if I like my own post
+  
+  -- 2. For FOLLOWS
+  ELSIF (TG_TABLE_NAME = 'follows') THEN
+    INSERT INTO public.notifications (recipient_id, actor_id, type)
+    VALUES (NEW.following_id, NEW.follower_id, 'follow');
+
+  -- 3. For COMMENTS (posts with parent_id)
+  ELSIF (TG_TABLE_NAME = 'posts' AND NEW.parent_id IS NOT NULL) THEN
+    INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
+    SELECT user_id, NEW.user_id, 'comment', NEW.parent_id
+    FROM public.posts WHERE id = NEW.parent_id
+    AND user_id != NEW.user_id; -- Don't notify if I reply to my own post
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Bind triggers to tables
+CREATE TRIGGER on_like_notification AFTER INSERT ON public.likes FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+CREATE TRIGGER on_follow_notification AFTER INSERT ON public.follows FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+CREATE TRIGGER on_comment_notification AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.create_notification();

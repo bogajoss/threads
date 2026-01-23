@@ -178,3 +178,4 @@ CREATE POLICY "Owners Delete" ON storage.objects FOR DELETE USING (bucket_id = '
 -- Enable Realtime for the messages table
 -- Note: You must run this in your Supabase SQL Editor to enable realtime.
 alter publication supabase_realtime add table messages;
+alter publication supabase_realtime add table notifications;

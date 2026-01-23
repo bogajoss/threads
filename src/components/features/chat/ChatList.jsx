@@ -2,6 +2,50 @@ import React from 'react';
 import SearchBar from '@/components/ui/SearchBar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { UserPlus } from 'lucide-react';
+import { useTimeAgo } from '@/hooks/useTimeAgo';
+
+const ConversationItem = ({ conv, selectedId, onSelect, onlineUsers }) => {
+    const timeAgo = useTimeAgo(conv.user?.lastSeen);
+    const isOnline = onlineUsers.has(conv.user?.id);
+
+    return (
+        <div
+            onClick={() => onSelect(conv)}
+            className={`flex items-center gap-3 p-4 cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900 ${selectedId === conv.id ? 'bg-zinc-50 dark:bg-zinc-900 border-r-2 border-violet-500' : ''}`}
+        >
+            <div className="relative">
+                <Avatar className="size-12">
+                    <AvatarImage src={conv.user?.avatar} alt={conv.user?.name} className="object-cover" />
+                    <AvatarFallback>{conv.user?.name?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
+                {isOnline && (
+                    <span className="absolute bottom-0 right-0 size-3 bg-emerald-500 border-2 border-white dark:border-black rounded-full"></span>
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center mb-0.5">
+                    <div className="flex flex-col min-w-0">
+                        <span className="font-bold dark:text-white truncate">{conv.user?.name}</span>
+                        {isOnline ? (
+                            <span className="text-[10px] text-emerald-500 font-medium leading-none mb-1">Online</span>
+                        ) : (
+                            conv.user?.lastSeen && (
+                                <span className="text-[10px] text-zinc-500 font-medium leading-none mb-1">
+                                    {timeAgo}
+                                </span>
+                            )
+                        )}
+                    </div>
+                    <span className="text-xs text-zinc-500 whitespace-nowrap ml-2">{conv.time}</span>
+                </div>
+                <div className="flex-1 flex justify-between items-center">
+                    <p className="text-zinc-500 text-sm truncate pr-2">{conv.lastMessage}</p>
+                    {conv.unread > 0 && <span className="bg-violet-600 text-white text-[10px] font-bold size-5 rounded-full flex items-center justify-center shrink-0">{conv.unread}</span>}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const ChatList = ({
     conversations,
@@ -27,31 +71,13 @@ const ChatList = ({
             {conversations.length > 0 && (
                 <div className="py-2">
                     {conversations.map(conv => (
-                        <div
-                            key={conv.id}
-                            onClick={() => onSelect(conv)}
-                            className={`flex items-center gap-3 p-4 cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900 ${selectedId === conv.id ? 'bg-zinc-50 dark:bg-zinc-900 border-r-2 border-violet-500' : ''}`}
-                        >
-                            <div className="relative">
-                                <Avatar className="size-12">
-                                    <AvatarImage src={conv.user?.avatar} alt={conv.user?.name} className="object-cover" />
-                                    <AvatarFallback>{conv.user?.name?.[0]?.toUpperCase()}</AvatarFallback>
-                                </Avatar>
-                                {onlineUsers.has(conv.user?.id) && (
-                                    <span className="absolute bottom-0 right-0 size-3 bg-emerald-500 border-2 border-white dark:border-black rounded-full"></span>
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-center mb-0.5">
-                                    <span className="font-bold dark:text-white truncate">{conv.user?.name}</span>
-                                    <span className="text-xs text-zinc-500 whitespace-nowrap ml-2">{conv.time}</span>
-                                </div>
-                                <div className="flex-1 flex justify-between items-center">
-                                    <p className="text-zinc-500 text-sm truncate pr-2">{conv.lastMessage}</p>
-                                    {conv.unread > 0 && <span className="bg-violet-600 text-white text-[10px] font-bold size-5 rounded-full flex items-center justify-center shrink-0">{conv.unread}</span>}
-                                </div>
-                            </div>
-                        </div>
+                        <ConversationItem 
+                            key={conv.id} 
+                            conv={conv} 
+                            selectedId={selectedId} 
+                            onSelect={onSelect} 
+                            onlineUsers={onlineUsers} 
+                        />
                     ))}
                 </div>
             )}

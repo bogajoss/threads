@@ -26,7 +26,6 @@ import MediaGrid from '@/components/features/post/MediaGrid';
 import CommentInput from '@/components/features/post/CommentInput';
 import { usePostInteraction } from '@/hooks/usePostInteraction';
 import { fetchCommentsByPostId, addComment } from '@/services/api';
-import { supabase } from '@/lib/supabase';
 
 const Post = ({
     id,
@@ -68,20 +67,6 @@ const Post = ({
     useEffect(() => {
         if (isDetail && id) {
             loadComments();
-
-            const channel = supabase
-                .channel(`comments:${id}`)
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'posts',
-                    filter: `parent_id=eq.${id}`
-                }, () => {
-                    loadComments();
-                })
-                .subscribe();
-
-            return () => supabase.removeChannel(channel);
         }
     }, [isDetail, id, loadComments]);
 

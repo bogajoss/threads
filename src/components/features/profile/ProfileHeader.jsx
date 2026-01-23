@@ -12,12 +12,13 @@ import {
 import Button from '@/components/ui/Button';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { formatTimeAgo } from '@/lib/utils';
+import { useTimeAgo } from '@/hooks/useTimeAgo';
 
 import { useFollow } from '@/hooks/useFollow';
 
 const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, showToast, isCommunity, isOnline }) => {
     const { isFollowing, stats, loading, handleFollow } = useFollow(profile, currentUser?.id, showToast);
+    const lastSeenTime = useTimeAgo(profile.lastSeen);
 
     return (
         <div className="flex flex-col">
@@ -48,7 +49,7 @@ const ProfileHeader = ({ profile, currentUser, isCurrentUser, onEditProfile, sho
                             ) : (
                                 profile.lastSeen && (
                                     <span className="text-[11px] font-bold text-zinc-500 bg-zinc-100 dark:bg-zinc-800/50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                        Last seen {formatTimeAgo(profile.lastSeen)}
+                                        Last seen {lastSeenTime}
                                     </span>
                                 )
                             )}

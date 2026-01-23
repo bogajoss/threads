@@ -2,9 +2,11 @@ import React from 'react';
 import { Home, Compass, Film, Mail, Bell, User } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const SidebarLeft = () => {
     const { currentUser } = useAuth();
+    const { unreadCount } = useNotifications(currentUser);
 
     const navItems = [
         { id: 'home', icon: Home, path: '/' },
@@ -27,10 +29,13 @@ const SidebarLeft = () => {
                         key={item.id}
                         to={item.path}
                         className={({ isActive }) =>
-                            `p-2.5 rounded-xl transition-all duration-200 border border-transparent ${isActive ? 'text-black dark:text-white bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`
+                            `p-2.5 rounded-xl transition-all duration-200 border border-transparent relative ${isActive ? 'text-black dark:text-white bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`
                         }
                     >
                         <item.icon size={26} strokeWidth={2.5} />
+                        {item.id === 'notifications' && unreadCount > 0 && (
+                            <span className="absolute top-2 right-2 size-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-black"></span>
+                        )}
                     </NavLink>
                 ))}
             </nav>

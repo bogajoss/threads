@@ -2,10 +2,12 @@ import React from 'react';
 import { Home, Compass, Film, Mail, Bell } from 'lucide-react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const BottomNav = ({ handleProfileClick }) => {
     const { currentUser } = useAuth();
+    const { unreadCount } = useNotifications(currentUser);
     const location = useLocation();
 
     const navItems = [
@@ -23,11 +25,16 @@ const BottomNav = ({ handleProfileClick }) => {
                     key={item.id}
                     to={item.path}
                     className={({ isActive }) =>
-                        `flex flex-1 flex-col items-center justify-center h-full transition-all duration-200 ${isActive ? 'text-black dark:text-white' : 'text-zinc-400 opacity-70'}`
+                        `flex flex-1 flex-col items-center justify-center h-full transition-all duration-200 relative ${isActive ? 'text-black dark:text-white' : 'text-zinc-400 opacity-70'}`
                     }
                 >
                     {({ isActive }) => (
-                        <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
+                        <>
+                            <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
+                            {item.id === 'notifications' && unreadCount > 0 && (
+                                <span className="absolute top-3 right-[30%] size-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-black"></span>
+                            )}
+                        </>
                     )}
                 </NavLink>
             ))}

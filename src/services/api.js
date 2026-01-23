@@ -249,6 +249,34 @@ export const fetchNotifications = async (userId) => {
 };
 
 /**
+ * Marks all notifications as read for a user.
+ */
+export const markNotificationsAsRead = async (userId) => {
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('recipient_id', userId)
+        .eq('is_read', false);
+
+    if (error) throw error;
+};
+
+/**
+ * Fetches the count of unread notifications for a user.
+ */
+export const fetchUnreadNotificationsCount = async (userId) => {
+    if (!userId) return 0;
+    const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipient_id', userId)
+        .eq('is_read', false);
+
+    if (error) throw error;
+    return count || 0;
+};
+
+/**
  * Fetches conversations for the current user.
  */
 export const fetchConversations = async (userId) => {

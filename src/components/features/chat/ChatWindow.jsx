@@ -3,12 +3,13 @@ import { ArrowLeft, MoreVertical, Send, Smile, Paperclip, Loader2 } from 'lucide
 import Button from '@/components/ui/Button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import TypingIndicator from '@/components/ui/TypingIndicator';
-import { formatTimeAgo } from '@/lib/utils';
+import { useTimeAgo } from '@/hooks/useTimeAgo';
 
 const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, isLoading, isTyping, isOnline }) => {
     const [text, setText] = useState("");
     const scrollRef = useRef(null);
     const typingTimeoutRef = useRef(null);
+    const lastSeenTime = useTimeAgo(conversation.user?.lastSeen);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -62,7 +63,7 @@ const ChatWindow = ({ conversation, messages, onBack, onSendMessage, onTyping, i
                             <div className="text-xs text-emerald-500 font-medium">Online</div>
                         ) : (
                             <div className="text-xs text-zinc-500 font-medium">
-                                {conversation.user.lastSeen ? `Last seen ${formatTimeAgo(conversation.user.lastSeen)}` : 'Offline'}
+                                {conversation.user.lastSeen ? `Last seen ${lastSeenTime}` : 'Offline'}
                             </div>
                         )}
                     </div>
