@@ -13,7 +13,7 @@ const Reels = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-black">
+      <div className="h-[100dvh] w-full flex items-center justify-center bg-black">
         <Loader2 size={40} className="animate-spin text-white" />
       </div>
     );
@@ -21,14 +21,14 @@ const Reels = () => {
 
   if (videoPosts.length === 0) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-black text-white gap-4">
+      <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-black text-white gap-4">
         <p className="text-zinc-500">No reels found.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative">
+    <div className="h-[100dvh] w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative">
       {/* Floating Back Button */}
       <button
         onClick={() => navigate(-1)}
