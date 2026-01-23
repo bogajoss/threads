@@ -1,10 +1,12 @@
 import React from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { usePosts } from "@/context/PostContext";
 import ReelItem from "@/components/features/post/ReelItem";
 
 const Reels = () => {
   const { posts, loading } = usePosts();
+  const navigate = useNavigate();
   const videoPosts = posts.filter(
     (p) => p.type === "video" || p.category === "video",
   );
@@ -26,7 +28,16 @@ const Reels = () => {
   }
 
   return (
-    <div className="h-screen w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl">
+    <div className="h-screen w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative">
+      {/* Floating Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
+        title="Back"
+      >
+        <ArrowLeft size={24} strokeWidth={2.5} />
+      </button>
+
       {videoPosts.map((reel) => (
         <ReelItem key={reel.id} reel={reel} />
       ))}
