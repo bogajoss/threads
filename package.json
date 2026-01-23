@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "undo": "git fetch origin; git reset --hard origin/main; git clean -fd",
+    "push": "git add . && git commit -m 'update' && git push"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
