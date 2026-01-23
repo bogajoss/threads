@@ -75,6 +75,7 @@ const PostDetails = () => {
           initialComments={post.comments || []}
           showToast={addToast}
           onUserClick={(handle) => navigate(`/u/${handle}`)}
+          onDelete={() => navigate(-1)}
         />
       </div>
     </div>

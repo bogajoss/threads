@@ -7,20 +7,17 @@ import SkeletonPost from "@/components/ui/SkeletonPost";
 import SearchBar from "@/components/ui/SearchBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
+import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchPosts, fetchProfiles } from "@/services/api";
+import { fetchProfiles } from "@/services/api";
 
 const Explore = () => {
   const { currentUser } = useAuth();
+  const { posts, loading: isPostsLoading } = usePosts();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("users");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const { data: posts = [], isLoading: isPostsLoading } = useQuery({
-    queryKey: ["posts"],
-    queryFn: fetchPosts,
-  });
 
   const { data: profiles = {}, isLoading: isProfilesLoading } = useQuery({
     queryKey: ["profiles"],

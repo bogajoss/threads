@@ -26,6 +26,7 @@ import MediaGrid from "@/components/features/post/MediaGrid";
 import CommentInput from "@/components/features/post/CommentInput";
 import { usePostInteraction } from "@/hooks/usePostInteraction";
 import { fetchCommentsByPostId, addComment } from "@/services/api";
+import { usePosts } from "@/context/PostContext";
 
 const Post = ({
   id,
@@ -44,6 +45,7 @@ const Post = ({
   poll,
   isDetail,
   initialComments,
+  onDelete,
 }) => {
   const {
     liked,
@@ -53,10 +55,25 @@ const Post = ({
     handleLike,
     handleRepost,
   } = usePostInteraction(id, stats, currentUser, showToast);
+  const { deletePost } = usePosts();
   const [comments, setComments] = useState(initialComments || []);
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      await deletePost(id);
+      if (showToast) showToast("Post deleted successfully");
+      if (onDelete) onDelete(id);
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      if (showToast) showToast("Failed to delete post");
+    }
+  };
 
   const loadComments = useCallback(async () => {
     if (!id) return;
@@ -149,10 +166,7 @@ const Post = ({
             <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
             <DropdownMenuItem
               className="gap-2 cursor-pointer focus:bg-rose-50 dark:focus:bg-rose-900/20 py-2.5 text-rose-500 focus:text-rose-500"
-              onClick={(e) => {
-                e.stopPropagation();
-                showToast && showToast("Delete not implemented yet");
-              }}
+              onClick={handleDelete}
             >
               <Trash2 size={16} />
               <span>Delete post</span>

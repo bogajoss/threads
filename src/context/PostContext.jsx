@@ -1,6 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { fetchPosts, addPost as addPostApi } from "@/services/api";
+import {
+  fetchPosts,
+  addPost as addPostApi,
+  deletePost as deletePostApi,
+} from "@/services/api";
 
 const PostContext = createContext();
 
@@ -31,6 +35,11 @@ export const PostProvider = ({ children }) => {
     return newPost;
   };
 
+  const deletePost = async (postId) => {
+    await deletePostApi(postId);
+    setPosts((prev) => prev.filter((post) => post.id !== postId));
+  };
+
   const getPostById = (id) => posts.find((p) => p.id === id);
 
   const getUserPosts = (handle, filter = "feed") => {
@@ -58,6 +67,7 @@ export const PostProvider = ({ children }) => {
         posts,
         setPosts,
         addPost,
+        deletePost,
         getPostById,
         getUserPosts,
         loading,

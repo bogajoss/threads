@@ -139,6 +139,14 @@ export const addPost = async ({
 };
 
 /**
+ * Deletes a post by ID.
+ */
+export const deletePost = async (postId) => {
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  if (error) throw error;
+};
+
+/**
  * Searches for users by username or display name.
  */
 export const searchUsers = async (query) => {

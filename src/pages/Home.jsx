@@ -6,21 +6,17 @@ import Post from "@/components/features/post/Post";
 import SkeletonPost from "@/components/ui/SkeletonPost";
 import SignupCard from "@/components/ui/SignupCard";
 import { useAuth } from "@/context/AuthContext";
+import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchPosts, fetchStories } from "@/services/api";
+import { fetchStories } from "@/services/api";
 
 const Home = ({ onStoryClick, onAddStory }) => {
   const { currentUser } = useAuth();
+  const { posts, loading: isPostsLoading } = usePosts();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  // 1. Fetch Posts
-  const { data: posts = [], isLoading: isPostsLoading } = useQuery({
-    queryKey: ["posts"],
-    queryFn: fetchPosts,
-  });
-
-  // 2. Fetch Stories
+  // 1. Fetch Stories
   const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
     queryKey: ["stories"],
     queryFn: fetchStories,
