@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "undo": "git fetch origin; git reset --hard origin/main; git clean -fd",
+    "undo": "git fetch origin && git reset --hard origin/main && git clean -fd",
     "push": "git add . && git commit -m 'update' && git push"
   },
   "dependencies": {
