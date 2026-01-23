@@ -85,8 +85,18 @@ CREATE TABLE IF NOT EXISTS public.messages (
   content TEXT NOT NULL,
   type TEXT DEFAULT 'text',
   media JSONB DEFAULT '[]'::jsonb,
+  reply_to_id UUID REFERENCES public.messages(id) ON DELETE SET NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.message_reactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  message_id UUID REFERENCES public.messages(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  emoji TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(message_id, user_id)
 );
 
 -- ==========================================
@@ -150,6 +160,7 @@ ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.stories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.message_reactions DISABLE ROW LEVEL SECURITY;
 
 -- ==========================================
 -- 7. STORAGE (MEDIA BUCKET)
@@ -181,3 +192,4 @@ CREATE POLICY "Owners Delete" ON storage.objects FOR DELETE USING (bucket_id = '
 -- Note: You must run this in your Supabase SQL Editor to enable realtime.
 alter publication supabase_realtime add table messages;
 alter publication supabase_realtime add table notifications;
+alter publication supabase_realtime add table message_reactions;

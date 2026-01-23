@@ -417,6 +417,52 @@ export const fetchMessages = async (conversationId) => {
 };
 
 /**
+ * Toggles a reaction on a message.
+ */
+export const toggleMessageReaction = async (messageId, userId, emoji) => {
+  const { data: existing } = await supabase
+    .from("message_reactions")
+    .select("*")
+    .eq("message_id", messageId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    if (existing.emoji === emoji) {
+      // Remove reaction if same emoji
+      await supabase.from("message_reactions").delete().eq("id", existing.id);
+      return { action: "removed", emoji };
+    } else {
+      // Update reaction if different emoji
+      await supabase
+        .from("message_reactions")
+        .update({ emoji })
+        .eq("id", existing.id);
+      return { action: "updated", emoji };
+    }
+  } else {
+    // Add new reaction
+    await supabase
+      .from("message_reactions")
+      .insert([{ message_id: messageId, user_id: userId, emoji }]);
+    return { action: "added", emoji };
+  }
+};
+
+/**
+ * Fetches all reactions for messages in a specific conversation.
+ */
+export const fetchReactionsByConversation = async (conversationId) => {
+  const { data, error } = await supabase
+    .from("message_reactions")
+    .select("*, message:messages!inner(conversation_id)")
+    .eq("message.conversation_id", conversationId);
+
+  if (error) throw error;
+  return data;
+};
+
+/**
  * Sends a new message and updates conversation timestamp.
  */
 export const sendMessage = async (
@@ -425,6 +471,7 @@ export const sendMessage = async (
   content,
   type = "text",
   media = [],
+  replyToId = null,
 ) => {
   const { data, error } = await supabase
     .from("messages")
@@ -435,12 +482,21 @@ export const sendMessage = async (
         content,
         type,
         media,
+        reply_to_id: replyToId,
       },
     ])
     .select();
 
   if (error) throw error;
   return data[0];
+};
+
+/**
+ * Deletes a message by ID.
+ */
+export const deleteMessage = async (messageId) => {
+  const { error } = await supabase.from("messages").delete().eq("id", messageId);
+  if (error) throw error;
 };
 
 /**

@@ -30,6 +30,8 @@ const Messages = () => {
     typingStatus,
     markAsRead,
     formatMessages,
+    onToggleReaction,
+    allReactions,
   } = useMessages(currentUser);
 
   // Derive selected conversation from URL ID
@@ -88,7 +90,7 @@ const Messages = () => {
     enabled: !!selectedConversation?.id,
   });
 
-  const localMessages = formatMessages(fetchedMessages);
+  const localMessages = formatMessages(fetchedMessages, allReactions);
 
   if (!currentUser) {
     return (
@@ -151,6 +153,8 @@ const Messages = () => {
           messages={localMessages}
           onBack={() => navigate("/messages")}
           onSendMessage={sendMessage}
+          onToggleReaction={onToggleReaction}
+          currentUser={currentUser}
           onTyping={(isTyping) =>
             sendTypingStatus(selectedConversation.id, isTyping)
           }

@@ -21,13 +21,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+  ContextMenuLabel,
+} from "@/components/ui/context-menu";
+import { Copy, Trash, Reply } from "lucide-react";
 import EmojiPicker from "@/components/ui/EmojiPicker";
+import MessageReactionPicker from "@/components/features/chat/MessageReactionPicker";
+import MessageReactions from "@/components/features/chat/MessageReactions";
+
+const QUICK_EMOJIS = ["❤️", "😂", "😮", "😢", "🙏", "👍"];
 
 const ChatWindow = ({
   conversation,
   messages,
   onBack,
   onSendMessage,
+  onToggleReaction,
+  onDeleteMessage,
+  currentUser,
   onTyping,
   isLoading,
   isTyping,
@@ -38,6 +54,7 @@ const ChatWindow = ({
   const [isUploading, setIsUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
   const fileInputRef = useRef(null);
   const scrollRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -85,9 +102,11 @@ const ChatWindow = ({
       text,
       attachments.length > 0 ? "image" : "text",
       attachments,
+      replyingTo?.id,
     );
     setText("");
     setAttachments([]);
+    setReplyingTo(null);
   };
 
   const handleFileSelect = async (e) => {
@@ -120,6 +139,8 @@ const ChatWindow = ({
     const myMessages = messages.filter((m) => m.sender === "me");
     return myMessages.length > 0 ? myMessages[myMessages.length - 1].id : null;
   }, [messages]);
+
+  const findMessage = (id) => messages.find((m) => m.id === id);
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white dark:bg-black md:border-l md:border-zinc-100 dark:md:border-zinc-800">
@@ -202,47 +223,132 @@ const ChatWindow = ({
           </div>
         ) : (
           messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[75%] p-1 rounded-2xl text-[15px] shadow-sm ${msg.sender === "me" ? "bg-violet-600 text-white rounded-tr-none" : "bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none"}`}
-              >
-                {msg.media?.length > 0 && (
-                  <div
-                    className="mb-2 grid gap-1 grid-cols-1 overflow-hidden rounded-lg cursor-pointer"
-                    onClick={() => handleImageClick(msg)}
-                  >
-                    {msg.media.map((m, i) => (
-                      <img
-                        key={i}
-                        src={m.url}
-                        alt=""
-                        className="max-h-60 w-full object-cover rounded-md hover:brightness-90 transition-all"
-                      />
-                    ))}
-                  </div>
-                )}
-                {msg.text && (
-                  <p className="m-0 leading-tight px-3 py-1">{msg.text}</p>
-                )}
+            <ContextMenu key={msg.id}>
+              <ContextMenuTrigger asChild>
                 <div
-                  className={`text-[10px] flex items-center justify-end gap-1 px-3 pb-1 ${msg.sender === "me" ? "text-violet-200" : "text-zinc-400"}`}
+                  id={`msg-${msg.id}`}
+                  className={`flex items-end gap-2 group ${msg.sender === "me" ? "flex-row-reverse" : "flex-row"}`}
                 >
-                  {msg.time}
-                  {msg.sender === "me" && msg.id === lastMyMessageId && (
-                    <span className="ml-0.5">
-                      {msg.isRead ? (
-                        <CheckCheck size={14} className="text-white" />
-                      ) : (
-                        <Check size={14} className="text-violet-200" />
+                  <div
+                                    className={`max-w-[75%] p-1 rounded-2xl text-[15px] shadow-sm relative ${msg.sender === "me" ? "bg-violet-600 text-white rounded-tr-none" : "bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none"}`}
+                                  >
+                                    {msg.replyToId && (
+                                      <div
+                                        className={`mb-2 p-2 rounded-lg border-l-4 text-xs truncate cursor-pointer ${
+                                          msg.sender === "me"
+                                            ? "bg-violet-500/50 border-violet-300 text-violet-100"
+                                            : "bg-zinc-200/50 dark:bg-zinc-700/50 border-zinc-400 dark:border-zinc-500 text-zinc-600 dark:text-zinc-300"
+                                        }`}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const el = document.getElementById(`msg-${msg.replyToId}`);
+                                          el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                        }}
+                                      >
+                                        <span className="font-bold block mb-0.5">
+                                          {findMessage(msg.replyToId)?.sender === "me"
+                                            ? "You"
+                                            : conversation.user.name}
+                                        </span>
+                                        {findMessage(msg.replyToId)?.text || "Media"}
+                                      </div>
+                                    )}
+                                    {msg.media?.length > 0 && (
+                    
+                      <div
+                        className="mb-2 grid gap-1 grid-cols-1 overflow-hidden rounded-lg cursor-pointer"
+                        onClick={() => handleImageClick(msg)}
+                      >
+                        {msg.media.map((m, i) => (
+                          <img
+                            key={i}
+                            src={m.url}
+                            alt=""
+                            className="max-h-60 w-full object-cover rounded-md hover:brightness-90 transition-all"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {msg.text && (
+                      <p className="m-0 leading-tight px-3 py-1">{msg.text}</p>
+                    )}
+
+                    {msg.reactions?.length > 0 && (
+                      <MessageReactions
+                        reactions={msg.reactions}
+                        currentUser={currentUser}
+                        onToggle={(emoji) => onToggleReaction(msg.id, emoji)}
+                      />
+                    )}
+
+                    <div
+                      className={`text-[10px] flex items-center justify-end gap-1 px-3 pb-1 ${msg.sender === "me" ? "text-violet-200" : "text-zinc-400"}`}
+                    >
+                      {msg.time}
+                      {msg.sender === "me" && msg.id === lastMyMessageId && (
+                        <span className="ml-0.5">
+                          {msg.isRead ? (
+                            <CheckCheck size={14} className="text-white" />
+                          ) : (
+                            <Check size={14} className="text-violet-200" />
+                          )}
+                        </span>
                       )}
-                    </span>
-                  )}
+                    </div>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <MessageReactionPicker
+                      onSelect={(emoji) => onToggleReaction(msg.id, emoji)}
+                      currentReaction={
+                        msg.reactions?.find((r) => r.user_id === currentUser?.id)
+                          ?.emoji
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent className="w-64 rounded-xl bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-800 shadow-xl">
+                <ContextMenuLabel className="text-xs text-zinc-500 font-bold px-3 py-2">
+                  QUICK REACTION
+                </ContextMenuLabel>
+                <div className="flex items-center justify-between px-2 pb-2">
+                  {QUICK_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => onToggleReaction(msg.id, emoji)}
+                      className="text-xl p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all active:scale-125"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+                <ContextMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                <ContextMenuItem
+                  className="gap-3 px-3 py-2.5 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-900"
+                  onClick={() => {
+                    navigator.clipboard.writeText(msg.text);
+                  }}
+                >
+                  <Copy size={16} className="text-zinc-500" />
+                  <span className="font-medium">Copy Text</span>
+                </ContextMenuItem>
+                <ContextMenuItem
+                  className="gap-3 px-3 py-2.5 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-900"
+                  onClick={() => setReplyingTo(msg)}
+                >
+                  <Reply size={16} className="text-zinc-500" />
+                  <span className="font-medium">Reply</span>
+                </ContextMenuItem>
+                <ContextMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                <ContextMenuItem
+                  className="gap-3 px-3 py-2.5 cursor-pointer text-rose-500 focus:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-900/20"
+                  onClick={() => onDeleteMessage(msg.id)}
+                >
+                  <Trash size={16} />
+                  <span className="font-medium">Delete message</span>
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           ))
         )}
 
@@ -256,6 +362,26 @@ const ChatWindow = ({
       </div>
 
       <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black shrink-0">
+        {replyingTo && (
+          <div className="mb-3 p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+            <div className="flex-1 min-w-0">
+              <span className="text-xs font-bold text-violet-600 dark:text-violet-400 block mb-1">
+                Replying to{" "}
+                {replyingTo.sender === "me" ? "yourself" : conversation.user.name}
+              </span>
+              <p className="text-sm text-zinc-500 truncate">
+                {replyingTo.text || "Media"}
+              </p>
+            </div>
+            <button
+              onClick={() => setReplyingTo(null)}
+              className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
+
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {attachments.map((att) => (

@@ -65,7 +65,7 @@ export default function Sysm() {
       <ScrollToTop />
 
       <Routes location={location} key={location.pathname}>
-        <Route element={<MainLayout />}>
+        <Route element={<MainLayout onPostClick={() => setIsPostModalOpen(true)} />}>
           <Route
             path="/"
             element={
@@ -171,16 +171,15 @@ export default function Sysm() {
         />
       )}
 
-      {/* Floating Action Button */}
       {currentUser && location.pathname === "/" && (
         <button
           onClick={() => setIsPostModalOpen(true)}
-          className="fixed bottom-20 right-5 md:bottom-10 md:right-10 z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 md:size-16 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
+          className="fixed bottom-20 right-5 md:hidden z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
           title="Create Post"
         >
           <Plus
             size={28}
-            className="md:w-8 md:h-8 group-hover:rotate-90 transition-transform duration-300"
+            className="group-hover:rotate-90 transition-transform duration-300"
           />
         </button>
       )}

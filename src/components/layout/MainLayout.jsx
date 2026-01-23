@@ -8,7 +8,7 @@ import FeedHeader from "@/components/layout/FeedHeader";
 import { TRENDING_TOPICS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const MainLayout = () => {
+const MainLayout = ({ onPostClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode } = useTheme();
@@ -30,7 +30,7 @@ const MainLayout = () => {
     >
       <div className="flex justify-center w-full max-w-[1300px] mx-auto min-h-screen px-0 sm:px-0">
         {/* Left Sidebar - Fixed narrow icons */}
-        <SidebarLeft />
+        <SidebarLeft onPostClick={onPostClick} />
 
         {/* Main Content Area */}
         <div

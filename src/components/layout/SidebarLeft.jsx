@@ -1,11 +1,11 @@
 import React from "react";
-import { Home, Compass, Film, Mail, Bell, User } from "lucide-react";
+import { Home, Compass, Film, Mail, Bell, User, Plus } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useMessages } from "@/hooks/useMessages";
 
-const SidebarLeft = () => {
+const SidebarLeft = ({ onPostClick }) => {
   const { currentUser } = useAuth();
   const { unreadCount: notificationsCount } = useNotifications(currentUser);
   const { unreadCount: messagesCount } = useMessages(currentUser);
@@ -51,6 +51,16 @@ const SidebarLeft = () => {
             )}
           </NavLink>
         ))}
+
+        {currentUser && (
+          <button
+            onClick={onPostClick}
+            className="p-2.5 mt-2 rounded-xl text-white bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:scale-110 active:scale-95 transition-all duration-200 shadow-lg cursor-pointer"
+            title="Create Post"
+          >
+            <Plus size={26} strokeWidth={2.5} />
+          </button>
+        )}
       </nav>
     </aside>
   );

@@ -5,6 +5,8 @@ import {
   sendMessage,
   fetchUnreadMessagesCount,
   markMessagesAsRead,
+  toggleMessageReaction,
+  deleteMessage as deleteMessageApi,
 } from "@/services/api";
 import { supabase } from "@/lib/supabase";
 
@@ -27,7 +29,19 @@ export const useMessages = (currentUser) => {
     enabled: !!currentUser?.id,
   });
 
-  // 2. Realtime subscription (Messages + Typing)
+  // Fetch reactions for messages
+  const fetchReactions = async () => {
+    const { data } = await supabase.from("message_reactions").select("*");
+    return data || [];
+  };
+
+  const { data: _allReactions = [] } = useQuery({
+    queryKey: ["reactions"],
+    queryFn: fetchReactions,
+    enabled: !!currentUser?.id,
+  });
+
+  // 2. Realtime subscription (Messages + Typing + Reactions)
   useEffect(() => {
     if (!currentUser?.id) return;
 
@@ -36,36 +50,44 @@ export const useMessages = (currentUser) => {
       .channel(`user_messages:${currentUser.id}`)
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
+        { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const newM = payload.new;
-
-          // Update messages cache
-          queryClient.setQueryData(
-            ["messages", newM.conversation_id],
-            (old) => {
-              if (!old) return [newM];
-              if (old.find((m) => m.id === newM.id)) return old;
-              return [...old, newM];
-            },
-          );
-
-          // Update unread count if it's not my message
+          queryClient.setQueryData(["messages", newM.conversation_id], (old) => {
+            if (!old) return [newM];
+            if (old.find((m) => m.id === newM.id)) return old;
+            return [...old, newM];
+          });
           if (newM.sender_id !== currentUser.id) {
             queryClient.invalidateQueries({
               queryKey: ["unread_messages_count", currentUser.id],
             });
           }
-
           queryClient.invalidateQueries(["conversations", currentUser.id]);
-          setTypingStatus((prev) => ({
-            ...prev,
-            [newM.conversation_id]: false,
-          }));
+          setTypingStatus((prev) => ({ ...prev, [newM.conversation_id]: false }));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "messages" },
+        (payload) => {
+          const _oldM = payload.old;
+          // Optimistically update all message caches or wait for refetch
+          // Invalidate messages for the likely conversation
+          queryClient.invalidateQueries({ queryKey: ["messages"] });
+          queryClient.invalidateQueries({
+            queryKey: ["conversations", currentUser.id],
+          });
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "message_reactions" },
+        () => {
+          // Simplest: invalidate all reactions or use payload to find conversation
+          // Since we don't have convId in payload directly without join,
+          // we might need to invalidate conversation reactions.
+          queryClient.invalidateQueries({ queryKey: ["reactions"] });
         },
       )
       .subscribe();
@@ -91,8 +113,8 @@ export const useMessages = (currentUser) => {
 
   // 3. Mutation to send message
   const sendMutation = useMutation({
-    mutationFn: ({ convId, text, type = "text", media = [] }) =>
-      sendMessage(convId, currentUser.id, text, type, media),
+    mutationFn: ({ convId, text, type = "text", media = [], replyToId = null }) =>
+      sendMessage(convId, currentUser.id, text, type, media, replyToId),
     onSuccess: (newMessage) => {
       // Optimistically update the message cache
       queryClient.setQueryData(
@@ -138,7 +160,27 @@ export const useMessages = (currentUser) => {
     [currentUser, queryClient],
   );
 
-  const formatMessages = (messages = []) => {
+  const onToggleReaction = async (messageId, emoji) => {
+    if (!currentUser?.id) return;
+    try {
+      await toggleMessageReaction(messageId, currentUser.id, emoji);
+      // Invalidate query to trigger UI update (realtime will also catch it)
+      queryClient.invalidateQueries({ queryKey: ["reactions"] });
+    } catch (err) {
+      console.error("Failed to toggle reaction:", err);
+    }
+  };
+
+  const onDeleteMessage = async (messageId) => {
+    try {
+      await deleteMessageApi(messageId);
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+    } catch (err) {
+      console.error("Failed to delete message:", err);
+    }
+  };
+
+  const formatMessages = (messages = [], reactions = []) => {
     return messages.map((m) => ({
       id: m.id,
       sender: m.sender_id === currentUser?.id ? "me" : "them",
@@ -146,6 +188,8 @@ export const useMessages = (currentUser) => {
       type: m.type || "text",
       media: m.media || [],
       isRead: m.is_read,
+      replyToId: m.reply_to_id,
+      reactions: reactions.filter((r) => r.message_id === m.id),
       time: new Date(m.created_at).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -157,12 +201,15 @@ export const useMessages = (currentUser) => {
     conversations,
     unreadCount,
     isConvLoading,
-    sendMessage: (convId, text, type, media) =>
-      sendMutation.mutate({ convId, text, type, media }),
+    sendMessage: (convId, text, type, media, replyToId) =>
+      sendMutation.mutate({ convId, text, type, media, replyToId }),
     sendTypingStatus,
     typingStatus,
     markAsRead,
     formatMessages,
+    onToggleReaction,
+    onDeleteMessage,
+    allReactions: _allReactions,
     isSending: sendMutation.isPending,
   };
 };
