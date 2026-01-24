@@ -3,11 +3,13 @@ import { ArrowLeft } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Post from "@/components/features/post/Post";
+import NotFound from "@/components/ui/NotFound";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { fetchPostById } from "@/lib/api";
 import SkeletonPost from "@/components/ui/SkeletonPost";
 import { isValidUUID } from "@/lib/utils";
+import { FileX } from "lucide-react";
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -41,14 +43,12 @@ const PostDetails = () => {
 
   if (isError || !post) {
     return (
-      <div className="p-10 text-center">
-        <p className="text-zinc-500">Post not found</p>
-        <button
-          onClick={() => navigate(-1)}
-          className="text-violet-500 mt-4 underline font-bold"
-        >
-          Go back
-        </button>
+      <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
+        <NotFound 
+          title="Post not found"
+          message="The post you are looking for doesn't exist. It may have been deleted by the author."
+          icon={FileX}
+        />
       </div>
     );
   }

@@ -416,7 +416,28 @@ const Post = ({
 
     if (typeof c === "string") {
       const shouldTruncate = !isDetail && c.length > 280;
-      const displayContent = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
+      const textToProcess = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
+
+      // Mentions parsing
+      const parts = textToProcess.split(/(@[a-zA-Z0-9_]+)/g);
+      const displayContent = parts.map((part, i) => {
+        if (part.startsWith("@") && part.length > 1) {
+          const handle = part.substring(1);
+          return (
+            <span
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                onUserClick && onUserClick(handle);
+              }}
+              className="text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer"
+            >
+              {part}
+            </span>
+          );
+        }
+        return part;
+      });
 
       return (
         <p
@@ -486,7 +507,7 @@ const Post = ({
             />
           </div>
           <div
-            className={`break-words text-zinc-900 dark:text-zinc-100 mt-4 text-xl leading-8 whitespace-pre-line`}
+            className={`break-words text-zinc-900 dark:text-zinc-100 mt-4 text-lg sm:text-xl leading-relaxed sm:leading-8 whitespace-pre-line`}
           >
             {renderContent(content, contentClass)}
           </div>
@@ -676,7 +697,7 @@ const Post = ({
             />
           </div>
 
-          <div className="break-words text-zinc-900 dark:text-zinc-100 mt-1 whitespace-pre-line text-[15px] leading-relaxed">
+          <div className="break-words text-zinc-900 dark:text-zinc-100 mt-1 whitespace-pre-line text-sm sm:text-[15px] leading-relaxed">
             {renderContent(content, contentClass)}
             {renderMedia(media)}
             {poll && (

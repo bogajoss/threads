@@ -52,8 +52,8 @@ const ImageCropper = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 p-0 overflow-hidden">
-        <DialogHeader className="p-4 border-b border-zinc-100 dark:border-zinc-800">
+      <DialogContent className="sm:max-w-2xl bg-white dark:bg-zinc-900 p-0 overflow-hidden">
+        <DialogHeader className="p-4 shrink-0">
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
 
@@ -76,7 +76,7 @@ const ImageCropper = ({
           </ReactCrop>
         </div>
 
-        <DialogFooter className="p-4 bg-white dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 flex flex-row justify-end gap-2">
+        <DialogFooter className="p-4 bg-white dark:bg-zinc-900 shrink-0 flex flex-row justify-end gap-2">
           <Button variant="outline" onClick={onClose} className="!w-auto px-6">
             Cancel
           </Button>

@@ -98,7 +98,7 @@ const CreateStoryModal = ({ isOpen, onClose }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="relative aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl overflow-hidden shadow-2xl border dark:border-zinc-800">
+            <div className="relative aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl overflow-hidden shadow-2xl">
               <img
                 src={URL.createObjectURL(selectedFile)}
                 className="w-full h-full object-cover"
@@ -114,7 +114,7 @@ const CreateStoryModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Edit Tools List */}
-            <div className="flex items-center justify-center gap-4 py-2 border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 rounded-2xl">
+            <div className="flex items-center justify-center gap-4 py-2 bg-zinc-50/50 dark:bg-zinc-900/50 rounded-2xl">
               <button
                 onClick={handleStartCrop}
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-white dark:hover:bg-zinc-800 transition-all text-zinc-600 dark:text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 group"

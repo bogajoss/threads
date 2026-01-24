@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import Post from "@/components/features/post/Post";
 import Modal from "@/components/ui/Modal";
 import ProfileCard from "@/components/ui/ProfileCard";
+import NotFound from "@/components/ui/NotFound";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
@@ -104,16 +105,19 @@ const Profile = ({ onEditProfile }) => {
     );
   }
 
-  const displayProfile = profile || {
-    id: null,
-    name: handle,
-    handle: handle,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm",
-    cover: "https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png",
-    bio: "Profile not found",
-    following: "0",
-    followers: "0",
-  };
+  if (!profile) {
+    return (
+      <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
+        <NotFound 
+          title="Account doesn't exist"
+          message={`Try searching for another. The user @${handle} could not be found.`}
+          icon={UserX}
+        />
+      </div>
+    );
+  }
+
+  const displayProfile = profile;
 
   const renderPosts = () => {
     if (posts.length > 0) {
@@ -129,11 +133,14 @@ const Profile = ({ onEditProfile }) => {
       ));
     }
     return (
-      <div className="p-16 text-center text-zinc-500 flex flex-col items-center gap-4">
-        <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-full">
-          <Search size={32} className="text-zinc-300" />
+      <div className="p-20 text-center text-zinc-500 flex flex-col items-center gap-4 animate-in fade-in duration-500">
+        <div className="bg-zinc-50 dark:bg-zinc-900 p-6 rounded-full mb-2 ring-1 ring-zinc-100 dark:ring-zinc-800">
+          <Search size={40} className="text-zinc-300 dark:text-zinc-700" />
         </div>
-        <p className="font-medium">No posts found</p>
+        <h3 className="text-xl font-bold dark:text-white">No posts yet</h3>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[250px]">
+          When @{displayProfile.handle} shares posts, they will appear here.
+        </p>
       </div>
     );
   };

@@ -244,7 +244,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               />
 
               {showPoll && (
-                <div className="mt-4 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 space-y-3 bg-zinc-50/50 dark:bg-zinc-900/50">
+                <div className="mt-4 p-4 rounded-2xl space-y-3 bg-zinc-50/50 dark:bg-zinc-900/50">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-bold opacity-60">Poll</span>
                     <button
@@ -293,7 +293,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                   {selectedFiles.map((file, idx) => (
                     <div
                       key={idx}
-                      className="relative group size-24 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-700"
+                      className="relative group size-24 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shadow-sm"
                     >
                       {file.type.startsWith("image/") ? (
                         <img
