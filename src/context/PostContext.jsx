@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import {
   fetchPosts,
   addPost as addPostApi,
@@ -15,7 +15,7 @@ export const PostProvider = ({ children }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
-  const loadPosts = async (isNextPage = false) => {
+  const loadPosts = useCallback(async (isNextPage = false) => {
     if (isNextPage) setIsFetchingNextPage(true);
     else setLoading(true);
 
@@ -44,7 +44,7 @@ export const PostProvider = ({ children }) => {
       setLoading(false);
       setIsFetchingNextPage(false);
     }
-  };
+  }, [posts]);
 
   const fetchNextPage = () => {
     if (!hasMore || isFetchingNextPage) return;
@@ -53,7 +53,7 @@ export const PostProvider = ({ children }) => {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [loadPosts]);
 
   const addPost = async (postData) => {
     const newPost = await addPostApi(postData);

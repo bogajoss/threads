@@ -56,7 +56,7 @@ const Notifications = () => {
 
   useEffect(() => {
     loadNotifications();
-  }, [currentUser?.id]);
+  }, [loadNotifications]);
 
   // Realtime subscription for notifications
   useEffect(() => {
@@ -103,7 +103,7 @@ const Notifications = () => {
     if (currentUser?.id && notifications.some((n) => !n.is_read)) {
       markReadMutation.mutate();
     }
-  }, [currentUser?.id, notifications.length]); // Only trigger when count changes
+  }, [currentUser?.id, notifications, markReadMutation]); // Only trigger when count changes
 
 
   if (isLoading) {

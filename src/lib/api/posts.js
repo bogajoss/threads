@@ -68,6 +68,43 @@ export const fetchPostById = async (id) => {
 };
 
 /**
+ * Fetches posts by a specific user ID with pagination support.
+ */
+export const fetchPostsByUserId = async (userId, lastTimestamp = null, limit = 10) => {
+  let query = supabase
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                bio,
+                location,
+                website,
+                follower_count,
+                following_count
+            )
+        `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("created_at", lastTimestamp);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data.map(transformPost);
+};
+
+/**
  * Adds a new post with media and optional poll.
  */
 export const addPost = async ({

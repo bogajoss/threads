@@ -54,7 +54,7 @@ const Explore = () => {
 
   useEffect(() => {
     loadProfiles();
-  }, []);
+  }, [loadProfiles]);
 
   const users = useMemo(() => {
     let list = profiles.filter((p) => p.type !== "community");

@@ -28,13 +28,13 @@ const ImageCropper = ({
     if (aspect) {
       setCrop(
         centerCrop(
-          makeAspectCrop({ unit: "%", width: 90 }, aspect, width, height),
+          makeAspectCrop({ unit: "%", width: 100 }, aspect, width, height),
           width,
           height,
         ),
       );
     } else {
-      setCrop({ unit: "%", width: 80, height: 80, x: 10, y: 10 });
+      setCrop({ unit: "%", width: 100, height: 100, x: 0, y: 0 });
     }
   };
 
@@ -61,7 +61,7 @@ const ImageCropper = ({
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
-            onComplete={(c) => setCompletedCrop(c)}
+            onComplete={(c, p) => setCompletedCrop(p)}
             aspect={aspect}
             circularCrop={circular}
             className="max-w-full shadow-2xl"

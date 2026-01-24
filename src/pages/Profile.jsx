@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
@@ -8,19 +8,24 @@ import ProfileCard from "@/components/ui/ProfileCard";
 import NotFound from "@/components/ui/NotFound";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchFollowers, fetchFollowing } from "@/lib/api";
+import { fetchFollowers, fetchFollowing, fetchPostsByUserId } from "@/lib/api";
 
 const Profile = ({ onEditProfile }) => {
   const { handle } = useParams();
   const navigate = useNavigate();
   const { profiles, currentUser, getProfileByHandle } = useAuth();
-  const { getUserPosts } = usePosts();
   const { addToast } = useToast();
-  const [activeProfileTab, setActiveProfileTab] = useState("feed");
-  const [loading, setLoading] = useState(!profiles[handle]);
+  
   const [profile, setProfile] = useState(profiles[handle]);
+  const [loading, setLoading] = useState(!profile);
+  
+  // Post loading state
+  const [userPosts, setUserPosts] = useState([]);
+  const [activeProfileTab, setActiveProfileTab] = useState("feed");
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
 
   // Followers/Following Modal State
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
@@ -29,6 +34,34 @@ const Profile = ({ onEditProfile }) => {
   const [isListLoading, setIsListLoading] = useState(false);
   const [isFetchingMoreFollows, setIsFetchingMoreFollows] = useState(false);
   const [hasMoreFollows, setHasMoreFollows] = useState(true);
+
+  const loadUserPosts = useCallback(async (userId, isLoadMore = false) => {
+    if (!userId) return;
+    if (isLoadMore) setIsFetchingMorePosts(true);
+    else setLoadingPosts(true);
+
+    try {
+      const lastTimestamp = isLoadMore && userPosts.length > 0
+        ? userPosts[userPosts.length - 1].created_at
+        : null;
+
+      const data = await fetchPostsByUserId(userId, lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMorePosts(false);
+      else setHasMorePosts(true);
+
+      if (isLoadMore) {
+        setUserPosts(prev => [...prev, ...data]);
+      } else {
+        setUserPosts(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user posts:", err);
+    } finally {
+      setLoadingPosts(false);
+      setIsFetchingMorePosts(false);
+    }
+  }, [userPosts]);
 
   const openFollowModal = async (type, isLoadMore = false) => {
     const userId = profile?.id || displayProfile?.id;
@@ -70,23 +103,40 @@ const Profile = ({ onEditProfile }) => {
   };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!profiles[handle]) {
+    const fetchProfileData = async () => {
+      let currentProfile = profiles[handle];
+      if (!currentProfile) {
         setLoading(true);
-        const fetched = await getProfileByHandle(handle);
-        setProfile(fetched);
+        currentProfile = await getProfileByHandle(handle);
+        setProfile(currentProfile);
         setLoading(false);
       } else {
-        setProfile(profiles[handle]);
+        setProfile(currentProfile);
+      }
+
+      if (currentProfile?.id) {
+        loadUserPosts(currentProfile.id);
       }
     };
-    fetchProfile();
-  }, [handle, profiles, getProfileByHandle]);
+    fetchProfileData();
+  }, [handle, profiles, getProfileByHandle, loadUserPosts]);
 
-  const posts = useMemo(
-    () => getUserPosts(handle, activeProfileTab),
-    [handle, activeProfileTab, getUserPosts],
-  );
+  const filteredPosts = useMemo(() => {
+    if (activeProfileTab === "feed") {
+      return userPosts.filter((p) => p.parent_id === null);
+    }
+    if (activeProfileTab === "media") {
+      return userPosts.filter(
+        (p) =>
+          p.parent_id === null &&
+          (p.type === "video" || p.type === "image" || (p.media && p.media.length > 0)),
+      );
+    }
+    if (activeProfileTab === "replies") {
+      return userPosts.filter((p) => p.parent_id !== null);
+    }
+    return userPosts;
+  }, [userPosts, activeProfileTab]);
 
   const handlePostClick = (id) => {
     navigate(`/post/${id}`);
@@ -120,17 +170,45 @@ const Profile = ({ onEditProfile }) => {
   const displayProfile = profile;
 
   const renderPosts = () => {
-    if (posts.length > 0) {
-      return posts.map((post) => (
-        <Post
-          key={post.id}
-          currentUser={currentUser}
-          showToast={addToast}
-          {...post}
-          onClick={() => handlePostClick(post.id)}
-          onUserClick={handleUserClick}
-        />
-      ));
+    if (loadingPosts) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="animate-spin text-violet-500" size={32} />
+        </div>
+      );
+    }
+
+    if (filteredPosts.length > 0) {
+      return (
+        <>
+          {filteredPosts.map((post) => (
+            <Post
+              key={post.id}
+              currentUser={currentUser}
+              showToast={addToast}
+              {...post}
+              onClick={() => handlePostClick(post.id)}
+              onUserClick={handleUserClick}
+              onDelete={(deletedId) => 
+                setUserPosts(prev => prev.filter(p => p.id !== deletedId))
+              }
+            />
+          ))}
+          {hasMorePosts && (
+            <div className="p-6 flex justify-center">
+              <Button
+                variant="secondary"
+                className="w-full max-w-xs"
+                onClick={() => loadUserPosts(profile.id, true)}
+                disabled={isFetchingMorePosts}
+              >
+                {isFetchingMorePosts && <Loader2 size={18} className="animate-spin mr-2" />}
+                Load more posts
+              </Button>
+            </div>
+          )}
+        </>
+      );
     }
     return (
       <div className="p-20 text-center text-zinc-500 flex flex-col items-center gap-4 animate-in fade-in duration-500">
@@ -161,7 +239,7 @@ const Profile = ({ onEditProfile }) => {
                 {displayProfile.name}
               </h5>
               <span className="text-xs text-zinc-500 mt-0.5">
-                {getUserPosts(handle, "feed").length} Posts
+                {userPosts.length} Posts
               </span>
             </div>
           </div>

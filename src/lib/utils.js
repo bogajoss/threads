@@ -36,35 +36,28 @@ export const isValidUUID = (uuid) => {
 
 export const getCroppedImg = (image, crop) => {
   const canvas = document.createElement("canvas");
-
   const scaleX = image.naturalWidth / image.width;
-
   const scaleY = image.naturalHeight / image.height;
 
-  canvas.width = crop.width;
-
-  canvas.height = crop.height;
+  canvas.width = crop.width * scaleX;
+  canvas.height = crop.height * scaleY;
 
   const ctx = canvas.getContext("2d");
 
+  // High quality settings
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
   ctx.drawImage(
     image,
-
     crop.x * scaleX,
-
     crop.y * scaleY,
-
     crop.width * scaleX,
-
     crop.height * scaleY,
-
     0,
-
     0,
-
-    crop.width,
-
-    crop.height,
+    crop.width * scaleX,
+    crop.height * scaleY,
   );
 
   return new Promise((resolve, reject) => {
@@ -72,14 +65,12 @@ export const getCroppedImg = (image, crop) => {
       (blob) => {
         if (!blob) {
           reject(new Error("Canvas is empty"));
-
           return;
         }
-
         resolve(blob);
       },
       "image/jpeg",
-      1,
+      0.95, // High quality JPEG
     );
   });
 };
