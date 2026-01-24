@@ -1,8 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { fetchProfileByHandle, updateProfile } from "@/services/api";
-import { transformUser } from "@/lib/transformers";
+import { fetchProfileByHandle, updateProfile, fetchUserProfile, updateLastSeen } from "@/lib/api";
 import { MOCK_PROFILES } from "@/lib/constants";
 
 const AuthContext = createContext();
@@ -13,22 +12,15 @@ export const AuthProvider = ({ children }) => {
   const [profiles, setProfiles] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = async (user) => {
+  const fetchUserProfileData = async (user) => {
     try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
+      const data = await fetchUserProfile(user.id);
 
       if (data) {
-        const formattedUser = transformUser(data);
-        setCurrentUser(formattedUser);
+        setCurrentUser(data);
         setProfiles((prev) => ({
           ...prev,
-          [formattedUser.handle]: formattedUser,
+          [data.handle]: data,
         }));
       } else {
         // Fallback for new users or demo
@@ -52,40 +44,33 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    const updateLastSeen = async () => {
-      await supabase
-        .from("users")
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", currentUser.id);
-    };
-
     // Update immediately on mount/login
-    updateLastSeen();
+    updateLastSeen(currentUser.id);
 
     // Update every 30 seconds for higher accuracy
-    const interval = setInterval(updateLastSeen, 30000);
+    const interval = setInterval(() => updateLastSeen(currentUser.id), 30000);
 
     // Update when user returns to the tab
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        updateLastSeen();
+        updateLastSeen(currentUser.id);
       }
     };
 
     window.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("beforeunload", updateLastSeen);
+    window.addEventListener("beforeunload", () => updateLastSeen(currentUser.id));
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("beforeunload", updateLastSeen);
+      window.removeEventListener("beforeunload", () => updateLastSeen(currentUser.id));
     };
   }, [currentUser?.id]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        fetchUserProfile(session.user);
+        fetchUserProfileData(session.user);
       } else {
         setLoading(false);
       }
@@ -95,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        fetchUserProfile(session.user);
+        fetchUserProfileData(session.user);
       } else {
         setCurrentUser(null);
         setLoading(false);
@@ -143,7 +128,7 @@ export const AuthProvider = ({ children }) => {
   const handleUpdateProfile = async (updatedFields) => {
     if (!currentUser) return;
     await updateProfile(currentUser.id, updatedFields);
-    await fetchUserProfile(currentUser);
+    await fetchUserProfileData(currentUser);
   };
 
   const getProfileByHandle = async (handle) => {

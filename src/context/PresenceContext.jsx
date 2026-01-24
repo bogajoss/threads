@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
-import { updateLastSeen } from "@/services/api";
+import { updateLastSeen } from "@/lib/api";
 
 const PresenceContext = createContext();
 

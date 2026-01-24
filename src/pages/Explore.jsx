@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchProfiles } from "@/services/api";
+import { fetchProfiles } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 

@@ -9,7 +9,7 @@ import {
   Loader2,
   MessageSquare,
 } from "lucide-react";
-import { fetchNotifications, markNotificationsAsRead } from "@/services/api";
+import { fetchNotifications, markNotificationsAsRead } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -72,7 +72,7 @@ const Notifications = () => {
           table: "notifications",
           filter: `recipient_id=eq.${currentUser.id}`,
         },
-        (payload) => {
+        () => {
           // Add new notification to the top optimistically
           // In a real app we'd fetch the actor details, but for now we'll just refresh
           loadNotifications();

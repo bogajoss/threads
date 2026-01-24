@@ -5,7 +5,7 @@ import {
   addPost as addPostApi,
   deletePost as deletePostApi,
   updatePost as updatePostApi,
-} from "@/services/api";
+} from "@/lib/api";
 
 const PostContext = createContext();
 

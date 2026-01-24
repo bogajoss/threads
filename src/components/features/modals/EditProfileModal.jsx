@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input";
 import { Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { uploadFile } from "@/services/api";
+import { uploadFile } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ImageCropper from "@/components/ui/ImageCropper";
 

@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import { Image as ImageIcon, Loader2, X, Pencil } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { uploadFile, addStory } from "@/services/api";
+import { uploadFile, addStory } from "@/lib/api";
 import ImageCropper from "@/components/ui/ImageCropper";
 
 const CreateStoryModal = ({ isOpen, onClose }) => {

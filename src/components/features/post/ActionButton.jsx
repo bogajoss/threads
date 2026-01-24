@@ -17,7 +17,7 @@ const ActionButton = ({
       className={`group flex items-center gap-x-2 text-[13px] font-medium transition-all ${active ? activeColorClass : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
     >
       <div
-        className={`rounded-full p-2 transition-colors ${active ? "bg-current/10" : "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800"}`}
+        className={`rounded-full p-2 transition-colors ${active ? "" : "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800"}`}
       >
         <Icon
           size={18}

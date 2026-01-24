@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   MessageCircle,
   Repeat2,
@@ -12,6 +12,7 @@ import {
   Pencil,
   X,
   Film,
+  Plus,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -39,7 +40,7 @@ import ActionButton from "@/components/features/post/ActionButton";
 import MediaGrid from "@/components/features/post/MediaGrid";
 import CommentInput from "@/components/features/post/CommentInput";
 import { usePostInteraction } from "@/hooks/usePostInteraction";
-import { fetchCommentsByPostId, addComment, uploadFile } from "@/services/api";
+import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
 import { usePosts } from "@/context/PostContext";
 import { isBangla } from "@/lib/utils";
 
@@ -77,10 +78,17 @@ const Post = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const [editedMedia, setEditedMedia] = useState(media || []);
+  const [newFiles, setNewFiles] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const editFileInputRef = useRef(null);
 
   const handleUpdate = async () => {
-    const hasMediaChanged = JSON.stringify(editedMedia) !== JSON.stringify(media || []);
+    const hasMediaChanged = 
+      JSON.stringify(editedMedia) !== JSON.stringify(media || []) || 
+      newFiles.length > 0;
+
     if (!editedContent.trim() || (editedContent === content && !hasMediaChanged)) {
       setIsEditing(false);
       return;
@@ -88,7 +96,19 @@ const Post = ({
 
     setIsUpdating(true);
     try {
-      await updatePost(id, { content: editedContent, media: editedMedia });
+      // 1. Upload new files if any
+      const uploadedNewMedia = [];
+      for (const file of newFiles) {
+        const res = await uploadFile(file);
+        uploadedNewMedia.push(res);
+      }
+
+      // 2. Combine remaining old media + new uploaded media
+      const finalMedia = [...editedMedia, ...uploadedNewMedia];
+
+      await updatePost(id, { content: editedContent, media: finalMedia });
+      
+      setNewFiles([]);
       setIsEditing(false);
       if (showToast) showToast("Post updated");
     } catch (err) {
@@ -263,34 +283,93 @@ const Post = ({
 
     if (isEditing) {
       return (
-        <div className="mt-3 grid gap-2 grid-cols-2 sm:grid-cols-3">
-          {currentMedia.map((item, idx) => (
-            <div
-              key={idx}
-              className="relative aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 group"
-            >
-              {item.type === "video" ? (
-                <div className="size-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-                  <Film size={24} className="text-zinc-400" />
-                </div>
-              ) : (
-                <img
-                  src={item.url || item.src}
-                  className="size-full object-cover"
-                  alt=""
-                />
-              )}
+        <div className="mt-3 space-y-3">
+          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3">
+            {/* Existing Media */}
+            {editedMedia.map((item, idx) => (
+              <div
+                key={`old-${idx}`}
+                className="relative aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 group"
+              >
+                {item.type === "video" ? (
+                  <div className="size-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                    <Film size={24} className="text-zinc-400" />
+                  </div>
+                ) : (
+                  <img
+                    src={item.url || item.src}
+                    className="size-full object-cover"
+                    alt=""
+                  />
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditedMedia((prev) => prev.filter((_, i) => i !== idx));
+                  }}
+                  className="absolute top-1.5 right-1.5 size-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+
+            {/* Newly Selected Files */}
+            {newFiles.map((file, idx) => (
+              <div
+                key={`new-${idx}`}
+                className="relative aspect-square rounded-xl overflow-hidden border-2 border-dashed border-violet-500 bg-violet-50/10 group"
+              >
+                {file.type.startsWith("image/") ? (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    className="size-full object-cover"
+                    alt=""
+                  />
+                ) : (
+                  <div className="size-full flex items-center justify-center">
+                    <Film size={24} className="text-violet-500 animate-pulse" />
+                  </div>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNewFiles((prev) => prev.filter((_, i) => i !== idx));
+                  }}
+                  className="absolute top-1.5 right-1.5 size-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors"
+                >
+                  <X size={16} />
+                </button>
+                <div className="absolute bottom-1 left-1 bg-violet-600 text-white text-[8px] font-bold px-1 rounded">NEW</div>
+              </div>
+            ))}
+
+            {/* Add More Button */}
+            {(editedMedia.length + newFiles.length) < 4 && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setEditedMedia((prev) => prev.filter((_, i) => i !== idx));
+                  editFileInputRef.current?.click();
                 }}
-                className="absolute top-1.5 right-1.5 size-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors"
+                className="relative aspect-square rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-1 text-zinc-400 hover:text-violet-500 hover:border-violet-500 hover:bg-violet-50/5 transition-all"
               >
-                <X size={16} />
+                <Plus size={20} />
+                <span className="text-[10px] font-bold">Add Media</span>
               </button>
-            </div>
-          ))}
+            )}
+          </div>
+          
+          <input
+            type="file"
+            ref={editFileInputRef}
+            onChange={(e) => {
+              const files = Array.from(e.target.files);
+              setNewFiles(prev => [...prev, ...files]);
+            }}
+            multiple
+            className="hidden"
+            accept="image/*,video/*"
+          />
         </div>
       );
     }
@@ -317,6 +396,7 @@ const Post = ({
                 setIsEditing(false);
                 setEditedContent(content);
                 setEditedMedia(media || []);
+                setNewFiles([]);
               }}
               className="px-4 py-1.5 text-sm font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
             >
@@ -335,11 +415,26 @@ const Post = ({
     }
 
     if (typeof c === "string") {
+      const shouldTruncate = !isDetail && c.length > 280;
+      const displayContent = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
+
       return (
         <p
           className={`whitespace-pre-line ${className || ""} ${isTxtBangla ? "font-bangla text-[1.15em] leading-relaxed" : "font-english text-[1.05em]"}`}
         >
-          {c}
+          {displayContent}
+          {shouldTruncate && !isExpanded && "..."}
+          {shouldTruncate && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="ml-1 text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer"
+            >
+              {isExpanded ? "Show less" : "See more"}
+            </button>
+          )}
         </p>
       );
     }

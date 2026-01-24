@@ -15,7 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import TypingIndicator from "@/components/ui/TypingIndicator";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { useLightbox } from "@/context/LightboxContext";
-import { uploadFile } from "@/services/api";
+import { uploadFile } from "@/lib/api";
 import {
   Popover,
   PopoverContent,

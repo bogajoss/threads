@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { toggleLike, checkIfLiked } from "@/services/api";
+import { toggleLike, checkIfLiked } from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
 
 export const usePostInteraction = (

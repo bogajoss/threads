@@ -8,7 +8,7 @@ import {
   fetchMessages,
   searchUsers,
   getOrCreateConversation,
-} from "@/services/api";
+} from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { usePresence } from "@/context/PresenceContext";
 import { useMessages } from "@/hooks/useMessages";

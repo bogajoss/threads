@@ -10,7 +10,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchStories } from "@/services/api";
+import { fetchStories } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 const Home = ({ onStoryClick, onAddStory }) => {

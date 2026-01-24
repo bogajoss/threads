@@ -7,7 +7,8 @@ import {
   markMessagesAsRead,
   toggleMessageReaction,
   deleteMessage as deleteMessageApi,
-} from "@/services/api";
+  fetchAllReactions,
+} from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
 export const useMessages = (currentUser) => {
@@ -29,15 +30,9 @@ export const useMessages = (currentUser) => {
     enabled: !!currentUser?.id,
   });
 
-  // Fetch reactions for messages
-  const fetchReactions = async () => {
-    const { data } = await supabase.from("message_reactions").select("*");
-    return data || [];
-  };
-
   const { data: _allReactions = [] } = useQuery({
     queryKey: ["reactions"],
-    queryFn: fetchReactions,
+    queryFn: fetchAllReactions,
     enabled: !!currentUser?.id,
   });
 

@@ -3,7 +3,7 @@ import {
   toggleFollow,
   checkIfFollowing,
   fetchFollowStats,
-} from "@/services/api";
+} from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
 
 export const useFollow = (profile, currentUserId, showToast) => {

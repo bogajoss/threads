@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getOrCreateConversation } from "@/services/api";
+import { getOrCreateConversation } from "@/lib/api";
 
 import { useFollow } from "@/hooks/useFollow";
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchUnreadNotificationsCount } from "@/services/api";
+import { fetchUnreadNotificationsCount } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
 export const useNotifications = (currentUser) => {

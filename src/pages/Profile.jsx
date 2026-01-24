@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchFollowers, fetchFollowing } from "@/services/api";
+import { fetchFollowers, fetchFollowing } from "@/lib/api";
 
 const Profile = ({ onEditProfile }) => {
   const { handle } = useParams();
