@@ -41,6 +41,7 @@ export default function Sysm() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({});
+  const [postCommunity, setPostCommunity] = useState(null);
   const [viewingStory, setViewingStory] = useState(null);
 
   if (authMode) {
@@ -131,7 +132,10 @@ export default function Sysm() {
             path="/c/:handle"
             element={
               <PageTransition>
-                <Community />
+                <Community onPostInCommunity={(c) => {
+                  setPostCommunity(c);
+                  setIsPostModalOpen(true);
+                }} />
               </PageTransition>
             }
           />
@@ -155,13 +159,17 @@ export default function Sysm() {
       {/* Global Overlays */}
       <GlobalModals
         isPostModalOpen={isPostModalOpen}
-        setIsPostModalOpen={setIsPostModalOpen}
+        setIsPostModalOpen={(val) => {
+          setIsPostModalOpen(val);
+          if (!val) setPostCommunity(null);
+        }}
         isEditProfileOpen={isEditProfileOpen}
         setIsEditProfileOpen={setIsEditProfileOpen}
         isStoryModalOpen={isStoryModalOpen}
         setIsStoryModalOpen={setIsStoryModalOpen}
         editProfileData={editProfileData}
         setEditProfileData={setEditProfileData}
+        postCommunity={postCommunity}
       />
 
       {viewingStory && (

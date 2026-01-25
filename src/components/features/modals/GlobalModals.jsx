@@ -12,12 +12,14 @@ const GlobalModals = ({
   setIsStoryModalOpen,
   editProfileData,
   setEditProfileData,
+  postCommunity,
 }) => {
   return (
     <>
       <CreatePostModal
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
+        initialCommunity={postCommunity}
       />
       <EditProfileModal
         isOpen={isEditProfileOpen}

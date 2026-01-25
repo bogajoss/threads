@@ -506,17 +506,34 @@ const Post = ({
                   </AvatarFallback>
                 </Avatar>
               </button>
-              <div className="flex flex-col">
-                <div className="flex flex-wrap items-center gap-x-1">
-                  <button
-                    className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 text-base"
-                    onClick={() => onUserClick && onUserClick(user.handle)}
-                  >
-                    {user.handle}
-                    {user.verified && <VerifiedBadge />}
-                  </button>
+              <div className="flex flex-col min-w-0">
+                <div className="flex flex-wrap items-center gap-x-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5 text-base sm:text-lg">
+                    <button
+                      className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
+                      onClick={() => onUserClick && onUserClick(user.handle)}
+                    >
+                      {user.handle}
+                      {user.verified && <VerifiedBadge />}
+                    </button>
+
+                    {community && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-zinc-400 font-medium text-sm sm:text-base">&gt;</span>
+                        <button
+                          className="font-bold text-violet-600 dark:text-violet-400 hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/c/${community.handle}`);
+                          }}
+                        >
+                          {community.name}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                <span className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
                   @{user.handle}
                 </span>
               </div>
@@ -698,32 +715,38 @@ const Post = ({
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex w-full items-start justify-between">
-            <div className="flex flex-col min-w-0">
-              <div className="flex flex-wrap items-center gap-x-1">
-                <button
-                  className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 truncate text-[15px]"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onUserClick && onUserClick(user.handle);
-                  }}
-                >
-                  <span className="truncate">{user.handle}</span>
-                  {user.verified && <VerifiedBadge />}
-                </button>
-                <span className="text-zinc-400 text-sm ml-1 whitespace-nowrap">
-                  • {timeAgo || "Recent"}
-                </span>
-                {community && (
-                  <span 
-                    className="text-violet-600 dark:text-violet-400 text-[13px] ml-1 font-bold hover:underline cursor-pointer flex items-center gap-1"
+            <div className="flex flex-col min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
+                <div className="flex items-center gap-1.5 min-w-0 max-w-full">
+                  <button
+                    className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/c/${community.handle}`);
+                      onUserClick && onUserClick(user.handle);
                     }}
                   >
-                    • <Users size={12} /> {community.name}
-                  </span>
-                )}
+                    <span className="truncate max-w-[120px] sm:max-w-[200px]">{user.handle}</span>
+                    {user.verified && <VerifiedBadge />}
+                  </button>
+                  
+                  {community && (
+                    <div className="flex items-center gap-1 min-w-0">
+                      <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
+                      <button
+                        className="font-bold text-violet-600 dark:text-violet-400 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/c/${community.handle}`);
+                        }}
+                      >
+                        {community.name}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <span className="text-zinc-400 text-xs sm:text-sm whitespace-nowrap pt-0.5">
+                  • {timeAgo || "Recent"}
+                </span>
               </div>
             </div>
             <PostActionsMenu

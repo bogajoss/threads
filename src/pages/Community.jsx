@@ -8,8 +8,9 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { fetchCommunityByHandle, fetchCommunityPosts, toggleCommunityMembership, checkIfMember } from "@/lib/api";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-const Community = () => {
+const Community = ({ onPostInCommunity }) => {
   const { handle } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -143,42 +144,61 @@ const Community = () => {
           </div>
         </div>
 
-        {/* Community Header (Simple version of ProfileHeader) */}
+        {/* Community Header */}
         <div className="relative">
-          <div className="h-32 sm:h-48 bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-            {community.cover && (
-              <img src={community.cover} className="w-full h-full object-cover" alt="" />
+          <div className="h-32 sm:h-52 bg-zinc-100 dark:bg-zinc-900 overflow-hidden relative">
+            {community.cover ? (
+              <>
+                <img src={community.cover} className="w-full h-full object-cover" alt="" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              </>
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20" />
             )}
           </div>
-          <div className="px-4 pb-4">
-            <div className="flex justify-between items-end -mt-12 mb-4">
-              <div className="size-24 sm:size-32 rounded-2xl border-4 border-white dark:border-black bg-zinc-100 dark:bg-zinc-800 overflow-hidden shadow-sm">
-                <img src={community.avatar} className="w-full h-full object-cover" alt="" />
+          
+          <div className="px-4 pb-6">
+            <div className="flex justify-between items-end -mt-12 sm:-mt-16 mb-4 relative z-10">
+              <div className="size-24 sm:size-32 rounded-3xl border-4 border-white dark:border-black bg-zinc-100 dark:bg-zinc-800 overflow-hidden shadow-xl">
+                <img src={community.avatar} className="size-full object-cover" alt="" />
               </div>
-              <Button
-                variant={isMember ? "outline" : "default"}
-                onClick={handleJoinToggle}
-                disabled={isJoining}
-                className="rounded-full font-bold px-6"
-              >
-                {isJoining ? <Loader2 size={18} className="animate-spin" /> : (isMember ? "Joined" : "Join")}
-              </Button>
+              <div className="pb-1">
+                <Button
+                  variant={isMember ? "outline" : "default"}
+                  onClick={handleJoinToggle}
+                  disabled={isJoining}
+                  className={`rounded-full font-bold px-8 h-10 transition-all ${isMember ? "border-zinc-200 dark:border-zinc-800 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 dark:hover:bg-rose-900/20" : "bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 hover:scale-105"}`}
+                >
+                  {isJoining ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    isMember ? "Joined" : "Join"
+                  )}
+                </Button>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black dark:text-white">{community.name}</h1>
-              <p className="text-zinc-500 font-medium">@{community.handle}</p>
+
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black dark:text-white tracking-tight leading-tight">
+                {community.name}
+              </h1>
+              <p className="text-zinc-500 font-bold text-sm sm:text-base">c/{community.handle}</p>
+              
               {community.description && (
-                <p className="mt-3 text-[15px] dark:text-zinc-300 leading-relaxed">
+                <p className="mt-4 text-[15px] sm:text-base dark:text-zinc-300 leading-relaxed max-w-2xl">
                   {community.description}
                 </p>
               )}
-              <div className="flex gap-4 mt-4 text-sm text-zinc-500 font-medium">
-                <span className="flex items-center gap-1">
-                  <span className="text-black dark:text-white font-bold">{community.membersCount}</span> Members
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="text-black dark:text-white font-bold">{community.postsCount}</span> Posts
-                </span>
+
+              <div className="flex gap-6 mt-5">
+                <div className="flex flex-col">
+                  <span className="text-lg font-black dark:text-white">{community.membersCount}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Members</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-black dark:text-white">{community.postsCount}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Posts</span>
+                </div>
               </div>
             </div>
           </div>
@@ -228,6 +248,20 @@ const Community = () => {
           )}
         </div>
       </div>
+
+      {/* Floating Plus Button for members */}
+      {isMember && (
+        <button
+          onClick={() => onPostInCommunity(community)}
+          className="fixed bottom-20 right-5 md:hidden z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
+          title={`Post to ${community.name}`}
+        >
+          <Plus
+            size={28}
+            className="group-hover:rotate-90 transition-transform duration-300"
+          />
+        </button>
+      )}
     </div>
   );
 };

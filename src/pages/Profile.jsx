@@ -6,6 +6,7 @@ import Post from "@/components/features/post/Post";
 import Modal from "@/components/ui/Modal";
 import ProfileCard from "@/components/ui/ProfileCard";
 import NotFound from "@/components/ui/NotFound";
+import Button from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";

@@ -129,6 +129,7 @@ export const addPost = async ({
   userId,
   poll = null,
   parentId = null,
+  communityId = null,
 }) => {
   const { data, error } = await supabase.from("posts").insert([
     {
@@ -138,6 +139,7 @@ export const addPost = async ({
       type,
       poll,
       parent_id: parentId,
+      community_id: communityId,
     },
   ]).select(`
             *,

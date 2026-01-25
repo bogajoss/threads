@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const CreatePostModal = ({ isOpen, onClose }) => {
+const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
   const { currentUser } = useAuth();
   const { addPost } = usePosts();
   const { addToast } = useToast();
@@ -43,6 +43,15 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   });
   const [loading, setLoading] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState(null); // { id, name, handle }
+
+  // Set initial community if provided
+  useEffect(() => {
+    if (initialCommunity) {
+      setSelectedCommunity(initialCommunity);
+    } else {
+      setSelectedCommunity(null);
+    }
+  }, [initialCommunity, isOpen]);
 
   // Fetch user's communities
   const { data: userCommunities = [] } = useQuery({
