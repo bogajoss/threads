@@ -62,6 +62,8 @@ const Post = ({
   isDetail,
   initialComments,
   onDelete,
+  isComment,
+  onReply,
 }) => {
   const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } =
     usePostInteraction(id, stats, currentUser, showToast);
@@ -227,16 +229,18 @@ const Post = ({
           <LinkIcon size={16} />
           <span>Copy link to post</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5"
-          onClick={(e) => {
-            e.stopPropagation();
-            showToast && showToast("Post reported");
-          }}
-        >
-          <Flag size={16} />
-          <span>Report post</span>
-        </DropdownMenuItem>
+        {!isComment && (
+          <DropdownMenuItem
+            className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              showToast && showToast("Post reported");
+            }}
+          >
+            <Flag size={16} />
+            <span>Report post</span>
+          </DropdownMenuItem>
+        )}
         {!isCurrentUser && (
           <DropdownMenuItem
             className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5 text-rose-500 focus:text-rose-500"
@@ -468,6 +472,15 @@ const Post = ({
     return c;
   };
 
+  const handleReplyClick = (handle) => {
+    setNewComment((prev) => {
+      const mention = `@${handle} `;
+      if (prev.includes(mention)) return prev;
+      return prev + mention;
+    });
+    document.getElementById("comment-input")?.focus();
+  };
+
   if (isDetail) {
     return (
       <div className="flex flex-col">
@@ -550,12 +563,14 @@ const Post = ({
               active={liked}
               activeColorClass="text-rose-500"
             />
-            <ActionButton
-              icon={Repeat2}
-              onClick={handleRepost}
-              active={reposted}
-              activeColorClass="text-emerald-500"
-            />
+            {!isComment && (
+              <ActionButton
+                icon={Repeat2}
+                onClick={handleRepost}
+                active={reposted}
+                activeColorClass="text-emerald-500"
+              />
+            )}
             <ActionButton
               icon={MessageCircle}
               onClick={() => document.getElementById("comment-input")?.focus()}
@@ -595,6 +610,8 @@ const Post = ({
                 <Post
                   key={c.id}
                   {...c}
+                  isComment={true}
+                  onReply={handleReplyClick}
                   onUserClick={onUserClick}
                   currentUser={currentUser}
                   showToast={showToast}
@@ -724,24 +741,34 @@ const Post = ({
 
           <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3 pr-4">
             <div className="flex items-center gap-x-6">
-              <ActionButton
-                icon={Heart}
-                count={localStats.likes}
-                active={liked}
-                onClick={handleLike}
-                activeColorClass="text-rose-500"
-              />
-              <ActionButton
-                icon={Repeat2}
-                count={localStats.mirrors}
-                active={reposted}
-                onClick={handleRepost}
-                activeColorClass="text-emerald-500"
-              />
-              <ActionButton
-                icon={MessageCircle}
+                          <ActionButton
+                            icon={Heart}
+                            count={localStats.likes}
+                            active={liked}
+                            onClick={handleLike}
+                            activeColorClass="text-rose-500"
+                          />
+                          {!isComment && (
+                            <ActionButton
+                              icon={Repeat2}
+                              count={localStats.mirrors}
+                              active={reposted}
+                              onClick={handleRepost}
+                              activeColorClass="text-emerald-500"
+                            />
+                          )}
+                          <ActionButton
+                            icon={MessageCircle}
+              
                 count={localStats.comments}
-                onClick={onClick}
+                onClick={(e) => {
+                  if (isComment && onReply) {
+                    e.stopPropagation();
+                    onReply(user.handle);
+                  } else if (onClick) {
+                    onClick(e);
+                  }
+                }}
               />
             </div>
           </div>
