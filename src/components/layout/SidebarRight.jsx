@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { Sun, Moon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import SearchBar from "@/components/ui/SearchBar";
-import SignupCard from "@/components/ui/SignupCard";
+import { SearchBar, SignupCard } from "@/components/ui";
+import { fetchTrendingHashtags } from "@/lib/api";
 
-const SidebarRight = ({ trendingTopics = [] }) => {
+const SidebarRight = () => {
   const { currentUser, setAuthMode } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const { data: trendingHashtags = [] } = useQuery({
+    queryKey: ["trending-hashtags"],
+    queryFn: () => fetchTrendingHashtags(5),
+    refetchInterval: 60000, // Refresh every minute
+  });
 
   const footerLinks = [
     "© 2026 Sysm",
@@ -52,22 +61,26 @@ const SidebarRight = ({ trendingTopics = [] }) => {
             What's happening
           </h3>
           <div className="flex flex-col gap-1">
-            {trendingTopics.map((topic) => (
+            {trendingHashtags.map((topic) => (
               <div
-                key={topic.tag}
+                key={topic.id}
+                onClick={() => navigate(`/community?q=${encodeURIComponent(topic.name)}`)}
                 className="px-3 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl cursor-pointer transition-colors group"
               >
                 <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                   Trending
                 </div>
                 <div className="font-bold text-[--foreground]">
-                  #{topic.tag}
+                  {topic.name}
                 </div>
                 <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {topic.posts} posts
+                  {topic.usage_count} posts
                 </div>
               </div>
             ))}
+            {trendingHashtags.length === 0 && (
+              <p className="text-sm text-zinc-500 px-2">No trends yet</p>
+            )}
           </div>
         </div>
 

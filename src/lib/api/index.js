@@ -4,4 +4,5 @@ export * from "./messages";
 export * from "./notifications";
 export * from "./stories";
 export * from "./communities";
+export * from "./hashtags";
 export * from "./storage";

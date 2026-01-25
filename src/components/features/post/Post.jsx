@@ -436,8 +436,8 @@ const Post = ({
       const shouldTruncate = !isDetail && c.length > 280;
       const textToProcess = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
 
-      // Mentions parsing
-      const parts = textToProcess.split(/(@[a-zA-Z0-9_]+)/g);
+      // Mentions and Hashtags parsing
+      const parts = textToProcess.split(/(@[a-zA-Z0-9_]+|#[a-zA-Z0-9_]+)/g);
       const displayContent = parts.map((part, i) => {
         if (part.startsWith("@") && part.length > 1) {
           const handle = part.substring(1);
@@ -449,6 +449,20 @@ const Post = ({
                 onUserClick && onUserClick(handle);
               }}
               className="text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer"
+            >
+              {part}
+            </span>
+          );
+        }
+        if (part.startsWith("#") && part.length > 1) {
+          return (
+            <span
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/community?q=${encodeURIComponent(part)}`);
+              }}
+              className="text-violet-600 dark:text-violet-400 font-medium hover:underline cursor-pointer"
             >
               {part}
             </span>

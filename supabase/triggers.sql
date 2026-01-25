@@ -1,5 +1,9 @@
--- Trigger to automatically create a profile in the 'users' table when a new user signs up via Supabase Auth
--- This ensures data consistency even if the frontend call fails.
+-- Sysm Automation Triggers & Functions
+-- Last Updated: 2026-01-25
+
+-- ==========================================
+-- 1. USER AUTH & PROFILES
+-- ==========================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
@@ -14,11 +18,6 @@ BEGIN
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger the function every time a user is created
-CREATE OR REPLACE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ==========================================
 -- 2. INTERACTION COUNTS (FOLLOWS)
@@ -38,58 +37,34 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_follow_change
-  AFTER INSERT OR DELETE ON public.follows
-  FOR EACH ROW EXECUTE FUNCTION public.handle_follow_count();
-
 -- ==========================================
--- 3. INTERACTION COUNTS (LIKES)
+-- 3. INTERACTION COUNTS (LIKES & REPOSTS)
 -- ==========================================
 
-CREATE OR REPLACE FUNCTION public.handle_like_count()
+CREATE OR REPLACE FUNCTION public.handle_post_stats()
 RETURNS trigger AS $$
 BEGIN
-  IF (TG_OP = 'INSERT') THEN
-    UPDATE public.posts SET likes_count = likes_count + 1 WHERE id = NEW.post_id;
-  ELSIF (TG_OP = 'DELETE') THEN
-    UPDATE public.posts SET likes_count = likes_count - 1 WHERE id = OLD.post_id;
-  END IF;
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE TRIGGER on_like_change
-  AFTER INSERT OR DELETE ON public.likes
-  FOR EACH ROW EXECUTE FUNCTION public.handle_like_count();
-
--- ==========================================
--- 4. INTERACTION COUNTS (COMMENTS & REPOSTS)
--- ==========================================
-
-CREATE OR REPLACE FUNCTION public.handle_post_interaction_count()
-RETURNS trigger AS $$
-BEGIN
-  IF (TG_OP = 'INSERT') THEN
-    -- If it's a repost (quoted post)
-    IF (NEW.quoted_post_id IS NOT NULL) THEN
-      UPDATE public.posts SET mirrors_count = mirrors_count + 1 WHERE id = NEW.quoted_post_id;
+  -- Likes
+  IF (TG_TABLE_NAME = 'likes') THEN
+    IF (TG_OP = 'INSERT') THEN
+      UPDATE public.posts SET likes_count = likes_count + 1 WHERE id = NEW.post_id;
+    ELSE
+      UPDATE public.posts SET likes_count = likes_count - 1 WHERE id = OLD.post_id;
     END IF;
-  ELSIF (TG_OP = 'DELETE') THEN
-    -- If it's a repost (quoted post)
-    IF (OLD.quoted_post_id IS NOT NULL) THEN
-      UPDATE public.posts SET mirrors_count = mirrors_count - 1 WHERE id = OLD.quoted_post_id;
+  -- Reposts
+  ELSIF (TG_TABLE_NAME = 'reposts') THEN
+    IF (TG_OP = 'INSERT') THEN
+      UPDATE public.posts SET mirrors_count = mirrors_count + 1 WHERE id = NEW.post_id;
+    ELSE
+      UPDATE public.posts SET mirrors_count = mirrors_count - 1 WHERE id = OLD.post_id;
     END IF;
   END IF;
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_post_interaction_change
-  AFTER INSERT OR DELETE ON public.posts
-  FOR EACH ROW EXECUTE FUNCTION public.handle_post_interaction_count();
-
 -- ==========================================
--- 4.5. COMMENT COUNTS (NEW TABLE)
+-- 4. COMMENT COUNTS
 -- ==========================================
 
 CREATE OR REPLACE FUNCTION public.handle_comment_count()
@@ -104,129 +79,125 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_comment_change
-  AFTER INSERT OR DELETE ON public.comments
-  FOR EACH ROW EXECUTE FUNCTION public.handle_comment_count();
-
 -- ==========================================
--- 4.7. REPOST COUNTS
+-- 5. COMMUNITY STATS
 -- ==========================================
 
-CREATE OR REPLACE FUNCTION public.handle_repost_count()
+CREATE OR REPLACE FUNCTION public.handle_community_stats()
 RETURNS trigger AS $$
 BEGIN
-  IF (TG_OP = 'INSERT') THEN
-    UPDATE public.posts SET mirrors_count = mirrors_count + 1 WHERE id = NEW.post_id;
-  ELSIF (TG_OP = 'DELETE') THEN
-    UPDATE public.posts SET mirrors_count = mirrors_count - 1 WHERE id = OLD.post_id;
+  -- Members
+  IF (TG_TABLE_NAME = 'community_members') THEN
+    IF (TG_OP = 'INSERT') THEN
+      UPDATE public.communities SET members_count = members_count + 1 WHERE id = NEW.community_id;
+    ELSE
+      UPDATE public.communities SET members_count = members_count - 1 WHERE id = OLD.community_id;
+    END IF;
+  -- Posts
+  ELSIF (TG_TABLE_NAME = 'posts' AND NEW.community_id IS NOT NULL) THEN
+    IF (TG_OP = 'INSERT') THEN
+      UPDATE public.communities SET posts_count = posts_count + 1 WHERE id = NEW.community_id;
+    ELSE
+      UPDATE public.communities SET posts_count = posts_count - 1 WHERE id = OLD.community_id;
+    END IF;
   END IF;
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_repost_change
-  AFTER INSERT OR DELETE ON public.reposts
-  FOR EACH ROW EXECUTE FUNCTION public.handle_repost_count();
-
 -- ==========================================
--- 5. USER STATS (POSTS COUNT)
+-- 6. HASHTAG EXTRACTION
 -- ==========================================
 
-CREATE OR REPLACE FUNCTION public.handle_user_posts_count()
+CREATE OR REPLACE FUNCTION public.extract_hashtags()
 RETURNS trigger AS $$
+DECLARE
+  hashtag_text TEXT;
+  hashtag_id_val UUID;
 BEGIN
-  IF (TG_OP = 'INSERT') THEN
-    -- Increment only for top-level posts (optional: include comments too?)
-    -- Sysm usually shows total posts including comments in the count
-    UPDATE public.users SET posts_count = posts_count + 1 WHERE id = NEW.user_id;
-  ELSIF (TG_OP = 'DELETE') THEN
-    UPDATE public.users SET posts_count = posts_count - 1 WHERE id = OLD.user_id;
-  END IF;
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  FOR hashtag_text IN SELECT unnest(regexp_matches(NEW.content, '#[[:alnum:]_]+', 'g')) LOOP
+    hashtag_text := lower(hashtag_text);
+    
+    INSERT INTO public.hashtags (name, usage_count, last_used_at)
+    VALUES (hashtag_text, 1, NOW())
+    ON CONFLICT (name) DO UPDATE 
+    SET usage_count = hashtags.usage_count + 1, last_used_at = NOW()
+    RETURNING id INTO hashtag_id_val;
 
-CREATE OR REPLACE TRIGGER on_post_user_stats_change
-  AFTER INSERT OR DELETE ON public.posts
-  FOR EACH ROW EXECUTE FUNCTION public.handle_user_posts_count();
-
--- ==========================================
--- 6. CHAT METADATA (LAST MESSAGE)
--- ==========================================
-
-CREATE OR REPLACE FUNCTION public.handle_new_message()
-RETURNS trigger AS $$
-BEGIN
-  UPDATE public.conversations
-  SET 
-    last_message_at = NEW.created_at,
-    last_message_content = NEW.content
-  WHERE id = NEW.conversation_id;
+    INSERT INTO public.post_hashtags (post_id, hashtag_id)
+    VALUES (NEW.id, hashtag_id_val)
+    ON CONFLICT DO NOTHING;
+  END LOOP;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_new_message
-  AFTER INSERT ON public.messages
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_message();
-
--- Function to handle conversation update when a message is deleted
-CREATE OR REPLACE FUNCTION public.handle_message_delete()
-RETURNS trigger AS $$
-BEGIN
-  UPDATE public.conversations
-  SET 
-    last_message_at = (SELECT created_at FROM public.messages WHERE conversation_id = OLD.conversation_id ORDER BY created_at DESC LIMIT 1),
-    last_message_content = (SELECT content FROM public.messages WHERE conversation_id = OLD.conversation_id ORDER BY created_at DESC LIMIT 1)
-  WHERE id = OLD.conversation_id;
-  RETURN OLD;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE TRIGGER on_message_deleted
-  AFTER DELETE ON public.messages
-  FOR EACH ROW EXECUTE FUNCTION public.handle_message_delete();
-
 -- ==========================================
--- 7. NOTIFICATIONS AUTOMATION
+-- 7. NOTIFICATIONS
 -- ==========================================
 
--- Function to handle notification creation
 CREATE OR REPLACE FUNCTION public.create_notification()
 RETURNS trigger AS $$
 BEGIN
-  -- 1. For LIKES
+  -- Likes
   IF (TG_TABLE_NAME = 'likes') THEN
     INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
     SELECT user_id, NEW.user_id, 'like', NEW.post_id
-    FROM public.posts WHERE id = NEW.post_id
-    AND user_id != NEW.user_id; -- Don't notify if I like my own post
-  
-  -- 2. For FOLLOWS
+    FROM public.posts WHERE id = NEW.post_id AND user_id != NEW.user_id;
+  -- Follows
   ELSIF (TG_TABLE_NAME = 'follows') THEN
     INSERT INTO public.notifications (recipient_id, actor_id, type)
     VALUES (NEW.following_id, NEW.follower_id, 'follow');
-
-  -- 3. For COMMENTS (from comments table)
+  -- Comments
   ELSIF (TG_TABLE_NAME = 'comments') THEN
     INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
     SELECT user_id, NEW.user_id, 'comment', NEW.post_id
-    FROM public.posts WHERE id = NEW.post_id
-    AND user_id != NEW.user_id; -- Don't notify if I reply to my own post
-
-  -- 4. For REPOSTS
+    FROM public.posts WHERE id = NEW.post_id AND user_id != NEW.user_id;
+  -- Reposts
   ELSIF (TG_TABLE_NAME = 'reposts') THEN
     INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
     SELECT user_id, NEW.user_id, 'repost', NEW.post_id
-    FROM public.posts WHERE id = NEW.post_id
-    AND user_id != NEW.user_id;
+    FROM public.posts WHERE id = NEW.post_id AND user_id != NEW.user_id;
   END IF;
-  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Bind triggers to tables
+-- ==========================================
+-- BIND ALL TRIGGERS
+-- ==========================================
+
+-- Auth
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Follows
+DROP TRIGGER IF EXISTS on_follow_change ON public.follows;
+CREATE TRIGGER on_follow_change AFTER INSERT OR DELETE ON public.follows FOR EACH ROW EXECUTE FUNCTION public.handle_follow_count();
+
+-- Likes & Reposts
+DROP TRIGGER IF EXISTS on_like_change ON public.likes;
+CREATE TRIGGER on_like_change AFTER INSERT OR DELETE ON public.likes FOR EACH ROW EXECUTE FUNCTION public.handle_post_stats();
+
+DROP TRIGGER IF EXISTS on_repost_change ON public.reposts;
+CREATE TRIGGER on_repost_change AFTER INSERT OR DELETE ON public.reposts FOR EACH ROW EXECUTE FUNCTION public.handle_post_stats();
+
+-- Comments
+DROP TRIGGER IF EXISTS on_comment_change ON public.comments;
+CREATE TRIGGER on_comment_change AFTER INSERT OR DELETE ON public.comments FOR EACH ROW EXECUTE FUNCTION public.handle_comment_count();
+
+-- Communities
+DROP TRIGGER IF EXISTS on_community_member_change ON public.community_members;
+CREATE TRIGGER on_community_member_change AFTER INSERT OR DELETE ON public.community_members FOR EACH ROW EXECUTE FUNCTION public.handle_community_stats();
+
+DROP TRIGGER IF EXISTS on_community_post_change ON public.posts;
+CREATE TRIGGER on_community_post_change AFTER INSERT OR DELETE ON public.posts FOR EACH ROW EXECUTE FUNCTION public.handle_community_stats();
+
+-- Hashtags
+DROP TRIGGER IF EXISTS on_post_hashtags ON public.posts;
+CREATE TRIGGER on_post_hashtags AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.extract_hashtags();
+
+-- Notifications
 CREATE TRIGGER on_like_notification AFTER INSERT ON public.likes FOR EACH ROW EXECUTE FUNCTION public.create_notification();
 CREATE TRIGGER on_follow_notification AFTER INSERT ON public.follows FOR EACH ROW EXECUTE FUNCTION public.create_notification();
 CREATE TRIGGER on_comment_notification AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.create_notification();

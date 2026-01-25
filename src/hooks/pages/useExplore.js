@@ -1,13 +1,24 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { fetchCommunities } from "@/lib/api";
 
 export const useExplore = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation();
+  
+  // Read 'q' from URL (e.g. /community?q=#tag)
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearch = queryParams.get('q') || "";
+
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Sync state if URL changes
+  useEffect(() => {
+    setSearchQuery(initialSearch);
+  }, [initialSearch]);
 
   const [communitiesData, setCommunitiesData] = useState([]);
   const [isCommunitiesLoading, setIsCommunitiesLoading] = useState(true);

@@ -2,7 +2,6 @@ import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarLeft, SidebarRight, BottomNav, FeedHeader } from "@/components/layout";
 import { useTheme } from "@/context/ThemeContext";
-import { TRENDING_TOPICS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const MainLayout = ({ onPostClick }) => {
@@ -50,7 +49,7 @@ const MainLayout = ({ onPostClick }) => {
           </div>
 
           {/* Right Sidebar - Now on all pages */}
-          <SidebarRight trendingTopics={TRENDING_TOPICS} />
+          <SidebarRight />
         </div>
       </div>
 
