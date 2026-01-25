@@ -44,6 +44,7 @@ export const transformPost = (post) => {
     },
     // Handle data from either direct table query or unified view
     user: transformUser(post.author_data || post.user),
+    community: post.community_data || post.communities,
     repostedBy: post.reposter_data ? {
       handle: post.reposter_data.username,
       name: post.reposter_data.display_name,

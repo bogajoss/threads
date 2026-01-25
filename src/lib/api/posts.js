@@ -42,6 +42,11 @@ export const fetchPostById = async (id) => {
                 follower_count,
                 following_count
             ),
+            communities (
+                id,
+                handle,
+                name
+            ),
             quoted_post:posts!quoted_post_id (
                 *,
                 user:users!user_id (

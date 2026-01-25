@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import { useQuery } from "@tanstack/react-query";
 import {
   Plus,
   MapPin,
@@ -11,13 +12,21 @@ import {
   X,
   Trash2,
   Crop,
+  Globe,
+  Users
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { uploadFile } from "@/lib/api";
+import { uploadFile, fetchUserCommunities } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ImageCropper from "@/components/ui/ImageCropper";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const CreatePostModal = ({ isOpen, onClose }) => {
   const { currentUser } = useAuth();
@@ -33,6 +42,14 @@ const CreatePostModal = ({ isOpen, onClose }) => {
     duration: "1 day",
   });
   const [loading, setLoading] = useState(false);
+  const [selectedCommunity, setSelectedCommunity] = useState(null); // { id, name, handle }
+
+  // Fetch user's communities
+  const { data: userCommunities = [] } = useQuery({
+    queryKey: ["user-communities", currentUser?.id],
+    queryFn: () => fetchUserCommunities(currentUser?.id),
+    enabled: !!currentUser?.id,
+  });
 
   // Cropping State
   const [tempCropImage, setTempCropImage] = useState(null);
@@ -147,12 +164,14 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               ? "poll"
               : "text",
         userId: currentUser.id,
+        communityId: selectedCommunity?.id || null,
       });
 
       setPostContent("");
       setSelectedFiles([]);
       setShowPoll(false);
       setPollData({ options: ["", ""], duration: "1 day" });
+      setSelectedCommunity(null);
       onClose();
       addToast("Post published!");
     } catch (err) {
@@ -235,6 +254,55 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
+              {/* Community Selector */}
+              <div className="mb-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-800 text-xs font-bold text-violet-600 dark:text-violet-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                      {selectedCommunity ? (
+                        <>
+                          <Users size={14} />
+                          <span>{selectedCommunity.name}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Globe size={14} />
+                          <span>Everyone</span>
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 rounded-xl">
+                    <DropdownMenuItem 
+                      onClick={() => setSelectedCommunity(null)}
+                      className="gap-2 py-2.5 cursor-pointer"
+                    >
+                      <Globe size={16} className="text-zinc-500" />
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm">Everyone</span>
+                        <span className="text-[10px] text-zinc-500">Post to your public feed</span>
+                      </div>
+                    </DropdownMenuItem>
+                    {userCommunities.map((c) => (
+                      <DropdownMenuItem 
+                        key={c.id} 
+                        onClick={() => setSelectedCommunity(c)}
+                        className="gap-2 py-2.5 cursor-pointer"
+                      >
+                        <Avatar className="size-6">
+                          <AvatarImage src={c.avatar} />
+                          <AvatarFallback>{c.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm">{c.name}</span>
+                          <span className="text-[10px] text-zinc-500">Post to community</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
               <textarea
                 className="w-full bg-transparent border-none outline-none text-lg min-h-[120px] resize-none dark:text-white"
                 placeholder="What's happening?"

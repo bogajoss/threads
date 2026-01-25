@@ -1,6 +1,6 @@
 import React from "react";
-import { Home, Compass, Film, Mail, Bell } from "lucide-react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { Home, Users, Film, Mail, Bell } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useMessages } from "@/hooks/useMessages";
@@ -14,7 +14,7 @@ const BottomNav = ({ handleProfileClick }) => {
 
   const navItems = [
     { id: "home", icon: Home, path: "/" },
-    { id: "explore", icon: Compass, path: "/explore" },
+    { id: "community", icon: Users, path: "/community" },
     { id: "reels", icon: Film, path: "/reels" },
     { id: "messages", icon: Mail, path: "/messages" },
     { id: "notifications", icon: Bell, path: "/notifications" },

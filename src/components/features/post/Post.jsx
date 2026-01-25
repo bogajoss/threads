@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MessageCircle,
   Repeat2,
@@ -13,6 +14,7 @@ import {
   X,
   Film,
   Plus,
+  Users
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -64,7 +66,9 @@ const Post = ({
   onDelete,
   isComment,
   onReply,
+  community,
 }) => {
+  const navigate = useNavigate();
   const { liked, reposted, localStats, setLocalStats, handleLike, handleRepost } =
     usePostInteraction(id, stats, currentUser, showToast);
   const { deletePost, updatePost } = usePosts();
@@ -709,6 +713,17 @@ const Post = ({
                 <span className="text-zinc-400 text-sm ml-1 whitespace-nowrap">
                   • {timeAgo || "Recent"}
                 </span>
+                {community && (
+                  <span 
+                    className="text-violet-600 dark:text-violet-400 text-[13px] ml-1 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/c/${community.handle}`);
+                    }}
+                  >
+                    • <Users size={12} /> {community.name}
+                  </span>
+                )}
               </div>
             </div>
             <PostActionsMenu

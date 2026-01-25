@@ -23,6 +23,7 @@ import Reels from "@/pages/Reels";
 import Messages from "@/pages/Messages";
 import Notifications from "@/pages/Notifications";
 import Profile from "@/pages/Profile";
+import Community from "@/pages/Community";
 import PostDetails from "@/pages/PostDetails";
 
 import { Plus } from "lucide-react";
@@ -79,7 +80,7 @@ export default function Sysm() {
           />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route
-            path="/explore"
+            path="/community"
             element={
               <PageTransition>
                 <Explore />
@@ -127,6 +128,14 @@ export default function Sysm() {
             }
           />
           <Route
+            path="/c/:handle"
+            element={
+              <PageTransition>
+                <Community />
+              </PageTransition>
+            }
+          />
+          <Route
             path="/u/:handle"
             element={
               <PageTransition>
@@ -139,7 +148,7 @@ export default function Sysm() {
               </PageTransition>
             }
           />
-          <Route path="*" element={<Navigate to="/explore" />} />
+          <Route path="*" element={<Navigate to="/community" />} />
         </Route>
       </Routes>
 

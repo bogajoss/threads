@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Compass, Film, Mail, Bell, User, Plus } from "lucide-react";
+import { Home, Users, Film, Mail, Bell, User, Plus } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -12,14 +12,14 @@ const SidebarLeft = ({ onPostClick }) => {
 
   const navItems = [
     { id: "home", icon: Home, path: "/" },
-    { id: "explore", icon: Compass, path: "/explore" },
+    { id: "community", icon: Users, path: "/community" },
     { id: "reels", icon: Film, path: "/reels" },
     { id: "messages", icon: Mail, path: "/messages" },
     { id: "notifications", icon: Bell, path: "/notifications" },
     {
       id: "profile",
       icon: User,
-      path: currentUser ? `/u/${currentUser.handle}` : "/explore",
+      path: currentUser ? `/u/${currentUser.handle}` : "/community",
     },
   ];
 
