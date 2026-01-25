@@ -30,15 +30,46 @@ export const transformUser = (supabaseUser) => {
 export const transformPost = (post) => {
   if (!post) return null;
 
+  // Generate a unique feed_id for React keys if not provided by the view
+  const reposterId = post.reposter_id || (post.reposter_data?.id) || (post.reposted_by?.id);
+  const uniqueKey = post.feed_id || (reposterId ? `${post.id}-${reposterId}` : `${post.id}-orig`);
+
   return {
     ...post,
+    feed_id: uniqueKey, // Always ensure this exists
     stats: {
       comments: post.comments_count || 0,
       likes: post.likes_count || 0,
       mirrors: post.mirrors_count || 0,
     },
-    user: transformUser(post.user),
+    // Handle data from either direct table query or unified view
+    user: transformUser(post.author_data || post.user),
+    repostedBy: post.reposter_data ? {
+      handle: post.reposter_data.username,
+      name: post.reposter_data.display_name,
+      id: post.reposter_data.id
+    } : (post.reposted_by ? {
+      handle: post.reposted_by.username,
+      name: post.reposted_by.display_name,
+      id: post.reposted_by.id
+    } : null),
     timeAgo: new Date(post.created_at).toLocaleDateString(), // Could be improved with a proper timeAgo lib
+  };
+};
+
+/**
+ * Transforms a Supabase comment object.
+ */
+export const transformComment = (comment) => {
+  if (!comment) return null;
+
+  return {
+    ...comment,
+    stats: {
+      likes: comment.likes_count || 0,
+    },
+    user: transformUser(comment.user),
+    timeAgo: new Date(comment.created_at).toLocaleDateString(),
   };
 };
 

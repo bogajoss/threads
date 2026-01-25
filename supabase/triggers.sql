@@ -70,19 +70,11 @@ CREATE OR REPLACE FUNCTION public.handle_post_interaction_count()
 RETURNS trigger AS $$
 BEGIN
   IF (TG_OP = 'INSERT') THEN
-    -- If it's a comment
-    IF (NEW.parent_id IS NOT NULL) THEN
-      UPDATE public.posts SET comments_count = comments_count + 1 WHERE id = NEW.parent_id;
-    END IF;
     -- If it's a repost (quoted post)
     IF (NEW.quoted_post_id IS NOT NULL) THEN
       UPDATE public.posts SET mirrors_count = mirrors_count + 1 WHERE id = NEW.quoted_post_id;
     END IF;
   ELSIF (TG_OP = 'DELETE') THEN
-    -- If it's a comment
-    IF (OLD.parent_id IS NOT NULL) THEN
-      UPDATE public.posts SET comments_count = comments_count - 1 WHERE id = OLD.parent_id;
-    END IF;
     -- If it's a repost (quoted post)
     IF (OLD.quoted_post_id IS NOT NULL) THEN
       UPDATE public.posts SET mirrors_count = mirrors_count - 1 WHERE id = OLD.quoted_post_id;
@@ -95,6 +87,46 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_post_interaction_change
   AFTER INSERT OR DELETE ON public.posts
   FOR EACH ROW EXECUTE FUNCTION public.handle_post_interaction_count();
+
+-- ==========================================
+-- 4.5. COMMENT COUNTS (NEW TABLE)
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION public.handle_comment_count()
+RETURNS trigger AS $$
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    UPDATE public.posts SET comments_count = comments_count + 1 WHERE id = NEW.post_id;
+  ELSIF (TG_OP = 'DELETE') THEN
+    UPDATE public.posts SET comments_count = comments_count - 1 WHERE id = OLD.post_id;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_comment_change
+  AFTER INSERT OR DELETE ON public.comments
+  FOR EACH ROW EXECUTE FUNCTION public.handle_comment_count();
+
+-- ==========================================
+-- 4.7. REPOST COUNTS
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION public.handle_repost_count()
+RETURNS trigger AS $$
+BEGIN
+  IF (TG_OP = 'INSERT') THEN
+    UPDATE public.posts SET mirrors_count = mirrors_count + 1 WHERE id = NEW.post_id;
+  ELSIF (TG_OP = 'DELETE') THEN
+    UPDATE public.posts SET mirrors_count = mirrors_count - 1 WHERE id = OLD.post_id;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_repost_change
+  AFTER INSERT OR DELETE ON public.reposts
+  FOR EACH ROW EXECUTE FUNCTION public.handle_repost_count();
 
 -- ==========================================
 -- 5. USER STATS (POSTS COUNT)
@@ -175,12 +207,19 @@ BEGIN
     INSERT INTO public.notifications (recipient_id, actor_id, type)
     VALUES (NEW.following_id, NEW.follower_id, 'follow');
 
-  -- 3. For COMMENTS (posts with parent_id)
-  ELSIF (TG_TABLE_NAME = 'posts' AND NEW.parent_id IS NOT NULL) THEN
+  -- 3. For COMMENTS (from comments table)
+  ELSIF (TG_TABLE_NAME = 'comments') THEN
     INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
-    SELECT user_id, NEW.user_id, 'comment', NEW.parent_id
-    FROM public.posts WHERE id = NEW.parent_id
+    SELECT user_id, NEW.user_id, 'comment', NEW.post_id
+    FROM public.posts WHERE id = NEW.post_id
     AND user_id != NEW.user_id; -- Don't notify if I reply to my own post
+
+  -- 4. For REPOSTS
+  ELSIF (TG_TABLE_NAME = 'reposts') THEN
+    INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
+    SELECT user_id, NEW.user_id, 'repost', NEW.post_id
+    FROM public.posts WHERE id = NEW.post_id
+    AND user_id != NEW.user_id;
   END IF;
   
   RETURN NEW;
@@ -190,4 +229,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Bind triggers to tables
 CREATE TRIGGER on_like_notification AFTER INSERT ON public.likes FOR EACH ROW EXECUTE FUNCTION public.create_notification();
 CREATE TRIGGER on_follow_notification AFTER INSERT ON public.follows FOR EACH ROW EXECUTE FUNCTION public.create_notification();
-CREATE TRIGGER on_comment_notification AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+CREATE TRIGGER on_comment_notification AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+CREATE TRIGGER on_repost_notification AFTER INSERT ON public.reposts FOR EACH ROW EXECUTE FUNCTION public.create_notification();

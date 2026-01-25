@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { toggleLike, checkIfLiked } from "@/lib/api";
+import { toggleLike, checkIfLiked, toggleRepost, checkIfReposted } from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
 
 export const usePostInteraction = (
@@ -14,7 +14,7 @@ export const usePostInteraction = (
     initialStats || { comments: 0, likes: 0, mirrors: 0 },
   );
 
-  // Check if current user has liked this post
+  // Check if current user has liked or reposted this post
   useEffect(() => {
     if (
       currentUser &&
@@ -25,6 +25,10 @@ export const usePostInteraction = (
       checkIfLiked(postId, currentUser.id)
         .then(setLiked)
         .catch(() => setLiked(false));
+      
+      checkIfReposted(postId, currentUser.id)
+        .then(setReposted)
+        .catch(() => setReposted(false));
     }
   }, [postId, currentUser]);
 
@@ -33,14 +37,12 @@ export const usePostInteraction = (
     if (!currentUser) return showToast("Please login to like!", "error");
 
     if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) {
-      // Handle mock data interaction locally
       const isLiked = !liked;
       setLiked(isLiked);
       setLocalStats((prev) => ({
         ...prev,
         likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
       }));
-      showToast(isLiked ? "Liked" : "Unliked");
       return;
     }
 
@@ -51,22 +53,37 @@ export const usePostInteraction = (
         ...prev,
         likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
       }));
-      showToast(isLiked ? "Liked" : "Unliked");
     } catch (err) {
       console.error("Failed to toggle like:", err);
-      showToast("Failed to update like state", "error");
     }
   };
 
-  const handleRepost = (e) => {
+  const handleRepost = async (e) => {
     e && e.stopPropagation();
     if (!currentUser) return showToast("Please login to repost!", "error");
-    setReposted(!reposted);
-    setLocalStats((prev) => ({
-      ...prev,
-      mirrors: reposted ? (prev.mirrors || 0) - 1 : (prev.mirrors || 0) + 1,
-    }));
-    showToast(reposted ? "Removed repost" : "Reposted");
+
+    if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) {
+      const isReposted = !reposted;
+      setReposted(isReposted);
+      setLocalStats((prev) => ({
+        ...prev,
+        mirrors: isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
+      }));
+      return;
+    }
+
+    try {
+      const isReposted = await toggleRepost(postId, currentUser.id);
+      setReposted(isReposted);
+      setLocalStats((prev) => ({
+        ...prev,
+        mirrors: isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
+      }));
+      showToast(isReposted ? "Reposted!" : "Removed repost");
+    } catch (err) {
+      console.error("Failed to toggle repost:", err);
+      showToast("Failed to update repost", "error");
+    }
   };
 
   return {

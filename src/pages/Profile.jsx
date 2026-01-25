@@ -9,7 +9,7 @@ import NotFound from "@/components/ui/NotFound";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchFollowers, fetchFollowing, fetchPostsByUserId } from "@/lib/api";
+import { fetchFollowers, fetchFollowing, fetchPostsByUserId, fetchCommentsByUserId } from "@/lib/api";
 
 const Profile = ({ onEditProfile }) => {
   const { handle } = useParams();
@@ -22,15 +22,21 @@ const Profile = ({ onEditProfile }) => {
   
   // Post loading state
   const [userPosts, setUserPosts] = useState([]);
+  const [userReplies, setUserReplies] = useState([]);
   const [activeProfileTab, setActiveProfileTab] = useState("feed");
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [isFetchingMoreReplies, setIsFetchingMoreReplies] = useState(false);
+  const [hasMoreReplies, setHasMoreReplies] = useState(true);
   
   const userPostsRef = useRef(userPosts);
+  const userRepliesRef = useRef(userReplies);
+
   useEffect(() => {
     userPostsRef.current = userPosts;
-  }, [userPosts]);
+    userRepliesRef.current = userReplies;
+  }, [userPosts, userReplies]);
 
   // Followers/Following Modal State
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
@@ -71,6 +77,35 @@ const Profile = ({ onEditProfile }) => {
     } finally {
       setLoadingPosts(false);
       setIsFetchingMorePosts(false);
+    }
+  }, []);
+
+  const loadUserReplies = useCallback(async (userId, isLoadMore = false) => {
+    if (!userId) return;
+    if (isLoadMore) setIsFetchingMoreReplies(true);
+    else setLoadingPosts(true);
+
+    try {
+      const currentReplies = userRepliesRef.current;
+      const lastTimestamp = isLoadMore && currentReplies.length > 0
+        ? currentReplies[currentReplies.length - 1].created_at
+        : null;
+
+      const data = await fetchCommentsByUserId(userId, lastTimestamp, 10);
+      
+      if (data.length < 10) setHasMoreReplies(false);
+      else setHasMoreReplies(true);
+
+      if (isLoadMore) {
+        setUserReplies(prev => [...prev, ...data]);
+      } else {
+        setUserReplies(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user replies:", err);
+    } finally {
+      setLoadingPosts(false);
+      setIsFetchingMoreReplies(false);
     }
   }, []);
 
@@ -128,10 +163,11 @@ const Profile = ({ onEditProfile }) => {
 
       if (currentProfile?.id) {
         loadUserPosts(currentProfile.id);
+        loadUserReplies(currentProfile.id);
       }
     };
     fetchProfileData();
-  }, [handle, profiles, getProfileByHandle, loadUserPosts]);
+  }, [handle, profiles, getProfileByHandle, loadUserPosts, loadUserReplies]);
 
   const filteredPosts = useMemo(() => {
     if (activeProfileTab === "feed") {
@@ -145,10 +181,10 @@ const Profile = ({ onEditProfile }) => {
       );
     }
     if (activeProfileTab === "replies") {
-      return userPosts.filter((p) => p.parent_id !== null);
+      return userReplies;
     }
     return userPosts;
-  }, [userPosts, activeProfileTab]);
+  }, [userPosts, userReplies, activeProfileTab]);
 
   const handlePostClick = (id) => {
     navigate(`/post/${id}`);
@@ -195,7 +231,7 @@ const Profile = ({ onEditProfile }) => {
         <>
           {filteredPosts.map((post) => (
             <Post
-              key={post.id}
+              key={post.feed_id || post.id}
               currentUser={currentUser}
               showToast={addToast}
               {...post}
@@ -206,16 +242,16 @@ const Profile = ({ onEditProfile }) => {
               }
             />
           ))}
-          {hasMorePosts && (
+          {((activeProfileTab === "replies" ? hasMoreReplies : hasMorePosts)) && (
             <div className="p-6 flex justify-center">
               <Button
                 variant="secondary"
                 className="w-full max-w-xs"
-                onClick={() => loadUserPosts(profile.id, true)}
-                disabled={isFetchingMorePosts}
+                onClick={() => activeProfileTab === "replies" ? loadUserReplies(profile.id, true) : loadUserPosts(profile.id, true)}
+                disabled={activeProfileTab === "replies" ? isFetchingMoreReplies : isFetchingMorePosts}
               >
-                {isFetchingMorePosts && <Loader2 size={18} className="animate-spin mr-2" />}
-                Load more posts
+                {(activeProfileTab === "replies" ? isFetchingMoreReplies : isFetchingMorePosts) && <Loader2 size={18} className="animate-spin mr-2" />}
+                Load more {activeProfileTab === "replies" ? "replies" : "posts"}
               </Button>
             </div>
           )}

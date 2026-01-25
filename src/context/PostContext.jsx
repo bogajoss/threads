@@ -100,9 +100,6 @@ export const PostProvider = ({ children }) => {
           (p.type === "video" || p.type === "image" || p.media?.length > 0),
       );
     }
-    if (filter === "replies") {
-      return userPosts.filter((p) => p.parent_id !== null);
-    }
 
     return userPosts;
   };

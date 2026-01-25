@@ -60,7 +60,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
 
   // Filter out replies, show only top-level posts on the home feed
   const homePosts = useMemo(() => {
-    return posts.filter((p) => !p.parent_id);
+    return posts;
   }, [posts]);
 
   const handlePostClick = (id) => {
@@ -121,7 +121,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
         {homePosts.length > 0 ? (
           homePosts.map((post) => (
             <Post
-              key={post.id}
+              key={post.feed_id || post.id}
               {...post}
               currentUser={currentUser}
               showToast={addToast}

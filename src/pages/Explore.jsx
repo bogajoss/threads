@@ -211,7 +211,7 @@ const Explore = () => {
             {reels.length > 0 ? (
               reels.map((post) => (
                 <Post
-                  key={post.id}
+                  key={post.feed_id || post.id}
                   {...post}
                   currentUser={currentUser}
                   showToast={addToast}

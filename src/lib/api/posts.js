@@ -1,34 +1,18 @@
 import { supabase } from "@/lib/supabase";
-import { transformPost } from "@/lib/transformers";
+import { transformPost, transformComment } from "@/lib/transformers";
 
 /**
  * Fetches posts with user details and pagination support.
  */
 export const fetchPosts = async (lastTimestamp = null, limit = 10) => {
   let query = supabase
-    .from("posts")
-    .select(
-      `
-            *,
-            user:users!user_id (
-                id,
-                username,
-                display_name,
-                avatar_url,
-                is_verified,
-                bio,
-                location,
-                website,
-                follower_count,
-                following_count
-            )
-        `,
-    )
-    .order("created_at", { ascending: false })
+    .from("unified_posts")
+    .select("*")
+    .order("sort_timestamp", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
-    query = query.lt("created_at", lastTimestamp);
+    query = query.lt("sort_timestamp", lastTimestamp);
   }
 
   const { data, error } = await query;
@@ -57,6 +41,16 @@ export const fetchPostById = async (id) => {
                 website,
                 follower_count,
                 following_count
+            ),
+            quoted_post:posts!quoted_post_id (
+                *,
+                user:users!user_id (
+                    id,
+                    username,
+                    display_name,
+                    avatar_url,
+                    is_verified
+                )
             )
         `,
     )
@@ -72,7 +66,28 @@ export const fetchPostById = async (id) => {
  */
 export const fetchPostsByUserId = async (userId, lastTimestamp = null, limit = 10) => {
   let query = supabase
-    .from("posts")
+    .from("unified_posts")
+    .select("*")
+    .or(`user_id.eq.${userId},reposter_id.eq.${userId}`)
+    .order("sort_timestamp", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("sort_timestamp", lastTimestamp);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data.map(transformPost);
+};
+
+/**
+ * Fetches comments made by a specific user.
+ */
+export const fetchCommentsByUserId = async (userId, lastTimestamp = null, limit = 10) => {
+  let query = supabase
+    .from("comments")
     .select(
       `
             *,
@@ -81,12 +96,7 @@ export const fetchPostsByUserId = async (userId, lastTimestamp = null, limit = 1
                 username,
                 display_name,
                 avatar_url,
-                is_verified,
-                bio,
-                location,
-                website,
-                follower_count,
-                following_count
+                is_verified
             )
         `,
     )
@@ -101,7 +111,7 @@ export const fetchPostsByUserId = async (userId, lastTimestamp = null, limit = 1
   const { data, error } = await query;
 
   if (error) throw error;
-  return data.map(transformPost);
+  return data.map(transformComment);
 };
 
 /**
@@ -160,7 +170,7 @@ export const updatePost = async (postId, data) => {
  */
 export const fetchCommentsByPostId = async (postId, lastTimestamp = null, limit = 10) => {
   let query = supabase
-    .from("posts")
+    .from("comments")
     .select(
       `
             *,
@@ -173,7 +183,7 @@ export const fetchCommentsByPostId = async (postId, lastTimestamp = null, limit 
             )
         `,
     )
-    .eq("parent_id", postId)
+    .eq("post_id", postId)
     .order("created_at", { ascending: true })
     .limit(limit);
 
@@ -184,22 +194,25 @@ export const fetchCommentsByPostId = async (postId, lastTimestamp = null, limit 
   const { data, error } = await query;
 
   if (error) throw error;
-  return data.map(transformPost);
+  return data.map(transformComment);
 };
 
 /**
  * Adds a comment to a post.
  */
 export const addComment = async (postId, userId, content, media = []) => {
-  const { data, error } = await supabase.from("posts").insert([
-    {
-      parent_id: postId,
-      user_id: userId,
-      content,
-      media,
-      type: media.length > 0 ? (media[0].type === "video" ? "video" : "image") : "text",
-    },
-  ]).select(`
+  const { data, error } = await supabase
+    .from("comments")
+    .insert([
+      {
+        post_id: postId,
+        user_id: userId,
+        content,
+        media,
+      },
+    ])
+    .select(
+      `
             *,
             user:users!user_id (
                 id,
@@ -208,10 +221,11 @@ export const addComment = async (postId, userId, content, media = []) => {
                 avatar_url,
                 is_verified
             )
-        `);
+        `,
+    );
 
   if (error) throw error;
-  return transformPost(data[0]);
+  return transformComment(data[0]);
 };
 
 /**
@@ -245,6 +259,44 @@ export const checkIfLiked = async (postId, userId) => {
   if (!userId) return false;
   const { data } = await supabase
     .from("likes")
+    .select("*")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+};
+
+/**
+ * Toggles a repost on a post.
+ */
+export const toggleRepost = async (postId, userId) => {
+  const { data: existingRepost } = await supabase
+    .from("reposts")
+    .select("*")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existingRepost) {
+    await supabase
+      .from("reposts")
+      .delete()
+      .eq("post_id", postId)
+      .eq("user_id", userId);
+    return false;
+  } else {
+    await supabase.from("reposts").insert([{ post_id: postId, user_id: userId }]);
+    return true;
+  }
+};
+
+/**
+ * Checks if a user has reposted a post.
+ */
+export const checkIfReposted = async (postId, userId) => {
+  if (!userId) return false;
+  const { data } = await supabase
+    .from("reposts")
     .select("*")
     .eq("post_id", postId)
     .eq("user_id", userId)

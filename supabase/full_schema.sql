@@ -41,7 +41,7 @@ CREATE TYPE post_type AS ENUM ('text', 'image', 'video', 'poll', 'repost', 'file
 CREATE TABLE IF NOT EXISTS public.posts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  parent_id UUID REFERENCES public.posts(id) ON DELETE CASCADE, -- For comments/threads
+  parent_id UUID REFERENCES public.posts(id) ON DELETE CASCADE, -- For Reposts/Threads
   content TEXT,
   type post_type DEFAULT 'text',
   media JSONB DEFAULT '[]'::jsonb, -- Store objects like {type: 'image', src: '...'}
@@ -53,6 +53,30 @@ CREATE TABLE IF NOT EXISTS public.posts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS public.comments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  media JSONB DEFAULT '[]'::jsonb,
+  likes_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.comment_likes (
+  comment_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (comment_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.reposts (
+  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (post_id, user_id)
+);
+
 -- Interaction Tables
 CREATE TABLE IF NOT EXISTS public.likes (
   post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
@@ -60,6 +84,56 @@ CREATE TABLE IF NOT EXISTS public.likes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   PRIMARY KEY (post_id, user_id)
 );
+
+-- ==========================================
+-- 2.5. VIEWS (UNIFIED FEED)
+-- ==========================================
+
+CREATE OR REPLACE VIEW public.unified_posts AS
+SELECT 
+    p.id, p.user_id, p.content, p.type, p.media, p.poll, p.quoted_post_id,
+    p.likes_count, p.comments_count, p.mirrors_count, p.created_at, p.parent_id,
+    p.created_at as sort_timestamp,
+    NULL::uuid as reposter_id,
+    jsonb_build_object(
+        'id', u.id,
+        'username', u.username,
+        'display_name', u.display_name,
+        'avatar_url', u.avatar_url,
+        'is_verified', u.is_verified
+    ) as author_data,
+    NULL::jsonb as reposter_data
+FROM public.posts p
+JOIN public.users u ON p.user_id = u.id
+UNION ALL
+SELECT 
+    p.id, p.user_id, p.content, p.type, p.media, p.poll, p.quoted_post_id,
+    p.likes_count, p.comments_count, p.mirrors_count, p.created_at, p.parent_id,
+    r.created_at as sort_timestamp,
+    r.user_id as reposter_id,
+    jsonb_build_object(
+        'id', u.id,
+        'username', u.username,
+        'display_name', u.display_name,
+        'avatar_url', u.avatar_url,
+        'is_verified', u.is_verified
+    ) as author_data,
+    jsonb_build_object(
+        'id', ru.id,
+        'username', ru.username,
+        'display_name', ru.display_name,
+        'avatar_url', ru.avatar_url
+    ) as reposter_data
+FROM public.reposts r
+JOIN public.posts p ON r.post_id = p.id
+JOIN public.users u ON p.user_id = u.id
+JOIN public.users ru ON r.user_id = ru.id;
+
+-- Relationship hints for PostgREST
+COMMENT ON COLUMN public.unified_posts.user_id IS 'FK users(id)';
+COMMENT ON COLUMN public.unified_posts.reposter_id IS 'FK users(id)';
+COMMENT ON COLUMN public.unified_posts.quoted_post_id IS 'FK posts(id)';
+COMMENT ON COLUMN public.unified_posts.parent_id IS 'FK posts(id)';
 
 -- ==========================================
 -- 3. COMMUNICATION (CHAT)
@@ -154,7 +228,10 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follows DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.likes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comment_likes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reposts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;
