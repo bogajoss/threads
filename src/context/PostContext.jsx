@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import {
   fetchPosts,
   addPost as addPostApi,
@@ -14,15 +14,21 @@ export const PostProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const postsRef = useRef(posts);
+
+  useEffect(() => {
+    postsRef.current = posts;
+  }, [posts]);
 
   const loadPosts = useCallback(async (isNextPage = false) => {
     if (isNextPage) setIsFetchingNextPage(true);
     else setLoading(true);
 
     try {
+      const currentPosts = postsRef.current;
       const lastTimestamp =
-        isNextPage && posts.length > 0
-          ? posts[posts.length - 1].created_at
+        isNextPage && currentPosts.length > 0
+          ? currentPosts[currentPosts.length - 1].created_at
           : null;
 
       const data = await fetchPosts(lastTimestamp, 10);
@@ -44,7 +50,7 @@ export const PostProvider = ({ children }) => {
       setLoading(false);
       setIsFetchingNextPage(false);
     }
-  }, [posts]);
+  }, []);
 
   const fetchNextPage = () => {
     if (!hasMore || isFetchingNextPage) return;

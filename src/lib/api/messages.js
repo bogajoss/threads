@@ -99,13 +99,15 @@ export const fetchConversations = async (userId) => {
                         avatar_url
                     )
                 ),
-                unread_messages:messages(id)
+                messages (
+                    id,
+                    is_read,
+                    sender_id
+                )
             )
         `,
     )
-    .eq("user_id", userId)
-    .filter("conversation.messages.is_read", "eq", false)
-    .filter("conversation.messages.sender_id", "neq", userId);
+    .eq("user_id", userId);
 
   if (error) throw error;
 
@@ -114,6 +116,10 @@ export const fetchConversations = async (userId) => {
     const otherParticipant =
       conv.participants.find((p) => p.user?.id !== userId) ||
       conv.participants[0];
+
+    const unreadCount = conv.messages?.filter(
+      (m) => !m.is_read && m.sender_id !== userId
+    ).length || 0;
 
     return {
       id: conv.id,
@@ -125,7 +131,7 @@ export const fetchConversations = async (userId) => {
             minute: "2-digit",
           })
         : "",
-      unread: conv.unread_messages?.length || 0,
+      unread: unreadCount,
     };
   });
 };

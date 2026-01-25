@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Post from "@/components/features/post/Post";
 import ProfileCard from "@/components/ui/ProfileCard";
@@ -24,14 +24,20 @@ const Explore = () => {
   const [isProfilesLoading, setIsProfilesLoading] = useState(true);
   const [isFetchingMoreProfiles, setIsFetchingMoreProfiles] = useState(false);
   const [hasMoreProfiles, setHasMoreProfiles] = useState(true);
+  const profilesRef = useRef(profiles);
+
+  useEffect(() => {
+    profilesRef.current = profiles;
+  }, [profiles]);
 
   const loadProfiles = useCallback(async (isLoadMore = false) => {
     if (isLoadMore) setIsFetchingMoreProfiles(true);
     else setIsProfilesLoading(true);
 
     try {
-      const lastTimestamp = isLoadMore && profiles.length > 0
-        ? profiles[profiles.length - 1].created_at
+      const currentProfiles = profilesRef.current;
+      const lastTimestamp = isLoadMore && currentProfiles.length > 0
+        ? currentProfiles[currentProfiles.length - 1].created_at
         : null;
 
       const data = await fetchProfiles(lastTimestamp, 10);
@@ -50,7 +56,7 @@ const Explore = () => {
       setIsProfilesLoading(false);
       setIsFetchingMoreProfiles(false);
     }
-  }, [profiles]);
+  }, []);
 
   useEffect(() => {
     loadProfiles();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -24,6 +24,11 @@ const Notifications = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const notificationsRef = useRef(notifications);
+
+  useEffect(() => {
+    notificationsRef.current = notifications;
+  }, [notifications]);
 
   const loadNotifications = useCallback(async (isLoadMore = false) => {
     if (!currentUser?.id) return;
@@ -32,8 +37,9 @@ const Notifications = () => {
     else setIsLoading(true);
 
     try {
-      const lastTimestamp = isLoadMore && notifications.length > 0 
-        ? notifications[notifications.length - 1].created_at 
+      const currentNotifications = notificationsRef.current;
+      const lastTimestamp = isLoadMore && currentNotifications.length > 0 
+        ? currentNotifications[currentNotifications.length - 1].created_at 
         : null;
       
       const data = await fetchNotifications(currentUser.id, lastTimestamp, 10);
@@ -52,7 +58,7 @@ const Notifications = () => {
       setIsLoading(false);
       setIsFetchingMore(false);
     }
-  }, [currentUser?.id, notifications]);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     loadNotifications();

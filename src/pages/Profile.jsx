@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
@@ -26,6 +26,11 @@ const Profile = ({ onEditProfile }) => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
+  
+  const userPostsRef = useRef(userPosts);
+  useEffect(() => {
+    userPostsRef.current = userPosts;
+  }, [userPosts]);
 
   // Followers/Following Modal State
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
@@ -35,14 +40,20 @@ const Profile = ({ onEditProfile }) => {
   const [isFetchingMoreFollows, setIsFetchingMoreFollows] = useState(false);
   const [hasMoreFollows, setHasMoreFollows] = useState(true);
 
+  const followListDataRef = useRef(followListData);
+  useEffect(() => {
+    followListDataRef.current = followListData;
+  }, [followListData]);
+
   const loadUserPosts = useCallback(async (userId, isLoadMore = false) => {
     if (!userId) return;
     if (isLoadMore) setIsFetchingMorePosts(true);
     else setLoadingPosts(true);
 
     try {
-      const lastTimestamp = isLoadMore && userPosts.length > 0
-        ? userPosts[userPosts.length - 1].created_at
+      const currentPosts = userPostsRef.current;
+      const lastTimestamp = isLoadMore && currentPosts.length > 0
+        ? currentPosts[currentPosts.length - 1].created_at
         : null;
 
       const data = await fetchPostsByUserId(userId, lastTimestamp, 10);
@@ -61,7 +72,7 @@ const Profile = ({ onEditProfile }) => {
       setLoadingPosts(false);
       setIsFetchingMorePosts(false);
     }
-  }, [userPosts]);
+  }, []);
 
   const openFollowModal = async (type, isLoadMore = false) => {
     const userId = profile?.id || displayProfile?.id;
@@ -76,8 +87,9 @@ const Profile = ({ onEditProfile }) => {
     }
 
     try {
-      const lastTimestamp = isLoadMore && followListData.length > 0
-        ? followListData[followListData.length - 1].followed_at
+      const currentFollowList = followListDataRef.current;
+      const lastTimestamp = isLoadMore && currentFollowList.length > 0
+        ? currentFollowList[currentFollowList.length - 1].followed_at
         : null;
 
       const data =
