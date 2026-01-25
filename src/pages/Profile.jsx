@@ -23,21 +23,16 @@ const Profile = ({ onEditProfile }) => {
   
   // Post loading state
   const [userPosts, setUserPosts] = useState([]);
-  const [userReplies, setUserReplies] = useState([]);
   const [activeProfileTab, setActiveProfileTab] = useState("feed");
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
-  const [isFetchingMoreReplies, setIsFetchingMoreReplies] = useState(false);
-  const [hasMoreReplies, setHasMoreReplies] = useState(true);
   
   const userPostsRef = useRef(userPosts);
-  const userRepliesRef = useRef(userReplies);
 
   useEffect(() => {
     userPostsRef.current = userPosts;
-    userRepliesRef.current = userReplies;
-  }, [userPosts, userReplies]);
+  }, [userPosts]);
 
   // Followers/Following Modal State
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
@@ -78,35 +73,6 @@ const Profile = ({ onEditProfile }) => {
     } finally {
       setLoadingPosts(false);
       setIsFetchingMorePosts(false);
-    }
-  }, []);
-
-  const loadUserReplies = useCallback(async (userId, isLoadMore = false) => {
-    if (!userId) return;
-    if (isLoadMore) setIsFetchingMoreReplies(true);
-    else setLoadingPosts(true);
-
-    try {
-      const currentReplies = userRepliesRef.current;
-      const lastTimestamp = isLoadMore && currentReplies.length > 0
-        ? currentReplies[currentReplies.length - 1].created_at
-        : null;
-
-      const data = await fetchCommentsByUserId(userId, lastTimestamp, 10);
-      
-      if (data.length < 10) setHasMoreReplies(false);
-      else setHasMoreReplies(true);
-
-      if (isLoadMore) {
-        setUserReplies(prev => [...prev, ...data]);
-      } else {
-        setUserReplies(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch user replies:", err);
-    } finally {
-      setLoadingPosts(false);
-      setIsFetchingMoreReplies(false);
     }
   }, []);
 
@@ -164,28 +130,30 @@ const Profile = ({ onEditProfile }) => {
 
       if (currentProfile?.id) {
         loadUserPosts(currentProfile.id);
-        loadUserReplies(currentProfile.id);
       }
     };
     fetchProfileData();
-  }, [handle, profiles, getProfileByHandle, loadUserPosts, loadUserReplies]);
+  }, [handle, profiles, getProfileByHandle, loadUserPosts]);
 
   const filteredPosts = useMemo(() => {
     if (activeProfileTab === "feed") {
-      return userPosts.filter((p) => p.parent_id === null);
+      // Personal posts only (no community posts)
+      return userPosts.filter((p) => p.community_id === null && p.parent_id === null);
     }
     if (activeProfileTab === "media") {
       return userPosts.filter(
         (p) =>
+          p.community_id === null &&
           p.parent_id === null &&
           (p.type === "video" || p.type === "image" || (p.media && p.media.length > 0)),
       );
     }
-    if (activeProfileTab === "replies") {
-      return userReplies;
+    if (activeProfileTab === "communities") {
+      // Posts made in communities
+      return userPosts.filter((p) => p.community_id !== null);
     }
     return userPosts;
-  }, [userPosts, userReplies, activeProfileTab]);
+  }, [userPosts, activeProfileTab]);
 
   const handlePostClick = (id) => {
     navigate(`/post/${id}`);
@@ -243,16 +211,16 @@ const Profile = ({ onEditProfile }) => {
               }
             />
           ))}
-          {((activeProfileTab === "replies" ? hasMoreReplies : hasMorePosts)) && (
+          {hasMorePosts && (
             <div className="p-6 flex justify-center">
               <Button
                 variant="secondary"
                 className="w-full max-w-xs"
-                onClick={() => activeProfileTab === "replies" ? loadUserReplies(profile.id, true) : loadUserPosts(profile.id, true)}
-                disabled={activeProfileTab === "replies" ? isFetchingMoreReplies : isFetchingMorePosts}
+                onClick={() => loadUserPosts(profile.id, true)}
+                disabled={isFetchingMorePosts}
               >
-                {(activeProfileTab === "replies" ? isFetchingMoreReplies : isFetchingMorePosts) && <Loader2 size={18} className="animate-spin mr-2" />}
-                Load more {activeProfileTab === "replies" ? "replies" : "posts"}
+                {isFetchingMorePosts && <Loader2 size={18} className="animate-spin mr-2" />}
+                Load more posts
               </Button>
             </div>
           )}
@@ -309,12 +277,12 @@ const Profile = ({ onEditProfile }) => {
           className="w-full"
         >
           <div className="sticky top-[60px] md:top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-10 border-b border-zinc-100 dark:border-zinc-800">
-            <TabsList className="w-full h-auto bg-transparent p-0 rounded-none justify-start px-2">
-              {["feed", "replies", "media"].map((tab) => (
+            <TabsList className="w-full h-auto bg-transparent p-0 rounded-none justify-start px-2 overflow-x-auto hide-scrollbar">
+              {["feed", "communities", "media"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
-                  className="flex-1 py-4 text-sm font-bold capitalize rounded-none border-b-2 data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:text-black dark:data-[state=active]:text-white text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                  className="flex-1 py-4 text-sm font-bold capitalize rounded-none border-b-2 data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:text-black dark:data-[state=active]:text-white text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900 whitespace-nowrap px-4"
                 >
                   {tab === "feed" ? "Posts" : tab}
                 </TabsTrigger>
@@ -325,7 +293,7 @@ const Profile = ({ onEditProfile }) => {
           <TabsContent value="feed" className="m-0 border-none">
             {renderPosts()}
           </TabsContent>
-          <TabsContent value="replies" className="m-0 border-none">
+          <TabsContent value="communities" className="m-0 border-none">
             {renderPosts()}
           </TabsContent>
           <TabsContent value="media" className="m-0 border-none">
