@@ -83,6 +83,11 @@ const Post = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const editFileInputRef = useRef(null);
+  const commentsRef = useRef(comments);
+
+  useEffect(() => {
+    commentsRef.current = comments;
+  }, [comments]);
 
   const handleUpdate = async () => {
     const hasMediaChanged = 
@@ -139,8 +144,9 @@ const Post = ({
     else setLoadingComments(true);
 
     try {
-      const lastTimestamp = isLoadMore && comments.length > 0
-        ? comments[comments.length - 1].created_at
+      const currentComments = commentsRef.current;
+      const lastTimestamp = isLoadMore && currentComments.length > 0
+        ? currentComments[currentComments.length - 1].created_at
         : null;
 
       const data = await fetchCommentsByPostId(id, lastTimestamp, 10);
@@ -159,7 +165,7 @@ const Post = ({
       setLoadingComments(false);
       setIsFetchingMoreComments(false);
     }
-  }, [id, comments]);
+  }, [id]);
 
   useEffect(() => {
     if (isDetail && id) {
