@@ -13,6 +13,7 @@ export const useCommunity = () => {
   const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [userRole, setUserRole] = useState(null); // 'admin', 'moderator', 'member'
   const [isJoining, setIsJoining] = useState(false);
   
   // Post loading state
@@ -64,8 +65,9 @@ export const useCommunity = () => {
         if (c?.id) {
           loadCommunityPosts(c.id);
           if (currentUser) {
-            const member = await checkIfMember(c.id, currentUser.id);
-            setIsMember(member);
+            const membership = await checkIfMember(c.id, currentUser.id);
+            setIsMember(!!membership);
+            setUserRole(membership?.role || null);
           }
         }
       } catch {
@@ -84,6 +86,7 @@ export const useCommunity = () => {
     try {
       const joined = await toggleCommunityMembership(community.id, currentUser.id);
       setIsMember(joined);
+      setUserRole(joined ? 'member' : null);
       setCommunity(prev => ({
         ...prev,
         membersCount: joined ? prev.membersCount + 1 : prev.membersCount - 1
@@ -100,6 +103,7 @@ export const useCommunity = () => {
     community,
     loading,
     isMember,
+    userRole,
     isJoining,
     communityPosts,
     loadingPosts,

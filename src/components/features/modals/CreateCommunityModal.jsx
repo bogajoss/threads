@@ -4,8 +4,10 @@ import Button from "@/components/ui/Button";
 import { Loader2, Plus, Users, X, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { createCommunity, toggleCommunityMembership } from "@/lib/api";
+import { createCommunity } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
+ // Using a simple checkbox/toggle pattern
 
 const CreateCommunityModal = ({ isOpen, onClose }) => {
   const { currentUser } = useAuth();
@@ -16,6 +18,7 @@ const CreateCommunityModal = ({ isOpen, onClose }) => {
     name: "",
     handle: "",
     description: "",
+    isPrivate: false,
   });
   const [loading, setLoading] = useState(false);
 
@@ -27,13 +30,23 @@ const CreateCommunityModal = ({ isOpen, onClose }) => {
     try {
       // 1. Create community
       const community = await createCommunity({
-        ...formData,
+        name: formData.name,
         handle: formData.handle.toLowerCase().replace(/\s+/g, '-'),
+        description: formData.description,
+        is_private: formData.isPrivate,
         creator_id: currentUser.id
       });
 
-      // 2. Automatically make creator a member
-      await toggleCommunityMembership(community.id, currentUser.id);
+      // 2. Automatically make creator an ADMIN
+      const { error: memberError } = await supabase
+        .from("community_members")
+        .insert([{ 
+          community_id: community.id, 
+          user_id: currentUser.id,
+          role: 'admin' 
+        }]);
+
+      if (memberError) throw memberError;
 
       addToast(`Community "${community.name}" created!`);
       onClose();
@@ -98,6 +111,19 @@ const CreateCommunityModal = ({ isOpen, onClose }) => {
               placeholder="What is this community about?"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold">Private Community</span>
+              <span className="text-[10px] text-zinc-500">Only Admins can post in private communities</span>
+            </div>
+            <input 
+              type="checkbox" 
+              className="size-5 rounded-md accent-violet-600 cursor-pointer"
+              checked={formData.isPrivate}
+              onChange={(e) => setFormData({ ...formData, isPrivate: e.target.checked })}
             />
           </div>
         </div>

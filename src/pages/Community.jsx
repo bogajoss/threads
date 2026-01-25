@@ -2,13 +2,16 @@ import React from "react";
 import { ArrowLeft, Loader2, Users, Plus } from "lucide-react";
 import { Post } from "@/components/features/post";
 import { NotFound, Button, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
+import { EditCommunityModal } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
 
 const Community = ({ onPostInCommunity }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const {
     community,
     loading,
     isMember,
+    userRole,
     isJoining,
     communityPosts,
     loadingPosts,
@@ -20,6 +23,8 @@ const Community = ({ onPostInCommunity }) => {
     addToast,
     navigate
   } = useCommunity();
+
+  const canPost = isMember && (!community.isPrivate || userRole === 'admin');
 
   if (loading) {
     return (
@@ -81,7 +86,16 @@ const Community = ({ onPostInCommunity }) => {
               <div className="size-24 sm:size-32 rounded-3xl border-4 border-white dark:border-black bg-zinc-100 dark:bg-zinc-800 overflow-hidden shadow-xl">
                 <img src={community.avatar} className="size-full object-cover" alt="" />
               </div>
-              <div className="pb-1">
+              <div className="pb-1 flex gap-2">
+                {userRole === 'admin' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="rounded-full font-bold px-6 h-10 border-zinc-200 dark:border-zinc-800"
+                  >
+                    Edit
+                  </Button>
+                )}
                 <Button
                   variant={isMember ? "outline" : "default"}
                   onClick={handleJoinToggle}
@@ -168,8 +182,8 @@ const Community = ({ onPostInCommunity }) => {
         </div>
       </div>
 
-      {/* Floating Plus Button for members */}
-      {isMember && (
+      {/* Floating Plus Button for members with permission */}
+      {canPost && (
         <button
           onClick={() => onPostInCommunity(community)}
           className="fixed bottom-20 right-5 md:hidden z-50 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 size-12 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all cursor-pointer group"
@@ -181,6 +195,17 @@ const Community = ({ onPostInCommunity }) => {
           />
         </button>
       )}
+
+      <EditCommunityModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        community={community}
+        onUpdate={() => {
+          // You might need a setCommunity here, but useCommunity currently manages its own state.
+          // For now, refreshing the page or re-fetching via hook is best.
+          window.location.reload(); 
+        }}
+      />
     </div>
   );
 };

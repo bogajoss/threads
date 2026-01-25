@@ -130,6 +130,16 @@ CREATE TABLE IF NOT EXISTS public.post_hashtags (
   PRIMARY KEY (post_id, hashtag_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.link_previews (
+  url TEXT PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  image TEXT,
+  site_name TEXT,
+  last_used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ==========================================
 -- 5. CHAT & MESSAGING
 -- ==========================================
@@ -256,6 +266,7 @@ ALTER TABLE public.comment_likes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reposts DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hashtags DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.post_hashtags DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.link_previews DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;

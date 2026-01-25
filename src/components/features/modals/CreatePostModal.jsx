@@ -11,7 +11,6 @@ import {
   BarChart2,
   X,
   Trash2,
-  Crop,
   Globe,
   Users
 } from "lucide-react";
@@ -20,7 +19,6 @@ import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
 import { uploadFile, fetchUserCommunities } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import ImageCropper from "@/components/ui/ImageCropper";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,10 +58,6 @@ const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
     enabled: !!currentUser?.id,
   });
 
-  // Cropping State
-  const [tempCropImage, setTempCropImage] = useState(null);
-  const [croppingIndex, setCroppingIndex] = useState(null);
-
   const fileInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
   const [activeThumbnailIndex, setActiveThumbnailIndex] = useState(null);
@@ -89,27 +83,6 @@ const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
     const newThumbs = { ...customThumbnails };
     delete newThumbs[index];
     setCustomThumbnails(newThumbs);
-  };
-
-  const handleStartCrop = (index) => {
-    const file = selectedFiles[index];
-    const reader = new FileReader();
-    reader.onload = () => {
-      setTempCropImage(reader.result);
-      setCroppingIndex(index);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const onCropComplete = (blob) => {
-    const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, {
-      type: "image/jpeg",
-    });
-    const newFiles = [...selectedFiles];
-    newFiles[croppingIndex] = croppedFile;
-    setSelectedFiles(newFiles);
-    setTempCropImage(null);
-    setCroppingIndex(null);
   };
 
   const handleAddPollOption = () => {
@@ -292,22 +265,24 @@ const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
                         <span className="text-[10px] text-zinc-500">Post to your public feed</span>
                       </div>
                     </DropdownMenuItem>
-                    {userCommunities.map((c) => (
-                      <DropdownMenuItem 
-                        key={c.id} 
-                        onClick={() => setSelectedCommunity(c)}
-                        className="gap-2 py-2.5 cursor-pointer"
-                      >
-                        <Avatar className="size-6">
-                          <AvatarImage src={c.avatar} />
-                          <AvatarFallback>{c.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm">{c.name}</span>
-                          <span className="text-[10px] text-zinc-500">Post to community</span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
+                    {userCommunities
+                      .filter(c => !c.isPrivate || c.myRole === 'admin')
+                      .map((c) => (
+                        <DropdownMenuItem 
+                          key={c.id} 
+                          onClick={() => setSelectedCommunity(c)}
+                          className="gap-2 py-2.5 cursor-pointer"
+                        >
+                          <Avatar className="size-6">
+                            <AvatarImage src={c.avatar} />
+                            <AvatarFallback>{c.name[0]}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-sm">{c.name}</span>
+                            <span className="text-[10px] text-zinc-500">Post to community</span>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -414,17 +389,6 @@ const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
                       >
                         <X size={14} strokeWidth={3} />
                       </button>
-
-                      {file.type.startsWith("image/") && (
-                        <button
-                          type="button"
-                          onClick={() => handleStartCrop(idx)}
-                          className="absolute bottom-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="Crop image"
-                        >
-                          <Crop size={14} strokeWidth={3} />
-                        </button>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -434,18 +398,6 @@ const CreatePostModal = ({ isOpen, onClose, initialCommunity }) => {
         </div>
       </Modal>
 
-      {tempCropImage && (
-        <ImageCropper
-          src={tempCropImage}
-          isOpen={!!tempCropImage}
-          onClose={() => {
-            setTempCropImage(null);
-            setCroppingIndex(null);
-          }}
-          onCropComplete={onCropComplete}
-          aspect={undefined} // Free-form for posts
-        />
-      )}
     </>
   );
 };

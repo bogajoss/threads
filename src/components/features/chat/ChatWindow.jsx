@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Copy, Trash, Reply } from "lucide-react";
 import EmojiPicker from "@/components/ui/EmojiPicker";
+import Linkify from "linkify-react";
 import MessageReactionPicker from "@/components/features/chat/MessageReactionPicker";
 import MessageReactions from "@/components/features/chat/MessageReactions";
 
@@ -268,7 +269,20 @@ const ChatWindow = ({
                       </div>
                     )}
                     {msg.text && (
-                      <p className="m-0 leading-tight px-3 py-1">{msg.text}</p>
+                      <div className="m-0 leading-tight px-3 py-1 whitespace-pre-line break-words">
+                        <Linkify 
+                          options={{
+                            attributes: {
+                              target: "_blank",
+                              rel: "noopener noreferrer",
+                              className: "underline decoration-2 underline-offset-2 hover:opacity-80 transition-opacity break-all",
+                              onClick: (e) => e.stopPropagation()
+                            }
+                          }}
+                        >
+                          {msg.text}
+                        </Linkify>
+                      </div>
                     )}
 
                     {msg.reactions?.length > 0 && (

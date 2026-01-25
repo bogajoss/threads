@@ -38,17 +38,19 @@ import {
   Textarea,
   VerifiedBadge,
 } from "@/components/ui";
+import Linkify from "linkify-react";
 import {
   PollDisplay,
   QuotedPost,
   ActionButton,
   MediaGrid,
-  CommentInput
+  CommentInput,
+  LinkPreview
 } from "@/components/features/post";
 import { usePostInteraction } from "@/hooks";
-import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
 import { usePosts } from "@/context/PostContext";
-import { isBangla } from "@/lib/utils";
+import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
+import { isBangla, extractUrl } from "@/lib/utils";
 
 const Post = ({
   id,
@@ -436,46 +438,55 @@ const Post = ({
       const shouldTruncate = !isDetail && c.length > 280;
       const textToProcess = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
 
-      // Mentions and Hashtags parsing
-      const parts = textToProcess.split(/(@[a-zA-Z0-9_]+|#[a-zA-Z0-9_]+)/g);
-      const displayContent = parts.map((part, i) => {
-        if (part.startsWith("@") && part.length > 1) {
-          const handle = part.substring(1);
+      const linkifyOptions = {
+        formatHref: (href, type) => {
+          if (type === "mention") return `/u/${href.substring(1)}`;
+          if (type === "hashtag") return `/community?q=${encodeURIComponent(href)}`;
+          return href;
+        },
+        attributes: {
+          onClick: (e) => e.stopPropagation(),
+          className: "text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer",
+        },
+        render: ({ attributes, content }) => {
+          const { href, ...props } = attributes;
+          
+          // Determine if it's an external link
+          const isExternal = !href.startsWith("/") && (href.startsWith("http") || href.startsWith("www"));
+
+          if (href.startsWith("/u/") || href.startsWith("/community")) {
+            return (
+              <span 
+                key={content} 
+                {...props} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(href);
+                }}
+              >
+                {content}
+              </span>
+            );
+          }
           return (
-            <span
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                onUserClick && onUserClick(handle);
-              }}
-              className="text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer"
+            <a 
+              key={content} 
+              href={href} 
+              {...props}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
             >
-              {part}
-            </span>
+              {content}
+            </a>
           );
-        }
-        if (part.startsWith("#") && part.length > 1) {
-          return (
-            <span
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/community?q=${encodeURIComponent(part)}`);
-              }}
-              className="text-violet-600 dark:text-violet-400 font-medium hover:underline cursor-pointer"
-            >
-              {part}
-            </span>
-          );
-        }
-        return part;
-      });
+        },
+      };
 
       return (
-        <p
+        <div
           className={`whitespace-pre-line ${className || ""} ${isTxtBangla ? "font-bangla text-[1.15em] leading-relaxed" : "font-english text-[1.05em]"}`}
         >
-          {displayContent}
+          <Linkify options={linkifyOptions}>{textToProcess}</Linkify>
           {shouldTruncate && !isExpanded && "..."}
           {shouldTruncate && (
             <button
@@ -488,7 +499,7 @@ const Post = ({
               {isExpanded ? "Show less" : "See more"}
             </button>
           )}
-        </p>
+        </div>
       );
     }
     return c;
@@ -569,6 +580,7 @@ const Post = ({
           >
             {renderContent(content, contentClass)}
           </div>
+          {extractUrl(content) && <LinkPreview url={extractUrl(content)} />}
           {renderMedia(media)}
           {poll && <PollDisplay poll={poll} />}
           {quotedPost && (
@@ -778,6 +790,7 @@ const Post = ({
 
           <div className="break-words text-zinc-900 dark:text-zinc-100 mt-1 whitespace-pre-line text-sm sm:text-[15px] leading-relaxed">
             {renderContent(content, contentClass)}
+            {extractUrl(content) && <LinkPreview url={extractUrl(content)} />}
             {renderMedia(media)}
             {poll && (
               <PollDisplay

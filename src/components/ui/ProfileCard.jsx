@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -7,6 +7,7 @@ import { useFollow } from "@/hooks/useFollow";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { Loader2 } from "lucide-react";
+import { checkIfMember, toggleCommunityMembership } from "@/lib/api";
 
 const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
   const { onlineUsers } = usePresence();
@@ -14,13 +15,45 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
   const { addToast } = useToast();
   const isOnline = onlineUsers.has(profile.id);
 
-  const { isFollowing, loading, handleFollow } = useFollow(
-    profile,
+  // Community Membership State
+  const [isJoined, setIsJoined] = useState(false);
+  const [loadingMember, setLoadingMember] = useState(isCommunity);
+
+  // Follow Logic (only for users)
+  const { isFollowing, loading: loadingFollow, handleFollow } = useFollow(
+    isCommunity ? null : profile,
     currentUser?.id,
     addToast,
   );
 
+  useEffect(() => {
+    if (isCommunity && currentUser && profile.id) {
+      checkIfMember(profile.id, currentUser.id)
+        .then(setIsJoined)
+        .finally(() => setLoadingMember(false));
+    } else {
+      setLoadingMember(false);
+    }
+  }, [isCommunity, currentUser, profile.id]);
+
+  const handleJoinToggle = async (e) => {
+    e.stopPropagation();
+    if (!currentUser) return addToast("Please login to join communities", "error");
+    
+    setLoadingMember(true);
+    try {
+      const joined = await toggleCommunityMembership(profile.id, currentUser.id);
+      setIsJoined(joined);
+      addToast(joined ? `Joined ${profile.name}` : `Left ${profile.name}`);
+    } catch {
+      addToast("Failed to update membership", "error");
+    } finally {
+      setLoadingMember(false);
+    }
+  };
+
   const isMe = currentUser?.id === profile.id;
+  const loading = isCommunity ? loadingMember : loadingFollow;
 
   return (
     <div
@@ -55,9 +88,9 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
           <span className="text-sm text-zinc-500 mt-0.5">
             @{profile.handle}
           </span>
-          {isCommunity && profile.members && (
+          {isCommunity && (
             <span className="text-xs text-zinc-400 mt-1">
-              {profile.members} members
+              {profile.membersCount || 0} members
             </span>
           )}
           {!isCommunity && profile.followers && (
@@ -70,9 +103,9 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
 
       {!isMe && (
         <Button
-          variant={isFollowing ? "secondary" : "outline"}
+          variant={isCommunity ? (isJoined ? "secondary" : "outline") : (isFollowing ? "secondary" : "outline")}
           className="!w-auto !py-1.5 !px-4 text-sm font-bold rounded-full border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          onClick={(e) => {
+          onClick={isCommunity ? handleJoinToggle : (e) => {
             e.stopPropagation();
             handleFollow();
           }}
@@ -80,10 +113,10 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />
+          ) : isCommunity ? (
+            isJoined ? "Joined" : "Join"
           ) : isFollowing ? (
             "Following"
-          ) : isCommunity ? (
-            "Join"
           ) : (
             "Follow"
           )}

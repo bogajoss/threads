@@ -103,33 +103,37 @@ export const toggleCommunityMembership = async (communityId, userId) => {
 };
 
 /**
- * Checks if a user is a member of a community.
+ * Checks if a user is a member of a community and returns their membership data.
  */
 export const checkIfMember = async (communityId, userId) => {
-  if (!userId) return false;
+  if (!userId) return null;
   const { data } = await supabase
     .from("community_members")
     .select("*")
     .eq("community_id", communityId)
     .eq("user_id", userId)
     .maybeSingle();
-  return !!data;
+  return data; // Returns { community_id, user_id, role, created_at } or null
 };
 
 /**
- * Fetches all communities a user is a member of.
+ * Fetches all communities a user is a member of, including their role.
  */
 export const fetchUserCommunities = async (userId) => {
   if (!userId) return [];
   const { data, error } = await supabase
     .from("community_members")
     .select(`
+      role,
       communities (*)
     `)
     .eq("user_id", userId);
 
   if (error) throw error;
-  return data.map(item => transformCommunity(item.communities));
+  return data.map(item => ({
+    ...transformCommunity(item.communities),
+    myRole: item.role
+  }));
 };
 
 /**
@@ -139,6 +143,21 @@ export const createCommunity = async (communityData) => {
   const { data, error } = await supabase
     .from("communities")
     .insert([communityData])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return transformCommunity(data);
+};
+
+/**
+ * Updates an existing community.
+ */
+export const updateCommunity = async (id, communityData) => {
+  const { data, error } = await supabase
+    .from("communities")
+    .update(communityData)
+    .eq("id", id)
     .select()
     .single();
 

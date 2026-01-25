@@ -7,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { uploadFile } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import ImageCropper from "@/components/ui/ImageCropper";
 
 const EditProfileModal = ({
   isOpen,
@@ -23,38 +22,18 @@ const EditProfileModal = ({
   const [newAvatarFile, setNewAvatarFile] = useState(null);
   const [newCoverFile, setNewCoverFile] = useState(null);
 
-  // Cropper State
-  const [tempImage, setTempImage] = useState(null);
-  const [croppingType, setCroppingType] = useState(null); // 'avatar' | 'cover'
-
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
   const handleFileChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setTempImage(reader.result);
-        setCroppingType(type);
-      };
-      reader.readAsDataURL(file);
+      if (type === "avatar") {
+        setNewAvatarFile(file);
+      } else {
+        setNewCoverFile(file);
+      }
     }
-  };
-
-  const onCropComplete = (blob) => {
-    // Convert blob to file for upload compatibility
-    const file = new File([blob], `cropped-${Date.now()}.jpg`, {
-      type: "image/jpeg",
-    });
-
-    if (croppingType === "avatar") {
-      setNewAvatarFile(file);
-    } else {
-      setNewCoverFile(file);
-    }
-    setTempImage(null);
-    setCroppingType(null);
   };
 
   const handleUpdateProfile = async () => {
@@ -216,26 +195,6 @@ const EditProfileModal = ({
           </Button>
         </div>
       </Modal>
-
-      {tempImage && (
-        <ImageCropper
-          src={tempImage}
-          isOpen={!!tempImage}
-          onClose={() => {
-            setTempImage(null);
-            setCroppingType(null);
-          }}
-          onCropComplete={onCropComplete}
-          aspect={
-            croppingType === "avatar"
-              ? 1
-              : croppingType === "cover"
-                ? 3 / 1
-                : undefined
-          }
-          circular={croppingType === "avatar"}
-        />
-      )}
     </>
   );
 };

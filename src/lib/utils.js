@@ -95,3 +95,10 @@ export const isBangla = (text) => {
   if (typeof text !== "string") return false;
   return /[\u0980-\u09FF]/.test(text);
 };
+
+export const extractUrl = (text) => {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const match = text.match(urlRegex);
+  return match ? match[0] : null;
+};
