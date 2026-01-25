@@ -34,14 +34,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Textarea } from "@/components/ui/textarea";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import PollDisplay from "@/components/features/post/PollDisplay";
-import QuotedPost from "@/components/features/post/QuotedPost";
-import ActionButton from "@/components/features/post/ActionButton";
-import MediaGrid from "@/components/features/post/MediaGrid";
-import CommentInput from "@/components/features/post/CommentInput";
-import { usePostInteraction } from "@/hooks/usePostInteraction";
+import {
+  Textarea,
+  VerifiedBadge,
+} from "@/components/ui";
+import {
+  PollDisplay,
+  QuotedPost,
+  ActionButton,
+  MediaGrid,
+  CommentInput
+} from "@/components/features/post";
+import { usePostInteraction } from "@/hooks";
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
 import { usePosts } from "@/context/PostContext";
 import { isBangla } from "@/lib/utils";

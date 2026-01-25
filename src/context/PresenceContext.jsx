@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { updateLastSeen } from "@/lib/api";
 
 const PresenceContext = createContext();

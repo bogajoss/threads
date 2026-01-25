@@ -1,10 +1,7 @@
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import SidebarLeft from "@/components/layout/SidebarLeft";
-import SidebarRight from "@/components/layout/SidebarRight";
-import BottomNav from "@/components/layout/BottomNav";
+import { SidebarLeft, SidebarRight, BottomNav, FeedHeader } from "@/components/layout";
 import { useTheme } from "@/context/ThemeContext";
-import FeedHeader from "@/components/layout/FeedHeader";
 import { TRENDING_TOPICS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 

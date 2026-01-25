@@ -10,10 +10,8 @@ import {
   Check,
   CheckCheck,
 } from "lucide-react";
-import Button from "@/components/ui/Button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import TypingIndicator from "@/components/ui/TypingIndicator";
-import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { Button, Avatar, AvatarImage, AvatarFallback, TypingIndicator } from "@/components/ui";
+import { useTimeAgo } from "@/hooks";
 import { useLightbox } from "@/context/LightboxContext";
 import { uploadFile } from "@/lib/api";
 import {

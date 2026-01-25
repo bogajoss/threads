@@ -9,22 +9,23 @@ import { useTheme } from "@/context/ThemeContext";
 import { useLightbox } from "@/context/LightboxContext";
 
 // Layout & Components
-import MainLayout from "@/components/layout/MainLayout";
-import GlobalModals from "@/components/features/modals/GlobalModals";
+import { MainLayout, PageTransition } from "@/components/layout";
+import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
-import ImageViewer from "@/components/ui/ImageViewer";
+import { ImageViewer } from "@/components/ui";
 import AuthForm from "@/components/features/auth/AuthForm";
-import PageTransition from "@/components/layout/PageTransition";
 
 // Pages
-import Home from "@/pages/Home";
-import Explore from "@/pages/Explore";
-import Reels from "@/pages/Reels";
-import Messages from "@/pages/Messages";
-import Notifications from "@/pages/Notifications";
-import Profile from "@/pages/Profile";
-import Community from "@/pages/Community";
-import PostDetails from "@/pages/PostDetails";
+import {
+  Home,
+  Explore,
+  Reels,
+  Messages,
+  Notifications,
+  Profile,
+  Community,
+  PostDetails
+} from "@/pages";
 
 import { Plus } from "lucide-react";
 import { ScrollToTop } from "@/lib/utils";

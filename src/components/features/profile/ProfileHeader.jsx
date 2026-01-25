@@ -11,9 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Button from "@/components/ui/Button";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button, VerifiedBadge, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
 import { getOrCreateConversation } from "@/lib/api";
 
 import { useFollow } from "@/hooks/useFollow";
