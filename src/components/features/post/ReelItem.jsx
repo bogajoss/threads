@@ -18,16 +18,22 @@ const ReelItem = ({ reel, isActive }) => {
     : reel.media?.src || reel.media?.url || reel.url;
 
   useEffect(() => {
-    if (playerRef.current?.plyr) {
+    const player = playerRef.current?.plyr;
+    if (player) {
       if (isActive) {
-        playerRef.current.plyr.play().catch((err) => {
-          console.error("Autoplay failed:", err);
-          // Fallback to muted if needed, though Plyr usually handles this
-          playerRef.current.plyr.muted = true;
-          playerRef.current.plyr.play();
-        });
+        if (typeof player.play === "function") {
+          player.play().catch((err) => {
+            console.error("Autoplay failed:", err);
+            player.muted = true;
+            if (typeof player.play === "function") {
+              player.play();
+            }
+          });
+        }
       } else {
-        playerRef.current.plyr.pause();
+        if (typeof player.pause === "function") {
+          player.pause();
+        }
       }
     }
   }, [isActive]);

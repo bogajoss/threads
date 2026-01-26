@@ -1,21 +1,66 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePosts } from "@/context/PostContext";
+import { fetchReels } from "@/lib/api/posts";
 import ReelItem from "@/components/features/post/ReelItem";
 
 const Reels = () => {
-  const { posts, loading } = usePosts();
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const [reels, setReels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [activeReelId, setActiveReelId] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
-  const videoPosts = posts.filter(
-    (p) => p.type === "video" || p.category === "video",
-  );
+  const loadReels = async (lastTimestamp = null) => {
+    try {
+      const data = await fetchReels(lastTimestamp);
+      if (data.length < 10) {
+        setHasMore(false);
+      }
+      if (lastTimestamp) {
+        setReels((prev) => [...prev, ...data]);
+      } else {
+        setReels(data);
+        if (data.length > 0) {
+          setActiveReelId(data[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching reels:", error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    if (videoPosts.length === 0) return;
+    loadReels();
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || loadingMore || !hasMore) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    if (scrollTop + clientHeight >= scrollHeight - 800) {
+      setLoadingMore(true);
+      const lastReel = reels[reels.length - 1];
+      // Use sort_timestamp or created_at for pagination
+      loadReels(lastReel?.sort_timestamp || lastReel?.created_at);
+    }
+  }, [reels, loadingMore, hasMore]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
+
+  useEffect(() => {
+    if (reels.length === 0) return;
 
     const options = {
       root: containerRef.current,
@@ -35,7 +80,7 @@ const Reels = () => {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [videoPosts]);
+  }, [reels]);
 
   if (loading) {
     return (
@@ -45,7 +90,7 @@ const Reels = () => {
     );
   }
 
-  if (videoPosts.length === 0) {
+  if (reels.length === 0) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-black text-white gap-4">
         <p className="text-zinc-500">No reels found.</p>
@@ -60,26 +105,33 @@ const Reels = () => {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="h-[100dvh] w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative"
-    >
-      {/* Floating Back Button */}
+    <div className="h-[100dvh] w-full bg-black md:rounded-xl relative overflow-hidden">
+      {/* Fixed Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
+        className="fixed top-6 left-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
         title="Back"
       >
         <ArrowLeft size={24} strokeWidth={2.5} />
       </button>
 
-      {videoPosts.map((reel) => (
-        <ReelItem
-          key={reel.id}
-          reel={reel}
-          isActive={activeReelId === reel.id}
-        />
-      ))}
+      <div
+        ref={containerRef}
+        className="h-full w-full snap-y snap-mandatory overflow-y-auto no-scrollbar scroll-smooth"
+      >
+        {reels.map((reel) => (
+          <ReelItem
+            key={reel.feed_id || reel.id}
+            reel={reel}
+            isActive={activeReelId === reel.id}
+          />
+        ))}
+        {loadingMore && (
+          <div className="h-screen w-full flex items-center justify-center bg-black snap-start">
+            <Loader2 size={40} className="animate-spin text-white" />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

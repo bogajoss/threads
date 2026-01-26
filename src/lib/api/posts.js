@@ -338,3 +338,24 @@ export const searchPosts = async (query, lastTimestamp = null, limit = 10) => {
   if (error) throw error;
   return data.map(transformPost);
 };
+
+/**
+ * Fetches only video posts for Reels with pagination.
+ */
+export const fetchReels = async (lastTimestamp = null, limit = 10) => {
+  let query = supabase
+    .from("unified_posts")
+    .select("*")
+    .eq("type", "video")
+    .order("sort_timestamp", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("sort_timestamp", lastTimestamp);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data.map(transformPost);
+};
