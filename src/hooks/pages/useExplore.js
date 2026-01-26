@@ -44,6 +44,7 @@ export const useExplore = () => {
       setSearchQuery(initialSearch);
       if (initialSearch) setActiveTab("posts");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSearch]);
 
   const loadCommunities = useCallback(async (isLoadMore = false) => {

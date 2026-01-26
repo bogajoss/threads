@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, Button, Avatar, AvatarImage, AvatarFallback, VerifiedBadge } from "@/components/ui";
 import { Loader2, Camera, X, ShieldCheck, User as UserIcon } from "lucide-react";
 import { updateCommunity, uploadFile, fetchCommunityMembers, updateMemberRole } from "@/lib/api";
@@ -45,7 +45,7 @@ export default function EditCommunityModal({ isOpen, onClose, community, onUpdat
     }
   }, [community, isOpen, isOwner]);
 
-  const loadMembers = async (query = "") => {
+  const loadMembers = useCallback(async (query = "") => {
     if (!query && !isOwner) return;
     setLoadingMembers(true);
     setSearchTriggered(true);
@@ -57,7 +57,7 @@ export default function EditCommunityModal({ isOpen, onClose, community, onUpdat
     } finally {
       setLoadingMembers(false);
     }
-  };
+  }, [community.id, isOwner]);
 
   // Simple debounce for search
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function EditCommunityModal({ isOpen, onClose, community, onUpdat
       setMembers([]);
       setSearchTriggered(false);
     }
-  }, [memberSearch]);
+  }, [memberSearch, loadMembers]);
 
   const handleToggleAdmin = async (memberUserId, currentRole) => {
     const newRole = currentRole === 'admin' ? 'member' : 'admin';

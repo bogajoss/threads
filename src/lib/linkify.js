@@ -1,10 +1,5 @@
-import * as linkify from 'linkifyjs';
-import hashtag from 'linkify-plugin-hashtag';
-import mention from 'linkify-plugin-mention';
-
-// Register plugins
-linkify.registerPlugin('hashtag', hashtag);
-linkify.registerPlugin('mention', mention);
+import 'linkify-plugin-hashtag';
+import 'linkify-plugin-mention';
 
 export const linkifyOptions = {
     formatHref: (href, type) => {
