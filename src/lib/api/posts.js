@@ -45,7 +45,8 @@ export const fetchPostById = async (id) => {
             communities (
                 id,
                 handle,
-                name
+                name,
+                avatar_url
             ),
             quoted_post:posts!quoted_post_id (
                 *,
@@ -149,6 +150,12 @@ export const addPost = async ({
                 display_name,
                 avatar_url,
                 is_verified
+            ),
+            communities:community_id (
+                id,
+                handle,
+                name,
+                avatar_url
             )
         `);
 

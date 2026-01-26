@@ -14,7 +14,9 @@ import {
   X,
   Film,
   Plus,
-  Users
+  Users,
+  Coins,
+  Palette
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -102,8 +104,8 @@ const Post = ({
   }, [comments]);
 
   const handleUpdate = async () => {
-    const hasMediaChanged = 
-      JSON.stringify(editedMedia) !== JSON.stringify(media || []) || 
+    const hasMediaChanged =
+      JSON.stringify(editedMedia) !== JSON.stringify(media || []) ||
       newFiles.length > 0;
 
     if (!editedContent.trim() || (editedContent === content && !hasMediaChanged)) {
@@ -124,7 +126,7 @@ const Post = ({
       const finalMedia = [...editedMedia, ...uploadedNewMedia];
 
       await updatePost(id, { content: editedContent, media: finalMedia });
-      
+
       setNewFiles([]);
       setIsEditing(false);
       if (showToast) showToast("Post updated");
@@ -162,7 +164,7 @@ const Post = ({
         : null;
 
       const data = await fetchCommentsByPostId(id, lastTimestamp, 10);
-      
+
       if (data.length < 10) setHasMoreComments(false);
       else setHasMoreComments(true);
 
@@ -378,7 +380,7 @@ const Post = ({
               </button>
             )}
           </div>
-          
+
           <input
             type="file"
             ref={editFileInputRef}
@@ -446,19 +448,19 @@ const Post = ({
         },
         attributes: {
           onClick: (e) => e.stopPropagation(),
-          className: "text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer",
+          className: "text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer",
         },
         render: ({ attributes, content }) => {
           const { href, ...props } = attributes;
-          
+
           // Determine if it's an external link
           const isExternal = !href.startsWith("/") && (href.startsWith("http") || href.startsWith("www"));
 
           if (href.startsWith("/u/") || href.startsWith("/community")) {
             return (
-              <span 
-                key={content} 
-                {...props} 
+              <span
+                key={content}
+                {...props}
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(href);
@@ -469,9 +471,9 @@ const Post = ({
             );
           }
           return (
-            <a 
-              key={content} 
-              href={href} 
+            <a
+              key={content}
+              href={href}
               {...props}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noopener noreferrer" : undefined}
@@ -494,7 +496,7 @@ const Post = ({
                 e.stopPropagation();
                 setIsExpanded(!isExpanded);
               }}
-              className="ml-1 text-violet-600 dark:text-violet-400 font-bold hover:underline cursor-pointer"
+              className="ml-1 text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer"
             >
               {isExpanded ? "Show less" : "See more"}
             </button>
@@ -550,12 +552,18 @@ const Post = ({
                       <div className="flex items-center gap-1.5">
                         <span className="text-zinc-400 font-medium text-sm sm:text-base">&gt;</span>
                         <button
-                          className="font-bold text-violet-600 dark:text-violet-400 hover:underline"
+                          className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/c/${community.handle}`);
                           }}
                         >
+                          <Avatar className="size-5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                            <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
+                            <AvatarFallback className="text-[9px] font-bold text-zinc-500">
+                              {community.name?.[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           {community.name}
                         </button>
                       </div>
@@ -610,6 +618,7 @@ const Post = ({
           <div className="mt-4 flex w-full items-center justify-around py-1">
             <ActionButton
               icon={Heart}
+              label="Like"
               onClick={handleLike}
               active={liked}
               activeColorClass="text-rose-500"
@@ -617,6 +626,7 @@ const Post = ({
             {!isComment && (
               <ActionButton
                 icon={Repeat2}
+                label="Repost"
                 onClick={handleRepost}
                 active={reposted}
                 activeColorClass="text-emerald-500"
@@ -624,6 +634,7 @@ const Post = ({
             )}
             <ActionButton
               icon={MessageCircle}
+              label="Comment"
               onClick={() => document.getElementById("comment-input")?.focus()}
             />
           </div>
@@ -707,7 +718,7 @@ const Post = ({
   return (
     <article
       onClick={onClick}
-      className={`px-5 pt-4 pb-3 hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40 transition-colors border-b border-zinc-100 dark:border-zinc-800 last:border-0 ${onClick ? "cursor-pointer" : ""}`}
+      className={`p-4 mb-4 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-xl hover:shadow-md transition-all ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-500 font-semibold ml-1">
@@ -749,7 +760,7 @@ const Post = ({
               <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
                 <div className="flex items-center gap-1.5 min-w-0 max-w-full">
                   <button
-                    className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
+                    className="font-bold text-[15px] hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       onUserClick && onUserClick(user.handle);
@@ -758,25 +769,31 @@ const Post = ({
                     <span className="truncate max-w-[120px] sm:max-w-[200px]">{user.handle}</span>
                     {user.verified && <VerifiedBadge />}
                   </button>
-                  
+
                   {community && (
-                    <div className="flex items-center gap-1 min-w-0">
+                    <div className="flex items-center gap-1 min-w-0 text-zinc-500">
                       <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
                       <button
-                        className="font-bold text-violet-600 dark:text-violet-400 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
+                        className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/c/${community.handle}`);
                         }}
                       >
+                        <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                          <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
+                          <AvatarFallback className="text-[8px] font-bold text-zinc-500">
+                            {community.name?.[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                         {community.name}
                       </button>
                     </div>
                   )}
+                  <span className="text-zinc-400 text-xs sm:text-sm whitespace-nowrap pt-0.5 ml-1">
+                    {timeAgo || "Recent"}
+                  </span>
                 </div>
-                <span className="text-zinc-400 text-xs sm:text-sm whitespace-nowrap pt-0.5">
-                  • {timeAgo || "Recent"}
-                </span>
               </div>
             </div>
             <PostActionsMenu
@@ -809,26 +826,28 @@ const Post = ({
           </div>
 
           <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3 pr-4">
-            <div className="flex items-center gap-x-6">
-                          <ActionButton
-                            icon={Heart}
-                            count={localStats.likes}
-                            active={liked}
-                            onClick={handleLike}
-                            activeColorClass="text-rose-500"
-                          />
-                          {!isComment && (
-                            <ActionButton
-                              icon={Repeat2}
-                              count={localStats.mirrors}
-                              active={reposted}
-                              onClick={handleRepost}
-                              activeColorClass="text-emerald-500"
-                            />
-                          )}
-                          <ActionButton
-                            icon={MessageCircle}
-              
+            <div className="flex items-center gap-x-4 sm:gap-x-8">
+              <ActionButton
+                icon={Heart}
+                label="Like"
+                count={localStats.likes}
+                active={liked}
+                onClick={handleLike}
+                activeColorClass="text-rose-500"
+              />
+              {!isComment && (
+                <ActionButton
+                  icon={Repeat2}
+                  label="Repost"
+                  count={localStats.mirrors}
+                  active={reposted}
+                  onClick={handleRepost}
+                  activeColorClass="text-emerald-500"
+                />
+              )}
+              <ActionButton
+                icon={MessageCircle}
+                label="Comment"
                 count={localStats.comments}
                 onClick={(e) => {
                   if (isComment && onReply) {

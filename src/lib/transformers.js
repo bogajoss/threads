@@ -44,7 +44,10 @@ export const transformPost = (post) => {
     },
     // Handle data from either direct table query or unified view
     user: transformUser(post.author_data || post.user),
-    community: post.community_data || post.communities,
+    community: (post.community_data || post.communities) ? {
+      ...(post.community_data || post.communities),
+      avatar: (post.community_data || post.communities).avatar_url || (post.community_data || post.communities).avatar
+    } : null,
     repostedBy: post.reposter_data ? {
       handle: post.reposter_data.username,
       name: post.reposter_data.display_name,

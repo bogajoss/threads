@@ -17,7 +17,8 @@ export const transformCommunity = (c) => {
     postsCount: c.posts_count || 0,
     isPrivate: c.is_private,
     createdAt: c.created_at,
-    type: 'community'
+    type: 'community',
+    creatorId: c.creator_id
   };
 };
 
@@ -62,6 +63,7 @@ export const fetchCommunityPosts = async (communityId, lastTimestamp = null, lim
     .from("unified_posts")
     .select("*")
     .eq("community_id", communityId)
+    .is("reposter_id", null)
     .order("sort_timestamp", { ascending: false })
     .limit(limit);
 
@@ -163,4 +165,53 @@ export const updateCommunity = async (id, communityData) => {
 
   if (error) throw error;
   return transformCommunity(data);
+};
+
+/**
+ * Fetches members of a community with user details.
+ */
+export const fetchCommunityMembers = async (communityId, searchQuery = "") => {
+  let query = supabase
+    .from("community_members")
+    .select(`
+      role,
+      user_id,
+      users:user_id!inner (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        is_verified
+      )
+    `)
+    .eq("community_id", communityId);
+
+  if (searchQuery) {
+    query = query.or(`username.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`, { foreignTable: 'users' });
+  }
+
+  const { data, error } = await query.limit(20);
+
+  if (error) throw error;
+  return data.map(m => ({
+    role: m.role,
+    userId: m.user_id,
+    user: m.users
+  }));
+};
+
+/**
+ * Updates a member's role in a community.
+ */
+export const updateMemberRole = async (communityId, userId, role) => {
+  const { data, error } = await supabase
+    .from("community_members")
+    .update({ role })
+    .eq("community_id", communityId)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };
