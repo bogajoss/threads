@@ -112,7 +112,12 @@ const ReelItem = ({ reel, isActive }) => {
                 !href.startsWith("/") &&
                 (href.startsWith("http") || href.startsWith("www"));
 
-              if (href.startsWith("/u/") || href.startsWith("/explore")) {
+              if (
+                href.startsWith("/u/") ||
+                href.startsWith("/tags/") ||
+                href.startsWith("/c/") ||
+                href.startsWith("/explore")
+              ) {
                 return (
                   <span
                     key={content}

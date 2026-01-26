@@ -237,8 +237,8 @@ const ChatWindow = ({
                     {msg.replyToId && (
                       <div
                         className={`mb-2 p-2 rounded-lg border-l-4 text-xs truncate cursor-pointer ${msg.sender === "me"
-                            ? "bg-violet-500/50 border-violet-300 text-violet-100"
-                            : "bg-zinc-200/50 dark:bg-zinc-700/50 border-zinc-400 dark:border-zinc-500 text-zinc-600 dark:text-zinc-300"
+                          ? "bg-violet-500/50 border-violet-300 text-violet-100"
+                          : "bg-zinc-200/50 dark:bg-zinc-700/50 border-zinc-400 dark:border-zinc-500 text-zinc-600 dark:text-zinc-300"
                           }`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -281,14 +281,19 @@ const ChatWindow = ({
                                 !href.startsWith("/") &&
                                 (href.startsWith("http") || href.startsWith("www"));
 
-                              if (href.startsWith("/u/") || href.startsWith("/explore")) {
+                              if (
+                                href.startsWith("/u/") ||
+                                href.startsWith("/tags/") ||
+                                href.startsWith("/c/") ||
+                                href.startsWith("/explore")
+                              ) {
                                 return (
                                   <span
                                     key={text}
                                     {...props}
                                     className={`underline decoration-2 underline-offset-2 cursor-pointer transition-opacity break-all ${msg.sender === "me"
-                                        ? "text-white"
-                                        : "text-rose-500 dark:text-rose-400"
+                                      ? "text-white"
+                                      : "text-rose-500 dark:text-rose-400"
                                       }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
