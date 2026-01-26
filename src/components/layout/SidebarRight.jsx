@@ -64,14 +64,14 @@ const SidebarRight = () => {
             {trendingHashtags.map((topic) => (
               <div
                 key={topic.id}
-                onClick={() => navigate(`/community?q=${encodeURIComponent(topic.name)}`)}
+                onClick={() => navigate(`/tags/${topic.name.replace(/^#/, "")}`)}
                 className="px-3 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl cursor-pointer transition-colors group"
               >
                 <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                   Trending
                 </div>
                 <div className="font-bold text-[--foreground]">
-                  {topic.name}
+                  #{topic.name.replace(/^#/, "")}
                 </div>
                 <div className="text-xs text-zinc-500 dark:text-zinc-400">
                   {topic.usage_count} posts
