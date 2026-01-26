@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const StoryViewer = ({ story: storyGroup, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const stories = storyGroup.stories;
   const currentStory = stories[currentIndex];
@@ -14,9 +16,9 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
       setCurrentIndex((prev) => prev + 1);
       setProgress(0);
     } else {
-      onClose();
+      onClose(storyGroup.user.id);
     }
-  }, [currentIndex, stories.length, onClose]);
+  }, [currentIndex, stories.length, onClose, storyGroup.user.id]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -25,7 +27,14 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
     }
   }, [currentIndex]);
 
+  const togglePause = useCallback((e) => {
+    e.stopPropagation();
+    setIsPaused((prev) => !prev);
+  }, []);
+
   useEffect(() => {
+    if (isPaused) return;
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -36,7 +45,7 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
       });
     }, 50); // 5 seconds per story
     return () => clearInterval(timer);
-  }, [handleNext, currentIndex]);
+  }, [handleNext, currentIndex, isPaused]);
 
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300">
@@ -64,7 +73,11 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link
+            to={`/u/${storyGroup.user.handle}`}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Avatar className="size-10 border border-white/20 shadow-sm">
               <AvatarImage
                 src={storyGroup.user.avatar}
@@ -86,9 +99,9 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
                 })}
               </span>
             </div>
-          </div>
+          </Link>
           <button
-            onClick={onClose}
+            onClick={() => onClose(storyGroup.user.id)}
             className="text-white p-2 hover:bg-white/10 rounded-full transition-colors"
           >
             <X size={24} />
@@ -116,6 +129,13 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
             className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-300"
             alt=""
           />
+          {isPaused && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+              <div className="px-4 py-2 bg-black/40 rounded-full text-white text-xs font-bold backdrop-blur-md border border-white/10 animate-in fade-in zoom-in duration-200">
+                PAUSED
+              </div>
+            </div>
+          )}
         </div>
 
         <button
@@ -130,8 +150,9 @@ const StoryViewer = ({ story: storyGroup, onClose }) => {
 
         {/* Click zones for navigation */}
         <div className="absolute inset-0 flex z-20">
-          <div className="flex-1 cursor-w-resize" onClick={handlePrev}></div>
-          <div className="flex-1 cursor-e-resize" onClick={handleNext}></div>
+          <div className="w-[30%] cursor-w-resize" onClick={handlePrev}></div>
+          <div className="w-[40%] cursor-pointer flex items-center justify-center" onClick={togglePause}></div>
+          <div className="w-[30%] cursor-e-resize" onClick={handleNext}></div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePosts } from "@/context/PostContext";
@@ -7,9 +7,35 @@ import ReelItem from "@/components/features/post/ReelItem";
 const Reels = () => {
   const { posts, loading } = usePosts();
   const navigate = useNavigate();
+  const containerRef = useRef(null);
+  const [activeReelId, setActiveReelId] = useState(null);
+
   const videoPosts = posts.filter(
     (p) => p.type === "video" || p.category === "video",
   );
+
+  useEffect(() => {
+    if (videoPosts.length === 0) return;
+
+    const options = {
+      root: containerRef.current,
+      threshold: 0.6,
+    };
+
+    const callback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveReelId(entry.target.dataset.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(callback, options);
+    const elements = document.querySelectorAll(".reel-item");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [videoPosts]);
 
   if (loading) {
     return (
@@ -23,12 +49,21 @@ const Reels = () => {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-black text-white gap-4">
         <p className="text-zinc-500">No reels found.</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 bg-white text-black rounded-full text-sm font-bold"
+        >
+          Go Back
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative">
+    <div
+      ref={containerRef}
+      className="h-[100dvh] w-full snap-y snap-mandatory overflow-y-auto no-scrollbar bg-black md:rounded-xl relative"
+    >
       {/* Floating Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -39,7 +74,11 @@ const Reels = () => {
       </button>
 
       {videoPosts.map((reel) => (
-        <ReelItem key={reel.id} reel={reel} />
+        <ReelItem
+          key={reel.id}
+          reel={reel}
+          isActive={activeReelId === reel.id}
+        />
       ))}
     </div>
   );

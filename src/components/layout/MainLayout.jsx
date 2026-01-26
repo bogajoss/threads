@@ -48,8 +48,8 @@ const MainLayout = ({ onPostClick }) => {
             </div>
           </div>
 
-          {/* Right Sidebar - Now on all pages */}
-          <SidebarRight />
+          {/* Right Sidebar - Now on all pages, except Messages */}
+          {!location.pathname.startsWith("/messages") && <SidebarRight />}
         </div>
       </div>
 

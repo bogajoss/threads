@@ -42,7 +42,7 @@ export const getOrCreateConversation = async (userId, targetUserId) => {
  */
 export const fetchUnreadMessagesCount = async (userId) => {
   if (!userId) return 0;
-  
+
   const { data: convs } = await supabase
     .from("conversation_participants")
     .select("conversation_id")
@@ -125,14 +125,19 @@ export const fetchConversations = async (userId) => {
       id: conv.id,
       user: transformUser(otherParticipant?.user),
       lastMessage: conv.last_message_content || "No messages yet",
+      lastMessageAt: conv.last_message_at,
       time: conv.last_message_at
         ? new Date(conv.last_message_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : "",
       unread: unreadCount,
     };
+  }).sort((a, b) => {
+    if (!a.lastMessageAt) return 1;
+    if (!b.lastMessageAt) return -1;
+    return new Date(b.lastMessageAt) - new Date(a.lastMessageAt);
   });
 };
 
@@ -228,6 +233,16 @@ export const sendMessage = async (
     .select();
 
   if (error) throw error;
+
+  // Update conversation last_message details manually since we don't have a DB trigger
+  await supabase
+    .from("conversations")
+    .update({
+      last_message_at: new Date(),
+      last_message_content: type === "image" || (media && media.length > 0) ? "Sent an image" : content,
+    })
+    .eq("id", conversationId);
+
   return data[0];
 };
 

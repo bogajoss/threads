@@ -7,6 +7,8 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useLightbox } from "@/context/LightboxContext";
+import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
+
 
 // Layout & Components
 import { MainLayout, PageTransition } from "@/components/layout";
@@ -64,7 +66,7 @@ export default function Sysm() {
   }
 
   return (
-    <>
+    <VideoPlaybackProvider>
       <ScrollToTop />
 
       <Routes location={location} key={location.pathname}>
@@ -176,7 +178,15 @@ export default function Sysm() {
       {viewingStory && (
         <StoryViewer
           story={viewingStory}
-          onClose={() => setViewingStory(null)}
+          onClose={(storyId) => {
+            if (storyId) {
+              const seenStories = JSON.parse(localStorage.getItem("seenStories") || "[]");
+              if (!seenStories.includes(storyId)) {
+                localStorage.setItem("seenStories", JSON.stringify([...seenStories, storyId]));
+              }
+            }
+            setViewingStory(null);
+          }}
         />
       )}
 
@@ -201,6 +211,6 @@ export default function Sysm() {
           />
         </button>
       )}
-    </>
+    </VideoPlaybackProvider>
   );
 }

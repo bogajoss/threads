@@ -98,13 +98,19 @@ const Home = ({ onStoryClick, onAddStory }) => {
               onClick={onAddStory}
             />
           )}
-          {groupedStories.map((group) => (
-            <StoryCircle
-              key={group.user.id}
-              user={group.user}
-              onClick={() => onStoryClick(group)}
-            />
-          ))}
+          {groupedStories.map((group) => {
+            const seenStories = JSON.parse(localStorage.getItem("seenStories") || "[]");
+            const isSeen = seenStories.includes(group.user.id);
+
+            return (
+              <StoryCircle
+                key={group.user.id}
+                user={group.user}
+                isSeen={isSeen}
+                onClick={() => onStoryClick(group)}
+              />
+            );
+          })}
         </div>
         <ScrollBar orientation="horizontal" className="hidden" />
       </ScrollArea>

@@ -1,25 +1,35 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { Plyr } from "plyr-react";
+import { useVideoPlayback } from "@/context/VideoPlaybackContext";
+import { useId } from "react";
 
 const VideoPlayer = ({ src, poster }) => {
   const playerRef = useRef(null);
+  const { reportVisibility, unregister } = useVideoPlayback();
+  const id = useId();
+
+  // Stable play/pause references for the context to call
+  const controls = useMemo(() => ({
+    play: () => {
+      const p = playerRef.current?.plyr;
+      if (p) {
+        p.muted = true; // Ensure muted for autoplay
+        p.play().catch(() => { });
+      }
+    },
+    pause: () => {
+      playerRef.current?.plyr?.pause();
+    }
+  }), []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (playerRef.current?.plyr) {
-          if (entry.isIntersecting) {
-            playerRef.current.plyr.play().catch(() => {
-              // Autoplay might be blocked if not muted
-              playerRef.current.plyr.muted = true;
-              playerRef.current.plyr.play();
-            });
-          } else {
-            playerRef.current.plyr.pause();
-          }
-        }
+        // Report visibility ratio to context
+        // We use intersectionRatio directly
+        reportVisibility(id, entry.intersectionRatio, controls);
       },
-      { threshold: 0.6 },
+      { threshold: [0, 0.6] } // report at 0 (hidden) and 0.6 (playing threshold)
     );
 
     const currentElement = playerRef.current?.elements?.container;
@@ -28,11 +38,12 @@ const VideoPlayer = ({ src, poster }) => {
     }
 
     return () => {
+      unregister(id);
       if (currentElement) {
         observer.unobserve(currentElement);
       }
     };
-  }, []);
+  }, [id, reportVisibility, unregister, controls]);
 
   const plyrProps = {
     source: {

@@ -1,20 +1,29 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "@/components/ui/SearchBar";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPlus } from "lucide-react";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 
 const ConversationItem = ({ conv, selectedId, onSelect, onlineUsers }) => {
+  const navigate = useNavigate();
   const timeAgo = useTimeAgo(conv.user?.lastSeen);
   const isOnline = onlineUsers.has(conv.user?.id);
+
+  const handleProfileClick = (e) => {
+    e.stopPropagation();
+    if (conv.user?.handle) {
+      navigate(`/u/${conv.user.handle}`);
+    }
+  };
 
   return (
     <div
       onClick={() => onSelect(conv)}
       className={`flex items-center gap-3 p-4 cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900 ${selectedId === conv.id ? "bg-zinc-50 dark:bg-zinc-900 border-r-2 border-violet-500" : ""}`}
     >
-      <div className="relative">
-        <Avatar className="size-12">
+      <div className="relative group" onClick={handleProfileClick}>
+        <Avatar className="size-12 group-hover:brightness-90 transition-all">
           <AvatarImage
             src={conv.user?.avatar}
             alt={conv.user?.name}
@@ -29,7 +38,10 @@ const ConversationItem = ({ conv, selectedId, onSelect, onlineUsers }) => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center mb-0.5">
           <div className="flex flex-col min-w-0">
-            <span className="font-bold dark:text-white truncate">
+            <span
+              onClick={handleProfileClick}
+              className="font-bold dark:text-white truncate hover:underline cursor-pointer"
+            >
               {conv.user?.name}
             </span>
             {isOnline ? (
@@ -86,15 +98,20 @@ const ChatList = ({
       {/* Existing Conversations */}
       {conversations.length > 0 && (
         <div className="py-2">
-          {conversations.map((conv) => (
-            <ConversationItem
-              key={conv.id}
-              conv={conv}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              onlineUsers={onlineUsers}
-            />
-          ))}
+          {conversations
+            .filter(
+              (conv) =>
+                conv.lastMessage !== "No messages yet" || conv.id === selectedId,
+            )
+            .map((conv) => (
+              <ConversationItem
+                key={conv.id}
+                conv={conv}
+                selectedId={selectedId}
+                onSelect={onSelect}
+                onlineUsers={onlineUsers}
+              />
+            ))}
         </div>
       )}
 

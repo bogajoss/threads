@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Share2, Music } from "lucide-react";
 import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-const ReelItem = ({ reel }) => {
+const ReelItem = ({ reel, isActive }) => {
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
   const lastTap = useRef(0);
@@ -13,33 +14,19 @@ const ReelItem = ({ reel }) => {
     : reel.media?.src || reel.media?.url || reel.url;
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (playerRef.current?.plyr) {
-          if (entry.isIntersecting) {
-            playerRef.current.plyr.play().catch(() => {
-              playerRef.current.plyr.muted = true;
-              playerRef.current.plyr.play();
-            });
-          } else {
-            playerRef.current.plyr.pause();
-          }
-        }
-      },
-      { threshold: 0.8 },
-    );
-
-    const currentElement = playerRef.current?.elements?.container;
-    if (currentElement) {
-      observer.observe(currentElement);
-    }
-
-    return () => {
-      if (currentElement) {
-        observer.unobserve(currentElement);
+    if (playerRef.current?.plyr) {
+      if (isActive) {
+        playerRef.current.plyr.play().catch((err) => {
+          console.error("Autoplay failed:", err);
+          // Fallback to muted if needed, though Plyr usually handles this
+          playerRef.current.plyr.muted = true;
+          playerRef.current.plyr.play();
+        });
+      } else {
+        playerRef.current.plyr.pause();
       }
-    };
-  }, []);
+    }
+  }, [isActive]);
 
   const handleDoubleTap = () => {
     const now = Date.now();
@@ -66,7 +53,8 @@ const ReelItem = ({ reel }) => {
 
   return (
     <div
-      className="relative h-screen w-full bg-black snap-start flex items-center justify-center overflow-hidden"
+      data-id={reel.id}
+      className="reel-item relative h-screen w-full bg-black snap-start flex items-center justify-center overflow-hidden"
       onClick={handleDoubleTap}
     >
       <div className="w-full h-full max-w-[450px]">
@@ -87,18 +75,27 @@ const ReelItem = ({ reel }) => {
 
       <div className="absolute bottom-20 left-4 right-16 text-white pointer-events-none">
         <div className="flex items-center gap-2 mb-3 pointer-events-auto">
-          <Avatar className="size-10 border-2 border-white">
-            <AvatarImage
-              src={reel.user?.avatar}
-              alt={reel.user?.handle}
-              className="object-cover"
-            />
-            <AvatarFallback>
-              {reel.user?.handle?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <span className="font-bold">@{reel.user?.handle}</span>
-          <button className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full ml-2 hover:scale-105 active:scale-95 transition-all">
+          <Link
+            to={`/u/${reel.user?.handle}`}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Avatar className="size-10 border-2 border-white">
+              <AvatarImage
+                src={reel.user?.avatar}
+                alt={reel.user?.handle}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {reel.user?.handle?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-bold">@{reel.user?.handle}</span>
+          </Link>
+          <button
+            className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full ml-2 hover:scale-105 active:scale-95 transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
             Follow
           </button>
         </div>
