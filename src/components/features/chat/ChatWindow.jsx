@@ -32,6 +32,8 @@ import EmojiPicker from "@/components/ui/EmojiPicker";
 import Linkify from "linkify-react";
 import MessageReactionPicker from "@/components/features/chat/MessageReactionPicker";
 import MessageReactions from "@/components/features/chat/MessageReactions";
+import { linkifyOptions } from "@/lib/linkify";
+import { useNavigate } from "react-router-dom";
 
 const QUICK_EMOJIS = ["❤️", "😂", "😮", "😢", "🙏", "👍"];
 
@@ -48,6 +50,7 @@ const ChatWindow = ({
   isTyping,
   isOnline,
 }) => {
+  const navigate = useNavigate();
   const { openLightbox } = useLightbox();
   const [text, setText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -229,31 +232,30 @@ const ChatWindow = ({
                   className={`flex items-end gap-2 group ${msg.sender === "me" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   <div
-                                    className={`max-w-[75%] p-1 rounded-2xl text-[15px] shadow-sm relative ${msg.sender === "me" ? "bg-violet-600 text-white rounded-tr-none" : "bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none"}`}
-                                  >
-                                    {msg.replyToId && (
-                                      <div
-                                        className={`mb-2 p-2 rounded-lg border-l-4 text-xs truncate cursor-pointer ${
-                                          msg.sender === "me"
-                                            ? "bg-violet-500/50 border-violet-300 text-violet-100"
-                                            : "bg-zinc-200/50 dark:bg-zinc-700/50 border-zinc-400 dark:border-zinc-500 text-zinc-600 dark:text-zinc-300"
-                                        }`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          const el = document.getElementById(`msg-${msg.replyToId}`);
-                                          el?.scrollIntoView({ behavior: "smooth", block: "center" });
-                                        }}
-                                      >
-                                        <span className="font-bold block mb-0.5">
-                                          {findMessage(msg.replyToId)?.sender === "me"
-                                            ? "You"
-                                            : conversation.user.name}
-                                        </span>
-                                        {findMessage(msg.replyToId)?.text || "Media"}
-                                      </div>
-                                    )}
-                                    {msg.media?.length > 0 && (
-                    
+                    className={`max-w-[75%] p-1 rounded-2xl text-[15px] shadow-sm relative ${msg.sender === "me" ? "bg-violet-600 text-white rounded-tr-none" : "bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-tl-none"}`}
+                  >
+                    {msg.replyToId && (
+                      <div
+                        className={`mb-2 p-2 rounded-lg border-l-4 text-xs truncate cursor-pointer ${msg.sender === "me"
+                            ? "bg-violet-500/50 border-violet-300 text-violet-100"
+                            : "bg-zinc-200/50 dark:bg-zinc-700/50 border-zinc-400 dark:border-zinc-500 text-zinc-600 dark:text-zinc-300"
+                          }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const el = document.getElementById(`msg-${msg.replyToId}`);
+                          el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }}
+                      >
+                        <span className="font-bold block mb-0.5">
+                          {findMessage(msg.replyToId)?.sender === "me"
+                            ? "You"
+                            : conversation.user.name}
+                        </span>
+                        {findMessage(msg.replyToId)?.text || "Media"}
+                      </div>
+                    )}
+                    {msg.media?.length > 0 && (
+
                       <div
                         className="mb-2 grid gap-1 grid-cols-1 overflow-hidden rounded-lg cursor-pointer"
                         onClick={() => handleImageClick(msg)}
@@ -270,14 +272,48 @@ const ChatWindow = ({
                     )}
                     {msg.text && (
                       <div className="m-0 leading-tight px-3 py-1 whitespace-pre-line break-words">
-                        <Linkify 
+                        <Linkify
                           options={{
-                            attributes: {
-                              target: "_blank",
-                              rel: "noopener noreferrer",
-                              className: "underline decoration-2 underline-offset-2 hover:opacity-80 transition-opacity break-all",
-                              onClick: (e) => e.stopPropagation()
-                            }
+                            ...linkifyOptions,
+                            render: ({ attributes, content: text }) => {
+                              const { href, ...props } = attributes;
+                              const isExternal =
+                                !href.startsWith("/") &&
+                                (href.startsWith("http") || href.startsWith("www"));
+
+                              if (href.startsWith("/u/") || href.startsWith("/explore")) {
+                                return (
+                                  <span
+                                    key={text}
+                                    {...props}
+                                    className={`underline decoration-2 underline-offset-2 cursor-pointer transition-opacity break-all ${msg.sender === "me"
+                                        ? "text-white"
+                                        : "text-rose-500 dark:text-rose-400"
+                                      }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(href);
+                                    }}
+                                  >
+                                    {text}
+                                  </span>
+                                );
+                              }
+                              return (
+                                <a
+                                  key={text}
+                                  href={href}
+                                  {...props}
+                                  className={`underline decoration-2 underline-offset-2 hover:opacity-80 transition-opacity break-all ${msg.sender === "me" ? "text-white" : ""
+                                    }`}
+                                  target={isExternal ? "_blank" : undefined}
+                                  rel={isExternal ? "noopener noreferrer" : undefined}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {text}
+                                </a>
+                              );
+                            },
                           }}
                         >
                           {msg.text}

@@ -26,7 +26,8 @@ import {
   Notifications,
   Profile,
   Community,
-  PostDetails
+  PostDetails,
+  Settings
 } from "@/pages";
 
 import { Plus } from "lucide-react";
@@ -104,6 +105,14 @@ export default function Sysm() {
             element={
               <PageTransition>
                 <Messages />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PageTransition>
+                <Settings />
               </PageTransition>
             }
           />

@@ -9,10 +9,13 @@ import {
   Mail,
   Bell,
   Loader2,
+  Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button, VerifiedBadge, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
 import { getOrCreateConversation } from "@/lib/api";
+import Linkify from "linkify-react";
+import { linkifyOptions } from "@/lib/linkify";
 
 import { useFollow } from "@/hooks/useFollow";
 
@@ -85,13 +88,22 @@ const ProfileHeader = ({
           </div>
           <div className="flex gap-2 shrink-0">
             {isCurrentUser ? (
-              <Button
-                variant="secondary"
-                onClick={() => onEditProfile(profile)}
-                className="text-sm px-5"
-              >
-                Edit profile
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => onEditProfile(profile)}
+                  className="text-sm px-5"
+                >
+                  Edit profile
+                </Button>
+                <button
+                  onClick={() => navigate("/settings")}
+                  className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"
+                  title="Settings"
+                >
+                  <Settings size={20} />
+                </button>
+              </div>
             ) : (
               <>
                 <button
@@ -147,7 +159,46 @@ const ProfileHeader = ({
         </div>
 
         <div className="whitespace-pre-line text-zinc-900 dark:text-zinc-100 leading-relaxed text-sm sm:text-[15px]">
-          {profile.bio}
+          <Linkify
+            options={{
+              ...linkifyOptions,
+              render: ({ attributes, content: text }) => {
+                const { href, ...props } = attributes;
+                const isExternal =
+                  !href.startsWith("/") &&
+                  (href.startsWith("http") || href.startsWith("www"));
+
+                if (href.startsWith("/u/") || href.startsWith("/explore")) {
+                  return (
+                    <span
+                      key={text}
+                      {...props}
+                      className="text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(href);
+                      }}
+                    >
+                      {text}
+                    </span>
+                  );
+                }
+                return (
+                  <a
+                    key={text}
+                    href={href}
+                    {...props}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                  >
+                    {text}
+                  </a>
+                );
+              },
+            }}
+          >
+            {profile.bio}
+          </Linkify>
         </div>
 
         {(profile.website || profile.location) && (

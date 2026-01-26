@@ -14,6 +14,7 @@ export * from "./popover";
 export { default as ProfileCard } from "./ProfileCard";
 export * from "./scroll-area";
 export { default as SearchBar } from "./SearchBar";
+export * from "./select";
 export { default as SignupCard } from "./SignupCard";
 export { default as SkeletonPost } from "./SkeletonPost";
 export * from "./sonner";

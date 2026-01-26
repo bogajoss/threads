@@ -3,8 +3,12 @@ import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Share2, Music } from "lucide-react";
 import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import Linkify from "linkify-react";
+import { linkifyOptions } from "@/lib/linkify";
+import { useNavigate } from "react-router-dom";
 
 const ReelItem = ({ reel, isActive }) => {
+  const navigate = useNavigate();
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
   const lastTap = useRef(0);
@@ -99,7 +103,48 @@ const ReelItem = ({ reel, isActive }) => {
             Follow
           </button>
         </div>
-        <p className="text-sm mb-3 line-clamp-2">{reel.content}</p>
+        <Linkify
+          options={{
+            ...linkifyOptions,
+            render: ({ attributes, content }) => {
+              const { href, ...props } = attributes;
+              const isExternal =
+                !href.startsWith("/") &&
+                (href.startsWith("http") || href.startsWith("www"));
+
+              if (href.startsWith("/u/") || href.startsWith("/explore")) {
+                return (
+                  <span
+                    key={content}
+                    {...props}
+                    className="text-white font-bold hover:underline cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(href);
+                    }}
+                  >
+                    {content}
+                  </span>
+                );
+              }
+              return (
+                <a
+                  key={content}
+                  href={href}
+                  {...props}
+                  className="text-white hover:underline"
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {content}
+                </a>
+              );
+            },
+          }}
+        >
+          <p className="text-sm mb-3 line-clamp-2">{reel.content}</p>
+        </Linkify>
         <div className="flex items-center gap-2 text-xs opacity-90">
           <Music size={14} className="animate-spin-slow" />
           <span>Original Audio - {reel.user?.handle}</span>

@@ -1,35 +1,50 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { fetchCommunities } from "@/lib/api";
+import { fetchCommunities, searchPosts } from "@/lib/api";
 
 export const useExplore = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Read 'q' from URL (e.g. /community?q=#tag)
+
   const queryParams = new URLSearchParams(location.search);
   const initialSearch = queryParams.get('q') || "";
+  const initialTab = queryParams.get('tab') || (initialSearch ? "posts" : "communities");
 
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Sync state if URL changes
-  useEffect(() => {
-    setSearchQuery(initialSearch);
-  }, [initialSearch]);
-
+  // 1. Communities Data
   const [communitiesData, setCommunitiesData] = useState([]);
   const [isCommunitiesLoading, setIsCommunitiesLoading] = useState(true);
   const [isFetchingMoreCommunities, setIsFetchingMoreCommunities] = useState(false);
   const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
-  
   const communitiesRef = useRef(communitiesData);
+
+  // 2. Posts Data (Search results)
+  const [postsData, setPostsData] = useState([]);
+  const [isPostsLoading, setIsPostsLoading] = useState(false);
+  const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const postsRef = useRef(postsData);
 
   useEffect(() => {
     communitiesRef.current = communitiesData;
   }, [communitiesData]);
+
+  useEffect(() => {
+    postsRef.current = postsData;
+  }, [postsData]);
+
+  // Sync state if URL changes (like clicking a new hashtag)
+  useEffect(() => {
+    if (initialSearch !== searchQuery) {
+      setSearchQuery(initialSearch);
+      if (initialSearch) setActiveTab("posts");
+    }
+  }, [initialSearch]);
 
   const loadCommunities = useCallback(async (isLoadMore = false) => {
     if (isLoadMore) setIsFetchingMoreCommunities(true);
@@ -42,7 +57,7 @@ export const useExplore = () => {
         : null;
 
       const data = await fetchCommunities(lastTimestamp, 10);
-      
+
       if (data.length < 10) setHasMoreCommunities(false);
       else setHasMoreCommunities(true);
 
@@ -59,9 +74,50 @@ export const useExplore = () => {
     }
   }, []);
 
+  const loadPosts = useCallback(async (isLoadMore = false) => {
+    if (!searchQuery) {
+      setPostsData([]);
+      return;
+    }
+
+    if (isLoadMore) setIsFetchingMorePosts(true);
+    else setIsPostsLoading(true);
+
+    try {
+      const currentPosts = postsRef.current;
+      const lastTimestamp = isLoadMore && currentPosts.length > 0
+        ? currentPosts[currentPosts.length - 1].sortTimestamp
+        : null;
+
+      const data = await searchPosts(searchQuery, lastTimestamp, 10);
+
+      if (data.length < 10) setHasMorePosts(false);
+      else setHasMorePosts(true);
+
+      if (isLoadMore) {
+        setPostsData(prev => [...prev, ...data]);
+      } else {
+        setPostsData(data);
+      }
+    } catch (err) {
+      console.error("Failed to search posts:", err);
+    } finally {
+      setIsPostsLoading(false);
+      setIsFetchingMorePosts(false);
+    }
+  }, [searchQuery]);
+
   useEffect(() => {
     loadCommunities();
   }, [loadCommunities]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      loadPosts();
+    } else {
+      setPostsData([]);
+    }
+  }, [searchQuery, loadPosts]);
 
   const filteredCommunities = useMemo(() => {
     let list = communitiesData;
@@ -79,19 +135,31 @@ export const useExplore = () => {
     navigate(`/c/${handle}`);
   };
 
+  const handleSearchChange = (val) => {
+    setSearchQuery(val);
+    // When manually typing, maybe stay on active tab
+  };
+
   return {
     currentUser,
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: handleSearchChange,
+    activeTab,
+    setActiveTab,
     isCreateModalOpen,
     setIsCreateModalOpen,
     communitiesData,
     isCommunitiesLoading,
     isFetchingMoreCommunities,
     hasMoreCommunities,
+    postsData,
+    isPostsLoading,
+    isFetchingMorePosts,
+    hasMorePosts,
     filteredCommunities,
     handleCommunityClick,
     loadCommunities,
+    loadPosts,
     navigate
   };
 };

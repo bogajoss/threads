@@ -317,3 +317,24 @@ export const checkIfReposted = async (postId, userId) => {
     .maybeSingle();
   return !!data;
 };
+
+/**
+ * Searches posts by content (keywords or hashtags).
+ */
+export const searchPosts = async (query, lastTimestamp = null, limit = 10) => {
+  let supabaseQuery = supabase
+    .from("unified_posts")
+    .select("*")
+    .ilike("content", `%${query}%`)
+    .order("sort_timestamp", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    supabaseQuery = supabaseQuery.lt("sort_timestamp", lastTimestamp);
+  }
+
+  const { data, error } = await supabaseQuery;
+
+  if (error) throw error;
+  return data.map(transformPost);
+};

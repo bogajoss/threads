@@ -202,6 +202,7 @@
   }
   html {
     @apply scrollbar-hide;
+    font-size: var(--app-font-size, 16px);
   }
   body {
     @apply bg-background text-foreground  scrollbar-hide;

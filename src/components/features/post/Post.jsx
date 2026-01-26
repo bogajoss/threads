@@ -41,6 +41,7 @@ import {
   VerifiedBadge,
 } from "@/components/ui";
 import Linkify from "linkify-react";
+import { linkifyOptions } from "@/lib/linkify";
 import {
   PollDisplay,
   QuotedPost,
@@ -440,55 +441,50 @@ const Post = ({
       const shouldTruncate = !isDetail && c.length > 280;
       const textToProcess = shouldTruncate && !isExpanded ? c.substring(0, 280) : c;
 
-      const linkifyOptions = {
-        formatHref: (href, type) => {
-          if (type === "mention") return `/u/${href.substring(1)}`;
-          if (type === "hashtag") return `/community?q=${encodeURIComponent(href)}`;
-          return href;
-        },
-        attributes: {
-          onClick: (e) => e.stopPropagation(),
-          className: "text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer",
-        },
-        render: ({ attributes, content }) => {
-          const { href, ...props } = attributes;
-
-          // Determine if it's an external link
-          const isExternal = !href.startsWith("/") && (href.startsWith("http") || href.startsWith("www"));
-
-          if (href.startsWith("/u/") || href.startsWith("/community")) {
-            return (
-              <span
-                key={content}
-                {...props}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(href);
-                }}
-              >
-                {content}
-              </span>
-            );
-          }
-          return (
-            <a
-              key={content}
-              href={href}
-              {...props}
-              target={isExternal ? "_blank" : undefined}
-              rel={isExternal ? "noopener noreferrer" : undefined}
-            >
-              {content}
-            </a>
-          );
-        },
-      };
-
       return (
         <div
           className={`whitespace-pre-line ${className || ""} ${isTxtBangla ? "font-bangla text-[1.15em] leading-relaxed" : "font-english text-[1.05em]"}`}
         >
-          <Linkify options={linkifyOptions}>{textToProcess}</Linkify>
+          <Linkify
+            options={{
+              ...linkifyOptions,
+              render: ({ attributes, content }) => {
+                const { href, ...props } = attributes;
+                // Determine if it's an external link
+                const isExternal =
+                  !href.startsWith("/") &&
+                  (href.startsWith("http") || href.startsWith("www"));
+
+                if (href.startsWith("/u/") || href.startsWith("/explore")) {
+                  return (
+                    <span
+                      key={content}
+                      {...props}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(href);
+                      }}
+                    >
+                      {content}
+                    </span>
+                  );
+                }
+                return (
+                  <a
+                    key={content}
+                    href={href}
+                    {...props}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                  >
+                    {content}
+                  </a>
+                );
+              },
+            }}
+          >
+            {textToProcess}
+          </Linkify>
           {shouldTruncate && !isExpanded && "..."}
           {shouldTruncate && (
             <button
