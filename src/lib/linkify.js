@@ -4,7 +4,7 @@ import 'linkify-plugin-mention';
 export const linkifyOptions = {
     formatHref: (href, type) => {
         if (type === 'mention') return `/u/${href.substring(1)}`;
-        if (type === 'hashtag') return `/explore?q=${encodeURIComponent(href)}`;
+        if (type === 'hashtag') return `/tags/${href.substring(1)}`;
         return href;
     },
     attributes: {

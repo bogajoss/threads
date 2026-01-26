@@ -7,3 +7,4 @@ export { default as PostDetails } from "./PostDetails";
 export { default as Profile } from "./Profile";
 export { default as Reels } from "./Reels";
 export { default as Settings } from "./Settings";
+export { default as HashtagFeed } from "./HashtagFeed";

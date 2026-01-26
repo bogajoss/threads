@@ -27,7 +27,8 @@ import {
   Profile,
   Community,
   PostDetails,
-  Settings
+  Settings,
+  HashtagFeed
 } from "@/pages";
 
 import { Plus } from "lucide-react";
@@ -148,6 +149,14 @@ export default function Sysm() {
                   setPostCommunity(c);
                   setIsPostModalOpen(true);
                 }} />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/tags/:tag"
+            element={
+              <PageTransition>
+                <HashtagFeed />
               </PageTransition>
             }
           />
