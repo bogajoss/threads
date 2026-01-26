@@ -9,17 +9,17 @@ export const useProfile = () => {
   const navigate = useNavigate();
   const { profiles, currentUser, getProfileByHandle } = useAuth();
   const { addToast } = useToast();
-  
+
   const [profile, setProfile] = useState(profiles[handle]);
   const [loading, setLoading] = useState(!profile);
-  
+
   // Post loading state
   const [userPosts, setUserPosts] = useState([]);
   const [activeProfileTab, setActiveProfileTab] = useState("feed");
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
-  
+
   const userPostsRef = useRef(userPosts);
   useEffect(() => {
     userPostsRef.current = userPosts;
@@ -50,7 +50,7 @@ export const useProfile = () => {
         : null;
 
       const data = await fetchPostsByUserId(userId, lastTimestamp, 10);
-      
+
       if (data.length < 10) setHasMorePosts(false);
       else setHasMorePosts(true);
 
@@ -89,7 +89,7 @@ export const useProfile = () => {
         type === "Followers"
           ? await fetchFollowers(userId, lastTimestamp, 10)
           : await fetchFollowing(userId, lastTimestamp, 10);
-      
+
       if (data.length < 10) setHasMoreFollows(false);
       else setHasMoreFollows(true);
 
