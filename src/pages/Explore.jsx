@@ -121,18 +121,11 @@ const Explore = () => {
 
         {activeTab === "posts" && (
           <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {!searchQuery ? (
-              <div className="p-20 text-center text-zinc-500 flex flex-col items-center gap-3">
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-full">
-                  <Hash size={32} className="text-zinc-300" />
-                </div>
-                <p className="font-bold">Enter a keyword or hashtag to search posts</p>
-              </div>
-            ) : postsData.length > 0 ? (
+            {postsData.length > 0 ? (
               <>
                 {postsData.map((post) => (
                   <Post
-                    key={post.id}
+                    key={post.feed_id || post.id}
                     currentUser={currentUser}
                     showToast={addToast}
                     {...post}
@@ -159,8 +152,13 @@ const Explore = () => {
                 <Loader2 className="animate-spin text-violet-500" size={32} />
               </div>
             ) : (
-              <div className="p-20 text-center text-zinc-500">
-                <p className="font-bold">No posts found matching "{searchQuery}"</p>
+              <div className="p-20 text-center text-zinc-500 flex flex-col items-center gap-3">
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-full">
+                  <Hash size={32} className="text-zinc-300" />
+                </div>
+                <p className="font-bold">
+                  {searchQuery ? `No posts found matching "${searchQuery}"` : "No posts found"}
+                </p>
               </div>
             )}
           </div>

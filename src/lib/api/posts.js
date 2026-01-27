@@ -321,12 +321,17 @@ export const checkIfReposted = async (postId, userId) => {
 /**
  * Searches posts by content (keywords or hashtags).
  */
-export const searchPosts = async (query, lastTimestamp = null, limit = 10) => {
+export const searchPosts = async (query, lastTimestamp = null, limit = 10, communityOnly = false) => {
   let supabaseQuery = supabase
     .from("unified_posts")
     .select("*")
-    .ilike("content", `%${query}%`)
-    .order("sort_timestamp", { ascending: false })
+    .ilike("content", `%${query}%`);
+
+  if (communityOnly) {
+    supabaseQuery = supabaseQuery.not("community_id", "is", null).is("reposter_id", null);
+  }
+
+  supabaseQuery = supabaseQuery.order("sort_timestamp", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
@@ -334,6 +339,28 @@ export const searchPosts = async (query, lastTimestamp = null, limit = 10) => {
   }
 
   const { data, error } = await supabaseQuery;
+
+  if (error) throw error;
+  return data.map(transformPost);
+};
+
+/**
+ * Fetches only posts that belong to a community.
+ */
+export const fetchCommunityExplorePosts = async (lastTimestamp = null, limit = 10) => {
+  let query = supabase
+    .from("unified_posts")
+    .select("*")
+    .not("community_id", "is", null)
+    .is("reposter_id", null)
+    .order("sort_timestamp", { ascending: false })
+    .limit(limit);
+
+  if (lastTimestamp) {
+    query = query.lt("sort_timestamp", lastTimestamp);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data.map(transformPost);

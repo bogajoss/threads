@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { fetchCommunities, searchPosts } from "@/lib/api";
+import { fetchCommunities, searchPosts, fetchCommunityExplorePosts } from "@/lib/api";
 
 export const useExplore = () => {
   const { currentUser } = useAuth();
@@ -76,21 +76,22 @@ export const useExplore = () => {
   }, []);
 
   const loadPosts = useCallback(async (isLoadMore = false) => {
-    if (!searchQuery) {
-      setPostsData([]);
-      return;
-    }
-
     if (isLoadMore) setIsFetchingMorePosts(true);
     else setIsPostsLoading(true);
 
     try {
       const currentPosts = postsRef.current;
       const lastTimestamp = isLoadMore && currentPosts.length > 0
-        ? currentPosts[currentPosts.length - 1].sortTimestamp
+        ? currentPosts[currentPosts.length - 1].sort_timestamp || currentPosts[currentPosts.length - 1].sortTimestamp
         : null;
 
-      const data = await searchPosts(searchQuery, lastTimestamp, 10);
+      let data;
+      if (searchQuery) {
+        data = await searchPosts(searchQuery, lastTimestamp, 10, true);
+      } else {
+        // Fetch only community posts
+        data = await fetchCommunityExplorePosts(lastTimestamp, 10);
+      }
 
       if (data.length < 10) setHasMorePosts(false);
       else setHasMorePosts(true);
@@ -101,7 +102,7 @@ export const useExplore = () => {
         setPostsData(data);
       }
     } catch (err) {
-      console.error("Failed to search posts:", err);
+      console.error("Failed to load posts:", err);
     } finally {
       setIsPostsLoading(false);
       setIsFetchingMorePosts(false);
@@ -113,11 +114,7 @@ export const useExplore = () => {
   }, [loadCommunities]);
 
   useEffect(() => {
-    if (searchQuery) {
-      loadPosts();
-    } else {
-      setPostsData([]);
-    }
+    loadPosts();
   }, [searchQuery, loadPosts]);
 
   const filteredCommunities = useMemo(() => {
