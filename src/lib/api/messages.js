@@ -96,7 +96,8 @@ export const fetchConversations = async (userId) => {
                         id,
                         username,
                         display_name,
-                        avatar_url
+                        avatar_url,
+                        last_seen_at
                     )
                 ),
                 messages (
