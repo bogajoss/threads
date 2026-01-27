@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Share2, Music } from "lucide-react";
+import { Heart, MessageCircle, Share2, Music, Volume2, VolumeX } from "lucide-react";
 import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Linkify from "linkify-react";
@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal } from "@/components/features/post";
 
-const ReelItem = ({ reel, isActive }) => {
+const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { addToast } = useToast();
@@ -19,17 +19,18 @@ const ReelItem = ({ reel, isActive }) => {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const lastTap = useRef(0);
 
-  const videoUrl = Array.isArray(reel.media)
-    ? reel.media[0]?.src || reel.media[0]?.url
-    : reel.media?.src || reel.media?.url || reel.url;
+  const videoUrl = useMemo(() => {
+    return Array.isArray(reel.media)
+      ? reel.media[0]?.src || reel.media[0]?.url
+      : reel.media?.src || reel.media?.url || reel.url;
+  }, [reel.media, reel.url]);
 
   useEffect(() => {
     let timeoutId;
     const player = playerRef.current?.plyr;
-    
+
     if (player) {
       if (isActive) {
-        // Small delay to ensure browser allows play
         timeoutId = setTimeout(() => {
           if (typeof player.play === "function") {
             player.play().catch((err) => {
@@ -51,6 +52,14 @@ const ReelItem = ({ reel, isActive }) => {
     };
   }, [isActive]);
 
+  // Sync mute state without re-rendering everything
+  useEffect(() => {
+    const player = playerRef.current?.plyr;
+    if (player) {
+      player.muted = isMuted;
+    }
+  }, [isMuted]);
+
   const handleDoubleTap = () => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
@@ -61,7 +70,7 @@ const ReelItem = ({ reel, isActive }) => {
     lastTap.current = now;
   };
 
-  const plyrProps = {
+  const plyrProps = useMemo(() => ({
     source: {
       type: "video",
       sources: [{ src: videoUrl, type: "video/mp4" }],
@@ -72,7 +81,7 @@ const ReelItem = ({ reel, isActive }) => {
       clickToPlay: true,
       ratio: "9:16",
     },
-  };
+  }), [videoUrl]);
 
   return (
     <div
@@ -176,7 +185,7 @@ const ReelItem = ({ reel, isActive }) => {
       </div>
 
       <div className="absolute bottom-20 right-2 flex flex-col items-center gap-6 z-10">
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-1 pointer-events-auto">
           <button className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90">
             <Heart size={28} />
           </button>
@@ -184,8 +193,8 @@ const ReelItem = ({ reel, isActive }) => {
             {reel.stats?.likes || 0}
           </span>
         </div>
-        <div className="flex flex-col items-center gap-1">
-          <button 
+        <div className="flex flex-col items-center gap-1 pointer-events-auto">
+          <button
             className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90"
             onClick={(e) => {
               e.stopPropagation();
@@ -198,7 +207,7 @@ const ReelItem = ({ reel, isActive }) => {
             {reel.stats?.comments || 0}
           </span>
         </div>
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-1 pointer-events-auto">
           <button className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90">
             <Share2 size={28} />
           </button>
@@ -217,6 +226,10 @@ const ReelItem = ({ reel, isActive }) => {
       />
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  return prevProps.isActive === nextProps.isActive &&
+    prevProps.reel.id === nextProps.reel.id &&
+    prevProps.isMuted === nextProps.isMuted;
+});
 
 export default ReelItem;

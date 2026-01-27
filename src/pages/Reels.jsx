@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchReels } from "@/lib/api/posts";
 import ReelItem from "@/components/features/post/ReelItem";
@@ -12,6 +12,7 @@ const Reels = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeReelId, setActiveReelId] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   const loadReels = async (lastTimestamp = null) => {
     try {
@@ -115,6 +116,14 @@ const Reels = () => {
         <ArrowLeft size={24} strokeWidth={2.5} />
       </button>
 
+      <button
+        onClick={() => setIsMuted(!isMuted)}
+        className="absolute top-6 right-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
+        title={isMuted ? "Unmute" : "Mute"}
+      >
+        {isMuted ? <VolumeX size={24} strokeWidth={2.5} /> : <Volume2 size={24} strokeWidth={2.5} />}
+      </button>
+
       <div
         ref={containerRef}
         className="h-full w-full snap-y snap-mandatory overflow-y-auto no-scrollbar scroll-smooth"
@@ -124,6 +133,8 @@ const Reels = () => {
             key={reel.feed_id || reel.id}
             reel={reel}
             isActive={activeReelId === reel.id}
+            isMuted={isMuted}
+            onToggleMute={() => setIsMuted(!isMuted)}
           />
         ))}
         {loadingMore && (
