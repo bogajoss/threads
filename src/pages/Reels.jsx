@@ -109,7 +109,7 @@ const Reels = () => {
       {/* Fixed Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="fixed top-6 left-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
+        className="absolute top-6 left-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
         title="Back"
       >
         <ArrowLeft size={24} strokeWidth={2.5} />
