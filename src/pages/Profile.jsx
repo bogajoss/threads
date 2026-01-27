@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import { Post } from "@/components/features/post";
-import { Modal, ProfileCard, NotFound, Button, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui";
+import { Modal, ProfileCard, NotFound, Button, Tabs, TabsList, TabsTrigger, TabsContent, CreditCard } from "@/components/ui";
 import { useProfile } from "@/hooks/pages/useProfile";
 
 const Profile = ({ onEditProfile }) => {
@@ -55,7 +55,7 @@ const Profile = ({ onEditProfile }) => {
 
   const displayProfile = profile;
 
-  const renderPosts = () => {
+  const renderPosts = (hideEmpty = false) => {
     if (loadingPosts) {
       return (
         <div className="flex items-center justify-center py-20">
@@ -96,6 +96,9 @@ const Profile = ({ onEditProfile }) => {
         </>
       );
     }
+
+    if (hideEmpty) return null;
+
     return (
       <div className="p-20 text-center text-zinc-500 flex flex-col items-center gap-4 animate-in fade-in duration-500">
         <div className="bg-zinc-50 dark:bg-zinc-900 p-6 rounded-full mb-2 ring-1 ring-zinc-100 dark:ring-zinc-800">
@@ -167,7 +170,8 @@ const Profile = ({ onEditProfile }) => {
             {renderPosts()}
           </TabsContent>
           <TabsContent value="collections" className="m-0 border-none">
-            {renderPosts()}
+            <CreditCard name={displayProfile.name} number={displayProfile.id} />
+            {renderPosts(true)}
           </TabsContent>
           <TabsContent value="media" className="m-0 border-none">
             {renderPosts()}

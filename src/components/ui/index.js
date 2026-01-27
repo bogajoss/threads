@@ -19,6 +19,7 @@ export { default as SignupCard } from "./SignupCard";
 export { default as SkeletonPost } from "./SkeletonPost";
 export * from "./sonner";
 export * from "./tabs";
+export { default as CreditCard } from "./CreditCard";
 export { Textarea } from "./textarea";
 export { default as TypingIndicator } from "./TypingIndicator";
 export { default as VerifiedBadge } from "./VerifiedBadge";
