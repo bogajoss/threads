@@ -233,8 +233,8 @@ const ProfileHeader = ({
 
         <div className="flex gap-4 sm:gap-6 text-sm pt-2 relative z-10">
           {isCommunity ? (
-            <button className="flex gap-x-1 hover:underline group cursor-pointer">
-              <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
+            <button className="flex gap-x-1 group cursor-pointer">
+              <span className="font-bold text-zinc-900 dark:text-white">
                 {profile.members}
               </span>
               <span className="text-zinc-500 dark:text-zinc-400">Members</span>
@@ -247,9 +247,9 @@ const ProfileHeader = ({
                   e.stopPropagation();
                   onShowFollowing();
                 }}
-                className="flex gap-x-1 hover:underline group cursor-pointer"
+                className="flex gap-x-1 group cursor-pointer"
               >
-                <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
+                <span className="font-bold text-zinc-900 dark:text-white">
                   {stats.following}
                 </span>
                 <span className="text-zinc-500 dark:text-zinc-400">
@@ -262,9 +262,9 @@ const ProfileHeader = ({
                   e.stopPropagation();
                   onShowFollowers();
                 }}
-                className="flex gap-x-1 hover:underline group cursor-pointer"
+                className="flex gap-x-1 group cursor-pointer"
               >
-                <span className="font-bold text-zinc-900 dark:text-white group-hover:text-violet-600">
+                <span className="font-bold text-zinc-900 dark:text-white">
                   {stats.followers}
                 </span>
                 <span className="text-zinc-500 dark:text-zinc-400">

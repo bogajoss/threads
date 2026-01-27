@@ -135,14 +135,14 @@ const Community = ({ onPostInCommunity }) => {
               )}
 
               <div className="flex gap-4 sm:gap-6 text-sm pt-2 relative z-10">
-                <button className="flex gap-x-1.5 hover:underline group cursor-pointer items-baseline">
-                  <span className="text-base font-extrabold text-zinc-900 dark:text-white group-hover:text-violet-600 transition-colors">
+                <button className="flex gap-x-1.5 group cursor-pointer items-baseline">
+                  <span className="text-base font-extrabold text-zinc-900 dark:text-white transition-colors">
                     {community.membersCount}
                   </span>
                   <span className="text-zinc-500 dark:text-zinc-400 font-medium">Members</span>
                 </button>
-                <button className="flex gap-x-1.5 hover:underline group cursor-pointer items-baseline">
-                  <span className="text-base font-extrabold text-zinc-900 dark:text-white group-hover:text-violet-600 transition-colors">
+                <button className="flex gap-x-1.5 group cursor-pointer items-baseline">
+                  <span className="text-base font-extrabold text-zinc-900 dark:text-white transition-colors">
                     {community.postsCount}
                   </span>
                   <span className="text-zinc-500 dark:text-zinc-400 font-medium">Posts</span>

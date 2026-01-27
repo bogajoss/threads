@@ -40,7 +40,7 @@ const ConversationItem = ({ conv, selectedId, onSelect, onlineUsers }) => {
           <div className="flex flex-col min-w-0">
             <span
               onClick={handleProfileClick}
-              className="font-bold dark:text-white truncate hover:underline cursor-pointer"
+              className="font-bold dark:text-white truncate cursor-pointer"
             >
               {conv.user?.name}
             </span>
