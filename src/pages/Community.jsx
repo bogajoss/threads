@@ -39,7 +39,7 @@ const Community = ({ onPostInCommunity }) => {
   if (!community) {
     return (
       <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
-        <NotFound 
+        <NotFound
           title="Community doesn't exist"
           message={`The community @${community?.handle || 'unknown'} could not be found.`}
           icon={Users}
@@ -82,7 +82,7 @@ const Community = ({ onPostInCommunity }) => {
               <div className="w-full h-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20" />
             )}
           </div>
-          
+
           <div className="px-4 pb-6">
             <div className="flex justify-between items-end -mt-12 sm:-mt-16 mb-4 relative z-10">
               <div className="size-24 sm:size-32 rounded-3xl border-4 border-white dark:border-black bg-zinc-100 dark:bg-zinc-800 overflow-hidden shadow-xl">
@@ -127,22 +127,26 @@ const Community = ({ onPostInCommunity }) => {
                 {community.name}
               </h1>
               <p className="text-zinc-500 font-bold text-sm sm:text-base">c/{community.handle}</p>
-              
+
               {community.description && (
                 <p className="mt-4 text-[15px] sm:text-base dark:text-zinc-300 leading-relaxed max-w-2xl">
                   {community.description}
                 </p>
               )}
 
-              <div className="flex gap-6 mt-5">
-                <div className="flex flex-col">
-                  <span className="text-lg font-black dark:text-white">{community.membersCount}</span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Members</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-lg font-black dark:text-white">{community.postsCount}</span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Posts</span>
-                </div>
+              <div className="flex gap-4 sm:gap-6 text-sm pt-2 relative z-10">
+                <button className="flex gap-x-1.5 hover:underline group cursor-pointer items-baseline">
+                  <span className="text-base font-extrabold text-zinc-900 dark:text-white group-hover:text-violet-600 transition-colors">
+                    {community.membersCount}
+                  </span>
+                  <span className="text-zinc-500 dark:text-zinc-400 font-medium">Members</span>
+                </button>
+                <button className="flex gap-x-1.5 hover:underline group cursor-pointer items-baseline">
+                  <span className="text-base font-extrabold text-zinc-900 dark:text-white group-hover:text-violet-600 transition-colors">
+                    {community.postsCount}
+                  </span>
+                  <span className="text-zinc-500 dark:text-zinc-400 font-medium">Posts</span>
+                </button>
               </div>
             </div>
           </div>
@@ -214,7 +218,7 @@ const Community = ({ onPostInCommunity }) => {
         onUpdate={() => {
           // You might need a setCommunity here, but useCommunity currently manages its own state.
           // For now, refreshing the page or re-fetching via hook is best.
-          window.location.reload(); 
+          window.location.reload();
         }}
       />
 
