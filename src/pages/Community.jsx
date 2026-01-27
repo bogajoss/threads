@@ -1,12 +1,13 @@
 import React from "react";
-import { ArrowLeft, Loader2, Users, Plus } from "lucide-react";
+import { ArrowLeft, Loader2, Users, Plus, Settings, Pencil } from "lucide-react";
 import { Post } from "@/components/features/post";
 import { NotFound, Button, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
-import { EditCommunityModal } from "@/components/features/modals";
+import { EditCommunityModal, ManageMembersModal } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
 
 const Community = ({ onPostInCommunity }) => {
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [isMembersModalOpen, setIsMembersModalOpen] = React.useState(false);
   const {
     community,
     loading,
@@ -24,7 +25,8 @@ const Community = ({ onPostInCommunity }) => {
     navigate
   } = useCommunity();
 
-  const canPost = isMember && (!community.isPrivate || userRole === 'admin');
+  const isAdmin = userRole === 'admin';
+  const canPost = isMember && (!community.isPrivate || isAdmin);
 
   if (loading) {
     return (
@@ -87,14 +89,23 @@ const Community = ({ onPostInCommunity }) => {
                 <img src={community.avatar} className="size-full object-cover" alt="" />
               </div>
               <div className="pb-1 flex gap-2">
-                {userRole === 'admin' && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditModalOpen(true)}
-                    className="rounded-full font-bold px-6 h-10 border-zinc-200 dark:border-zinc-800"
-                  >
-                    Edit
-                  </Button>
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsEditModalOpen(true)}
+                      className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
+                      title="Edit Community"
+                    >
+                      <Pencil size={20} />
+                    </button>
+                    <button
+                      onClick={() => setIsMembersModalOpen(true)}
+                      className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
+                      title="Manage Members"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  </div>
                 )}
                 <Button
                   variant={isMember ? "outline" : "default"}
@@ -205,6 +216,12 @@ const Community = ({ onPostInCommunity }) => {
           // For now, refreshing the page or re-fetching via hook is best.
           window.location.reload(); 
         }}
+      />
+
+      <ManageMembersModal
+        isOpen={isMembersModalOpen}
+        onClose={() => setIsMembersModalOpen(false)}
+        community={community}
       />
     </div>
   );

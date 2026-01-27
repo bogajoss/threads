@@ -10,7 +10,7 @@ export const useProfile = () => {
   const { profiles, currentUser, getProfileByHandle } = useAuth();
   const { addToast } = useToast();
 
-  const [profile, setProfile] = useState(profiles[handle]);
+  const [profile, setProfile] = useState(profiles[handle?.toLowerCase()]);
   const [loading, setLoading] = useState(!profile);
 
   // Post loading state
@@ -109,7 +109,7 @@ export const useProfile = () => {
 
   useEffect(() => {
     const fetchProfileData = async () => {
-      let currentProfile = profiles[handle];
+      let currentProfile = profiles[handle?.toLowerCase()];
       if (!currentProfile) {
         setLoading(true);
         currentProfile = await getProfileByHandle(handle);

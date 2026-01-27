@@ -40,11 +40,15 @@ export const fetchProfiles = async (lastTimestamp = null, limit = 10) => {
  * Fetches a user profile by ID or handle.
  */
 export const fetchUserProfile = async (identifier, type = "id") => {
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq(type === "id" ? "id" : "username", identifier)
-    .maybeSingle();
+  let query = supabase.from("users").select("*");
+
+  if (type === "id") {
+    query = query.eq("id", identifier);
+  } else {
+    query = query.ilike("username", identifier);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error) throw error;
   return data ? transformUser(data) : null;

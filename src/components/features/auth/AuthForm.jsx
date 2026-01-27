@@ -99,9 +99,10 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
               label="Username"
               placeholder="johndoe"
               value={formData.username}
-              onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z0-9_]/g, "");
+                setFormData({ ...formData, username: value });
+              }}
               required
             />
           </>

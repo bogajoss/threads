@@ -16,7 +16,8 @@ const SidebarRight = () => {
   const { data: trendingHashtags = [] } = useQuery({
     queryKey: ["trending-hashtags"],
     queryFn: () => fetchTrendingHashtags(5),
-    refetchInterval: 60000, // Refresh every minute
+    staleTime: 300000, // Keep data fresh for 5 minutes
+    refetchInterval: 60000, // Still refresh in background every minute if desired, or remove if strictly 5 mins
   });
 
   const footerLinks = [

@@ -8,4 +8,5 @@ export { default as PollDisplay } from "./PollDisplay";
 export { default as Post } from "./Post";
 export { default as QuotedPost } from "./QuotedPost";
 export { default as ReelItem } from "./ReelItem";
+export { default as ReelCommentsModal } from "./ReelCommentsModal";
 export { default as VideoPlayer } from "./VideoPlayer";

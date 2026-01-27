@@ -6,11 +6,17 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import { ReelCommentsModal } from "@/components/features/post";
 
 const ReelItem = ({ reel, isActive }) => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { addToast } = useToast();
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const lastTap = useRef(0);
 
   const videoUrl = Array.isArray(reel.media)
@@ -172,7 +178,13 @@ const ReelItem = ({ reel, isActive }) => {
           </span>
         </div>
         <div className="flex flex-col items-center gap-1">
-          <button className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90">
+          <button 
+            className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsCommentsOpen(true);
+            }}
+          >
             <MessageCircle size={28} />
           </button>
           <span className="text-white text-xs font-bold">
@@ -188,6 +200,14 @@ const ReelItem = ({ reel, isActive }) => {
           </span>
         </div>
       </div>
+
+      <ReelCommentsModal
+        isOpen={isCommentsOpen}
+        onClose={() => setIsCommentsOpen(false)}
+        reelId={reel.id}
+        currentUser={currentUser}
+        showToast={addToast}
+      />
     </div>
   );
 };

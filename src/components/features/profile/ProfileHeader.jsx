@@ -10,6 +10,7 @@ import {
   Bell,
   Loader2,
   Settings,
+  Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button, VerifiedBadge, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
@@ -89,13 +90,13 @@ const ProfileHeader = ({
           <div className="flex gap-2 shrink-0">
             {isCurrentUser ? (
               <div className="flex gap-2">
-                <Button
-                  variant="secondary"
+                <button
                   onClick={() => onEditProfile(profile)}
-                  className="text-sm px-5"
+                  className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
+                  title="Edit Profile"
                 >
-                  Edit profile
-                </Button>
+                  <Pencil size={20} />
+                </button>
                 <button
                   onClick={() => navigate("/settings")}
                   className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"

@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(data);
         setProfiles((prev) => ({
           ...prev,
-          [data.handle]: data,
+          [data.handle.toLowerCase()]: data,
         }));
       } else {
         // Fallback for new users or demo
@@ -132,10 +132,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const getProfileByHandle = async (handle) => {
-    if (profiles[handle]) return profiles[handle];
+    const lowerHandle = handle.toLowerCase();
+    if (profiles[lowerHandle]) return profiles[lowerHandle];
     const profile = await fetchProfileByHandle(handle);
     if (profile) {
-      setProfiles((prev) => ({ ...prev, [handle]: profile }));
+      setProfiles((prev) => ({ ...prev, [lowerHandle]: profile }));
       return profile;
     }
     return null;
