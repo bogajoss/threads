@@ -721,7 +721,10 @@ const Post = ({
   return (
     <article
       onClick={onClick}
-      className={`p-4 mb-4 last:mb-0 bg-white dark:bg-black rounded-xl hover:shadow-md transition-all ${onClick ? "cursor-pointer" : ""}`}
+      className={`p-4 transition-all ${isComment
+        ? "bg-transparent border-b border-zinc-100/50 dark:border-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 last:border-0"
+        : "mb-4 bg-white dark:bg-black rounded-xl hover:shadow-md"
+        } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-500 font-semibold ml-1">

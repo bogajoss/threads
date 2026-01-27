@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal } from "@/components/features/post";
+import { toggleLike, checkIfLiked } from "@/lib/api/posts";
+import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
 
 const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   const navigate = useNavigate();
@@ -19,6 +21,10 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayPauseIcon, setShowPlayPauseIcon] = useState(null); // 'play' or 'pause'
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(reel.stats?.likes || 0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const clickTimer = useRef(null);
   const lastTap = useRef(0);
 
@@ -55,13 +61,56 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
     };
   }, [isActive]);
 
-  // Sync mute state without re-rendering everything
+  // Fetch initial interaction status
+  useEffect(() => {
+    if (!currentUser || !isActive) return;
+
+    const checkStatus = async () => {
+      try {
+        const [liked, following] = await Promise.all([
+          checkIfLiked(reel.id, currentUser.id),
+          checkIfFollowing(currentUser.id, reel.user?.id)
+        ]);
+        setIsLiked(liked);
+        setIsFollowing(following);
+      } catch (err) {
+        console.error("Failed to check interaction status:", err);
+      }
+    };
+
+    checkStatus();
+  }, [reel.id, currentUser?.id, isActive, reel.user?.id]);
+
+  // Sync mute state
   useEffect(() => {
     const player = playerRef.current?.plyr;
     if (player) {
       player.muted = isMuted;
     }
-  }, [isMuted]);
+  }, [isMuted, isActive]);
+
+  // Track progress
+  useEffect(() => {
+    const player = playerRef.current?.plyr;
+    if (!player || !isActive) return;
+
+    const handleTimeUpdate = () => {
+      const current = player.currentTime;
+      const duration = player.duration;
+      if (duration > 0) {
+        setProgress((current / duration) * 100);
+      }
+    };
+
+    if (typeof player.on === 'function') {
+      player.on("timeupdate", handleTimeUpdate);
+      return () => {
+        if (typeof player.off === 'function') {
+          player.off("timeupdate", handleTimeUpdate);
+        }
+      };
+    }
+  }, [isActive]);
 
   const handleInteraction = (e) => {
     // Don't trigger if clicked on interactive elements
@@ -97,10 +146,59 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
     }
   };
 
-  const handleDoubleLike = () => {
+  const handleDoubleLike = async () => {
+    if (!currentUser) return;
+
     setShowHeart(true);
     setTimeout(() => setShowHeart(false), 800);
-    // Here you would normally call the like API
+
+    if (!isLiked) {
+      setIsLiked(true);
+      setLikesCount(prev => prev + 1);
+      try {
+        await toggleLike(reel.id, currentUser.id);
+      } catch (err) {
+        setIsLiked(false);
+        setLikesCount(prev => prev - 1);
+      }
+    }
+  };
+
+  const handleToggleLike = async (e) => {
+    e.stopPropagation();
+    if (!currentUser) return;
+
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
+
+    try {
+      await toggleLike(reel.id, currentUser.id);
+    } catch (err) {
+      setIsLiked(!newLiked);
+      setLikesCount(prev => !newLiked ? prev + 1 : prev - 1);
+    }
+  };
+
+  const handleToggleFollow = async (e) => {
+    e.stopPropagation();
+    if (!currentUser) return;
+
+    const newFollowing = !isFollowing;
+    setIsFollowing(newFollowing);
+
+    try {
+      await toggleFollow(currentUser.id, reel.user?.id);
+    } catch (err) {
+      setIsFollowing(!newFollowing);
+    }
+  };
+
+  const handleShare = (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/reels?id=${reel.id}`;
+    navigator.clipboard.writeText(url);
+    addToast("Link copied to clipboard!");
   };
 
   const plyrProps = useMemo(() => ({
@@ -173,12 +271,17 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
             </Avatar>
             <span className="font-bold">@{reel.user?.handle}</span>
           </Link>
-          <button
-            className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full ml-2 hover:scale-105 active:scale-95 transition-all"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Follow
-          </button>
+          {currentUser?.id !== reel.user?.id && (
+            <button
+              className={`text-xs font-bold px-4 py-1.5 rounded-full ml-2 transition-all active:scale-95 ${isFollowing
+                ? "bg-transparent border border-white/50 text-white"
+                : "bg-white text-black hover:bg-zinc-200"
+                }`}
+              onClick={handleToggleFollow}
+            >
+              {isFollowing ? "Following" : "Follow"}
+            </button>
+          )}
         </div>
         <Linkify
           options={{
@@ -235,11 +338,15 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
 
       <div className="absolute bottom-20 right-2 flex flex-col items-center gap-6 z-10">
         <div className="flex flex-col items-center gap-1 pointer-events-auto">
-          <button className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90">
-            <Heart size={28} />
+          <button
+            className={`p-3 rounded-full backdrop-blur-md transition-all active:scale-90 ${isLiked ? "bg-rose-500/20 text-rose-500" : "bg-zinc-800/50 text-white hover:bg-zinc-700"
+              }`}
+            onClick={handleToggleLike}
+          >
+            <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
           </button>
           <span className="text-white text-xs font-bold">
-            {reel.stats?.likes || 0}
+            {likesCount}
           </span>
         </div>
         <div className="flex flex-col items-center gap-1 pointer-events-auto">
@@ -257,13 +364,24 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
           </span>
         </div>
         <div className="flex flex-col items-center gap-1 pointer-events-auto">
-          <button className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90">
+          <button
+            className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90"
+            onClick={handleShare}
+          >
             <Share2 size={28} />
           </button>
           <span className="text-white text-xs font-bold">
             {reel.stats?.shares || 0}
           </span>
         </div>
+      </div>
+
+      {/* Video Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/20 z-50">
+        <div
+          className="h-full bg-white transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
       <ReelCommentsModal
