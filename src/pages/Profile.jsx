@@ -101,9 +101,13 @@ const Profile = ({ onEditProfile }) => {
         <div className="bg-zinc-50 dark:bg-zinc-900 p-6 rounded-full mb-2 ring-1 ring-zinc-100 dark:ring-zinc-800">
           <Search size={40} className="text-zinc-300 dark:text-zinc-700" />
         </div>
-        <h3 className="text-xl font-bold dark:text-white">No posts yet</h3>
+        <h3 className="text-xl font-bold dark:text-white">
+          {activeProfileTab === "collections" ? "No collections yet" : "No posts yet"}
+        </h3>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-[250px]">
-          When @{displayProfile.handle} shares posts, they will appear here.
+          {activeProfileTab === "collections" 
+            ? "Saved posts and curated collections will appear here."
+            : `When @${displayProfile.handle} shares posts, they will appear here.`}
         </p>
       </div>
     );
@@ -147,7 +151,7 @@ const Profile = ({ onEditProfile }) => {
         >
           <div className="sticky top-[60px] md:top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-10 border-b border-zinc-100 dark:border-zinc-800">
             <TabsList className="w-full h-auto bg-transparent p-0 rounded-none justify-start px-2 overflow-x-auto hide-scrollbar">
-              {["feed", "communities", "media"].map((tab) => (
+              {["feed", "collections", "media"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
@@ -162,7 +166,7 @@ const Profile = ({ onEditProfile }) => {
           <TabsContent value="feed" className="m-0 border-none">
             {renderPosts()}
           </TabsContent>
-          <TabsContent value="communities" className="m-0 border-none">
+          <TabsContent value="collections" className="m-0 border-none">
             {renderPosts()}
           </TabsContent>
           <TabsContent value="media" className="m-0 border-none">

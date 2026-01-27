@@ -138,8 +138,8 @@ export const useProfile = () => {
           (p.type === "video" || p.type === "image" || (p.media && p.media.length > 0)),
       );
     }
-    if (activeProfileTab === "communities") {
-      return userPosts.filter((p) => p.community_id !== null);
+    if (activeProfileTab === "collections") {
+      return [];
     }
     return userPosts;
   }, [userPosts, activeProfileTab]);
