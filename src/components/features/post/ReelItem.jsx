@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Share2, Music, Volume2, VolumeX } from "lucide-react";
+import { Heart, MessageCircle, Share2, Music, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Linkify from "linkify-react";
@@ -17,6 +17,9 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showPlayPauseIcon, setShowPlayPauseIcon] = useState(null); // 'play' or 'pause'
+  const clickTimer = useRef(null);
   const lastTap = useRef(0);
 
   const videoUrl = useMemo(() => {
@@ -60,14 +63,44 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
     }
   }, [isMuted]);
 
-  const handleDoubleTap = () => {
-    const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
-    if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-      setShowHeart(true);
-      setTimeout(() => setShowHeart(false), 800);
+  const handleInteraction = (e) => {
+    // Don't trigger if clicked on interactive elements
+    if (e.target.closest('button') || e.target.closest('a')) return;
+
+    if (clickTimer.current) {
+      // Double Tap Detected
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+      handleDoubleLike();
+    } else {
+      // Snappier Single Tap detection
+      clickTimer.current = setTimeout(() => {
+        clickTimer.current = null;
+        handleTogglePlay();
+      }, 200);
     }
-    lastTap.current = now;
+  };
+
+  const handleTogglePlay = () => {
+    const player = playerRef.current?.plyr;
+    if (player) {
+      if (player.paused) {
+        player.play();
+        setIsPlaying(true);
+        setShowPlayPauseIcon("play");
+      } else {
+        player.pause();
+        setIsPlaying(false);
+        setShowPlayPauseIcon("pause");
+      }
+      setTimeout(() => setShowPlayPauseIcon(null), 500);
+    }
+  };
+
+  const handleDoubleLike = () => {
+    setShowHeart(true);
+    setTimeout(() => setShowHeart(false), 800);
+    // Here you would normally call the like API
   };
 
   const plyrProps = useMemo(() => ({
@@ -86,20 +119,36 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   return (
     <div
       data-id={reel.id}
-      className="reel-item relative h-screen w-full bg-black snap-start flex items-center justify-center overflow-hidden"
-      onClick={handleDoubleTap}
+      className="reel-item relative h-screen w-full bg-black snap-start flex items-center justify-center overflow-hidden cursor-pointer"
+      onClick={handleInteraction}
     >
       <div className="w-full h-full max-w-[450px]">
         <Plyr ref={playerRef} {...plyrProps} />
       </div>
 
       {showHeart && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 animate-in zoom-in-50 fade-in duration-300">
-          <Heart
-            size={100}
-            fill="white"
-            className="text-white drop-shadow-2xl scale-125"
-          />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="animate-in zoom-in-50 fade-out fill-mode-forwards duration-500">
+            <Heart
+              size={120}
+              fill="white"
+              className="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] scale-125"
+            />
+          </div>
+        </div>
+      )}
+
+      {showPlayPauseIcon && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="animate-in fade-in zoom-in-90 scale-100 animate-out zoom-out-110 fade-out fill-mode-forwards duration-500">
+            <div className="p-8 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-2xl">
+              {showPlayPauseIcon === "play" ? (
+                <Play size={50} fill="white" className="text-white ml-1.5" />
+              ) : (
+                <Pause size={50} fill="white" className="text-white" />
+              )}
+            </div>
+          </div>
         </div>
       )}
 
