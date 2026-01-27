@@ -545,7 +545,7 @@ const Post = ({
                       className="font-bold text-base sm:text-lg hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
                       onClick={() => onUserClick && onUserClick(user.handle)}
                     >
-                      <span className="truncate max-w-[120px] sm:max-w-[200px]">{user.handle}</span>
+                      <span className="max-w-[200px] sm:max-w-none truncate">{user.handle}</span>
                       {user.verified && <VerifiedBadge />}
                     </button>
 
@@ -553,19 +553,19 @@ const Post = ({
                       <div className="flex items-center gap-1 min-w-0 text-zinc-500">
                         <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
                         <button
-                          className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
+                          className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline text-[14px] sm:text-[15px]"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/c/${community.handle}`);
                           }}
                         >
-                          <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                          <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
                             <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
                             <AvatarFallback className="text-[8px] font-bold text-zinc-500">
                               {community.name?.[0]?.toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          {community.name}
+                          <span className="truncate max-w-[200px] sm:max-w-none">{community.name}</span>
                         </button>
                       </div>
                     )}
@@ -576,13 +576,18 @@ const Post = ({
                 </span>
               </div>
             </div>
-            <PostActionsMenu
-              trigger={
-                <button className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors">
-                  <MoreHorizontal size={20} />
-                </button>
-              }
-            />
+            <div className="flex items-center gap-2 -mt-1">
+              <span className="text-zinc-500 dark:text-zinc-400 text-[13px] sm:text-sm whitespace-nowrap">
+                {timeAgo || "Recent"}
+              </span>
+              <PostActionsMenu
+                trigger={
+                  <button className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors">
+                    <MoreHorizontal size={20} />
+                  </button>
+                }
+              />
+            </div>
           </div>
           <div
             className={`break-words text-zinc-900 dark:text-zinc-100 mt-4 text-lg sm:text-xl leading-relaxed sm:leading-8 whitespace-pre-line`}
@@ -764,7 +769,7 @@ const Post = ({
                       onUserClick && onUserClick(user.handle);
                     }}
                   >
-                    <span className="truncate max-w-[120px] sm:max-w-[200px]">{user.handle}</span>
+                    <span className="truncate max-w-[160px] sm:max-w-none">{user.handle}</span>
                     {user.verified && <VerifiedBadge />}
                   </button>
 
@@ -772,35 +777,38 @@ const Post = ({
                     <div className="flex items-center gap-1 min-w-0 text-zinc-500">
                       <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
                       <button
-                        className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
+                        className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline text-[14px] sm:text-[15px] min-w-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/c/${community.handle}`);
                         }}
                       >
-                        <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                        <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shrink-0">
                           <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
                           <AvatarFallback className="text-[8px] font-bold text-zinc-500">
                             {community.name?.[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        {community.name}
+                        <span className="truncate max-w-[160px] md:max-w-none">{community.name}</span>
                       </button>
                     </div>
                   )}
-                  <span className="text-zinc-400 text-xs sm:text-sm whitespace-nowrap pt-0.5 ml-1">
-                    {timeAgo || "Recent"}
-                  </span>
                 </div>
               </div>
             </div>
-            <PostActionsMenu
-              trigger={
-                <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors">
-                  <MoreHorizontal size={18} />
-                </button>
-              }
-            />
+
+            <div className="flex items-center gap-2 -mt-1">
+              <span className="text-zinc-400 text-[13px] sm:text-sm whitespace-nowrap">
+                {timeAgo || "Recent"}
+              </span>
+              <PostActionsMenu
+                trigger={
+                  <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors">
+                    <MoreHorizontal size={18} />
+                  </button>
+                }
+              />
+            </div>
           </div>
 
           <div className="break-words text-zinc-900 dark:text-zinc-100 mt-1 whitespace-pre-line text-sm sm:text-[15px] leading-relaxed">
@@ -824,7 +832,7 @@ const Post = ({
           </div>
 
           <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3 pr-4">
-            <div className="flex items-center gap-x-4 sm:gap-x-8">
+            <div className="flex items-center gap-x-6 sm:gap-x-8">
               <ActionButton
                 icon={Heart}
                 label="Like"

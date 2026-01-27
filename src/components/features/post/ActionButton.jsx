@@ -15,7 +15,7 @@ const ActionButton = ({
         e.stopPropagation();
         onClick && onClick(e);
       }}
-      className={`group flex items-center gap-x-1.5 text-[12px] sm:text-[13px] font-bold transition-all ${active ? activeColorClass : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+      className={`group flex items-center gap-x-1 sm:gap-x-1.5 text-[12px] sm:text-[13px] font-bold transition-all py-1.5 px-2 -ml-2 rounded-xl active:scale-95 ${active ? activeColorClass : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
     >
       <div
         className={`rounded-full p-2 transition-colors ${active ? "" : "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800"}`}

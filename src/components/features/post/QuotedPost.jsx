@@ -7,13 +7,15 @@ const QuotedPost = ({ user, time, content }) => {
   const navigate = useNavigate();
   return (
     <div className="p-4">
-      <div className="flex items-center gap-x-2 mb-2">
-        <Avatar className="size-6">
-          <AvatarImage src={user.avatar} alt={user.handle} />
-          <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <span className="font-semibold text-sm">{user.handle}</span>
-        <span className="text-zinc-500 text-sm">• {time}</span>
+      <div className="flex items-center justify-between gap-x-2 mb-2">
+        <div className="flex items-center gap-x-2">
+          <Avatar className="size-6">
+            <AvatarImage src={user.avatar} alt={user.handle} />
+            <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <span className="font-semibold text-sm">{user.handle}</span>
+        </div>
+        <span className="text-zinc-500 text-xs sm:text-sm">{time}</span>
       </div>
       <Linkify
         options={{

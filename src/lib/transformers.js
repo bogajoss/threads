@@ -1,3 +1,5 @@
+import { formatTimeAgo } from "./utils";
+
 /**
  * Transforms a Supabase user object into the application's user format.
  */
@@ -61,7 +63,7 @@ export const transformPost = (post) => {
       name: post.reposted_by.display_name,
       id: post.reposted_by.id
     } : null),
-    timeAgo: new Date(post.created_at).toLocaleDateString(), // Could be improved with a proper timeAgo lib
+    timeAgo: formatTimeAgo(post.created_at),
   };
 };
 
@@ -77,7 +79,7 @@ export const transformComment = (comment) => {
       likes: comment.likes_count || 0,
     },
     user: transformUser(comment.user),
-    timeAgo: new Date(comment.created_at).toLocaleDateString(),
+    timeAgo: formatTimeAgo(comment.created_at),
   };
 };
 
