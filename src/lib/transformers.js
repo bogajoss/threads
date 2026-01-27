@@ -32,7 +32,11 @@ export const transformPost = (post) => {
 
   // Generate a unique feed_id for React keys if not provided by the view
   const reposterId = post.reposter_id || (post.reposter_data?.id) || (post.reposted_by?.id);
-  const uniqueKey = post.feed_id || (reposterId ? `${post.id}-${reposterId}` : `${post.id}-orig`);
+  // Add a random suffix to ensure uniqueness even if the same post appears multiple times in the list
+  const uniqueSuffix = Math.random().toString(36).substring(2, 9);
+  // We construct a base ID but ALWAYS append the random suffix to ensure frontend uniqueness
+  const baseId = post.feed_id || (reposterId ? `${post.id}-${reposterId}` : `${post.id}-orig`);
+  const uniqueKey = `${baseId}-${uniqueSuffix}`;
 
   return {
     ...post,
