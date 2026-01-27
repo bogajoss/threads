@@ -24,24 +24,31 @@ const ReelItem = ({ reel, isActive }) => {
     : reel.media?.src || reel.media?.url || reel.url;
 
   useEffect(() => {
+    let timeoutId;
     const player = playerRef.current?.plyr;
+    
     if (player) {
       if (isActive) {
-        if (typeof player.play === "function") {
-          player.play().catch((err) => {
-            console.error("Autoplay failed:", err);
-            player.muted = true;
-            if (typeof player.play === "function") {
+        // Small delay to ensure browser allows play
+        timeoutId = setTimeout(() => {
+          if (typeof player.play === "function") {
+            player.play().catch((err) => {
+              console.error("Autoplay failed, retrying muted:", err);
+              player.muted = true;
               player.play();
-            }
-          });
-        }
+            });
+          }
+        }, 100);
       } else {
         if (typeof player.pause === "function") {
           player.pause();
         }
       }
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [isActive]);
 
   const handleDoubleTap = () => {

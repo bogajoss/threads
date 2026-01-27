@@ -117,7 +117,7 @@ const Profile = ({ onEditProfile }) => {
   };
 
   return (
-    <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
+    <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20">
       <div className="border-y md:border-b-0 border-zinc-100 dark:border-zinc-800">
         <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-20 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3 md:hidden">
           <div className="flex items-center gap-x-4">

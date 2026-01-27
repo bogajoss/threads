@@ -23,7 +23,7 @@ const Reels = () => {
         setReels((prev) => [...prev, ...data]);
       } else {
         setReels(data);
-        if (data.length > 0) {
+        if (data.length > 0 && !activeReelId) {
           setActiveReelId(data[0].id);
         }
       }

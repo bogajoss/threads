@@ -26,6 +26,7 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
       if (type === "login") {
         await login({ email: formData.email, password: formData.password });
         addToast("Welcome back!");
+        onComplete();
       } else {
         await signup({
           email: formData.email,
@@ -33,9 +34,9 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
           username: formData.username,
           name: formData.name,
         });
-        addToast("Account created successfully!");
+        addToast("Confirm Your Email", "info");
+        onSwitch(); // Switch to login page
       }
-      onComplete();
     } catch (err) {
       console.error("Auth error:", err);
       setError(

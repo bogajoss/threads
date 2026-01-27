@@ -39,7 +39,9 @@ export const useFollow = (profile, currentUserId, showToast) => {
           checkIfFollowing(currentUserId, targetId)
             .then(setIsFollowing)
             .catch(() => setIsFollowing(false));
-        }
+        } else {
+          setIsFollowing(false);
+        } 
       }
     }
   }, [profile, targetId, currentUserId]);

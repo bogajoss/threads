@@ -538,30 +538,30 @@ const Post = ({
                   </AvatarFallback>
                 </Avatar>
               </button>
-              <div className="flex flex-col min-w-0">
-                <div className="flex flex-wrap items-center gap-x-1.5">
-                  <div className="flex flex-wrap items-center gap-1.5 text-base sm:text-lg">
+              <div className="flex flex-col min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
+                  <div className="flex items-center gap-1.5 min-w-0 max-w-full">
                     <button
-                      className="font-bold hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
+                      className="font-bold text-base sm:text-lg hover:underline text-zinc-900 dark:text-white flex items-center gap-1 shrink-0"
                       onClick={() => onUserClick && onUserClick(user.handle)}
                     >
-                      {user.handle}
+                      <span className="truncate max-w-[120px] sm:max-w-[200px]">{user.handle}</span>
                       {user.verified && <VerifiedBadge />}
                     </button>
 
                     {community && (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-zinc-400 font-medium text-sm sm:text-base">&gt;</span>
+                      <div className="flex items-center gap-1 min-w-0 text-zinc-500">
+                        <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
                         <button
-                          className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline"
+                          className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline truncate max-w-[100px] sm:max-w-[180px] text-[14px] sm:text-[15px]"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/c/${community.handle}`);
                           }}
                         >
-                          <Avatar className="size-5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                          <Avatar className="size-4 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                             <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
-                            <AvatarFallback className="text-[9px] font-bold text-zinc-500">
+                            <AvatarFallback className="text-[8px] font-bold text-zinc-500">
                               {community.name?.[0]?.toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -597,11 +597,8 @@ const Post = ({
               <QuotedPost {...quotedPost} />
             </div>
           )}
-          <div className="my-4 flex items-center text-zinc-500 dark:text-zinc-400 text-sm border-b border-zinc-100 dark:border-zinc-800 pb-4">
-            {timeAgo || "Recent"}
-          </div>
 
-          <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4 flex items-center gap-x-6 text-zinc-500 dark:text-zinc-400 text-sm">
+          <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4 mt-4 flex items-center gap-x-6 text-zinc-500 dark:text-zinc-400 text-sm">
             <div className="flex items-center gap-x-1">
               <span className="font-bold text-black dark:text-white">
                 {localStats.likes || 0}
@@ -719,7 +716,7 @@ const Post = ({
   return (
     <article
       onClick={onClick}
-      className={`p-4 mb-4 bg-white dark:bg-black rounded-xl hover:shadow-md transition-all ${onClick ? "cursor-pointer" : ""}`}
+      className={`p-4 mb-4 last:mb-0 bg-white dark:bg-black rounded-xl hover:shadow-md transition-all ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-500 font-semibold ml-1">

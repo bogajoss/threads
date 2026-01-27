@@ -30,10 +30,7 @@ const MainLayout = ({ onPostClick }) => {
 
         {/* Main Content Area */}
         <div
-          className={cn(
-            "flex-1 flex justify-center gap-x-2 md:gap-x-8 py-0 md:py-5 px-0 md:px-4",
-            !isNavHidden && "pb-24 md:pb-0",
-          )}
+          className="flex-1 flex justify-center gap-x-2 md:gap-x-8 py-0 md:py-5 px-0 md:px-4"
         >
           {/* Center Feed */}
           <div className="flex flex-col flex-1 w-0 overflow-x-hidden">
