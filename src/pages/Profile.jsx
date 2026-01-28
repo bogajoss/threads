@@ -4,6 +4,7 @@ import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import { Post } from "@/components/features/post";
 import { Modal, ProfileCard, NotFound, Button, Tabs, TabsList, TabsTrigger, TabsContent, CreditCard } from "@/components/ui";
 import { useProfile } from "@/hooks/pages/useProfile";
+import SEOHead from "@/components/seo/SEOHead";
 
 const Profile = ({ onEditProfile }) => {
   const {
@@ -36,6 +37,7 @@ const Profile = ({ onEditProfile }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
+        <SEOHead title={`@${handle}`} />
         <Loader2 size={40} className="animate-spin text-violet-500" />
       </div>
     );
@@ -44,6 +46,7 @@ const Profile = ({ onEditProfile }) => {
   if (!profile) {
     return (
       <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
+        <SEOHead title="User Not Found" />
         <NotFound 
           title="Account doesn't exist"
           message={`Try searching for another. The user @${handle} could not be found.`}
@@ -118,6 +121,11 @@ const Profile = ({ onEditProfile }) => {
 
   return (
     <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20">
+      <SEOHead 
+        title={`${displayProfile.name} (@${displayProfile.handle})`} 
+        description={displayProfile.bio || `Check out ${displayProfile.name}'s profile on Sysm.`}
+        image={displayProfile.avatar}
+      />
       <div className="border-y md:border-b-0 border-zinc-100 dark:border-zinc-800">
         <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-20 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3 md:hidden">
           <div className="flex items-center gap-x-4">

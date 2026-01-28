@@ -4,6 +4,7 @@ import { Post } from "@/components/features/post";
 import { SkeletonPost, SignupCard, ScrollArea, ScrollBar } from "@/components/ui";
 import { useHome } from "@/hooks";
 import { Loader2 } from "lucide-react";
+import SEOHead from "@/components/seo/SEOHead";
 
 const Home = ({ onStoryClick, onAddStory }) => {
   const {
@@ -23,6 +24,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
   if (isPostsLoading || isStoriesLoading) {
     return (
       <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
+        <SEOHead title="Home" />
         <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex w-max gap-3 py-4 px-4">
             <div className="size-16 rounded-full bg-zinc-100 dark:bg-zinc-900 animate-pulse shrink-0" />
@@ -40,6 +42,7 @@ const Home = ({ onStoryClick, onAddStory }) => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
+      <SEOHead title="Home Feed" description="See what's happening in your world right now." />
       <ScrollArea className="w-full border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black">
         <div className="flex w-max gap-4 py-4 px-4">
           {currentUser && (

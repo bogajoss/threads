@@ -4,6 +4,7 @@ import Post from "@/components/features/post/Post";
 import NotFound from "@/components/ui/NotFound";
 import SkeletonPost from "@/components/ui/SkeletonPost";
 import { usePostDetails } from "@/hooks";
+import SEOHead from "@/components/seo/SEOHead";
 
 const PostDetails = () => {
   const {
@@ -20,6 +21,7 @@ const PostDetails = () => {
   if (isLoading) {
     return (
       <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
+        <SEOHead title="Post" />
         <SkeletonPost />
       </div>
     );
@@ -28,6 +30,7 @@ const PostDetails = () => {
   if (isError || !post) {
     return (
       <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
+        <SEOHead title="Post Not Found" />
         <NotFound 
           title="Post not found"
           message="The post you are looking for doesn't exist. It may have been deleted by the author."
@@ -39,6 +42,11 @@ const PostDetails = () => {
 
   return (
     <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-16 shadow-sm animate-in slide-in-from-right-5 duration-300">
+      <SEOHead 
+        title={`${post.user?.name} on Sysm: "${post.content?.substring(0, 50)}${post.content?.length > 50 ? '...' : ''}"`}
+        description={post.content}
+        image={post.media?.[0]?.url} 
+      />
       <div className="border-b border-zinc-100 dark:border-zinc-800">
         <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-20 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3">
           <div className="flex items-center gap-x-4">

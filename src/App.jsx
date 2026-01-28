@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense, lazy } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 
 // Context
 import { useAuth } from "@/context/AuthContext";
@@ -73,10 +74,11 @@ export default function Sysm() {
   }
 
   return (
-    <VideoPlaybackProvider>
-      <ScrollToTop />
+    <HelmetProvider>
+      <VideoPlaybackProvider>
+        <ScrollToTop />
 
-      <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<PageLoader />}>
         <Routes location={location} key={location.pathname}>
           <Route element={<MainLayout onPostClick={() => setIsPostModalOpen(true)} />}>
             <Route
@@ -236,6 +238,7 @@ export default function Sysm() {
           />
         </button>
       )}
-    </VideoPlaybackProvider>
-  );
-}
+          </VideoPlaybackProvider>
+        </HelmetProvider>
+      );
+    }
