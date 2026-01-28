@@ -497,7 +497,7 @@ const Post = ({
                 e.stopPropagation();
                 setIsExpanded(!isExpanded);
               }}
-              className="ml-1 text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer"
+              className="ml-1 text-rose-600 dark:text-rose-400 font-bold hover:underline cursor-pointer"
             >
               {isExpanded ? "Show less" : "See more"}
             </button>
@@ -730,10 +730,10 @@ const Post = ({
         } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
-        <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-500 font-semibold ml-1">
-          <Repeat2 size={14} className="text-zinc-400" />
+        <div className="mb-2 flex items-center space-x-1.5 text-[13px] text-zinc-600 font-semibold ml-1">
+          <Repeat2 size={14} className="text-zinc-500" />
           <span
-            className="hover:underline cursor-pointer flex items-center text-zinc-600 dark:text-zinc-400"
+            className="hover:underline cursor-pointer flex items-center text-zinc-700 dark:text-zinc-300"
             onClick={(e) => {
               e.stopPropagation();
               onUserClick && onUserClick(repostedBy.handle);
@@ -743,7 +743,7 @@ const Post = ({
               {typeof repostedBy === "object" ? repostedBy.name : repostedBy}
             </span>
           </span>
-          <span className="text-zinc-400">reposted</span>
+          <span className="text-zinc-500">reposted</span>
         </div>
       )}
       <div className="flex items-start gap-x-3">
@@ -804,7 +804,7 @@ const Post = ({
             </div>
 
             <div className="flex items-center gap-2 -mt-1">
-              <span className="text-zinc-400 text-[13px] sm:text-sm whitespace-nowrap">
+              <span className="text-zinc-500 dark:text-zinc-400 text-[13px] sm:text-sm whitespace-nowrap">
                 {timeAgo || "Recent"}
               </span>
               <PostActionsMenu

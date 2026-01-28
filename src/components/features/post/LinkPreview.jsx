@@ -40,19 +40,19 @@ const LinkPreview = ({ url }) => {
         </div>
       )}
       <div className="p-3.5 space-y-1">
-        <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-600 font-bold uppercase tracking-wider">
           <Globe size={12} />
           <span>{data.siteName}</span>
         </div>
-        <h4 className="font-bold text-[15px] line-clamp-2 dark:text-white leading-snug group-hover:text-violet-600 transition-colors">
+        <h3 className="font-bold text-[15px] line-clamp-2 dark:text-white leading-snug group-hover:text-violet-700 transition-colors">
           {data.title}
-        </h4>
+        </h3>
         {data.description && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
             {data.description}
           </p>
         )}
-        <div className="pt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-medium">
+        <div className="pt-1 flex items-center gap-1 text-[11px] text-zinc-500 font-medium">
           <ExternalLink size={10} />
           <span className="truncate">{url}</span>
         </div>
