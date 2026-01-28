@@ -28,28 +28,39 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: true,
     chunkSizeWarningLimit: 1000,
+    modulePreload: {
+      polyfill: true,
+    },
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react") || id.includes("router")) {
-              return "framework";
-            }
-            if (id.includes("supabase")) {
-              return "database";
-            }
-            if (id.includes("tanstack")) {
-              return "query";
-            }
-            if (
-              id.includes("plyr") ||
-              id.includes("lucide") ||
-              id.includes("radix-ui")
-            ) {
-              return "ui-heavy";
-            }
-            return "vendor";
-          }
+        advancedChunks: {
+          groups: [
+            {
+              name: "framework",
+              test: /node_modules\/(react|react-dom|react-router-dom|scheduler)/,
+              priority: 40,
+            },
+            {
+              name: "database",
+              test: /node_modules\/(@supabase|supabase-js)/,
+              priority: 30,
+            },
+            {
+              name: "query",
+              test: /node_modules\/@tanstack/,
+              priority: 30,
+            },
+            {
+              name: "ui-libs",
+              test: /node_modules\/(plyr|lucide-react|@radix-ui|framer-motion|clsx|tailwind-merge)/,
+              priority: 20,
+            },
+            {
+              name: "utils",
+              test: /node_modules\/(date-fns|dayjs|axios|sharp)/,
+              priority: 10,
+            },
+          ],
         },
       },
     },

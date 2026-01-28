@@ -1,1 +1,0 @@
-const e={formatHref:(r,t)=>t==="mention"?`/u/${r.substring(1)}`:t==="hashtag"?`/tags/${r.substring(1)}`:r,attributes:{onClick:r=>r.stopPropagation(),className:"text-rose-500 dark:text-rose-400 font-bold hover:underline cursor-pointer"},target:(r,t)=>t==="url"?"_blank":null,rel:(r,t)=>t==="url"?"noopener noreferrer":null};export{e as t};
