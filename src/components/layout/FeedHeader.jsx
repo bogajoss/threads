@@ -6,6 +6,9 @@ const FeedBanner = () => {
       <img
         src="https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png"
         alt="Welcome Banner"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
       />
       {/* Gradient Overlay */}
@@ -34,6 +37,8 @@ const FeedBanner = () => {
           src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png"
           className="size-12 animate-pulse opacity-80 rounded-xl"
           alt=""
+          loading="lazy"
+          decoding="async"
         />
       </div>
     </div>
