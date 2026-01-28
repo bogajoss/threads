@@ -96,10 +96,10 @@ const ProfileHeader = ({
                 <button
                   onClick={() => navigate("/settings")}
                   className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"
-            title="Settings"
-          >
-            <SettingsIcon size={20} />
-          </button>
+                  title="Settings"
+                >
+                  <SettingsIcon size={20} />
+                </button>
               </div>
             ) : (
               <>
@@ -120,7 +120,7 @@ const ProfileHeader = ({
                 <Button
                   variant={isFollowing ? "secondary" : "primary"}
                   onClick={handleFollow}
-                  className="text-sm px-6 min-w-[100px] flex items-center gap-2"
+                  className="text-sm px-4 min-w-0 sm:min-w-[100px] flex items-center gap-2"
                   disabled={loading}
                 >
                   {loading ? (
@@ -128,12 +128,12 @@ const ProfileHeader = ({
                   ) : isFollowing ? (
                     <>
                       <FollowingIcon size={18} />
-                      Following
+                      <span className="hidden sm:inline">Following</span>
                     </>
                   ) : (
                     <>
                       <FollowIcon size={18} />
-                      Follow
+                      <span className="hidden sm:inline">Follow</span>
                     </>
                   )}
                 </Button>

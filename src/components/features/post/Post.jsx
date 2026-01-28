@@ -39,6 +39,7 @@ import {
   VerifiedIcon,
   EditIcon,
   LinkIcon,
+  ShareIcon,
 } from "@/components/ui";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
@@ -235,13 +236,15 @@ const Post = ({
         align="end"
         className="w-48 rounded-xl bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800"
       >
-        <DropdownMenuItem
-          className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5"
-          onClick={handleCopyLink}
-        >
-          <LinkIcon size={16} />
-          <span>Copy link to post</span>
-        </DropdownMenuItem>
+        {!isComment && (
+          <DropdownMenuItem
+            className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5"
+            onClick={handleCopyLink}
+          >
+            <ShareIcon size={16} />
+            <span>Copy link to post</span>
+          </DropdownMenuItem>
+        )}
         {!isComment && (
           <DropdownMenuItem
             className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-800 py-2.5"
@@ -579,7 +582,7 @@ const Post = ({
               </span>
               <PostActionsMenu
                 trigger={
-                  <button 
+                  <button
                     aria-label="More options"
                     className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors"
                   >
@@ -640,6 +643,13 @@ const Post = ({
               label="Comment"
               onClick={() => document.getElementById("comment-input")?.focus()}
             />
+            {!isComment && (
+              <ActionButton
+                icon={ShareIcon}
+                label="Share"
+                onClick={handleCopyLink}
+              />
+            )}
           </div>
         </article>
 
@@ -806,7 +816,7 @@ const Post = ({
               </span>
               <PostActionsMenu
                 trigger={
-                  <button 
+                  <button
                     aria-label="More options"
                     className="text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors"
                   >
@@ -870,6 +880,13 @@ const Post = ({
                   }
                 }}
               />
+              {!isComment && (
+                <ActionButton
+                  icon={ShareIcon}
+                  label="Share"
+                  onClick={handleCopyLink}
+                />
+              )}
             </div>
           </div>
         </div>

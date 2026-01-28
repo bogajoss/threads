@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Share2, Music, Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { Heart, MessageCircle, Music, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Linkify from "linkify-react";
@@ -11,6 +11,7 @@ import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal } from "@/components/features/post";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
+import { ShareIcon, FollowIcon, FollowingIcon } from "@/components/ui";
 
 const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
               // Ignore play error, try muted
               if (player) {
                 player.muted = true;
-                player.play().catch(() => {});
+                player.play().catch(() => { });
               }
             });
           }
@@ -135,7 +136,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
     const player = playerRef.current?.plyr;
     if (player) {
       if (player.paused) {
-        player.play().catch(() => {});
+        player.play().catch(() => { });
         setShowPlayPauseIcon("play");
       } else {
         player.pause();
@@ -251,7 +252,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none" />
 
-      <div className="absolute bottom-20 left-4 right-16 text-white pointer-events-none">
+      <div className="absolute bottom-6 left-4 right-16 text-white pointer-events-none">
         <div className="flex items-center gap-2 mb-3 pointer-events-auto">
           <Link
             to={`/u/${reel.user?.handle}`}
@@ -272,13 +273,23 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
           </Link>
           {currentUser?.id !== reel.user?.id && (
             <button
-              className={`text-xs font-bold px-4 py-1.5 rounded-full ml-2 transition-all active:scale-95 ${isFollowing
+              className={`text-xs font-bold px-3 py-1.5 rounded-full ml-2 transition-all active:scale-95 flex items-center gap-1.5 ${isFollowing
                 ? "bg-transparent border border-white/50 text-white"
                 : "bg-white text-black hover:bg-zinc-200"
                 }`}
               onClick={handleToggleFollow}
             >
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowing ? (
+                <>
+                  <FollowingIcon size={14} />
+                  <span className="hidden sm:inline">Following</span>
+                </>
+              ) : (
+                <>
+                  <FollowIcon size={14} />
+                  <span className="hidden sm:inline">Follow</span>
+                </>
+              )}
             </button>
           )}
         </div>
@@ -335,7 +346,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
         </div>
       </div>
 
-      <div className="absolute bottom-20 right-2 flex flex-col items-center gap-6 z-10">
+      <div className="absolute bottom-6 right-2 flex flex-col items-center gap-6 z-10">
         <div className="flex flex-col items-center gap-1 pointer-events-auto">
           <button
             className={`p-3 rounded-full backdrop-blur-md transition-all active:scale-90 ${isLiked ? "bg-rose-500/20 text-rose-500" : "bg-zinc-800/50 text-white hover:bg-zinc-700"
@@ -367,7 +378,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
             className="p-3 bg-zinc-800/50 rounded-full text-white backdrop-blur-md hover:bg-zinc-700 transition-colors active:scale-90"
             onClick={handleShare}
           >
-            <Share2 size={28} />
+            <ShareIcon size={28} />
           </button>
           <span className="text-white text-xs font-bold">
             {reel.stats?.shares || 0}

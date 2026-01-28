@@ -89,16 +89,14 @@ const ReelCommentsModal = ({ isOpen, onClose, reelId, currentUser, showToast }) 
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-sm:h-[95dvh] sm:max-w-xl h-[85vh] flex flex-col !p-0"
+      title="Comments"
+      className="max-sm:h-[95dvh] sm:max-w-xl h-[85vh] !p-0 overflow-hidden"
     >
-      <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-zinc-900">
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-center shrink-0 relative bg-white dark:bg-zinc-900">
-          <h2 className="text-base font-bold dark:text-white">Comments</h2>
-          <div className="absolute right-5 w-8 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full sm:hidden top-2 transform -translate-y-1/2 left-1/2 -translate-x-1/2" />
-        </div>
+      <div className="flex flex-col h-full bg-white dark:bg-zinc-900 overflow-hidden">
+        {/* Mobile handle indicator */}
+        <div className="h-1.5 w-12 bg-zinc-200 dark:bg-zinc-800 rounded-full mx-auto my-3 sm:hidden shrink-0" />
 
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 scroll-smooth">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="animate-spin text-violet-500" size={32} />
@@ -139,7 +137,8 @@ const ReelCommentsModal = ({ isOpen, onClose, reelId, currentUser, showToast }) 
           )}
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 shrink-0">
+        {/* Fixed Footer for Comment Input */}
+        <div className="bg-white dark:bg-zinc-900 shrink-0 border-t border-zinc-100 dark:border-zinc-800 pb-safe">
           <CommentInput
             currentUser={currentUser}
             newComment={newComment}

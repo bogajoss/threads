@@ -33,19 +33,21 @@ const Modal = ({
           className,
         )}
       >
-        {title && (
-          <DialogHeader className="px-5 py-4 shrink-0">
-            <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
-            {description && (
-              <DialogDescription>{description}</DialogDescription>
-            )}
-          </DialogHeader>
-        )}
+        <DialogHeader className={cn("px-5 py-4 shrink-0 border-b border-zinc-100 dark:border-zinc-800", !title && "sr-only")}>
+          <DialogTitle className="text-lg font-bold text-center">
+            {title}
+          </DialogTitle>
+          {description && (
+            <DialogDescription className="text-center">{description}</DialogDescription>
+          )}
+        </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-5 min-h-0">{children}</div>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          {children}
+        </div>
 
         {footer && (
-          <DialogFooter className="px-5 py-4 shrink-0 bg-white dark:bg-zinc-900">
+          <DialogFooter className="px-5 py-4 shrink-0 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
             {footer}
           </DialogFooter>
         )}

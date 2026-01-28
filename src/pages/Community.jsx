@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowLeft, Loader2, Users, Plus } from "lucide-react";
 import { Post } from "@/components/features/post";
-import { NotFound, Button, Avatar, AvatarImage, AvatarFallback, SettingsIcon, EditIcon } from "@/components/ui";
+import { NotFound, Button, Avatar, AvatarImage, AvatarFallback, SettingsIcon, EditIcon, FollowIcon, FollowingIcon } from "@/components/ui";
 import { EditCommunityModal, ManageMembersModal } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
 
@@ -101,22 +101,30 @@ const Community = ({ onPostInCommunity }) => {
                     <button
                       onClick={() => setIsMembersModalOpen(true)}
                       className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
-                  title="Settings"
-                >
-                  <SettingsIcon size={20} />
-                </button>
+                      title="Settings"
+                    >
+                      <SettingsIcon size={20} />
+                    </button>
                   </div>
                 )}
                 <Button
                   variant={isMember ? "outline" : "default"}
                   onClick={handleJoinToggle}
                   disabled={isJoining}
-                  className={`rounded-full font-bold px-8 h-10 transition-all ${isMember ? "border-zinc-200 dark:border-zinc-800 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 dark:hover:bg-rose-900/20" : "bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 hover:scale-105"}`}
+                  className={`rounded-full font-bold px-4 h-10 transition-all flex items-center justify-center gap-2 ${isMember ? "border-zinc-200 dark:border-zinc-800 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 dark:hover:bg-rose-900/20" : "bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 hover:scale-105"}`}
                 >
                   {isJoining ? (
                     <Loader2 size={18} className="animate-spin" />
+                  ) : isMember ? (
+                    <>
+                      <FollowingIcon size={18} />
+                      <span className="hidden sm:inline">Joined</span>
+                    </>
                   ) : (
-                    isMember ? "Joined" : "Join"
+                    <>
+                      <FollowIcon size={18} />
+                      <span className="hidden sm:inline">Join</span>
+                    </>
                   )}
                 </Button>
               </div>

@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Heart,
-  UserPlus,
   AtSign,
   Layers,
   Loader2,
@@ -10,6 +9,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/utils";
 import Button from "@/components/ui/Button";
+import { FollowingIcon } from "@/components/ui/CustomIcons";
 import { useNotificationsPage } from "@/hooks";
 
 const Notifications = () => {
@@ -53,7 +53,7 @@ const Notifications = () => {
       case "like":
         return <Heart size={20} className="text-rose-500 fill-rose-500" />;
       case "follow":
-        return <UserPlus size={20} className="text-blue-500" />;
+        return <FollowingIcon size={20} className="text-blue-500" />;
       case "mention":
         return <AtSign size={20} className="text-emerald-500" />;
       case "comment":

@@ -45,12 +45,16 @@ function DialogContent({
         data-slot="alert-dialog-content"
         aria-describedby={undefined}
         className={cn(
-          "bg-white dark:bg-zinc-950 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 shadow-xl duration-200 sm:max-w-md",
+          "bg-white dark:bg-zinc-950 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 shadow-xl duration-200 sm:max-w-md focus:outline-none",
           className
         )}
         {...props}
       >
         {children}
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2.5 opacity-100 bg-zinc-100/50 hover:bg-zinc-200/80 dark:bg-zinc-800/50 dark:hover:bg-zinc-700/80 text-zinc-900 dark:text-zinc-100 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:pointer-events-none cursor-pointer z-[60] shadow-sm backdrop-blur-sm">
+          <XIcon className="size-5" strokeWidth={2.5} />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPortal>
   );

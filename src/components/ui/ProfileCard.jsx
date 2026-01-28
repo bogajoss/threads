@@ -38,7 +38,7 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
   const handleJoinToggle = async (e) => {
     e.stopPropagation();
     if (!currentUser) return addToast("Please login to join communities", "error");
-    
+
     setLoadingMember(true);
     try {
       const joined = await toggleCommunityMembership(profile.id, currentUser.id);
@@ -111,16 +111,26 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
           {loading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : isCommunity ? (
-            isJoined ? "Joined" : "Join"
+            isJoined ? (
+              <>
+                <FollowingIcon size={16} />
+                <span className="hidden sm:inline">Joined</span>
+              </>
+            ) : (
+              <>
+                <FollowIcon size={16} />
+                <span className="hidden sm:inline">Join</span>
+              </>
+            )
           ) : isFollowing ? (
             <>
               <FollowingIcon size={16} />
-              Following
+              <span className="hidden sm:inline">Following</span>
             </>
           ) : (
             <>
               <FollowIcon size={16} />
-              Follow
+              <span className="hidden sm:inline">Follow</span>
             </>
           )}
         </Button>
