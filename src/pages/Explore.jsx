@@ -5,7 +5,6 @@ import CreateCommunityModal from "@/components/features/modals/CreateCommunityMo
 import { useExplore } from "@/hooks/pages/useExplore";
 import { Post } from "@/components/features/post";
 import { useToast } from "@/context/ToastContext";
-import SEOHead from "@/components/seo/SEOHead";
 
 const Explore = () => {
   const { addToast } = useToast();
@@ -35,7 +34,6 @@ const Explore = () => {
   if ((isCommunitiesLoading || isPostsLoading) && (!communitiesData.length && !postsData.length)) {
     return (
       <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen">
-        <SEOHead title="Explore" />
         {[1, 2, 3].map((i) => (
           <SkeletonPost key={i} />
         ))}
@@ -45,10 +43,6 @@ const Explore = () => {
 
   return (
     <div className="border-y md:border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20 shadow-sm">
-      <SEOHead 
-        title={searchQuery ? `Searching for "${searchQuery}"` : "Explore Communities & Posts"} 
-        description="Discover new communities, trending posts, and interesting people on Sysm."
-      />
       <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-10 border-b border-zinc-100 dark:border-zinc-800">
         <div className="p-4 flex gap-2">
           <SearchBar

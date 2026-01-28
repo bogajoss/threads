@@ -2,7 +2,6 @@ import React from "react";
 import { Loader2, ArrowLeft, Volume2, VolumeX } from "lucide-react";
 import ReelItem from "@/components/features/post/ReelItem";
 import { useReels } from "@/hooks";
-import SEOHead from "@/components/seo/SEOHead";
 
 const Reels = () => {
   const {
@@ -19,7 +18,6 @@ const Reels = () => {
   if (loading) {
     return (
       <div className="h-[100dvh] w-full flex items-center justify-center bg-black">
-        <SEOHead title="Reels" />
         <Loader2 size={40} className="animate-spin text-white" />
       </div>
     );
@@ -28,7 +26,6 @@ const Reels = () => {
   if (reels.length === 0) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-black text-white gap-4">
-        <SEOHead title="No Reels" />
         <p className="text-zinc-500">No reels found.</p>
         <button
           onClick={() => navigate(-1)}
@@ -42,10 +39,6 @@ const Reels = () => {
 
   return (
     <div className="h-[100dvh] w-full bg-black md:rounded-xl relative overflow-hidden">
-      <SEOHead 
-        title="Reels" 
-        description="Watch short, trending videos and creative content on Sysm." 
-      />
       {/* Fixed Back Button */}
       <button
         onClick={() => navigate(-1)}

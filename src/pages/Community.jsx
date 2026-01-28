@@ -4,7 +4,6 @@ import { Post } from "@/components/features/post";
 import { NotFound, Button, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
 import { EditCommunityModal, ManageMembersModal } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
-import SEOHead from "@/components/seo/SEOHead";
 
 const Community = ({ onPostInCommunity }) => {
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -32,7 +31,6 @@ const Community = ({ onPostInCommunity }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <SEOHead title="Loading Community..." />
         <Loader2 size={40} className="animate-spin text-violet-500" />
       </div>
     );
@@ -41,7 +39,6 @@ const Community = ({ onPostInCommunity }) => {
   if (!community) {
     return (
       <div className="bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-[600px] flex items-center justify-center">
-        <SEOHead title="Community Not Found" />
         <NotFound
           title="Community doesn't exist"
           message={`The community @${community?.handle || 'unknown'} could not be found.`}
@@ -53,11 +50,6 @@ const Community = ({ onPostInCommunity }) => {
 
   return (
     <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20">
-      <SEOHead 
-        title={`c/${community.handle} (${community.name})`} 
-        description={community.description || `Join the ${community.name} community on Sysm.`}
-        image={community.avatar}
-      />
       <div className="relative">
         <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-20 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3">
           <div className="flex items-center gap-x-4">
