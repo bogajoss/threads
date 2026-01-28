@@ -57,7 +57,7 @@ export default defineConfig({
             },
             {
               name: "utils",
-              test: /node_modules\/(date-fns|dayjs|axios|sharp)/,
+              test: /node_modules\/(date-fns|dayjs)/,
               priority: 10,
             },
           ],

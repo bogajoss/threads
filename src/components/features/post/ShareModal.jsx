@@ -39,16 +39,7 @@ const ShareModal = ({ isOpen, onClose, url, title = "Share" }) => {
     const { currentUser } = useAuth();
 
     // Fetch initial friends (following)
-    useEffect(() => {
-        if (isOpen && currentUser) {
-            loadInitialFriends();
-        } else {
-            setSearchTerm("");
-            setFriends([]);
-        }
-    }, [isOpen, currentUser]);
-
-    const loadInitialFriends = async () => {
+    const loadInitialFriends = useCallback(async () => {
         setLoadingFriends(true);
         try {
             const following = await fetchFollowing(currentUser.id, null, 10);
@@ -58,22 +49,19 @@ const ShareModal = ({ isOpen, onClose, url, title = "Share" }) => {
         } finally {
             setLoadingFriends(false);
         }
-    };
+    }, [currentUser?.id]);
+
+    useEffect(() => {
+        if (isOpen && currentUser) {
+            loadInitialFriends();
+        } else {
+            setSearchTerm("");
+            setFriends([]);
+        }
+    }, [isOpen, currentUser, loadInitialFriends]);
 
     // Search logic
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (searchTerm.trim() && isOpen) {
-                handleSearch();
-            } else if (!searchTerm.trim() && isOpen) {
-                loadInitialFriends();
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm, isOpen]);
-
-    const handleSearch = async () => {
+    const handleSearch = useCallback(async () => {
         setLoadingFriends(true);
         try {
             const results = await searchUsers(searchTerm);
@@ -84,7 +72,19 @@ const ShareModal = ({ isOpen, onClose, url, title = "Share" }) => {
         } finally {
             setLoadingFriends(false);
         }
-    };
+    }, [searchTerm, currentUser?.id]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchTerm.trim() && isOpen) {
+                handleSearch();
+            } else if (!searchTerm.trim() && isOpen) {
+                loadInitialFriends();
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, isOpen, handleSearch, loadInitialFriends]);
 
     const handleCopy = async (e) => {
         if (e) e.stopPropagation();
