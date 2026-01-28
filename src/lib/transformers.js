@@ -12,10 +12,10 @@ export const transformUser = (supabaseUser) => {
     name: supabaseUser.display_name,
     avatar:
       supabaseUser.avatar_url ||
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm",
+      "/default-avatar.webp",
     cover:
       supabaseUser.cover_url ||
-      "https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png",
+      "/welcome-banner.webp",
     verified: supabaseUser.is_verified,
     bio: supabaseUser.bio,
     location: supabaseUser.location,
@@ -93,7 +93,7 @@ export const transformNotification = (n) => {
     user: n.actor?.username,
     avatar:
       n.actor?.avatar_url ||
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm",
+      "/default-avatar.webp",
   };
 };
 
@@ -119,8 +119,8 @@ export const transformCommunity = (c) => {
     handle: c.handle,
     name: c.name,
     description: c.description,
-    avatar: c.avatar_url || 'https://api.dicebear.com/7.x/identicon/svg?seed=community',
-    cover: c.cover_url || 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
+    avatar: c.avatar_url || '/default-avatar.webp',
+    cover: c.cover_url || '/welcome-banner.webp',
     membersCount: c.members_count || 0,
     postsCount: c.posts_count || 0,
     isPrivate: c.is_private,

@@ -111,7 +111,7 @@ const SidebarRight = () => {
           className="flex-1 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 py-2.5 rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer"
         >
           <img
-            src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png"
+            src="/logo.webp"
             alt=""
             className="size-4 rounded-sm"
           />

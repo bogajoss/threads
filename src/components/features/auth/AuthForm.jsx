@@ -53,11 +53,11 @@ const AuthForm = ({ type, onComplete, onSwitch }) => {
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
           <div className="bg-black dark:bg-white dark:text-black text-white p-3 rounded-2xl shadow-lg">
-            <img
-              src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png"
-              alt="Logo"
-              className="w-10 h-10 rounded-xl"
-            />
+          <img
+            src="/logo.webp"
+            alt="Logo"
+            className="size-16 rounded-2xl shadow-xl border-2 border-zinc-100 dark:border-zinc-800"
+          />
           </div>
         </div>
         <h2 className="text-3xl font-extrabold mb-2 dark:text-white tracking-tight">

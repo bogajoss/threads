@@ -4,7 +4,7 @@ const FeedBanner = () => {
   return (
     <div className="relative w-full aspect-[21/9] sm:aspect-[2.5/1] rounded-3xl overflow-hidden mb-6 group cursor-pointer">
       <img
-        src="https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png"
+        src="/welcome-banner.webp"
         alt="Welcome Banner"
         fetchpriority="high"
         loading="eager"
@@ -34,7 +34,7 @@ const FeedBanner = () => {
       {/* Floating Icons/Sparkles to match image feel */}
       <div className="absolute bottom-4 right-8">
         <img
-          src="https://archive.systemadminbd.com/wp-content/uploads/2024/06/cropped-20240613_193200-270x270.png"
+          src="/logo.webp"
           className="size-12 animate-pulse opacity-80 rounded-xl"
           alt=""
           loading="lazy"

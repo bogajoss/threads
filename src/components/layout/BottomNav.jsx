@@ -55,7 +55,7 @@ const BottomNav = ({ handleProfileClick }) => {
           <AvatarImage
             src={
               currentUser?.avatar ||
-              "https://api.dicebear.com/7.x/avataaars/svg?seed=Sysm"
+              "/default-avatar.webp"
             }
             alt="Profile"
             className="object-cover"
