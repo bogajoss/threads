@@ -2,7 +2,8 @@ import React, { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import { Image as ImageIcon, Loader2, X, Pencil } from "lucide-react";
+import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import { EditIcon } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { uploadFile, addStory } from "@/lib/api";
@@ -120,7 +121,7 @@ const CreateStoryModal = ({ isOpen, onClose }) => {
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-white dark:hover:bg-zinc-800 transition-all text-zinc-600 dark:text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 group"
               >
                 <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 shadow-sm group-hover:shadow-md transition-all">
-                  <Pencil size={20} />
+                  <EditIcon size={20} />
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider">
                   Crop / Edit

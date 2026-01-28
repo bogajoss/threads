@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import Button from "@/components/ui/Button";
+import { Button, VerifiedIcon, FollowIcon, FollowingIcon } from "@/components/ui";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePresence } from "@/context/PresenceContext";
 import { useFollow } from "@/hooks/useFollow";
@@ -79,12 +78,10 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
           )}
         </div>
         <div className="flex flex-col">
-          <div className="flex items-center gap-1">
-            <span className="font-bold text-zinc-900 dark:text-white leading-none">
-              {profile.name}
-            </span>
-            {profile.verified && <VerifiedBadge />}
-          </div>
+          <span className="font-extrabold text-zinc-900 dark:text-zinc-100 truncate flex items-center gap-1">
+            {profile.name}
+            {profile.verified && <VerifiedIcon size={16} className="text-blue-500 shrink-0" />}
+          </span>
           <span className="text-sm text-zinc-500 mt-0.5">
             @{profile.handle}
           </span>
@@ -104,7 +101,7 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
       {!isMe && (
         <Button
           variant={isCommunity ? (isJoined ? "secondary" : "outline") : (isFollowing ? "secondary" : "outline")}
-          className="!w-auto !py-1.5 !px-4 text-sm font-bold rounded-full border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          className="!w-auto !py-1.5 !px-4 text-sm font-bold rounded-full border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-1.5"
           onClick={isCommunity ? handleJoinToggle : (e) => {
             e.stopPropagation();
             handleFollow();
@@ -112,13 +109,19 @@ const ProfileCard = ({ profile, onUserClick, isCommunity = false }) => {
           disabled={loading}
         >
           {loading ? (
-            <Loader2 size={14} className="animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : isCommunity ? (
             isJoined ? "Joined" : "Join"
           ) : isFollowing ? (
-            "Following"
+            <>
+              <FollowingIcon size={16} />
+              Following
+            </>
           ) : (
-            "Follow"
+            <>
+              <FollowIcon size={16} />
+              Follow
+            </>
           )}
         </Button>
       )}

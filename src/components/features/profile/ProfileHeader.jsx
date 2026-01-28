@@ -2,18 +2,14 @@ import React, { useState } from "react";
 import {
   ArrowLeft,
   Search,
-  MapPin,
-  Link as LinkIcon,
   Calendar,
   MoreHorizontal,
   Mail,
   Bell,
   Loader2,
-  Settings,
-  Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button, VerifiedBadge, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
+import { Button, VerifiedIcon, Avatar, AvatarImage, AvatarFallback, SettingsIcon, EditIcon, FollowIcon, FollowingIcon, LocationIcon, LinkIcon } from "@/components/ui";
 import { getOrCreateConversation } from "@/lib/api";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
@@ -95,15 +91,15 @@ const ProfileHeader = ({
                   className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
                   title="Edit Profile"
                 >
-                  <Pencil size={20} />
+                  <EditIcon size={20} />
                 </button>
                 <button
                   onClick={() => navigate("/settings")}
                   className="p-2 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95"
-                  title="Settings"
-                >
-                  <Settings size={20} />
-                </button>
+            title="Settings"
+          >
+            <SettingsIcon size={20} />
+          </button>
               </div>
             ) : (
               <>
@@ -124,15 +120,21 @@ const ProfileHeader = ({
                 <Button
                   variant={isFollowing ? "secondary" : "primary"}
                   onClick={handleFollow}
-                  className="text-sm px-6 min-w-[100px]"
+                  className="text-sm px-6 min-w-[100px] flex items-center gap-2"
                   disabled={loading}
                 >
                   {loading ? (
                     <Loader2 size={16} className="animate-spin mx-auto" />
                   ) : isFollowing ? (
-                    "Following"
+                    <>
+                      <FollowingIcon size={18} />
+                      Following
+                    </>
                   ) : (
-                    "Follow"
+                    <>
+                      <FollowIcon size={18} />
+                      Follow
+                    </>
                   )}
                 </Button>
                 <button className="rounded-full p-2 hover:bg-zinc-100 text-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors">
@@ -144,11 +146,11 @@ const ProfileHeader = ({
         </div>
 
         <div className="space-y-0.5">
-          <div className="flex items-center gap-1.5">
-            <h3 className="text-xl sm:text-2xl font-extrabold truncate dark:text-white flex items-center gap-1">
+          <div className="flex items-center gap-1.5 mt-1">
+            <h1 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100">
               {profile.name}
-              {profile.verified && <VerifiedBadge />}
-            </h3>
+            </h1>
+            {profile.verified && <VerifiedIcon size={20} className="text-blue-500" />}
           </div>
           {!isCommunity && (
             <div className="flex items-center space-x-3">
@@ -210,13 +212,13 @@ const ProfileHeader = ({
         {(profile.website || profile.location) && (
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm pt-1">
             {profile.location && (
-              <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-                <MapPin size={14} />
-                <span>{profile.location}</span>
-              </div>
+              <span className="flex items-center gap-1">
+                <LocationIcon size={14} />
+                {profile.location}
+              </span>
             )}
             {profile.website && (
-              <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+              <span className="flex items-center gap-1">
                 <LinkIcon size={14} />
                 <a
                   href={`https://${profile.website}`}
@@ -226,7 +228,7 @@ const ProfileHeader = ({
                 >
                   {profile.website}
                 </a>
-              </div>
+              </span>
             )}
           </div>
         )}

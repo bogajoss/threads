@@ -4,7 +4,6 @@ import Button from "@/components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
 import {
   Plus,
-  MapPin,
   Loader2,
   Image as ImageIcon,
   FileText,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Modal, Avatar, AvatarImage, AvatarFallback, VerifiedBadge, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui";
+import { Modal, Avatar, AvatarImage, AvatarFallback, VerifiedIcon, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui";
 import { Loader2, ShieldCheck, User as UserIcon, Search } from "lucide-react";
 import { fetchCommunityMembers, updateMemberRole } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
@@ -95,10 +95,10 @@ export default function ManageMembersModal({ isOpen, onClose, community }) {
                 </Avatar>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1">
-                    <span className="text-sm font-bold truncate max-w-[140px] dark:text-white">
-                      {m.user.display_name}
-                    </span>
-                    {m.user.is_verified && <VerifiedBadge />}
+                          <span className="font-bold dark:text-zinc-200">
+                            {m.user.name}
+                          </span>
+                          {m.user.is_verified && <VerifiedIcon size={14} className="text-blue-500" />}
                   </div>
                   <span className="text-xs text-zinc-500 font-medium">@{m.user.username}</span>
                 </div>

@@ -1,7 +1,7 @@
 import React from "react";
-import { ArrowLeft, Loader2, Users, Plus, Settings, Pencil } from "lucide-react";
+import { ArrowLeft, Loader2, Users, Plus } from "lucide-react";
 import { Post } from "@/components/features/post";
-import { NotFound, Button, Avatar, AvatarImage, AvatarFallback } from "@/components/ui";
+import { NotFound, Button, Avatar, AvatarImage, AvatarFallback, SettingsIcon, EditIcon } from "@/components/ui";
 import { EditCommunityModal, ManageMembersModal } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
 
@@ -96,15 +96,15 @@ const Community = ({ onPostInCommunity }) => {
                       className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
                       title="Edit Community"
                     >
-                      <Pencil size={20} />
+                      <EditIcon size={20} />
                     </button>
                     <button
                       onClick={() => setIsMembersModalOpen(true)}
                       className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all active:scale-95 flex items-center justify-center size-10"
-                      title="Manage Members"
-                    >
-                      <Settings size={20} />
-                    </button>
+                  title="Settings"
+                >
+                  <SettingsIcon size={20} />
+                </button>
                   </div>
                 )}
                 <Button

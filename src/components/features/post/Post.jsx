@@ -6,11 +6,9 @@ import {
   Heart,
   MoreHorizontal,
   Loader2,
-  Link as LinkIcon,
   Flag,
   Trash2,
   UserMinus,
-  Pencil,
   X,
   Film,
   Plus,
@@ -37,8 +35,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Textarea,
-  VerifiedBadge,
+  Button,
+  VerifiedIcon,
+  EditIcon,
+  LinkIcon,
 } from "@/components/ui";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
@@ -268,16 +268,13 @@ const Post = ({
         )}
         {isCurrentUser && (
           <>
-            <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+            <DropdownMenuSeparator className="bg-zinc-100 dark:border-zinc-800" />
             <DropdownMenuItem
-              className="gap-2 cursor-pointer focus:bg-zinc-50 dark:focus:bg-zinc-900 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }}
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-2 cursor-pointer"
             >
-              <Pencil size={16} />
-              <span>Edit post</span>
+              <EditIcon size={16} />
+              Edit Post
             </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer focus:bg-rose-50 dark:focus:bg-rose-900/20 py-2.5 text-rose-500 focus:text-rose-500"
@@ -546,7 +543,7 @@ const Post = ({
                       onClick={() => onUserClick && onUserClick(user.handle)}
                     >
                       <span className="max-w-[200px] sm:max-w-none truncate">{user.handle}</span>
-                      {user.verified && <VerifiedBadge />}
+                      {user.verified && <VerifiedIcon size={16} className="text-blue-500" />}
                     </button>
 
                     {community && (
@@ -776,7 +773,7 @@ const Post = ({
                     }}
                   >
                     <span className="truncate max-w-[160px] sm:max-w-none">{user.handle}</span>
-                    {user.verified && <VerifiedBadge />}
+                    {user.verified && <VerifiedIcon size={16} className="text-blue-500" />}
                   </button>
 
                   {community && (
