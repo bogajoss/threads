@@ -108,3 +108,72 @@ export const transformStory = (s) => {
     user: transformUser(s.user),
   };
 };
+
+/**
+ * Transforms a Supabase community object.
+ */
+export const transformCommunity = (c) => {
+  if (!c) return null;
+  return {
+    id: c.id,
+    handle: c.handle,
+    name: c.name,
+    description: c.description,
+    avatar: c.avatar_url || 'https://api.dicebear.com/7.x/identicon/svg?seed=community',
+    cover: c.cover_url || 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
+    membersCount: c.members_count || 0,
+    postsCount: c.posts_count || 0,
+    isPrivate: c.is_private,
+    createdAt: c.created_at,
+    type: 'community',
+    creatorId: c.creator_id
+  };
+};
+
+/**
+ * Transforms a Supabase message object.
+ */
+export const transformMessage = (m) => {
+  if (!m) return null;
+  return {
+    id: m.id,
+    conversation_id: m.conversation_id,
+    sender_id: m.sender_id,
+    content: m.content,
+    type: m.type || "text",
+    media: m.media || [],
+    reply_to_id: m.reply_to_id,
+    is_read: m.is_read,
+    created_at: m.created_at,
+  };
+};
+
+/**
+ * Transforms a Supabase conversation participant object into a conversation object.
+ */
+export const transformConversation = (item, currentUserId) => {
+  if (!item || !item.conversation) return null;
+  const conv = item.conversation;
+  
+  const otherParticipant =
+    conv.participants.find((p) => p.user?.id !== currentUserId) ||
+    conv.participants[0];
+
+  const unreadCount = conv.messages?.filter(
+    (m) => !m.is_read && m.sender_id !== currentUserId
+  ).length || 0;
+
+  return {
+    id: conv.id,
+    user: transformUser(otherParticipant?.user),
+    lastMessage: conv.last_message_content || "No messages yet",
+    lastMessageAt: conv.last_message_at,
+    time: conv.last_message_at
+      ? new Date(conv.last_message_at).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      : "",
+    unread: unreadCount,
+  };
+};

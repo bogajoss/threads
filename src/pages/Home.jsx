@@ -1,73 +1,24 @@
-import React, { useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { useInView } from "react-intersection-observer";
+import React from "react";
 import StoryCircle from "@/components/features/story/StoryCircle";
 import { Post } from "@/components/features/post";
 import { SkeletonPost, SignupCard, ScrollArea, ScrollBar } from "@/components/ui";
-import { useAuth } from "@/context/AuthContext";
-import { usePosts } from "@/context/PostContext";
-import { useToast } from "@/context/ToastContext";
-import { fetchStories } from "@/lib/api";
+import { useHome } from "@/hooks";
 import { Loader2 } from "lucide-react";
 
 const Home = ({ onStoryClick, onAddStory }) => {
-  const { currentUser } = useAuth();
   const {
-    posts,
-    loading: isPostsLoading,
+    currentUser,
+    homePosts,
+    groupedStories,
+    isPostsLoading,
+    isStoriesLoading,
     hasMore,
     isFetchingNextPage,
-    fetchNextPage,
-  } = usePosts();
-  const { addToast } = useToast();
-  const navigate = useNavigate();
-
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-  });
-
-  useEffect(() => {
-    if (inView && hasMore && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, hasMore, isFetchingNextPage, fetchNextPage]);
-
-  // 2. Fetch Stories
-  const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
-    queryKey: ["stories"],
-    queryFn: fetchStories,
-  });
-
-  // Group stories by user
-  const groupedStories = useMemo(() => {
-    const groups = {};
-    stories.forEach((s) => {
-      if (!s.user) return;
-      const userId = s.user.id;
-      if (!groups[userId]) {
-        groups[userId] = {
-          user: s.user,
-          stories: [],
-        };
-      }
-      groups[userId].stories.push(s);
-    });
-    return Object.values(groups);
-  }, [stories]);
-
-  // Filter out replies, show only top-level posts on the home feed
-  const homePosts = useMemo(() => {
-    return posts;
-  }, [posts]);
-
-  const handlePostClick = (id) => {
-    navigate(`/post/${id}`);
-  };
-
-  const handleUserClick = (handle) => {
-    navigate(`/u/${handle}`);
-  };
+    addToast,
+    ref,
+    handlePostClick,
+    handleUserClick,
+  } = useHome();
 
   if (isPostsLoading || isStoriesLoading) {
     return (

@@ -12,21 +12,19 @@ import { ReelCommentsModal } from "@/components/features/post";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
 
-const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
+const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { addToast } = useToast();
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [showPlayPauseIcon, setShowPlayPauseIcon] = useState(null); // 'play' or 'pause'
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(reel.stats?.likes || 0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [progress, setProgress] = useState(0);
   const clickTimer = useRef(null);
-  const lastTap = useRef(0);
 
   const videoUrl = useMemo(() => {
     return Array.isArray(reel.media)
@@ -42,10 +40,12 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
       if (isActive) {
         timeoutId = setTimeout(() => {
           if (typeof player.play === "function") {
-            player.play().catch((err) => {
-              console.error("Autoplay failed, retrying muted:", err);
-              player.muted = true;
-              player.play();
+            player.play().catch(() => {
+              // Ignore play error, try muted
+              if (player) {
+                player.muted = true;
+                player.play().catch(() => {});
+              }
             });
           }
         }, 100);
@@ -63,7 +63,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
 
   // Fetch initial interaction status
   useEffect(() => {
-    if (!currentUser || !isActive) return;
+    if (!currentUser?.id || !isActive) return;
 
     const checkStatus = async () => {
       try {
@@ -85,9 +85,10 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
   useEffect(() => {
     const player = playerRef.current?.plyr;
     if (player) {
+      // eslint-disable-next-line react-hooks/immutability
       player.muted = isMuted;
     }
-  }, [isMuted, isActive]);
+  }, [isMuted]);
 
   // Track progress
   useEffect(() => {
@@ -134,12 +135,10 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
     const player = playerRef.current?.plyr;
     if (player) {
       if (player.paused) {
-        player.play();
-        setIsPlaying(true);
+        player.play().catch(() => {});
         setShowPlayPauseIcon("play");
       } else {
         player.pause();
-        setIsPlaying(false);
         setShowPlayPauseIcon("pause");
       }
       setTimeout(() => setShowPlayPauseIcon(null), 500);
@@ -157,7 +156,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
       setLikesCount(prev => prev + 1);
       try {
         await toggleLike(reel.id, currentUser.id);
-      } catch (err) {
+      } catch {
         setIsLiked(false);
         setLikesCount(prev => prev - 1);
       }
@@ -174,7 +173,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
 
     try {
       await toggleLike(reel.id, currentUser.id);
-    } catch (err) {
+    } catch {
       setIsLiked(!newLiked);
       setLikesCount(prev => !newLiked ? prev + 1 : prev - 1);
     }
@@ -189,7 +188,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted, onToggleMute }) => {
 
     try {
       await toggleFollow(currentUser.id, reel.user?.id);
-    } catch (err) {
+    } catch {
       setIsFollowing(!newFollowing);
     }
   };

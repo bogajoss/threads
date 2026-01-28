@@ -1,26 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { transformPost } from "@/lib/transformers";
-
-/**
- * Transforms a Supabase community object.
- */
-export const transformCommunity = (c) => {
-  if (!c) return null;
-  return {
-    id: c.id,
-    handle: c.handle,
-    name: c.name,
-    description: c.description,
-    avatar: c.avatar_url || 'https://api.dicebear.com/7.x/identicon/svg?seed=community',
-    cover: c.cover_url || 'https://systemadminbd.com/uploads/675346dd55e0c7.43939630.png',
-    membersCount: c.members_count || 0,
-    postsCount: c.posts_count || 0,
-    isPrivate: c.is_private,
-    createdAt: c.created_at,
-    type: 'community',
-    creatorId: c.creator_id
-  };
-};
+import { transformPost, transformCommunity } from "@/lib/transformers";
 
 /**
  * Fetches all communities.

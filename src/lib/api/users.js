@@ -68,7 +68,7 @@ export const updateLastSeen = async (userId) => {
     .from("users")
     .update({ last_seen_at: new Date().toISOString() })
     .eq("id", userId);
-  if (error) console.error("Error updating last seen:", error);
+  if (error) throw error;
 };
 
 /**
@@ -85,6 +85,7 @@ export const updateProfile = async (userId, fields) => {
     location: fields.location,
   };
 
+  // Remove undefined fields
   Object.keys(dbFields).forEach(key => dbFields[key] === undefined && delete dbFields[key]);
 
   const { error } = await supabase

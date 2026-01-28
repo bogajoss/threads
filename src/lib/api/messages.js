@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { transformUser } from "@/lib/transformers";
+import { transformConversation, transformMessage } from "@/lib/transformers";
 
 /**
  * Finds an existing conversation between two users or creates a new one.
@@ -112,30 +112,7 @@ export const fetchConversations = async (userId) => {
 
   if (error) throw error;
 
-  return data.map((item) => {
-    const conv = item.conversation;
-    const otherParticipant =
-      conv.participants.find((p) => p.user?.id !== userId) ||
-      conv.participants[0];
-
-    const unreadCount = conv.messages?.filter(
-      (m) => !m.is_read && m.sender_id !== userId
-    ).length || 0;
-
-    return {
-      id: conv.id,
-      user: transformUser(otherParticipant?.user),
-      lastMessage: conv.last_message_content || "No messages yet",
-      lastMessageAt: conv.last_message_at,
-      time: conv.last_message_at
-        ? new Date(conv.last_message_at).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-        : "",
-      unread: unreadCount,
-    };
-  }).sort((a, b) => {
+  return data.map((item) => transformConversation(item, userId)).sort((a, b) => {
     if (!a.lastMessageAt) return 1;
     if (!b.lastMessageAt) return -1;
     return new Date(b.lastMessageAt) - new Date(a.lastMessageAt);
@@ -153,7 +130,7 @@ export const fetchMessages = async (conversationId) => {
     .order("created_at", { ascending: true });
 
   if (error) throw error;
-  return data;
+  return data.map(transformMessage);
 };
 
 /**

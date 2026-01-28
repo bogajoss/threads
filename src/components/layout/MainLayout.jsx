@@ -2,7 +2,6 @@ import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarLeft, SidebarRight, BottomNav, FeedHeader } from "@/components/layout";
 import { useTheme } from "@/context/ThemeContext";
-import { cn } from "@/lib/utils";
 
 const MainLayout = ({ onPostClick }) => {
   const location = useLocation();

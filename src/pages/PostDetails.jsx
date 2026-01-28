@@ -1,37 +1,21 @@
 import React from "react";
-import { ArrowLeft } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, FileX } from "lucide-react";
 import Post from "@/components/features/post/Post";
 import NotFound from "@/components/ui/NotFound";
-import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
-import { fetchPostById } from "@/lib/api";
 import SkeletonPost from "@/components/ui/SkeletonPost";
-import { isValidUUID } from "@/lib/utils";
-import { FileX } from "lucide-react";
+import { usePostDetails } from "@/hooks";
 
 const PostDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  const { addToast } = useToast();
-
   const {
-    data: post,
+    post,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["post", id],
-    queryFn: async () => {
-      if (!isValidUUID(id)) {
-        throw new Error("Invalid post ID");
-      }
-      return fetchPostById(id);
-    },
-    enabled: !!id,
-    retry: false,
-  });
+    currentUser,
+    addToast,
+    navigate,
+    handleUserClick,
+    handleDelete,
+  } = usePostDetails();
 
   if (isLoading) {
     return (
@@ -74,8 +58,8 @@ const PostDetails = () => {
           currentUser={currentUser}
           initialComments={post.comments || []}
           showToast={addToast}
-          onUserClick={(handle) => navigate(`/u/${handle}`)}
-          onDelete={() => navigate(-1)}
+          onUserClick={handleUserClick}
+          onDelete={handleDelete}
         />
       </div>
     </div>

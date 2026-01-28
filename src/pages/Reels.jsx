@@ -1,87 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React from "react";
 import { Loader2, ArrowLeft, Volume2, VolumeX } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { fetchReels } from "@/lib/api/posts";
 import ReelItem from "@/components/features/post/ReelItem";
+import { useReels } from "@/hooks";
 
 const Reels = () => {
-  const navigate = useNavigate();
-  const containerRef = useRef(null);
-  const [reels, setReels] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [activeReelId, setActiveReelId] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const loadReels = async (lastTimestamp = null) => {
-    try {
-      const data = await fetchReels(lastTimestamp);
-      if (data.length < 10) {
-        setHasMore(false);
-      }
-      if (lastTimestamp) {
-        setReels((prev) => [...prev, ...data]);
-      } else {
-        setReels(data);
-        if (data.length > 0 && !activeReelId) {
-          setActiveReelId(data[0].id);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching reels:", error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
-  useEffect(() => {
-    loadReels();
-  }, []);
-
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current || loadingMore || !hasMore) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    if (scrollTop + clientHeight >= scrollHeight - 800) {
-      setLoadingMore(true);
-      const lastReel = reels[reels.length - 1];
-      // Use sort_timestamp or created_at for pagination
-      loadReels(lastReel?.sort_timestamp || lastReel?.created_at);
-    }
-  }, [reels, loadingMore, hasMore]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [handleScroll]);
-
-  useEffect(() => {
-    if (reels.length === 0) return;
-
-    const options = {
-      root: containerRef.current,
-      threshold: 0.6,
-    };
-
-    const callback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveReelId(entry.target.dataset.id);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(callback, options);
-    const elements = document.querySelectorAll(".reel-item");
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [reels]);
+  const {
+    reels,
+    loading,
+    loadingMore,
+    activeReelId,
+    isMuted,
+    containerRef,
+    navigate,
+    toggleMute,
+  } = useReels();
 
   if (loading) {
     return (
@@ -117,7 +49,7 @@ const Reels = () => {
       </button>
 
       <button
-        onClick={() => setIsMuted(!isMuted)}
+        onClick={toggleMute}
         className="absolute top-6 right-6 z-50 p-2.5 bg-black/20 hover:bg-black/40 text-white backdrop-blur-md rounded-full transition-all active:scale-90 border border-white/10 shadow-xl"
         title={isMuted ? "Unmute" : "Mute"}
       >
@@ -134,7 +66,7 @@ const Reels = () => {
             reel={reel}
             isActive={activeReelId === reel.id}
             isMuted={isMuted}
-            onToggleMute={() => setIsMuted(!isMuted)}
+            onToggleMute={toggleMute}
           />
         ))}
         {loadingMore && (
