@@ -6,7 +6,7 @@ const FeedBanner = () => {
       <img
         src="/welcome-banner.webp"
         alt="Welcome Banner"
-        fetchpriority="high"
+        fetchPriority="high"
         loading="eager"
         decoding="async"
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
