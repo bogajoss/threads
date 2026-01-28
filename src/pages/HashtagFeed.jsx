@@ -6,6 +6,7 @@ import { Button, NotFound } from "@/components/ui";
 import { searchPosts } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
+import SEOHead from "@/components/seo/SEOHead";
 
 const HashtagFeed = () => {
   const { tag } = useParams();
@@ -62,6 +63,10 @@ const HashtagFeed = () => {
 
   return (
     <div className="border-zinc-100 dark:border-zinc-800 bg-white dark:bg-black rounded-none md:rounded-xl overflow-hidden min-h-screen pb-20">
+      <SEOHead 
+        title={`#${tag}`} 
+        description={`Trending posts and discussions tagged with #${tag} on Sysm.`} 
+      />
       <div className="relative">
         <div className="sticky top-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-20 border-b border-zinc-100 dark:border-zinc-800 px-4 py-3">
           <div className="flex items-center gap-x-4">

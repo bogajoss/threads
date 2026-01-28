@@ -5,10 +5,21 @@ const SEOHead = ({ title, description, image, url, type = "website" }) => {
   const siteName = "Sysm";
   const defaultDescription = "A modern social network built for community engagement and seamless communication.";
   
-  // Construct a dynamic OG image URL if no specific image is provided
-  // We use a high-quality open source generator to mimic the "beautiful" card style
-  // In a real production app with Vercel/Next.js, you'd point this to /api/og
-  const dynamicImage = image || `https://og-image.vercel.app/${encodeURIComponent(title || siteName)}.png?theme=dark&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-white.svg`;
+  // Logic for determining the OG Image
+  let dynamicImage;
+
+  if (image) {
+    // 1. If a specific image is provided (e.g. post media, user avatar), use it.
+    dynamicImage = image;
+  } else if (title === "Home" || title === "Home Feed") {
+    // 2. If it's the Home page, use the static welcome banner.
+    dynamicImage = "/welcome-banner.webp"; // Ensure this path is correct relative to your public folder
+  } else {
+    // 3. For text-only posts or other pages, use the dynamic text card generator.
+    // Using a reliable public OG generator style.
+    const textToDisplay = title ? encodeURIComponent(title.replace(` | ${siteName}`, '')) : encodeURIComponent(siteName);
+    dynamicImage = `https://og-image.vercel.app/${textToDisplay}.png?theme=dark&md=1&fontSize=100px&images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fvercel-triangle-white.svg`;
+  }
 
   const metaTitle = title ? `${title} | ${siteName}` : siteName;
   const metaDescription = description || defaultDescription;
