@@ -38,6 +38,7 @@ const SidebarLeft = ({ onPostClick }) => {
           <NavLink
             key={item.id}
             to={item.path}
+            aria-label={item.id}
             className={({ isActive }) =>
               `p-2.5 rounded-xl transition-all duration-200 border border-transparent relative ${isActive ? "text-black dark:text-white bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900"}`
             }
@@ -55,6 +56,7 @@ const SidebarLeft = ({ onPostClick }) => {
         {currentUser && (
           <button
             onClick={onPostClick}
+            aria-label="Create Post"
             className="p-2.5 mt-2 rounded-xl text-white bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:scale-110 active:scale-95 transition-all duration-200 shadow-lg cursor-pointer"
             title="Create Post"
           >

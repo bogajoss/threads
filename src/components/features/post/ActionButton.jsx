@@ -15,6 +15,7 @@ const ActionButton = ({
         e.stopPropagation();
         onClick && onClick(e);
       }}
+      aria-label={`${label} ${count !== undefined ? `(${count})` : ""}`}
       className={`group flex items-center gap-x-1 sm:gap-x-1.5 text-[12px] sm:text-[13px] font-bold transition-all py-1.5 px-2 -ml-2 rounded-xl active:scale-95 ${active ? activeColorClass : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
     >
       <div

@@ -44,9 +44,9 @@ const LinkPreview = ({ url }) => {
           <Globe size={12} />
           <span>{data.siteName}</span>
         </div>
-        <h3 className="font-bold text-[15px] line-clamp-2 dark:text-white leading-snug group-hover:text-violet-700 transition-colors">
+        <div className="font-bold text-[15px] line-clamp-2 dark:text-white leading-snug group-hover:text-violet-700 transition-colors">
           {data.title}
-        </h3>
+        </div>
         {data.description && (
           <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
             {data.description}
