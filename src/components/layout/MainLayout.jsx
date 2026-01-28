@@ -28,7 +28,7 @@ const MainLayout = ({ onPostClick }) => {
         <SidebarLeft onPostClick={onPostClick} />
 
         {/* Main Content Area */}
-        <div
+        <main
           className="flex-1 flex justify-center gap-x-2 md:gap-x-8 py-0 md:py-5 px-0 md:px-4"
         >
           {/* Center Feed */}
@@ -46,7 +46,7 @@ const MainLayout = ({ onPostClick }) => {
 
           {/* Right Sidebar - Now on all pages, except Messages */}
           {!location.pathname.startsWith("/messages") && <SidebarRight />}
-        </div>
+        </main>
       </div>
 
       {!isNavHidden && <BottomNav handleProfileClick={handleProfileClick} />}

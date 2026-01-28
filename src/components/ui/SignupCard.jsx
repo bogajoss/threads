@@ -18,9 +18,9 @@ const SignupCard = ({ className }) => {
           💫
         </span>
       </div>
-      <h3 className="font-extrabold text-lg text-[--foreground] mt-2 leading-tight">
+      <h2 className="font-extrabold text-lg text-[--foreground] mt-2 leading-tight">
         Get your Sysm account now!
-      </h3>
+      </h2>
       <button
         onClick={() => setAuthMode("signup")}
         className="w-full bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 py-2.5 rounded-full font-black text-sm uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-lg cursor-pointer"

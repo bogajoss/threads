@@ -26,6 +26,7 @@ const BottomNav = ({ handleProfileClick }) => {
         <NavLink
           key={item.id}
           to={item.path}
+          aria-label={item.id}
           className={({ isActive }) =>
             `flex flex-1 flex-col items-center justify-center h-full transition-all duration-200 relative ${isActive ? "text-black dark:text-white" : "text-zinc-400 opacity-70"}`
           }
@@ -47,6 +48,7 @@ const BottomNav = ({ handleProfileClick }) => {
         onClick={() => {
           if (currentUser) handleProfileClick(currentUser.handle);
         }}
+        aria-label="My Profile"
         className="flex-1 flex flex-col items-center justify-center h-full"
       >
         <Avatar

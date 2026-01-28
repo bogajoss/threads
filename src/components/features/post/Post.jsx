@@ -582,7 +582,10 @@ const Post = ({
               </span>
               <PostActionsMenu
                 trigger={
-                  <button className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors">
+                  <button 
+                    aria-label="More options"
+                    className="text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full p-2 transition-colors"
+                  >
                     <MoreHorizontal size={20} />
                   </button>
                 }
@@ -806,7 +809,10 @@ const Post = ({
               </span>
               <PostActionsMenu
                 trigger={
-                  <button className="text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors">
+                  <button 
+                    aria-label="More options"
+                    className="text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 rounded-full p-2 -mr-2 transition-colors"
+                  >
                     <MoreHorizontal size={18} />
                   </button>
                 }
