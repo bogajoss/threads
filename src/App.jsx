@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 // Context
@@ -16,23 +16,28 @@ import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
 import AuthForm from "@/components/features/auth/AuthForm";
+import { Loader2 } from "lucide-react";
 
-// Pages
-import {
-  Home,
-  Explore,
-  Reels,
-  Messages,
-  Notifications,
-  Profile,
-  Community,
-  PostDetails,
-  Settings,
-  HashtagFeed
-} from "@/pages";
+// Pages (Lazy Loaded)
+const Home = lazy(() => import("@/pages/Home"));
+const Explore = lazy(() => import("@/pages/Explore"));
+const Reels = lazy(() => import("@/pages/Reels"));
+const Messages = lazy(() => import("@/pages/Messages"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Community = lazy(() => import("@/pages/Community"));
+const PostDetails = lazy(() => import("@/pages/PostDetails"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const HashtagFeed = lazy(() => import("@/pages/HashtagFeed"));
 
 import { Plus } from "lucide-react";
 import { ScrollToTop } from "@/lib/utils";
+
+const PageLoader = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <Loader2 size={40} className="animate-spin text-violet-500" />
+  </div>
+);
 
 export default function Sysm() {
   const location = useLocation();
@@ -71,111 +76,113 @@ export default function Sysm() {
     <VideoPlaybackProvider>
       <ScrollToTop />
 
-      <Routes location={location} key={location.pathname}>
-        <Route element={<MainLayout onPostClick={() => setIsPostModalOpen(true)} />}>
-          <Route
-            path="/"
-            element={
-              <PageTransition>
-                <Home
-                  onStoryClick={setViewingStory}
-                  onAddStory={() => setIsStoryModalOpen(true)}
-                />
-              </PageTransition>
-            }
-          />
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route
-            path="/community"
-            element={
-              <PageTransition>
-                <Explore />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/reels"
-            element={
-              <PageTransition>
-                <Reels />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/messages"
-            element={
-              <PageTransition>
-                <Messages />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <PageTransition>
-                <Settings />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/messages/:id"
-            element={
-              <PageTransition>
-                <Messages />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <PageTransition>
-                <Notifications />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/post/:id"
-            element={
-              <PageTransition>
-                <PostDetails />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/c/:handle"
-            element={
-              <PageTransition>
-                <Community onPostInCommunity={(c) => {
-                  setPostCommunity(c);
-                  setIsPostModalOpen(true);
-                }} />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/tags/:tag"
-            element={
-              <PageTransition>
-                <HashtagFeed />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/u/:handle"
-            element={
-              <PageTransition>
-                <Profile
-                  onEditProfile={(profile) => {
-                    setEditProfileData(profile);
-                    setIsEditProfileOpen(true);
-                  }}
-                />
-              </PageTransition>
-            }
-          />
-          <Route path="*" element={<Navigate to="/community" />} />
-        </Route>
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes location={location} key={location.pathname}>
+          <Route element={<MainLayout onPostClick={() => setIsPostModalOpen(true)} />}>
+            <Route
+              path="/"
+              element={
+                <PageTransition>
+                  <Home
+                    onStoryClick={setViewingStory}
+                    onAddStory={() => setIsStoryModalOpen(true)}
+                  />
+                </PageTransition>
+              }
+            />
+            <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route
+              path="/community"
+              element={
+                <PageTransition>
+                  <Explore />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/reels"
+              element={
+                <PageTransition>
+                  <Reels />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <PageTransition>
+                  <Messages />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PageTransition>
+                  <Settings />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/messages/:id"
+              element={
+                <PageTransition>
+                  <Messages />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <PageTransition>
+                  <Notifications />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/post/:id"
+              element={
+                <PageTransition>
+                  <PostDetails />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/c/:handle"
+              element={
+                <PageTransition>
+                  <Community onPostInCommunity={(c) => {
+                    setPostCommunity(c);
+                    setIsPostModalOpen(true);
+                  }} />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/tags/:tag"
+              element={
+                <PageTransition>
+                  <HashtagFeed />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/u/:handle"
+              element={
+                <PageTransition>
+                  <Profile
+                    onEditProfile={(profile) => {
+                      setEditProfileData(profile);
+                      setIsEditProfileOpen(true);
+                    }}
+                  />
+                </PageTransition>
+              }
+            />
+            <Route path="*" element={<Navigate to="/community" />} />
+          </Route>
+        </Routes>
+      </Suspense>
 
       {/* Global Overlays */}
       <GlobalModals

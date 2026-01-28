@@ -12,8 +12,12 @@ export const uploadFile = async (file, bucket = "media", customPoster = null) =>
   let posterUrl = null;
 
   if (file.type.startsWith("image/")) {
-    fileToUpload = await compressImage(file);
-    fileExt = "webp"; // Forced conversion in compression.js
+    try {
+      fileToUpload = await compressImage(file);
+      fileExt = "webp"; // Forced conversion in compression.js
+    } catch (error) {
+      console.error("Image compression failed, uploading original:", error);
+    }
   }
 
   // Handle video poster
