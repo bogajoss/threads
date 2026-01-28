@@ -9,4 +9,5 @@ export { default as Post } from "./Post";
 export { default as QuotedPost } from "./QuotedPost";
 export { default as ReelItem } from "./ReelItem";
 export { default as ReelCommentsModal } from "./ReelCommentsModal";
+export { default as ShareModal } from "./ShareModal";
 export { default as VideoPlayer } from "./VideoPlayer";

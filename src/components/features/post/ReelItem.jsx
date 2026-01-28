@@ -8,10 +8,10 @@ import { linkifyOptions } from "@/lib/linkify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { ReelCommentsModal } from "@/components/features/post";
+import { ReelCommentsModal, ShareModal } from "@/components/features/post";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
-import { ShareIcon, FollowIcon, FollowingIcon } from "@/components/ui";
+import { ShareIcon, FollowIcon, FollowingIcon, ChatIcon } from "@/components/ui";
 
 const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
   const playerRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [showPlayPauseIcon, setShowPlayPauseIcon] = useState(null); // 'play' or 'pause'
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(reel.stats?.likes || 0);
@@ -196,9 +197,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
 
   const handleShare = (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/reels?id=${reel.id}`;
-    navigator.clipboard.writeText(url);
-    addToast("Link copied to clipboard!");
+    setIsShareOpen(true);
   };
 
   const plyrProps = useMemo(() => ({
@@ -367,7 +366,7 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
               setIsCommentsOpen(true);
             }}
           >
-            <MessageCircle size={28} />
+            <ChatIcon size={28} />
           </button>
           <span className="text-white text-xs font-bold">
             {reel.stats?.comments || 0}
@@ -400,6 +399,13 @@ const ReelItem = React.memo(({ reel, isActive, isMuted }) => {
         reelId={reel.id}
         currentUser={currentUser}
         showToast={addToast}
+      />
+
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        url={`${window.location.origin}/reels?id=${reel.id}`}
+        title="Share Reel"
       />
     </div>
   );

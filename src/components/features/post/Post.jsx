@@ -38,8 +38,9 @@ import {
   Button,
   VerifiedIcon,
   EditIcon,
-  LinkIcon,
   ShareIcon,
+  ChatIcon,
+  ChevronTagIcon,
 } from "@/components/ui";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
@@ -49,12 +50,13 @@ import {
   ActionButton,
   MediaGrid,
   CommentInput,
-  LinkPreview
+  LinkPreview,
+  ShareModal
 } from "@/components/features/post";
 import { usePostInteraction } from "@/hooks";
 import { usePosts } from "@/context/PostContext";
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
-import { isBangla, extractUrl } from "@/lib/utils";
+import { isBangla, extractUrl, cn } from "@/lib/utils";
 
 const Post = ({
   id,
@@ -97,6 +99,7 @@ const Post = ({
   const [newFiles, setNewFiles] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const editFileInputRef = useRef(null);
   const commentsRef = useRef(comments);
@@ -221,10 +224,8 @@ const Post = ({
   };
 
   const handleCopyLink = (e) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/post/${id}`;
-    navigator.clipboard.writeText(url);
-    if (showToast) showToast("Link copied to clipboard!");
+    if (e) e.stopPropagation();
+    setIsShareOpen(true);
   };
 
   const PostActionsMenu = ({ trigger }) => (
@@ -450,37 +451,42 @@ const Post = ({
               ...linkifyOptions,
               render: ({ attributes, content }) => {
                 const { href, ...props } = attributes;
-                // Determine if it's an external link
-                const isExternal =
-                  !href.startsWith("/") &&
-                  (href.startsWith("http") || href.startsWith("www"));
+                const origin = window.location.origin;
 
-                if (
-                  href.startsWith("/u/") ||
-                  href.startsWith("/tags/") ||
-                  href.startsWith("/c/") ||
-                  href.startsWith("/explore")
-                ) {
+                // Check if link is internal (either relative or absolute to current origin)
+                let internalPath = null;
+                if (href.startsWith("/")) {
+                  internalPath = href;
+                } else if (href.startsWith(origin)) {
+                  internalPath = href.replace(origin, "");
+                }
+
+                if (internalPath) {
                   return (
                     <span
                       key={content}
                       {...props}
+                      className={cn("text-violet-600 dark:text-violet-400 font-medium hover:underline cursor-pointer", props.className)}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(href);
+                        navigate(internalPath);
                       }}
                     >
                       {content}
                     </span>
                   );
                 }
+
+                // Treat everything else as external
                 return (
                   <a
                     key={content}
                     href={href}
                     {...props}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn("text-violet-600 dark:text-violet-400 hover:underline", props.className)}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {content}
                   </a>
@@ -551,7 +557,7 @@ const Post = ({
 
                     {community && (
                       <div className="flex items-center gap-1 min-w-0 text-zinc-500">
-                        <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
+                        <ChevronTagIcon size={14} className="text-zinc-400 shrink-0" />
                         <button
                           className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline text-[14px] sm:text-[15px]"
                           onClick={(e) => {
@@ -639,7 +645,7 @@ const Post = ({
               />
             )}
             <ActionButton
-              icon={MessageCircle}
+              icon={ChatIcon}
               label="Comment"
               onClick={() => document.getElementById("comment-input")?.focus()}
             />
@@ -788,7 +794,7 @@ const Post = ({
 
                   {community && (
                     <div className="flex items-center gap-1 min-w-0 text-zinc-500">
-                      <span className="text-zinc-400 font-medium shrink-0 text-xs sm:text-sm">&gt;</span>
+                      <ChevronTagIcon size={14} className="text-zinc-400 shrink-0" />
                       <button
                         className="flex items-center gap-1 font-bold text-zinc-900 dark:text-zinc-100 hover:underline text-[14px] sm:text-[15px] min-w-0"
                         onClick={(e) => {
@@ -914,6 +920,12 @@ const Post = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        url={`${window.location.origin}/post/${id}`}
+        title="Share Post"
+      />
     </article>
   );
 };

@@ -2,6 +2,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const QuotedPost = ({ user, time, content }) => {
   const navigate = useNavigate();
@@ -22,36 +23,40 @@ const QuotedPost = ({ user, time, content }) => {
           ...linkifyOptions,
           render: ({ attributes, content: text }) => {
             const { href, ...props } = attributes;
-            const isExternal =
-              !href.startsWith("/") &&
-              (href.startsWith("http") || href.startsWith("www"));
+            const origin = window.location.origin;
 
-            if (
-              href.startsWith("/u/") ||
-              href.startsWith("/tags/") ||
-              href.startsWith("/c/") ||
-              href.startsWith("/explore")
-            ) {
+            // Check if link is internal
+            let internalPath = null;
+            if (href.startsWith("/")) {
+              internalPath = href;
+            } else if (href.startsWith(origin)) {
+              internalPath = href.replace(origin, "");
+            }
+
+            if (internalPath) {
               return (
                 <span
                   key={text}
                   {...props}
+                  className={cn("text-violet-600 dark:text-violet-400 font-medium hover:underline cursor-pointer", props.className)}
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(href);
+                    navigate(internalPath);
                   }}
                 >
                   {text}
                 </span>
               );
             }
+
             return (
               <a
                 key={text}
                 href={href}
                 {...props}
-                target={isExternal ? "_blank" : undefined}
-                rel={isExternal ? "noopener noreferrer" : undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn("text-violet-600 dark:text-violet-400 hover:underline", props.className)}
                 onClick={(e) => e.stopPropagation()}
               >
                 {text}

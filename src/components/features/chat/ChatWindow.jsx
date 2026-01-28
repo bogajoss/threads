@@ -277,42 +277,42 @@ const ChatWindow = ({
                             ...linkifyOptions,
                             render: ({ attributes, content: text }) => {
                               const { href, ...props } = attributes;
-                              const isExternal =
-                                !href.startsWith("/") &&
-                                (href.startsWith("http") || href.startsWith("www"));
+                              const origin = window.location.origin;
 
-                              if (
-                                href.startsWith("/u/") ||
-                                href.startsWith("/tags/") ||
-                                href.startsWith("/c/") ||
-                                href.startsWith("/explore")
-                              ) {
+                              // Check if link is internal
+                              let internalPath = null;
+                              if (href.startsWith("/")) {
+                                internalPath = href;
+                              } else if (href.startsWith(origin)) {
+                                internalPath = href.replace(origin, "");
+                              }
+
+                              if (internalPath) {
                                 return (
                                   <span
                                     key={text}
                                     {...props}
-                                    className={`underline decoration-2 underline-offset-2 cursor-pointer transition-opacity break-all ${msg.sender === "me"
-                                      ? "text-white"
-                                      : "text-rose-500 dark:text-rose-400"
+                                    className={`font-semibold underline decoration-1 underline-offset-4 cursor-pointer transition-opacity break-all ${msg.sender === "me" ? "text-white" : "text-violet-600 dark:text-violet-400"
                                       }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      navigate(href);
+                                      navigate(internalPath);
                                     }}
                                   >
                                     {text}
                                   </span>
                                 );
                               }
+
                               return (
                                 <a
                                   key={text}
                                   href={href}
                                   {...props}
-                                  className={`underline decoration-2 underline-offset-2 hover:opacity-80 transition-opacity break-all ${msg.sender === "me" ? "text-white" : ""
+                                  className={`underline decoration-1 underline-offset-4 hover:opacity-80 transition-opacity break-all ${msg.sender === "me" ? "text-white" : "text-violet-600 dark:text-violet-400"
                                     }`}
-                                  target={isExternal ? "_blank" : undefined}
-                                  rel={isExternal ? "noopener noreferrer" : undefined}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   {text}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Users, Film, Mail, Bell } from "lucide-react";
+import { HomeIcon, ChatIcon, CommunityIcon, ReelsIcon, NotificationsIcon } from "@/components/ui";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -13,11 +13,11 @@ const BottomNav = ({ handleProfileClick }) => {
   const location = useLocation();
 
   const navItems = [
-    { id: "home", icon: Home, path: "/" },
-    { id: "community", icon: Users, path: "/community" },
-    { id: "reels", icon: Film, path: "/reels" },
-    { id: "messages", icon: Mail, path: "/messages" },
-    { id: "notifications", icon: Bell, path: "/notifications" },
+    { id: "home", icon: HomeIcon, path: "/" },
+    { id: "community", icon: CommunityIcon, path: "/community" },
+    { id: "reels", icon: ReelsIcon, path: "/reels" },
+    { id: "messages", icon: ChatIcon, path: "/messages" },
+    { id: "notifications", icon: NotificationsIcon, path: "/notifications" },
   ];
 
   return (
