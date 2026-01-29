@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/context-menu"
 import { Copy, Trash, Reply } from "lucide-react"
 // @ts-ignore
-import EmojiPicker from "@/components/ui/EmojiPicker"
+import EmojiPicker from "@/components/ui/emoji-picker"
 import Linkify from "linkify-react"
 // @ts-ignore
 import MessageReactionPicker from "@/components/features/chat/MessageReactionPicker"
@@ -183,6 +183,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <button
                         onClick={onBack}
                         className="rounded-full p-1 transition-colors hover:bg-zinc-100 dark:text-white dark:hover:bg-zinc-800 md:hidden"
+                        aria-label="Back"
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -219,7 +220,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         )}
                     </div>
                 </div>
-                <button className="rounded-full p-2 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                <button 
+                    className="rounded-full p-2 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    aria-label="More options"
+                >
                     <MoreVertical size={20} />
                 </button>
             </div>
@@ -411,6 +415,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                             key={emoji}
                                             onClick={() => onToggleReaction(msg.id, emoji)}
                                             className="rounded-full p-2 text-xl transition-all hover:bg-zinc-100 active:scale-125 dark:hover:bg-zinc-800"
+                                            aria-label={`React with ${emoji}`}
                                         >
                                             {emoji}
                                         </button>
@@ -472,6 +477,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         <button
                             onClick={() => setReplyingTo(null)}
                             className="rounded-full p-1 text-zinc-400 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800"
+                            aria-label="Cancel reply"
                         >
                             <X size={18} />
                         </button>
@@ -490,6 +496,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                     type="button"
                                     onClick={() => removeAttachment(att.url)}
                                     className="absolute right-1 top-1 rounded-full bg-black/50 p-0.5 text-white transition-colors hover:bg-black"
+                                    aria-label="Remove attachment"
                                 >
                                     <X size={12} />
                                 </button>
@@ -512,6 +519,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             <button
                                 type="button"
                                 className="p-2 text-zinc-500 transition-colors hover:text-violet-600"
+                                aria-label="Add emoji"
                             >
                                 <Smile size={20} />
                             </button>
@@ -536,6 +544,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         placeholder="Start a new message"
                         value={text}
                         onChange={handleTextChange}
+                        aria-label="Message text"
                     />
                     <input
                         type="file"
@@ -550,6 +559,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 text-zinc-500 transition-colors hover:text-violet-600"
                         disabled={isUploading}
+                        aria-label="Attach file"
                     >
                         <Paperclip size={20} />
                     </button>
@@ -557,6 +567,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         type="submit"
                         className="size-10 rounded-xl !p-0"
                         disabled={(!text.trim() && attachments.length === 0) || isUploading}
+                        aria-label="Send message"
                     >
                         <Send size={18} />
                     </Button>

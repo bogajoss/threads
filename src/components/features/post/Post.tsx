@@ -1030,4 +1030,20 @@ const Post: React.FC<PostProps> = ({
     )
 }
 
-export default Post
+function arePropsEqual(prevProps: PostProps, nextProps: PostProps) {
+    return (
+        prevProps.id === nextProps.id &&
+        prevProps.content === nextProps.content &&
+        prevProps.timeAgo === nextProps.timeAgo &&
+        prevProps.user.id === nextProps.user.id && // User ID check
+        prevProps.user.avatar === nextProps.user.avatar && // User avatar check
+        prevProps.stats.likes === nextProps.stats.likes &&
+        prevProps.stats.comments === nextProps.stats.comments &&
+        prevProps.stats.reposts === nextProps.stats.reposts &&
+        prevProps.currentUser?.id === nextProps.currentUser?.id &&
+        JSON.stringify(prevProps.media) === JSON.stringify(nextProps.media) &&
+        JSON.stringify(prevProps.repostedBy) === JSON.stringify(nextProps.repostedBy)
+    );
+}
+
+export default React.memo(Post, arePropsEqual)

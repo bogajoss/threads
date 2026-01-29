@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleFollow, checkIfFollowing, fetchFollowStats } from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
 import type { User } from "@/types/index";
@@ -14,88 +15,97 @@ export const useFollow = (
     showToast: (msg: string, type?: 'success' | 'error' | 'info') => void
 ) => {
     const targetId = profile?.id;
-    const [isFollowing, setIsFollowing] = useState<boolean>(false);
+    const queryClient = useQueryClient();
+    
+    // Local stats state for optimistic UI, initialized from profile prop
     const [stats, setStats] = useState<FollowStats>({
         followers: profile?.follower_count || 0,
         following: profile?.following_count || 0,
     });
-    const [loading, setLoading] = useState<boolean>(false);
 
-    // Initial check and stats update when profile changes
+    // Update local stats when profile changes (e.g. navigation)
     useEffect(() => {
         if (profile) {
             setStats({
                 followers: profile.follower_count || 0,
                 following: profile.following_count || 0,
             });
-
-            if (targetId && isValidUUID(targetId)) {
-                fetchFollowStats(targetId)
-                    .then((fetchedStats) => {
-                        if (fetchedStats) {
-                            setStats({
-                                followers: fetchedStats.followers,
-                                following: fetchedStats.following,
-                            });
-                        }
-                    })
-                    .catch(() => { });
-
-                if (currentUserId && isValidUUID(currentUserId)) {
-                    checkIfFollowing(currentUserId, targetId)
-                        .then(setIsFollowing)
-                        .catch(() => setIsFollowing(false));
-                } else {
-                    setIsFollowing(false);
-                }
-            }
         }
-    }, [profile, targetId, currentUserId]);
+    }, [profile]);
+
+    const isValidIds = targetId && isValidUUID(targetId) && currentUserId && isValidUUID(currentUserId);
+
+    // 1. Fetch Follow Status
+    const { data: isFollowing = false } = useQuery({
+        queryKey: ["isFollowing", currentUserId, targetId],
+        queryFn: () => checkIfFollowing(currentUserId!, targetId!),
+        enabled: !!isValidIds,
+        staleTime: Infinity, // Doesn't change unless action taken
+    });
+
+    // 2. Fetch Latest Stats (Background Refresh)
+    useQuery({
+        queryKey: ["followStats", targetId],
+        queryFn: async () => {
+            const data = await fetchFollowStats(targetId!);
+            setStats(data);
+            return data;
+        },
+        enabled: !!targetId && isValidUUID(targetId),
+        staleTime: 1000 * 60,
+    });
+
+    // 3. Mutation
+    const followMutation = useMutation({
+        mutationFn: () => toggleFollow(currentUserId!, targetId!),
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["isFollowing", currentUserId, targetId] });
+            const previousFollowing = queryClient.getQueryData(["isFollowing", currentUserId, targetId]);
+
+            // Optimistically update status
+            queryClient.setQueryData(["isFollowing", currentUserId, targetId], !isFollowing);
+            
+            // Optimistically update stats
+            setStats(prev => ({
+                ...prev,
+                followers: !isFollowing ? prev.followers + 1 : Math.max(0, prev.followers - 1)
+            }));
+
+            return { previousFollowing };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousFollowing !== undefined) {
+                queryClient.setQueryData(["isFollowing", currentUserId, targetId], context.previousFollowing);
+                // Rollback stats
+                setStats(prev => ({
+                    ...prev,
+                    followers: context.previousFollowing ? prev.followers + 1 : Math.max(0, prev.followers - 1)
+                }));
+            }
+            showToast("Failed to update follow status", "error");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["isFollowing", currentUserId, targetId] });
+            queryClient.invalidateQueries({ queryKey: ["followStats", targetId] });
+        },
+        onSuccess: (newItemState) => {
+            showToast(newItemState ? "Followed" : "Unfollowed");
+        }
+    });
 
     const handleFollow = async () => {
         if (!currentUserId) return showToast("Please login to follow!", "error");
-        if (currentUserId === targetId)
-            return showToast("You cannot follow yourself!", "error");
+        if (currentUserId === targetId) return showToast("You cannot follow yourself!", "error");
+        if (!isValidIds) return;
 
-        if (!targetId || !isValidUUID(targetId) || !isValidUUID(currentUserId)) {
-            // Fallback or legacy check - though isValidUUID should catch this
-            const following = !isFollowing;
-            setIsFollowing(following);
-
-            setStats((prev) => {
-                // Assuming prev.followers is always number in TS version
-                const currentFollowers = prev.followers;
-
-                return {
-                    ...prev,
-                    followers: following
-                        ? currentFollowers + 1
-                        : Math.max(0, currentFollowers - 1),
-                };
-            });
-
-            showToast(following ? "Followed" : "Unfollowed");
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const following = await toggleFollow(currentUserId, targetId);
-            setIsFollowing(following);
-            setStats((prev) => ({
-                ...prev,
-                followers: following
-                    ? (prev.followers || 0) + 1
-                    : Math.max(0, (prev.followers || 0) - 1),
-            }));
-            showToast(following ? "Followed" : "Unfollowed");
-        } catch (err) {
-            console.error("Failed to toggle follow:", err);
-            showToast("Failed to update follow status", "error");
-        } finally {
-            setLoading(false);
-        }
+        followMutation.mutate();
     };
 
-    return { isFollowing, stats, loading, handleFollow, setStats };
+    return { 
+        isFollowing, 
+        stats, 
+        loading: followMutation.isPending, 
+        handleFollow, 
+        setStats 
+    };
 };

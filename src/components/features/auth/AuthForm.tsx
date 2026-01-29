@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Loader2, AlertCircle } from "lucide-react"
-import Button from "@/components/ui/Button"
-import Input from "@/components/ui/Input"
+import Button from "@/components/ui/button"
+import Input from "@/components/ui/input"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 

@@ -1,79 +1,61 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from "react"
+import { useState, useMemo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
-import type { User } from "@/types"
+import { fetchPostsByUserId } from "@/lib/api"
 // @ts-ignore
-import { fetchFollowers, fetchFollowing, fetchPostsByUserId } from "@/lib/api"
+import { fetchFollowers, fetchFollowing } from "@/lib/api"
 
 export const useProfile = () => {
     const { handle } = useParams()
     const navigate = useNavigate()
-    const { profiles, currentUser, getProfileByHandle } = useAuth()
+    const { currentUser, getProfileByHandle } = useAuth()
     const { addToast } = useToast()
 
-    const [profile, setProfile] = useState<any>(
-        profiles[handle?.toLowerCase() || ""]
-    )
-    const [loading, setLoading] = useState(!profile)
+    // 1. Fetch Profile Data using useQuery
+    const { 
+        data: profile, 
+        isLoading: loadingProfile 
+    } = useQuery({
+        queryKey: ["profile", handle],
+        queryFn: () => getProfileByHandle(handle!),
+        enabled: !!handle,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
-    // Post loading state
-    const [userPosts, setUserPosts] = useState<any[]>([])
     const [activeProfileTab, setActiveProfileTab] = useState("feed")
-    const [loadingPosts, setLoadingPosts] = useState(true)
-    const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false)
-    const [hasMorePosts, setHasMorePosts] = useState(true)
 
-    const userPostsRef = useRef(userPosts)
-    useEffect(() => {
-        userPostsRef.current = userPosts
-    }, [userPosts])
+    // 2. Fetch User Posts using useInfiniteQuery
+    const {
+        data: postsData,
+        fetchNextPage: fetchNextPosts,
+        hasNextPage: hasMorePosts,
+        isFetchingNextPage: isFetchingMorePosts,
+        isLoading: loadingPosts
+    } = useInfiniteQuery({
+        queryKey: ["posts", "user", profile?.id],
+        queryFn: ({ pageParam }) => fetchPostsByUserId(profile?.id!, pageParam, 10),
+        enabled: !!profile?.id,
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined;
+            // @ts-ignore
+            return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].created_at;
+        }
+    });
 
-    // Followers/Following Modal State
+    const userPosts = useMemo(() => {
+        return postsData?.pages.flatMap(page => page) || [];
+    }, [postsData]);
+
+    // Followers/Following Modal State (Kept manual for now as requested/scoped)
     const [isFollowModalOpen, setIsFollowModalOpen] = useState(false)
     const [followModalType, setFollowModalType] = useState("Followers") // 'Followers' or 'Following'
     const [followListData, setFollowListData] = useState<any[]>([])
     const [isListLoading, setIsListLoading] = useState(false)
     const [isFetchingMoreFollows, setIsFetchingMoreFollows] = useState(false)
     const [hasMoreFollows, setHasMoreFollows] = useState(true)
-
-    const followListDataRef = useRef(followListData)
-    useEffect(() => {
-        followListDataRef.current = followListData
-    }, [followListData])
-
-    const loadUserPosts = useCallback(
-        async (userId: string, isLoadMore = false) => {
-            if (!userId) return
-            if (isLoadMore) setIsFetchingMorePosts(true)
-            else setLoadingPosts(true)
-
-            try {
-                const currentPosts = userPostsRef.current
-                const lastTimestamp =
-                    isLoadMore && currentPosts.length > 0
-                        ? currentPosts[currentPosts.length - 1].created_at
-                        : null
-
-                const data = await fetchPostsByUserId(userId, lastTimestamp, 10)
-
-                if (data.length < 10) setHasMorePosts(false)
-                else setHasMorePosts(true)
-
-                if (isLoadMore) {
-                    setUserPosts((prev) => [...prev, ...data])
-                } else {
-                    setUserPosts(data)
-                }
-            } catch (err) {
-                console.error("Failed to fetch user posts:", err)
-            } finally {
-                setLoadingPosts(false)
-                setIsFetchingMorePosts(false)
-            }
-        },
-        []
-    )
 
     const openFollowModal = async (type: string, isLoadMore = false) => {
         const userId = profile?.id
@@ -88,10 +70,9 @@ export const useProfile = () => {
         }
 
         try {
-            const currentFollowList = followListDataRef.current
             const lastTimestamp =
-                isLoadMore && currentFollowList.length > 0
-                    ? currentFollowList[currentFollowList.length - 1].followed_at
+                isLoadMore && followListData.length > 0
+                    ? followListData[followListData.length - 1].followed_at
                     : null
 
             const data =
@@ -115,26 +96,6 @@ export const useProfile = () => {
             setIsFetchingMoreFollows(false)
         }
     }
-
-    useEffect(() => {
-        const fetchProfileData = async () => {
-            if (!handle) return
-            let currentProfile: User | null = profiles[handle.toLowerCase()]
-            if (!currentProfile) {
-                setLoading(true)
-                currentProfile = await getProfileByHandle(handle)
-                setProfile(currentProfile)
-                setLoading(false)
-            } else {
-                setProfile(currentProfile)
-            }
-
-            if (currentProfile?.id) {
-                loadUserPosts(currentProfile.id)
-            }
-        }
-        fetchProfileData()
-    }, [handle, profiles, getProfileByHandle, loadUserPosts])
 
     const filteredPosts = useMemo(() => {
         if (activeProfileTab === "feed") {
@@ -167,12 +128,18 @@ export const useProfile = () => {
         navigate(`/u/${targetHandle}`)
     }
 
+    // Shim for loadUserPosts to maintain interface if needed by UI (though UI should use fetchNextPosts)
+    // The UI likely calls `loadUserPosts(id, true)` for infinite scroll
+    const loadUserPosts = (userId: string, isLoadMore = false) => {
+        if (isLoadMore) fetchNextPosts();
+    };
+
     return {
         handle,
         profile,
-        loading,
+        loading: loadingProfile, // Mapped to new loading state
         userPosts,
-        setUserPosts,
+        setUserPosts: () => console.warn("setUserPosts is deprecated"), // Read-only from RQ
         activeProfileTab,
         setActiveProfileTab,
         loadingPosts,

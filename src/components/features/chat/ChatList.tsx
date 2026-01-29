@@ -1,6 +1,6 @@
 import React from "react"
-import { useNavigate } from "react-router-dom"
-import SearchBar from "@/components/ui/SearchBar"
+import { formatDistanceToNow } from "date-fns"
+import SearchBar from "@/components/ui/search-bar"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { UserPlus } from "lucide-react"
 // @ts-ignore

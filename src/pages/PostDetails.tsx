@@ -1,8 +1,8 @@
 import { ArrowLeft, FileX } from "lucide-react"
 // @ts-ignore
 import Post from "@/components/features/post/Post"
-import NotFound from "@/components/ui/NotFound"
-import SkeletonPost from "@/components/ui/SkeletonPost"
+import NotFound from "@/components/ui/not-found"
+import SkeletonPost from "@/components/ui/skeleton-post"
 import { usePostDetails } from "@/hooks/pages/usePostDetails"
 
 const PostDetails = () => {

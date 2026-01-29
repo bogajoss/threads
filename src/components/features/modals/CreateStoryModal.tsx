@@ -1,15 +1,16 @@
 import React, { useState, useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import Modal from "@/components/ui/Modal"
-import Button from "@/components/ui/Button"
+import Modal from "@/components/ui/modal"
+import Button from "@/components/ui/button"
 import { Loader2, X } from "lucide-react"
 // @ts-ignore
 import { EditIcon } from "@/components/ui"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 import { uploadFile, addStory } from "@/lib/api"
-// @ts-ignore
-import ImageCropper from "@/components/ui/ImageCropper"
+import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop"
+import "react-image-crop/dist/ReactCrop.css"
+import ImageCropper from "@/components/ui/image-cropper"
 
 interface CreateStoryModalProps {
     isOpen: boolean

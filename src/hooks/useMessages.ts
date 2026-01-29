@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import {
     fetchConversations,
     sendMessage,
@@ -7,7 +7,8 @@ import {
     markMessagesAsRead,
     toggleMessageReaction,
     deleteMessage as deleteMessageApi,
-    fetchAllReactions,
+    fetchReactionsByConversation,
+    fetchMessages,
 } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import type { User, Message, Reaction } from "@/types/index";
@@ -24,7 +25,7 @@ interface FormattedMessage {
     time: string;
 }
 
-export const useMessages = (currentUser: User | null) => {
+export const useMessages = (currentUser: User | null, activeConversationId?: string) => {
     const queryClient = useQueryClient();
     const [typingStatus, setTypingStatus] = useState<Record<string, boolean>>({}); // { convId: boolean }
     const channelRef = useRef<any>(null);
@@ -34,6 +35,7 @@ export const useMessages = (currentUser: User | null) => {
         queryKey: ["conversations", currentUser?.id],
         queryFn: () => fetchConversations(currentUser?.id || ""),
         enabled: !!currentUser?.id,
+        staleTime: 1000 * 60, // 1 minute
     });
 
     // 1.1 Fetch Global Unread Count
@@ -41,15 +43,37 @@ export const useMessages = (currentUser: User | null) => {
         queryKey: ["unread_messages_count", currentUser?.id],
         queryFn: () => fetchUnreadMessagesCount(currentUser?.id || ""),
         enabled: !!currentUser?.id,
+        staleTime: 1000 * 60,
     });
 
-    const { data: _allReactions = [] } = useQuery({
-        queryKey: ["reactions"],
-        queryFn: fetchAllReactions,
-        enabled: !!currentUser?.id,
+    // 2. Fetch Messages (Infinite Scroll) for active conversation
+    const {
+        data: messagesData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading: isMsgLoading
+    } = useInfiniteQuery({
+        queryKey: ["messages", activeConversationId],
+        queryFn: ({ pageParam }) => fetchMessages(activeConversationId!, pageParam, 20),
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 20) return undefined;
+            return lastPage[lastPage.length - 1].created_at;
+        },
+        enabled: !!activeConversationId,
+        refetchOnWindowFocus: false,
     });
 
-    // 2. Realtime subscription (Messages + Typing + Reactions)
+    // 3. Fetch Reactions for active conversation
+    const { data: conversationReactions = [] } = useQuery({
+        queryKey: ["reactions", activeConversationId],
+        queryFn: () => fetchReactionsByConversation(activeConversationId!),
+        enabled: !!activeConversationId,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    // 4. Realtime subscription
     useEffect(() => {
         if (!currentUser?.id) return;
 
@@ -57,18 +81,17 @@ export const useMessages = (currentUser: User | null) => {
         const messagesChannel = supabase
             .channel(`user_messages:${currentUser.id}`)
             .on(
+                // @ts-ignore
                 "postgres_changes",
                 { event: "INSERT", schema: "public", table: "messages" },
                 (payload: any) => {
                     const newM = payload.new;
-                    queryClient.setQueryData(
-                        ["messages", newM.conversation_id],
-                        (old: Message[] | undefined) => {
-                            if (!old) return [newM];
-                            if (old.find((m) => m.id === newM.id)) return old;
-                            return [...old, newM];
-                        },
-                    );
+                    
+                    // Invalidate specific conversation messages to refresh
+                    if (newM.conversation_id === activeConversationId) {
+                        queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
+                    }
+
                     if (newM.sender_id !== currentUser.id) {
                         queryClient.invalidateQueries({
                             queryKey: ["unread_messages_count", currentUser.id],
@@ -84,12 +107,10 @@ export const useMessages = (currentUser: User | null) => {
                 },
             )
             .on(
+                // @ts-ignore
                 "postgres_changes",
                 { event: "DELETE", schema: "public", table: "messages" },
-                (_payload: any) => {
-                    // const _oldM = payload.old;
-                    // Optimistically update all message caches or wait for refetch
-                    // Invalidate messages for the likely conversation
+                () => {
                     queryClient.invalidateQueries({ queryKey: ["messages"] });
                     queryClient.invalidateQueries({
                         queryKey: ["conversations", currentUser.id],
@@ -97,13 +118,11 @@ export const useMessages = (currentUser: User | null) => {
                 },
             )
             .on(
+                // @ts-ignore
                 "postgres_changes",
                 { event: "*", schema: "public", table: "message_reactions" },
                 () => {
-                    // Simplest: invalidate all reactions or use payload to find conversation
-                    // Since we don't have convId in payload directly without join,
-                    // we might need to invalidate conversation reactions.
-                    queryClient.invalidateQueries({ queryKey: ["reactions"] });
+                    queryClient.invalidateQueries({ queryKey: ["reactions", activeConversationId] });
                 },
             )
             .subscribe();
@@ -125,9 +144,9 @@ export const useMessages = (currentUser: User | null) => {
             supabase.removeChannel(messagesChannel);
             supabase.removeChannel(typingChannel);
         };
-    }, [currentUser?.id, queryClient]);
+    }, [currentUser?.id, queryClient, activeConversationId]);
 
-    // 3. Mutation to send message
+    // 5. Mutation to send message
     const sendMutation = useMutation({
         mutationFn: ({
             convId,
@@ -144,15 +163,8 @@ export const useMessages = (currentUser: User | null) => {
         }) => sendMessage(convId, currentUser!.id, text, type, media, replyToId),
         onSuccess: (newMessage: Message | null) => {
             if (!newMessage) return;
-            // Optimistically update the message cache
-            queryClient.setQueryData(
-                ["messages", newMessage.conversation_id],
-                (old: Message[] | undefined) => {
-                    if (!old) return [newMessage];
-                    if (old.find((m) => m.id === newMessage.id)) return old;
-                    return [...old, newMessage];
-                },
-            );
+            // Invalidate to fetch the new message
+            queryClient.invalidateQueries({ queryKey: ["messages", newMessage.conversation_id] });
             // Refresh conversation list
             queryClient.invalidateQueries({
                 queryKey: ["conversations", currentUser!.id]
@@ -160,9 +172,6 @@ export const useMessages = (currentUser: User | null) => {
         },
     });
 
-    /**
-     * Broadcast typing status to the conversation channel.
-     */
     const sendTypingStatus = (conversationId: string, isTyping: boolean) => {
         if (channelRef.current && currentUser) {
             channelRef.current.send({
@@ -173,9 +182,6 @@ export const useMessages = (currentUser: User | null) => {
         }
     };
 
-    /**
-     * Mark messages as read
-     */
     const markAsRead = useCallback(
         async (convId: string) => {
             if (!currentUser?.id || !convId) return;
@@ -194,8 +200,7 @@ export const useMessages = (currentUser: User | null) => {
         if (!currentUser?.id) return;
         try {
             await toggleMessageReaction(messageId, currentUser.id, emoji);
-            // Invalidate query to trigger UI update (realtime will also catch it)
-            queryClient.invalidateQueries({ queryKey: ["reactions"] });
+            queryClient.invalidateQueries({ queryKey: ["reactions", activeConversationId] });
         } catch (err) {
             console.error("Failed to toggle reaction:", err);
         }
@@ -204,13 +209,22 @@ export const useMessages = (currentUser: User | null) => {
     const onDeleteMessage = async (messageId: string) => {
         try {
             await deleteMessageApi(messageId);
-            queryClient.invalidateQueries({ queryKey: ["messages"] });
+            queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
         } catch (err) {
             console.error("Failed to delete message:", err);
         }
     };
 
-    const formatMessages = (messages: Message[] = [], reactions: Reaction[] = []): FormattedMessage[] => {
+    // Memoize the flat list of messages
+    const flatMessages = useMemo(() => {
+        const pages = messagesData?.pages.flatMap(page => page) || [];
+        // API returns newest first for pagination, but UI expects oldest at top (usually)
+        // or standard chat UI renders bottom-up.
+        // Let's reverse them here to be chronological (oldest -> newest) for standard mapping
+        return [...pages].reverse();
+    }, [messagesData]);
+
+    const formatMessages = useCallback((messages: Message[] = [], reactions: Reaction[] = []): FormattedMessage[] => {
         return messages.map((m) => ({
             id: m.id,
             sender: m.sender_id === currentUser?.id ? "me" : "them",
@@ -225,7 +239,7 @@ export const useMessages = (currentUser: User | null) => {
                 minute: "2-digit",
             }),
         }));
-    };
+    }, [currentUser?.id]);
 
     return {
         conversations,
@@ -239,7 +253,12 @@ export const useMessages = (currentUser: User | null) => {
         formatMessages,
         onToggleReaction,
         onDeleteMessage,
-        allReactions: _allReactions,
+        conversationReactions, // Scoped reactions
         isSending: sendMutation.isPending,
+        messages: flatMessages, // Return pre-processed messages
+        isMsgLoading,
+        fetchNextMessages: fetchNextPage,
+        hasMoreMessages: hasNextPage,
+        isFetchingMoreMessages: isFetchingNextPage,
     };
 };

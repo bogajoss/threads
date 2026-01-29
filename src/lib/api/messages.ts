@@ -124,16 +124,31 @@ export const fetchConversations = async (userId: string): Promise<Conversation[]
 };
 
 /**
- * Fetches messages for a specific conversation.
+ * Fetches messages for a specific conversation with pagination.
+ * We fetch in descending order (newest first) to easily get the "last page",
+ * then the UI can reverse them or we reverse them here.
  */
-export const fetchMessages = async (conversationId: string): Promise<Message[]> => {
-    const { data, error } = await supabase
+export const fetchMessages = async (
+    conversationId: string,
+    lastTimestamp: string | null = null,
+    limit: number = 20
+): Promise<Message[]> => {
+    let query = supabase
         .from("messages")
         .select("*")
         .eq("conversation_id", conversationId)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false }) // Fetch newest first for pagination
+        .limit(limit);
+
+    if (lastTimestamp) {
+        query = query.lt("created_at", lastTimestamp);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
+    // Reverse to return oldest-first for display, or let UI handle it. 
+    // Usually standardized on returning newest-first (desc) from API if it's paged by time.
     return (data || []).map(transformMessage).filter((m): m is Message => m !== null);
 };
 
@@ -146,12 +161,33 @@ export interface Reaction {
 }
 
 /**
- * Fetches all message reactions.
+ * Fetches all reactions for a specific conversation.
+ * Optimized to only fetch relevant data.
+ */
+export const fetchReactionsByConversation = async (conversationId: string): Promise<Reaction[]> => {
+    // We need to join with messages to filter by conversation_id if reactions table doesn't have it.
+    // Assuming message_reactions has message_id.
+    const { data, error } = await supabase
+        .from("message_reactions")
+        .select("*, message:messages!inner(conversation_id)")
+        .eq("message.conversation_id", conversationId);
+
+    if (error) throw error;
+    return (data || []).map((r: any) => ({
+        id: r.id,
+        message_id: r.message_id,
+        user_id: r.user_id,
+        emoji: r.emoji,
+        created_at: r.created_at
+    }));
+};
+
+/**
+ * Deprecated: Use fetchReactionsByConversation
  */
 export const fetchAllReactions = async (): Promise<Reaction[]> => {
-    const { data, error } = await (supabase.from("message_reactions") as any).select("*");
-    if (error) throw error;
-    return data || [];
+    console.warn("fetchAllReactions is deprecated for performance reasons.");
+    return []; 
 };
 
 /**
@@ -166,55 +202,23 @@ export const toggleMessageReaction = async (messageId: string, userId: string, e
         .maybeSingle();
 
         if (existing) {
-
             if ((existing as any).emoji === emoji) {
-
                 await (supabase.from("message_reactions") as any).delete().eq("id", (existing as any).id);
-
                 return { action: "removed", emoji };
-
             } else {
-
                 await (supabase
-
                     .from("message_reactions") as any)
-
                     .update({ emoji })
-
                     .eq("id", (existing as any).id);
-
                 return { action: "updated", emoji };
-
             }
-
         } else {
-
             await (supabase
-
                 .from("message_reactions") as any)
-
                 .insert([{ message_id: messageId, user_id: userId, emoji }]);
-
             return { action: "added", emoji };
-
         }
-
-    }
-
-    ;
-
-/**
- * Fetches all reactions for a conversation.
- */
-export const fetchReactionsByConversation = async (conversationId: string): Promise<any[]> => {
-    const { data, error } = await supabase
-        .from("message_reactions")
-        .select("*, message:messages!inner(conversation_id)")
-        .eq("message.conversation_id", conversationId);
-
-    if (error) throw error;
-    return data || [];
-};
+    };
 
 /**
  * Sends a new message.
@@ -224,7 +228,7 @@ export const sendMessage = async (
     senderId: string,
     content: string,
     type: string = "text",
-    media: string[] = [], // Assuming media is array of strings (URLs) here based on usage, check DB types
+    media: string[] = [], 
     replyToId: string | null = null,
 ): Promise<Message | null> => {
     const { data, error } = await (supabase

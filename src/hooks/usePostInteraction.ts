@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     toggleLike,
     checkIfLiked,
@@ -14,87 +15,119 @@ export const usePostInteraction = (
     currentUser: User | null,
     showToast: (msg: string, type?: 'success' | 'error' | 'info') => void,
 ) => {
-    const [liked, setLiked] = useState<boolean>(false);
-    const [reposted, setReposted] = useState<boolean>(false);
+    const queryClient = useQueryClient();
+    // Local state for immediate UI feedback, synced with React Query data
     const [localStats, setLocalStats] = useState<PostStats>(
-        initialStats || { comments: 0, likes: 0, mirrors: 0 },
+        initialStats || { comments: 0, likes: 0, mirrors: 0, reposts: 0 },
     );
 
-    // Check if current user has liked or reposted this post
+    // Sync local stats if initialStats changes (e.g. from parent feed)
     useEffect(() => {
-        if (
-            currentUser &&
-            postId &&
-            isValidUUID(postId) &&
-            isValidUUID(currentUser.id)
-        ) {
-            checkIfLiked(postId, currentUser.id)
-                .then(setLiked)
-                .catch(() => setLiked(false));
-
-            checkIfReposted(postId, currentUser.id)
-                .then(setReposted)
-                .catch(() => setReposted(false));
+        if (initialStats) {
+            setLocalStats(prev => ({ ...prev, ...initialStats }));
         }
-    }, [postId, currentUser]);
+    }, [initialStats]);
+
+    const { data: isLiked = false } = useQuery({
+        queryKey: ["post", postId, "liked", currentUser?.id],
+        queryFn: () => checkIfLiked(postId, currentUser?.id!),
+        enabled: !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
+        initialData: false,
+        staleTime: Infinity, // Status doesn't change unless user interacts
+    });
+
+    const { data: isReposted = false } = useQuery({
+        queryKey: ["post", postId, "reposted", currentUser?.id],
+        queryFn: () => checkIfReposted(postId, currentUser?.id!),
+        enabled: !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
+        initialData: false,
+        staleTime: Infinity,
+    });
+
+    const likeMutation = useMutation({
+        mutationFn: () => toggleLike(postId, currentUser?.id!),
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["post", postId, "liked", currentUser?.id] });
+            const previousLiked = queryClient.getQueryData(["post", postId, "liked", currentUser?.id]);
+
+            // Optimistically update
+            queryClient.setQueryData(["post", postId, "liked", currentUser?.id], !isLiked);
+            setLocalStats((prev) => ({
+                ...prev,
+                likes: !isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
+            }));
+
+            return { previousLiked };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousLiked !== undefined) {
+                queryClient.setQueryData(["post", postId, "liked", currentUser?.id], context.previousLiked);
+                // Rollback stats
+                setLocalStats((prev) => ({
+                    ...prev,
+                    likes: context.previousLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
+                }));
+            }
+            showToast("Failed to update like", "error");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["post", postId, "liked", currentUser?.id] });
+        }
+    });
+
+    const repostMutation = useMutation({
+        mutationFn: () => toggleRepost(postId, currentUser?.id!),
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["post", postId, "reposted", currentUser?.id] });
+            const previousReposted = queryClient.getQueryData(["post", postId, "reposted", currentUser?.id]);
+
+            // Optimistically update
+            queryClient.setQueryData(["post", postId, "reposted", currentUser?.id], !isReposted);
+            setLocalStats((prev) => ({
+                ...prev,
+                mirrors: !isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
+                reposts: !isReposted ? (prev.reposts || 0) + 1 : (prev.reposts || 0) - 1, // Handle legacy 'mirrors' vs 'reposts' key
+            }));
+
+            return { previousReposted };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousReposted !== undefined) {
+                queryClient.setQueryData(["post", postId, "reposted", currentUser?.id], context.previousReposted);
+                // Rollback stats
+                setLocalStats((prev) => ({
+                    ...prev,
+                    mirrors: context.previousReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
+                    reposts: context.previousReposted ? (prev.reposts || 0) + 1 : (prev.reposts || 0) - 1,
+                }));
+            }
+            showToast("Failed to update repost", "error");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["post", postId, "reposted", currentUser?.id] });
+        },
+        onSuccess: (newItemState) => {
+             showToast(newItemState ? "Reposted!" : "Removed repost");
+        }
+    });
 
     const handleLike = async (e?: React.MouseEvent) => {
         e && e.stopPropagation();
         if (!currentUser) return showToast("Please login to like!", "error");
-
-        if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) {
-            const isLiked = !liked;
-            setLiked(isLiked);
-            setLocalStats((prev) => ({
-                ...prev,
-                likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
-            }));
-            return;
-        }
-
-        try {
-            const isLiked = await toggleLike(postId, currentUser.id);
-            setLiked(isLiked);
-            setLocalStats((prev) => ({
-                ...prev,
-                likes: isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
-            }));
-        } catch (err) {
-            console.error("Failed to toggle like:", err);
-        }
+        if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return; // Or handle local-only state if needed
+        likeMutation.mutate();
     };
 
     const handleRepost = async (e?: React.MouseEvent) => {
         e && e.stopPropagation();
         if (!currentUser) return showToast("Please login to repost!", "error");
-
-        if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) {
-            const isReposted = !reposted;
-            setReposted(isReposted);
-            setLocalStats((prev) => ({
-                ...prev,
-                mirrors: isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
-            }));
-            return;
-        }
-
-        try {
-            const isReposted = await toggleRepost(postId, currentUser.id);
-            setReposted(isReposted);
-            setLocalStats((prev) => ({
-                ...prev,
-                mirrors: isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
-            }));
-            showToast(isReposted ? "Reposted!" : "Removed repost");
-        } catch (err) {
-            console.error("Failed to toggle repost:", err);
-            showToast("Failed to update repost", "error");
-        }
+        if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return;
+        repostMutation.mutate();
     };
 
     return {
-        liked,
-        reposted,
+        liked: isLiked,
+        reposted: isReposted,
         localStats,
         setLocalStats,
         handleLike,

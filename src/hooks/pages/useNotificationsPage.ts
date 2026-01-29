@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { useEffect, useMemo } from "react"
+import { useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 // @ts-ignore
 import { fetchNotifications, markNotificationsAsRead } from "@/lib/api"
@@ -9,58 +9,29 @@ import { supabase } from "@/lib/supabase"
 export const useNotificationsPage = () => {
     const { currentUser } = useAuth()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
-    const [notifications, setNotifications] = useState<any[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [isFetchingMore, setIsFetchingMore] = useState(false)
-    const [hasMore, setHasMore] = useState(true)
-    const notificationsRef = useRef(notifications)
+    // 1. Fetch Notifications using useInfiniteQuery
+    const {
+        data: notificationsData,
+        fetchNextPage,
+        hasNextPage: hasMore,
+        isFetchingNextPage: isFetchingMore,
+        isLoading
+    } = useInfiniteQuery({
+        queryKey: ["notifications", currentUser?.id],
+        queryFn: ({ pageParam }) => fetchNotifications(currentUser?.id!, pageParam, 10),
+        enabled: !!currentUser?.id,
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined;
+            return lastPage[lastPage.length - 1].created_at;
+        }
+    });
 
-    useEffect(() => {
-        notificationsRef.current = notifications
-    }, [notifications])
-
-    const loadNotifications = useCallback(
-        async (isLoadMore = false) => {
-            if (!currentUser?.id) return
-
-            if (isLoadMore) setIsFetchingMore(true)
-            else setIsLoading(true)
-
-            try {
-                const currentNotifications = notificationsRef.current
-                const lastTimestamp =
-                    isLoadMore && currentNotifications.length > 0
-                        ? currentNotifications[currentNotifications.length - 1].created_at
-                        : null
-
-                const data = await fetchNotifications(
-                    currentUser.id,
-                    lastTimestamp,
-                    10
-                )
-
-                if (data.length < 10) setHasMore(false)
-                else setHasMore(true)
-
-                if (isLoadMore) {
-                    setNotifications((prev) => [...prev, ...data])
-                } else {
-                    setNotifications(data)
-                }
-            } catch (err) {
-                console.error("Failed to fetch notifications:", err)
-            } finally {
-                setIsLoading(false)
-                setIsFetchingMore(false)
-            }
-        },
-        [currentUser?.id]
-    )
-
-    useEffect(() => {
-        loadNotifications()
-    }, [loadNotifications])
+    const notifications = useMemo(() => {
+        return notificationsData?.pages.flatMap(page => page) || [];
+    }, [notificationsData]);
 
     // Realtime subscription for notifications
     useEffect(() => {
@@ -78,7 +49,7 @@ export const useNotificationsPage = () => {
                     filter: `recipient_id=eq.${currentUser.id}`,
                 },
                 () => {
-                    loadNotifications()
+                    queryClient.invalidateQueries({ queryKey: ["notifications", currentUser.id] });
                 }
             )
             .subscribe()
@@ -86,15 +57,37 @@ export const useNotificationsPage = () => {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [currentUser?.id, loadNotifications])
+    }, [currentUser?.id, queryClient])
 
     const markReadMutation = useMutation({
         mutationFn: () => {
             if (!currentUser) return Promise.resolve()
             return markNotificationsAsRead(currentUser.id)
         },
-        onSuccess: () => {
-            setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ["notifications", currentUser?.id] });
+            const previousNotifications = queryClient.getQueryData(["notifications", currentUser?.id]);
+
+            // Optimistically mark all as read
+            queryClient.setQueryData(["notifications", currentUser?.id], (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map((page: any[]) => 
+                        page.map(n => ({ ...n, is_read: true }))
+                    )
+                };
+            });
+
+            return { previousNotifications };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousNotifications) {
+                queryClient.setQueryData(["notifications", currentUser?.id], context.previousNotifications);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications", currentUser?.id] });
         },
     })
 
@@ -111,7 +104,7 @@ export const useNotificationsPage = () => {
         if (currentUser?.id && notifications.some((n) => !n.is_read)) {
             markReadMutation.mutate()
         }
-    }, [currentUser?.id, notifications, markReadMutation])
+    }, [currentUser?.id, notifications.length, markReadMutation]) // notifications.length as proxy for changes
 
     return {
         currentUser,
@@ -119,7 +112,7 @@ export const useNotificationsPage = () => {
         isLoading,
         isFetchingMore,
         hasMore,
-        loadNotifications,
+        loadNotifications: fetchNextPage, // Maintain interface name
         handleNotificationClick,
         navigate,
     }

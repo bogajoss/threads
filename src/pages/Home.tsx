@@ -1,4 +1,5 @@
 import React from "react"
+import { Virtuoso } from "react-virtuoso"
 // @ts-ignore
 import StoryCircle from "@/components/features/story/StoryCircle"
 // @ts-ignore
@@ -22,8 +23,8 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
         isStoriesLoading,
         hasMore,
         isFetchingNextPage,
+        fetchNextPage,
         addToast,
-        ref,
         handlePostClick,
         handleUserClick,
     } = useHome()
@@ -46,8 +47,8 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
         )
     }
 
-    return (
-        <div className="w-full max-w-full overflow-hidden">
+    const Header = () => (
+        <div className="bg-white dark:bg-black">
             <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
                 <div className="flex w-max gap-4 px-4 py-4">
                     {currentUser && (
@@ -81,41 +82,53 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
                     <SignupCard className="p-6" />
                 </div>
             )}
+        </div>
+    )
 
-            <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white pb-20 shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-                {homePosts.length > 0 ? (
-                    homePosts.map((post: any) => (
-                        <Post
-                            key={post.feed_id || post.id}
-                            {...post}
-                            currentUser={currentUser}
-                            showToast={addToast}
-                            onClick={() => handlePostClick(post.id)}
-                            onUserClick={handleUserClick}
-                        />
-                    ))
-                ) : (
-                    <div className="p-20 text-center text-zinc-500">
-                        <p className="text-lg font-medium">No posts yet.</p>
-                        <p className="text-sm">Be the first to share something amazing!</p>
-                    </div>
-                )}
+    const Footer = () => (
+        <div className="flex justify-center py-8">
+            {isFetchingNextPage ? (
+                <Loader2 className="animate-spin text-violet-500" size={24} />
+            ) : hasMore ? (
+                <div className="h-4" /> 
+            ) : homePosts.length > 0 ? (
+                <p className="text-sm font-medium text-zinc-500">
+                    You've reached the end of the feed.
+                </p>
+            ) : (
+                <div className="p-20 text-center text-zinc-500">
+                    <p className="text-lg font-medium">No posts yet.</p>
+                    <p className="text-sm">Be the first to share something amazing!</p>
+                </div>
+            )}
+        </div>
+    )
 
-                {/* Sentinel for infinite scroll */}
-                {homePosts.length > 0 && (
-                    <div ref={ref} className="flex justify-center py-8">
-                        {isFetchingNextPage ? (
-                            <Loader2 className="animate-spin text-violet-500" size={24} />
-                        ) : hasMore ? (
-                            <div className="h-4" /> // Placeholder to trigger view
-                        ) : (
-                            <p className="text-sm font-medium text-zinc-500">
-                                You've reached the end of the feed.
-                            </p>
-                        )}
-                    </div>
+    return (
+        <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+             <Virtuoso
+                useWindowScroll
+                data={homePosts}
+                components={{
+                    Header,
+                    Footer
+                }}
+                endReached={() => {
+                    if (hasMore && !isFetchingNextPage) {
+                        fetchNextPage()
+                    }
+                }}
+                itemContent={(index, post) => (
+                    <Post
+                        key={post.feed_id || post.id}
+                        {...post}
+                        currentUser={currentUser}
+                        showToast={addToast}
+                        onClick={() => handlePostClick(post.id)}
+                        onUserClick={handleUserClick}
+                    />
                 )}
-            </div>
+            />
         </div>
     )
 }

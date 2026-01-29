@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 // @ts-ignore
 import {
@@ -22,29 +23,6 @@ export const useExplore = () => {
     const [activeTab, setActiveTab] = useState(initialTab)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
-    // 1. Communities Data
-    const [communitiesData, setCommunitiesData] = useState<any[]>([])
-    const [isCommunitiesLoading, setIsCommunitiesLoading] = useState(true)
-    const [isFetchingMoreCommunities, setIsFetchingMoreCommunities] =
-        useState(false)
-    const [hasMoreCommunities, setHasMoreCommunities] = useState(true)
-    const communitiesRef = useRef(communitiesData)
-
-    // 2. Posts Data (Search results)
-    const [postsData, setPostsData] = useState<any[]>([])
-    const [isPostsLoading, setIsPostsLoading] = useState(false)
-    const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false)
-    const [hasMorePosts, setHasMorePosts] = useState(true)
-    const postsRef = useRef(postsData)
-
-    useEffect(() => {
-        communitiesRef.current = communitiesData
-    }, [communitiesData])
-
-    useEffect(() => {
-        postsRef.current = postsData
-    }, [postsData])
-
     // Sync state if URL changes (like clicking a new hashtag)
     useEffect(() => {
         if (initialSearch !== searchQuery) {
@@ -54,81 +32,52 @@ export const useExplore = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialSearch])
 
-    const loadCommunities = useCallback(async (isLoadMore = false) => {
-        if (isLoadMore) setIsFetchingMoreCommunities(true)
-        else setIsCommunitiesLoading(true)
-
-        try {
-            const currentCommunities = communitiesRef.current
-            const lastTimestamp =
-                isLoadMore && currentCommunities.length > 0
-                    ? currentCommunities[currentCommunities.length - 1].createdAt
-                    : null
-
-            const data = await fetchCommunities(lastTimestamp, 10)
-
-            if (data.length < 10) setHasMoreCommunities(false)
-            else setHasMoreCommunities(true)
-
-            if (isLoadMore) {
-                setCommunitiesData((prev) => [...prev, ...data])
-            } else {
-                setCommunitiesData(data)
-            }
-        } catch (err) {
-            console.error("Failed to fetch communities:", err)
-        } finally {
-            setIsCommunitiesLoading(false)
-            setIsFetchingMoreCommunities(false)
+    // 1. Communities Data using useInfiniteQuery
+    const {
+        data: communitiesInfiniteData,
+        fetchNextPage: fetchNextCommunities,
+        hasNextPage: hasMoreCommunities,
+        isFetchingNextPage: isFetchingMoreCommunities,
+        isLoading: isCommunitiesLoading
+    } = useInfiniteQuery({
+        queryKey: ["explore", "communities"],
+        queryFn: ({ pageParam }) => fetchCommunities(pageParam, 10),
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined;
+            return lastPage[lastPage.length - 1].createdAt;
         }
-    }, [])
+    });
 
-    const loadPosts = useCallback(
-        async (isLoadMore = false) => {
-            if (isLoadMore) setIsFetchingMorePosts(true)
-            else setIsPostsLoading(true)
+    const communitiesData = useMemo(() => {
+        return communitiesInfiniteData?.pages.flatMap(page => page) || [];
+    }, [communitiesInfiniteData]);
 
-            try {
-                const currentPosts = postsRef.current
-                const lastTimestamp =
-                    isLoadMore && currentPosts.length > 0
-                        ? currentPosts[currentPosts.length - 1].sort_timestamp ||
-                        currentPosts[currentPosts.length - 1].sortTimestamp
-                        : null
-
-                let data
-                if (searchQuery) {
-                    data = await searchPosts(searchQuery, lastTimestamp, 10, true)
-                } else {
-                    // Fetch only community posts
-                    data = await fetchCommunityExplorePosts(lastTimestamp, 10)
-                }
-
-                if (data.length < 10) setHasMorePosts(false)
-                else setHasMorePosts(true)
-
-                if (isLoadMore) {
-                    setPostsData((prev) => [...prev, ...data])
-                } else {
-                    setPostsData(data)
-                }
-            } catch (err) {
-                console.error("Failed to load posts:", err)
-            } finally {
-                setIsPostsLoading(false)
-                setIsFetchingMorePosts(false)
+    // 2. Posts Data using useInfiniteQuery
+    const {
+        data: postsInfiniteData,
+        fetchNextPage: fetchNextPosts,
+        hasNextPage: hasMorePosts,
+        isFetchingNextPage: isFetchingMorePosts,
+        isLoading: isPostsLoading
+    } = useInfiniteQuery({
+        queryKey: ["explore", "posts", searchQuery],
+        queryFn: ({ pageParam }) => {
+            if (searchQuery) {
+                return searchPosts(searchQuery, pageParam, 10, true);
             }
+            return fetchCommunityExplorePosts(pageParam, 10);
         },
-        [searchQuery]
-    )
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined;
+            return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].sortTimestamp;
+        }
+    });
 
-    useEffect(() => {
-        loadCommunities()
-    }, [loadCommunities])
-
-    useEffect(() => {
-        loadPosts()
-    }, [searchQuery, loadPosts])
+    const postsData = useMemo(() => {
+        return postsInfiniteData?.pages.flatMap(page => page) || [];
+    }, [postsInfiniteData]);
 
     const filteredCommunities = useMemo(() => {
         let list = communitiesData
@@ -148,7 +97,6 @@ export const useExplore = () => {
 
     const handleSearchChange = (val: string) => {
         setSearchQuery(val)
-        // When manually typing, maybe stay on active tab
     }
 
     return {
@@ -169,8 +117,8 @@ export const useExplore = () => {
         hasMorePosts,
         filteredCommunities,
         handleCommunityClick,
-        loadCommunities,
-        loadPosts,
+        loadCommunities: fetchNextCommunities,
+        loadPosts: fetchNextPosts,
         navigate,
     }
 }

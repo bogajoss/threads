@@ -9,11 +9,11 @@ import "react-image-crop/dist/ReactCrop.css"
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/dialog"
-import Button from "@/components/ui/Button"
+import Button from "@/components/ui/button"
 import { getCroppedImg } from "@/lib/utils"
 
 interface ImageCropperProps {

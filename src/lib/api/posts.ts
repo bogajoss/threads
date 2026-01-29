@@ -1,11 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import { transformPost, transformComment } from "@/lib/transformers";
 import type { Post, Comment, Media } from "@/types/index";
+import { POSTS_PER_PAGE, COMMENTS_PER_PAGE, REELS_PER_PAGE } from "@/lib/constants";
 
 /**
  * Fetches posts with user details and pagination support.
  */
-export const fetchPosts = async (lastTimestamp: string | null = null, limit: number = 10): Promise<Post[]> => {
+export const fetchPosts = async (lastTimestamp: string | null = null, limit: number = POSTS_PER_PAGE): Promise<Post[]> => {
     let query = supabase
         .from("unified_posts")
         .select("*")
@@ -74,7 +75,7 @@ export const fetchPostById = async (id: string): Promise<Post | null> => {
 export const fetchPostsByUserId = async (
     userId: string,
     lastTimestamp: string | null = null,
-    limit: number = 10,
+    limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
     let query = supabase
         .from("unified_posts")
@@ -99,7 +100,7 @@ export const fetchPostsByUserId = async (
 export const fetchCommentsByUserId = async (
     userId: string,
     lastTimestamp: string | null = null,
-    limit: number = 10,
+    limit: number = COMMENTS_PER_PAGE,
 ): Promise<Comment[]> => {
     let query = supabase
         .from("comments")
@@ -204,7 +205,7 @@ export const updatePost = async (postId: string, data: any): Promise<void> => {
 export const fetchCommentsByPostId = async (
     postId: string,
     lastTimestamp: string | null = null,
-    limit: number = 10,
+    limit: number = COMMENTS_PER_PAGE,
 ): Promise<Comment[]> => {
     let query = supabase
         .from("comments")
@@ -349,7 +350,7 @@ export const checkIfReposted = async (postId: string, userId: string): Promise<b
 export const searchPosts = async (
     queryText: string,
     lastTimestamp: string | null = null,
-    limit: number = 10,
+    limit: number = POSTS_PER_PAGE,
     communityOnly: boolean = false,
 ): Promise<Post[]> => {
     let supabaseQuery = supabase
@@ -382,7 +383,7 @@ export const searchPosts = async (
  */
 export const fetchCommunityExplorePosts = async (
     lastTimestamp: string | null = null,
-    limit: number = 10,
+    limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
     let query = supabase
         .from("unified_posts")
@@ -405,7 +406,7 @@ export const fetchCommunityExplorePosts = async (
 /**
  * Fetches only video posts for Reels with pagination.
  */
-export const fetchReels = async (lastTimestamp: string | null = null, limit: number = 10): Promise<Post[]> => {
+export const fetchReels = async (lastTimestamp: string | null = null, limit: number = REELS_PER_PAGE): Promise<Post[]> => {
     let query = supabase
         .from("unified_posts")
         .select("*")

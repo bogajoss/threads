@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useMemo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 // @ts-ignore
@@ -15,117 +16,119 @@ export const useCommunity = () => {
     const navigate = useNavigate()
     const { currentUser } = useAuth()
     const { addToast } = useToast()
+    const queryClient = useQueryClient()
 
-    const [community, setCommunity] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
-    const [isMember, setIsMember] = useState(false)
-    const [userRole, setUserRole] = useState<string | null>(null) // 'admin', 'moderator', 'member'
-    const [isJoining, setIsJoining] = useState(false)
+    // 1. Fetch Community Metadata
+    const { 
+        data: community, 
+        isLoading: loadingCommunity 
+    } = useQuery({
+        queryKey: ["community", handle],
+        queryFn: () => fetchCommunityByHandle(handle!),
+        enabled: !!handle,
+        staleTime: 1000 * 60 * 10, // 10 minutes
+    });
 
-    // Post loading state
-    const [communityPosts, setCommunityPosts] = useState<any[]>([])
-    const [loadingPosts, setLoadingPosts] = useState(true)
-    const [isFetchingMorePosts, setIsFetchingMorePosts] = useState(false)
-    const [hasMorePosts, setHasMorePosts] = useState(true)
+    // 2. Fetch Membership Status
+    const { 
+        data: membership 
+    } = useQuery({
+        queryKey: ["community", community?.id, "membership", currentUser?.id],
+        queryFn: () => checkIfMember(community?.id!, currentUser?.id!),
+        enabled: !!community?.id && !!currentUser?.id,
+        staleTime: 1000 * 60 * 5,
+    });
 
-    const postsRef = useRef(communityPosts)
-    useEffect(() => {
-        postsRef.current = communityPosts
-    }, [communityPosts])
+    const isMember = !!membership;
+    const userRole = membership?.role || null;
 
-    const loadCommunityPosts = useCallback(
-        async (communityId: string, isLoadMore = false) => {
-            if (!communityId) return
-            if (isLoadMore) setIsFetchingMorePosts(true)
-            else setLoadingPosts(true)
-
-            try {
-                const currentPosts = postsRef.current
-                const lastTimestamp =
-                    isLoadMore && currentPosts.length > 0
-                        ? currentPosts[currentPosts.length - 1].sort_timestamp
-                        : null
-
-                const data = await fetchCommunityPosts(communityId, lastTimestamp, 10)
-
-                if (data.length < 10) setHasMorePosts(false)
-                else setHasMorePosts(true)
-
-                if (isLoadMore) {
-                    setCommunityPosts((prev) => [...prev, ...data])
-                } else {
-                    setCommunityPosts(data)
-                }
-            } catch (err) {
-                console.error("Failed to fetch community posts:", err)
-            } finally {
-                setLoadingPosts(false)
-                setIsFetchingMorePosts(false)
-            }
-        },
-        []
-    )
-
-    useEffect(() => {
-        const loadData = async () => {
-            if (!handle) return
-            setLoading(true)
-            try {
-                const c = await fetchCommunityByHandle(handle)
-                setCommunity(c)
-                if (c?.id) {
-                    loadCommunityPosts(c.id)
-                    if (currentUser) {
-                        const membership = await checkIfMember(c.id, currentUser.id)
-                        setIsMember(!!membership)
-                        setUserRole(membership?.role || null)
-                    }
-                }
-            } catch {
-                // Silently fail or handle error
-            } finally {
-                setLoading(false)
-            }
+    // 3. Fetch Community Posts using useInfiniteQuery
+    const {
+        data: postsData,
+        fetchNextPage,
+        hasNextPage: hasMorePosts,
+        isFetchingNextPage: isFetchingMorePosts,
+        isLoading: loadingPosts
+    } = useInfiniteQuery({
+        queryKey: ["posts", "community", community?.id],
+        queryFn: ({ pageParam }) => fetchCommunityPosts(community?.id!, pageParam, 10),
+        enabled: !!community?.id,
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined;
+            // @ts-ignore
+            return lastPage[lastPage.length - 1].sort_timestamp;
         }
-        loadData()
-    }, [handle, currentUser, loadCommunityPosts])
+    });
+
+    const communityPosts = useMemo(() => {
+        return postsData?.pages.flatMap(page => page) || [];
+    }, [postsData]);
+
+    // 4. Toggle Membership Mutation
+    const joinMutation = useMutation({
+        mutationFn: () => toggleCommunityMembership(community?.id!, currentUser?.id!),
+        onMutate: async () => {
+            await queryClient.cancelQueries({ 
+                queryKey: ["community", community?.id, "membership", currentUser?.id] 
+            });
+            await queryClient.cancelQueries({ queryKey: ["community", handle] });
+
+            const previousMembership = queryClient.getQueryData(["community", community?.id, "membership", currentUser?.id]);
+            const previousCommunity = queryClient.getQueryData(["community", handle]);
+
+            // Optimistically update membership
+            queryClient.setQueryData(["community", community?.id, "membership", currentUser?.id], 
+                previousMembership ? null : { role: 'member' }
+            );
+
+            // Optimistically update community member count
+            queryClient.setQueryData(["community", handle], (old: any) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    membersCount: previousMembership ? old.membersCount - 1 : old.membersCount + 1
+                };
+            });
+
+            return { previousMembership, previousCommunity };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousMembership !== undefined) {
+                queryClient.setQueryData(["community", community?.id, "membership", currentUser?.id], context.previousMembership);
+            }
+            if (context?.previousCommunity) {
+                queryClient.setQueryData(["community", handle], context.previousCommunity);
+            }
+            addToast("Failed to update membership", "error");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["community", community?.id, "membership", currentUser?.id] });
+            queryClient.invalidateQueries({ queryKey: ["community", handle] });
+        },
+        onSuccess: (joined) => {
+            addToast(joined ? `Joined ${community.name}` : `Left ${community.name}`);
+        }
+    });
 
     const handleJoinToggle = async () => {
         if (!currentUser)
             return addToast("Please login to join communities", "error")
-
-        setIsJoining(true)
-        try {
-            const joined = await toggleCommunityMembership(
-                community.id,
-                currentUser.id
-            )
-            setIsMember(joined)
-            setUserRole(joined ? "member" : null)
-            setCommunity((prev: any) => ({
-                ...prev,
-                membersCount: joined ? prev.membersCount + 1 : prev.membersCount - 1,
-            }))
-            addToast(joined ? `Joined ${community.name}` : `Left ${community.name}`)
-        } catch {
-            addToast("Failed to update membership", "error")
-        } finally {
-            setIsJoining(false)
-        }
+        joinMutation.mutate();
     }
 
     return {
         community,
-        loading,
+        loading: loadingCommunity,
         isMember,
         userRole,
-        isJoining,
+        isJoining: joinMutation.isPending,
         communityPosts,
         loadingPosts,
         isFetchingMorePosts,
         hasMorePosts,
         handleJoinToggle,
-        loadCommunityPosts,
+        loadCommunityPosts: fetchNextPage,
         currentUser,
         addToast,
         navigate,

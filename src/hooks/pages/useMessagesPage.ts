@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 // @ts-ignore
-import { fetchMessages, searchUsers, getOrCreateConversation } from "@/lib/api"
+import { searchUsers, getOrCreateConversation } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { usePresence } from "@/context/PresenceContext"
 import { useMessages } from "@/hooks/useMessages"
@@ -25,8 +25,13 @@ export const useMessagesPage = () => {
         markAsRead,
         formatMessages,
         onToggleReaction,
-        allReactions,
-    } = useMessages(currentUser)
+        conversationReactions,
+        messages, // Flat list of messages from infinite query
+        isMsgLoading,
+        fetchNextMessages,
+        hasMoreMessages,
+        isFetchingMoreMessages,
+    } = useMessages(currentUser, id) // Pass 'id' as activeConversationId
 
     // Derive selected conversation from URL ID
     const selectedConversation = useMemo(() => {
@@ -79,14 +84,9 @@ export const useMessagesPage = () => {
         navigate(`/messages/${conv.id}`)
     }
 
-    // Fetch base messages for selected conversation
-    const { data: fetchedMessages = [], isLoading: isMsgLoading } = useQuery({
-        queryKey: ["messages", selectedConversation?.id],
-        queryFn: () => fetchMessages(selectedConversation?.id || ""),
-        enabled: !!selectedConversation?.id,
-    })
-
-    const localMessages = formatMessages(fetchedMessages, allReactions)
+    const localMessages = useMemo(() => 
+        formatMessages(messages, conversationReactions),
+    [messages, conversationReactions, formatMessages]);
 
     const filteredConversations = conversations.filter(
         (c: any) =>
@@ -121,5 +121,9 @@ export const useMessagesPage = () => {
         sendTypingStatus,
         onToggleReaction,
         navigate,
+        // Expose infinite scroll props for ChatWindow
+        fetchNextMessages,
+        hasMoreMessages,
+        isFetchingMoreMessages,
     }
 }

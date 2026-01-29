@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, type ReactNode, useMemo, useCallback } from "react";
 
 interface ThemeContextType {
     darkMode: boolean;
@@ -60,20 +60,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         localStorage.setItem("data-saver", String(dataSaver));
     }, [dataSaver]);
 
-    const toggleDarkMode = () => setDarkMode(!darkMode);
+    const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
+
+    const value = useMemo(() => ({
+        darkMode,
+        setDarkMode,
+        toggleDarkMode,
+        fontSize,
+        setFontSize,
+        dataSaver,
+        setDataSaver,
+    }), [darkMode, fontSize, dataSaver, toggleDarkMode]);
 
     return (
-        <ThemeContext.Provider
-            value={{
-                darkMode,
-                setDarkMode,
-                toggleDarkMode,
-                fontSize,
-                setFontSize,
-                dataSaver,
-                setDataSaver,
-            }}
-        >
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );

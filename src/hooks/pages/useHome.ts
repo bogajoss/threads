@@ -1,7 +1,6 @@
-import { useMemo, useEffect } from "react"
+import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { useInView } from "react-intersection-observer"
 import { useAuth } from "@/context/AuthContext"
 import { usePosts } from "@/context/PostContext"
 import { useToast } from "@/context/ToastContext"
@@ -19,16 +18,6 @@ export const useHome = () => {
     } = usePosts()
     const { addToast } = useToast()
     const navigate = useNavigate()
-
-    const { ref, inView } = useInView({
-        threshold: 0.1,
-    })
-
-    useEffect(() => {
-        if (inView && hasMore && !isFetchingNextPage) {
-            fetchNextPage()
-        }
-    }, [inView, hasMore, isFetchingNextPage, fetchNextPage])
 
     // Fetch Stories
     const { data: stories = [], isLoading: isStoriesLoading } = useQuery({
@@ -74,8 +63,8 @@ export const useHome = () => {
         isStoriesLoading,
         hasMore,
         isFetchingNextPage,
+        fetchNextPage,
         addToast,
-        ref,
         handlePostClick,
         handleUserClick,
     }
