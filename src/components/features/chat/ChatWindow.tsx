@@ -9,6 +9,9 @@ import {
     X,
     Check,
     CheckCheck,
+    User,
+    BellOff,
+    Eraser,
 } from "lucide-react"
 import {
     Button,
@@ -17,6 +20,14 @@ import {
     AvatarFallback,
     TypingIndicator,
 } from "@/components/ui"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 // @ts-ignore
 import { useTimeAgo } from "@/hooks"
 import { useLightbox } from "@/context/LightboxContext"
@@ -220,12 +231,42 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         )}
                     </div>
                 </div>
-                <button 
-                    className="rounded-full p-2 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                    aria-label="More options"
-                >
-                    <MoreVertical size={20} />
-                </button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button 
+                            className="rounded-full p-2 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                            aria-label="More options"
+                        >
+                            <MoreVertical size={20} />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem 
+                                className="cursor-pointer gap-2"
+                                onClick={() => navigate(`/u/${conversation.user.handle}`)}
+                            >
+                                <User size={16} />
+                                View Profile
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer gap-2">
+                                <BellOff size={16} />
+                                Mute Notifications
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem className="cursor-pointer gap-2">
+                                <Eraser size={16} />
+                                Clear Chat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive" className="cursor-pointer gap-2">
+                                <Trash size={16} />
+                                Delete Conversation
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4" ref={scrollRef}>

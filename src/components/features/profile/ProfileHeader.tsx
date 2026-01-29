@@ -4,6 +4,9 @@ import {
     Mail,
     Bell,
     Loader2,
+    Share,
+    Flag,
+    Ban,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 // @ts-ignore
@@ -20,6 +23,14 @@ import {
     LocationIcon,
     LinkIcon,
 } from "@/components/ui"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 // @ts-ignore
 import { getOrCreateConversation } from "@/lib/api"
 import Linkify from "linkify-react"
@@ -159,9 +170,45 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                         </>
                                     )}
                                 </Button>
-                                <button className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
-                                    <MoreHorizontal size={20} />
-                                </button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                                            <MoreHorizontal size={20} />
+                                        </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuItem
+                                                className="cursor-pointer gap-2"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(window.location.href);
+                                                    showToast("Profile link copied!");
+                                                }}
+                                            >
+                                                <Share size={16} />
+                                                Share Profile
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="cursor-pointer gap-2"
+                                                onClick={() => showToast("User reported")}
+                                            >
+                                                <Flag size={16} />
+                                                Report user
+                                            </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuItem
+                                                variant="destructive"
+                                                className="cursor-pointer gap-2"
+                                                onClick={() => showToast("User blocked")}
+                                            >
+                                                <Ban size={16} />
+                                                Block user
+                                            </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </>
                         )}
                     </div>

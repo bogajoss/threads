@@ -12,6 +12,9 @@ import {
     X,
     Plus,
     Film,
+    Pencil,
+    Share,
+    Trash,
 } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -20,6 +23,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
     DropdownMenuSeparator,
+    DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import {
     AlertDialog,
@@ -275,68 +279,73 @@ const Post: React.FC<PostProps> = ({
                 align="end"
                 className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
             >
-                {!isComment && (
-                    <DropdownMenuItem
-                        className="cursor-pointer gap-2 py-2.5 focus:bg-zinc-50 dark:focus:bg-zinc-800"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            // To implement proper share, we should have the ShareModal here as well.
-                            // For now, let's just copy current URL or post URL
-                            navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
-                            if (showToast) showToast("Link copied");
-                        }}
-                    >
-                        <ShareIcon size={16} />
-                        <span>Copy link to post</span>
-                    </DropdownMenuItem>
-                )}
-                {!isComment && (
-                    <DropdownMenuItem
-                        className="cursor-pointer gap-2 py-2.5 focus:bg-zinc-50 dark:focus:bg-zinc-800"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            showToast && showToast("Post reported")
-                        }}
-                    >
-                        <Flag size={16} />
-                        <span>Report post</span>
-                    </DropdownMenuItem>
-                )}
-                {!isCurrentUser && (
-                    <DropdownMenuItem
-                        className="cursor-pointer gap-2 py-2.5 text-rose-500 focus:bg-zinc-50 focus:text-rose-500 dark:focus:bg-zinc-800"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            showToast && showToast("User blocked")
-                        }}
-                    >
-                        <UserMinus size={16} />
-                        <span>Block @{user.handle}</span>
-                    </DropdownMenuItem>
-                )}
-                {isCurrentUser && (
-                    <>
-                        <DropdownMenuSeparator className="bg-zinc-100 dark:border-zinc-800" />
+                <DropdownMenuGroup>
+                    {!isComment && (
+                        <DropdownMenuItem
+                            className="cursor-pointer gap-2 py-2.5"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
+                                if (showToast) showToast("Link copied");
+                            }}
+                        >
+                            <Share size={16} />
+                            <span>Copy link</span>
+                        </DropdownMenuItem>
+                    )}
+                    {!isComment && (
+                        <DropdownMenuItem
+                            className="cursor-pointer gap-2 py-2.5"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                showToast && showToast("Post reported")
+                            }}
+                        >
+                            <Flag size={16} />
+                            <span>Report post</span>
+                        </DropdownMenuItem>
+                    )}
+                    {!isCurrentUser && (
+                        <DropdownMenuItem
+                            className="cursor-pointer gap-2 py-2.5"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                showToast && showToast("User blocked")
+                            }}
+                        >
+                            <UserMinus size={16} />
+                            <span>Block @{user.handle}</span>
+                        </DropdownMenuItem>
+                    )}
+                    {isCurrentUser && (
                         <DropdownMenuItem
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsEditing(true)
                             }}
-                            className="flex cursor-pointer items-center gap-2"
+                            className="cursor-pointer gap-2 py-2.5"
                         >
-                            <EditIcon size={16} />
+                            <Pencil size={16} />
                             Edit Post
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                            className="cursor-pointer gap-2 py-2.5 text-rose-500 focus:bg-rose-50 focus:text-rose-500 dark:focus:bg-rose-900/20"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                setIsDeleteDialogOpen(true)
-                            }}
-                        >
-                            <Trash2 size={16} />
-                            <span>Delete post</span>
-                        </DropdownMenuItem>
+                    )}
+                </DropdownMenuGroup>
+                {isCurrentUser && (
+                    <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem
+                                variant="destructive"
+                                className="cursor-pointer gap-2 py-2.5"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setIsDeleteDialogOpen(true)
+                                }}
+                            >
+                                <Trash size={16} />
+                                <span>Delete post</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
                     </>
                 )}
             </DropdownMenuContent>
