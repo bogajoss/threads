@@ -74,8 +74,10 @@ const DialogContent = React.forwardRef<
                         className
                     )}
                 >
-                    {/* Drag Handle */}
-                    <div className="absolute left-1/2 top-3 h-1.5 w-12 -translate-x-1/2 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                    {/* Drag Handle Container */}
+                    <div className="flex w-full items-center justify-center pt-2 pb-1 shrink-0">
+                        <div className="h-1.5 w-12 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                    </div>
                     
                     {children}
                     <DialogPrimitive.Close 

@@ -40,7 +40,7 @@ const Modal: React.FC<ModalProps> = ({
             <DialogContent
                 onDragClose={onClose}
                 className={cn(
-                    "flex max-h-[calc(100dvh-2rem)] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
+                    "flex max-h-[calc(100dvh-1rem)] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
                     className
                 )}
             >

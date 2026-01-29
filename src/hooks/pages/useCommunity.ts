@@ -107,7 +107,9 @@ export const useCommunity = () => {
             queryClient.invalidateQueries({ queryKey: ["community", handle] });
         },
         onSuccess: (joined) => {
-            addToast(joined ? `Joined ${community.name}` : `Left ${community.name}`);
+            if (community) {
+                addToast(joined ? `Joined ${community.name}` : `Left ${community.name}`);
+            }
         }
     });
 

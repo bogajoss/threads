@@ -118,7 +118,7 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
                         fetchNextPage()
                     }
                 }}
-                itemContent={(index, post) => (
+                itemContent={(_index, post) => (
                     <Post
                         key={post.feed_id || post.id}
                         {...post}

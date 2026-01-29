@@ -8,8 +8,6 @@ import { EditIcon } from "@/components/ui"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 import { uploadFile, addStory } from "@/lib/api"
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop"
-import "react-image-crop/dist/ReactCrop.css"
 import ImageCropper from "@/components/ui/image-cropper"
 
 interface CreateStoryModalProps {

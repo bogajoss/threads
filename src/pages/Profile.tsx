@@ -28,7 +28,6 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         handle,
         profile,
         loading,
-        setUserPosts,
         activeProfileTab,
         setActiveProfileTab,
         loadingPosts,
@@ -93,11 +92,6 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                             {...post}
                             onClick={() => handlePostClick(post.id)}
                             onUserClick={handleUserClick}
-                            onDelete={(deletedId: string) =>
-                                setUserPosts((prev: PostType[]) =>
-                                    prev.filter((p) => p.id !== deletedId)
-                                )
-                            }
                         />
                     ))}
                     {hasMorePosts && (
@@ -105,7 +99,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                             <Button
                                 variant="secondary"
                                 className="w-full max-w-xs"
-                                onClick={() => loadUserPosts(profile.id, true)}
+                                onClick={() => loadUserPosts(true)}
                                 disabled={isFetchingMorePosts}
                             >
                                 {isFetchingMorePosts && (
@@ -156,7 +150,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                                 {displayProfile.name}
                             </h5>
                             <span className="mt-0.5 text-xs text-zinc-500">
-                                {displayProfile.posts_count || 0} Posts
+                                {displayProfile.follower_count || 0} Followers
                             </span>
                         </div>
                     </div>

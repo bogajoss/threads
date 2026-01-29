@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Modal from "@/components/ui/modal"
 import Button from "@/components/ui/button"
 import { useQuery } from "@tanstack/react-query"
@@ -390,12 +390,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             isOpen={isOpen}
             onClose={() => !loading && onClose()}
             title="Create Post"
-            className="gap-0 overflow-hidden p-0 sm:max-w-[600px]"
+            className="gap-0 overflow-hidden p-0 sm:max-w-[620px] max-h-[89dvh]"
             footer={footerActions}
         >
-            <div className="flex flex-col gap-4 p-1">
+            <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto">
                 {/* User & Audience Selector */}
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 px-1">
                     <Avatar className="size-10 shrink-0 border border-zinc-100 shadow-sm dark:border-zinc-800">
                         <AvatarImage src={currentUser?.avatar} className="object-cover" />
                         <AvatarFallback>
@@ -481,7 +481,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                         </div>
 
                         <textarea
-                            className="min-h-[100px] max-h-[400px] w-full resize-none border-none bg-transparent text-lg font-medium leading-relaxed outline-none placeholder:text-zinc-400 dark:text-zinc-100"
+                            className="min-h-[120px] max-h-[650px] w-full resize-none border-none bg-transparent text-lg font-medium leading-relaxed outline-none placeholder:text-zinc-400 dark:text-zinc-100 px-1"
                             placeholder="What's on your mind?"
                             autoFocus
                             value={postContent}
@@ -495,7 +495,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </div>
 
                 {/* Attachments Area */}
-                <div className="pl-[52px]">
+                <div className="px-1 mt-2">
                     {selectedFiles.length > 0 && (
                         <div className="mb-4 animate-in fade-in zoom-in-95 duration-200">
                             <DndContext

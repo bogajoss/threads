@@ -69,6 +69,8 @@ export interface Post {
     repostedBy: Reposter | null;
     timeAgo: string;
     comments?: Comment[];
+    sort_timestamp?: string;
+    sortTimestamp?: string;
 }
 
 export interface Comment {

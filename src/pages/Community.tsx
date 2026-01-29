@@ -63,7 +63,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
             <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none bg-white dark:bg-black md:rounded-xl">
                 <NotFound
                     title="Community doesn't exist"
-                    message={`The community @${community?.handle || "unknown"} could not be found.`}
+                    message="Try searching for another. The community could not be found."
                     icon={Users}
                 />
             </div>
@@ -218,7 +218,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                                     <Button
                                         variant="secondary"
                                         className="w-full max-w-xs"
-                                        onClick={() => loadCommunityPosts(community.id, true)}
+                                        onClick={() => loadCommunityPosts()}
                                         disabled={isFetchingMorePosts}
                                     >
                                         {isFetchingMorePosts && (

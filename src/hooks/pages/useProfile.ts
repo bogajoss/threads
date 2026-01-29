@@ -128,10 +128,9 @@ export const useProfile = () => {
         navigate(`/u/${targetHandle}`)
     }
 
-    // Shim for loadUserPosts to maintain interface if needed by UI (though UI should use fetchNextPosts)
-    // The UI likely calls `loadUserPosts(id, true)` for infinite scroll
-    const loadUserPosts = (userId: string, isLoadMore = false) => {
-        if (isLoadMore) fetchNextPosts();
+    // Shim for loadUserPosts to maintain interface if needed by UI
+    const loadUserPosts = (_isLoadMore = false) => {
+        fetchNextPosts();
     };
 
     return {

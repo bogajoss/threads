@@ -1,5 +1,5 @@
 import React from "react"
-import { formatDistanceToNow } from "date-fns"
+import { useNavigate } from "react-router-dom"
 import SearchBar from "@/components/ui/search-bar"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { UserPlus } from "lucide-react"

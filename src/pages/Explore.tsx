@@ -125,12 +125,12 @@ const Explore: React.FC = () => {
 
                         {hasMoreCommunities && filteredCommunities.length > 0 && (
                             <div className="flex justify-center border-t border-zinc-100 p-6 dark:border-zinc-800">
-                                <Button
-                                    variant="secondary"
-                                    className="w-full max-w-xs"
-                                    onClick={() => loadCommunities(true)}
-                                    disabled={isFetchingMoreCommunities}
-                                >
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full"
+                                        onClick={() => loadCommunities()}
+                                        disabled={isFetchingMoreCommunities}
+                                    >
                                     {isFetchingMoreCommunities && (
                                         <Loader2 size={18} className="mr-2 animate-spin" />
                                     )}
@@ -157,13 +157,12 @@ const Explore: React.FC = () => {
                                 ))}
                                 {hasMorePosts && (
                                     <div className="flex justify-center border-t border-zinc-100 p-6 dark:border-zinc-800">
-                                        <Button
-                                            variant="secondary"
-                                            className="w-full max-w-xs"
-                                            onClick={() => loadPosts(true)}
-                                            disabled={isFetchingMorePosts}
-                                        >
-                                            {isFetchingMorePosts && (
+                                                                            <Button
+                                                                                variant="secondary"
+                                                                                className="w-full max-w-xs"
+                                                                                onClick={() => loadPosts()}
+                                                                                disabled={isFetchingMorePosts}
+                                                                            >                                            {isFetchingMorePosts && (
                                                 <Loader2 size={18} className="mr-2 animate-spin" />
                                             )}
                                             Load more

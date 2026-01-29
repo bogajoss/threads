@@ -113,12 +113,12 @@ const Notifications: React.FC = () => {
 
             {notifications.length > 0 && hasMore && (
                 <div className="flex justify-center border-t border-zinc-100 p-6 dark:border-zinc-800">
-                    <Button
-                        variant="secondary"
-                        className="w-full max-w-xs"
-                        onClick={() => loadNotifications(true)}
-                        disabled={isFetchingMore}
-                    >
+                            <Button
+                                variant="secondary"
+                                className="w-full font-bold"
+                                onClick={() => loadNotifications()}
+                                disabled={isFetchingMore}
+                            >
                         {isFetchingMore ? (
                             <Loader2 size={18} className="mr-2 animate-spin" />
                         ) : null}
