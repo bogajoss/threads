@@ -270,14 +270,20 @@ export const addComment = async (postId: string, userId: string, content: string
  * Toggles a like on a post.
  */
 export const toggleLike = async (postId: string, userId: string): Promise<boolean> => {
-    const { data: existingLike } = await supabase
+    if (!postId || !userId) return false;
+
+    // Check for existing like(s) - use select().limit(1) instead of maybeSingle to avoid errors if duplicates exist
+    const { data: existingLikes } = await supabase
         .from("likes")
-        .select("*")
+        .select("post_id")
         .eq("post_id", postId)
         .eq("user_id", userId)
-        .maybeSingle();
+        .limit(1);
 
-    if (existingLike) {
+    const hasLiked = existingLikes && existingLikes.length > 0;
+
+    if (hasLiked) {
+        // Delete ALL likes for this user/post combo to be clean
         await supabase
             .from("likes")
             .delete()
@@ -285,6 +291,7 @@ export const toggleLike = async (postId: string, userId: string): Promise<boolea
             .eq("user_id", userId);
         return false;
     } else {
+        // Insert new like
         await (supabase.from("likes") as any).insert([{ post_id: postId, user_id: userId }]);
         return true;
     }
@@ -294,28 +301,37 @@ export const toggleLike = async (postId: string, userId: string): Promise<boolea
  * Checks if a user has liked a post.
  */
 export const checkIfLiked = async (postId: string, userId: string): Promise<boolean> => {
-    if (!userId) return false;
-    const { data } = await supabase
+    if (!userId || !postId) return false;
+    const { data, error } = await supabase
         .from("likes")
-        .select("*")
+        .select("post_id")
         .eq("post_id", postId)
         .eq("user_id", userId)
-        .maybeSingle();
-    return !!data;
+        .limit(1);
+    
+    if (error) {
+        console.error("Error checking like status:", error);
+        return false;
+    }
+    return data && data.length > 0;
 };
 
 /**
  * Toggles a repost on a post.
  */
 export const toggleRepost = async (postId: string, userId: string): Promise<boolean> => {
-    const { data: existingRepost } = await supabase
+    if (!postId || !userId) return false;
+
+    const { data: existingReposts } = await supabase
         .from("reposts")
-        .select("*")
+        .select("post_id")
         .eq("post_id", postId)
         .eq("user_id", userId)
-        .maybeSingle();
+        .limit(1);
 
-    if (existingRepost) {
+    const hasReposted = existingReposts && existingReposts.length > 0;
+
+    if (hasReposted) {
         await supabase
             .from("reposts")
             .delete()
@@ -334,14 +350,19 @@ export const toggleRepost = async (postId: string, userId: string): Promise<bool
  * Checks if a user has reposted a post.
  */
 export const checkIfReposted = async (postId: string, userId: string): Promise<boolean> => {
-    if (!userId) return false;
-    const { data } = await supabase
+    if (!userId || !postId) return false;
+    const { data, error } = await supabase
         .from("reposts")
-        .select("*")
+        .select("post_id")
         .eq("post_id", postId)
         .eq("user_id", userId)
-        .maybeSingle();
-    return !!data;
+        .limit(1);
+    
+    if (error) {
+        console.error("Error checking repost status:", error);
+        return false;
+    }
+    return data && data.length > 0;
 };
 
 /**

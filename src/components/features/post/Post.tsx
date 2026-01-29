@@ -7,7 +7,6 @@ import {
     MoreHorizontal,
     Loader2,
     Flag,
-    Trash2,
     UserMinus,
     X,
     Plus,
@@ -37,7 +36,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import {
     VerifiedIcon,
-    EditIcon,
     ShareIcon,
     ChatIcon,
     ChevronTagIcon,
@@ -52,6 +50,7 @@ import {
     MediaGrid,
     CommentInput,
     LinkPreview,
+    ShareModal,
 } from "@/components/features/post"
 import { usePostInteraction } from "@/hooks"
 // @ts-ignore
@@ -139,6 +138,7 @@ const Post: React.FC<PostProps> = ({
     const [newFiles, setNewFiles] = useState<File[]>([])
     const [isUpdating, setIsUpdating] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false)
 
     const editFileInputRef = useRef<HTMLInputElement>(null)
     const commentsRef = useRef(comments)
@@ -741,11 +741,7 @@ const Post: React.FC<PostProps> = ({
                             <ActionButton
                                 icon={ShareIcon}
                                 label="Share"
-                                onClick={() => {
-                                    // Simple fall back to navigate or copy
-                                    navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
-                                    if (showToast) showToast("Link copied!")
-                                }}
+                                onClick={() => setIsShareModalOpen(true)}
                             />
                         )}
                     </div>
@@ -971,12 +967,11 @@ const Post: React.FC<PostProps> = ({
                     {/* Action Buttons */}
                     <div className="mt-3 flex items-center justify-between pr-4">
                         <ActionButton
-                            icon={MessageCircle}
-                            count={localStats.comments}
-                            onClick={(e) => {
-                                e?.stopPropagation()
-                                onReply ? onReply(user.handle) : onClick && onClick()
-                            }}
+                            icon={Heart}
+                            count={localStats.likes}
+                            onClick={handleLike}
+                            active={liked}
+                            activeColorClass="text-rose-500"
                             label={""}
                         />
                         <ActionButton
@@ -988,11 +983,12 @@ const Post: React.FC<PostProps> = ({
                             label={""}
                         />
                         <ActionButton
-                            icon={Heart}
-                            count={localStats.likes}
-                            onClick={handleLike}
-                            active={liked}
-                            activeColorClass="text-rose-500"
+                            icon={MessageCircle}
+                            count={localStats.comments}
+                            onClick={(e) => {
+                                e?.stopPropagation()
+                                onReply ? onReply(user.handle) : onClick && onClick()
+                            }}
                             label={""}
                         />
                         {!isComment && (
@@ -1000,8 +996,7 @@ const Post: React.FC<PostProps> = ({
                                 icon={ShareIcon}
                                 onClick={(e) => {
                                     e?.stopPropagation();
-                                    navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
-                                    if (showToast) showToast("Link copied!")
+                                    setIsShareModalOpen(true);
                                 }}
                                 label={""}
                             />
@@ -1009,6 +1004,13 @@ const Post: React.FC<PostProps> = ({
                     </div>
                 </div>
             </div>
+
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                url={`${window.location.origin}/post/${id}`}
+                title="Share Post"
+            />
 
             <AlertDialog
                 open={isDeleteDialogOpen}

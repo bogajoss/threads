@@ -32,29 +32,27 @@ export const usePostInteraction = (
         queryKey: ["post", postId, "liked", currentUser?.id],
         queryFn: () => checkIfLiked(postId, currentUser?.id!),
         enabled: !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
-        initialData: false,
-        staleTime: Infinity, // Status doesn't change unless user interacts
+        staleTime: 1000 * 60 * 10, // 10 minutes
     });
 
     const { data: isReposted = false } = useQuery({
         queryKey: ["post", postId, "reposted", currentUser?.id],
         queryFn: () => checkIfReposted(postId, currentUser?.id!),
         enabled: !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
-        initialData: false,
-        staleTime: Infinity,
+        staleTime: 1000 * 60 * 10, // 10 minutes
     });
 
     const likeMutation = useMutation({
         mutationFn: () => toggleLike(postId, currentUser?.id!),
         onMutate: async () => {
             await queryClient.cancelQueries({ queryKey: ["post", postId, "liked", currentUser?.id] });
-            const previousLiked = queryClient.getQueryData(["post", postId, "liked", currentUser?.id]);
+            const previousLiked = queryClient.getQueryData<boolean>(["post", postId, "liked", currentUser?.id]);
 
             // Optimistically update
-            queryClient.setQueryData(["post", postId, "liked", currentUser?.id], !isLiked);
+            queryClient.setQueryData(["post", postId, "liked", currentUser?.id], !previousLiked);
             setLocalStats((prev) => ({
                 ...prev,
-                likes: !isLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
+                likes: !previousLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
             }));
 
             return { previousLiked };
@@ -79,14 +77,14 @@ export const usePostInteraction = (
         mutationFn: () => toggleRepost(postId, currentUser?.id!),
         onMutate: async () => {
             await queryClient.cancelQueries({ queryKey: ["post", postId, "reposted", currentUser?.id] });
-            const previousReposted = queryClient.getQueryData(["post", postId, "reposted", currentUser?.id]);
+            const previousReposted = queryClient.getQueryData<boolean>(["post", postId, "reposted", currentUser?.id]);
 
             // Optimistically update
-            queryClient.setQueryData(["post", postId, "reposted", currentUser?.id], !isReposted);
+            queryClient.setQueryData(["post", postId, "reposted", currentUser?.id], !previousReposted);
             setLocalStats((prev) => ({
                 ...prev,
-                mirrors: !isReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
-                reposts: !isReposted ? (prev.reposts || 0) + 1 : (prev.reposts || 0) - 1, // Handle legacy 'mirrors' vs 'reposts' key
+                reposts: !previousReposted ? (prev.reposts || 0) + 1 : (prev.reposts || 0) - 1,
+                mirrors: !previousReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
             }));
 
             return { previousReposted };
@@ -97,8 +95,8 @@ export const usePostInteraction = (
                 // Rollback stats
                 setLocalStats((prev) => ({
                     ...prev,
-                    mirrors: context.previousReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
                     reposts: context.previousReposted ? (prev.reposts || 0) + 1 : (prev.reposts || 0) - 1,
+                    mirrors: context.previousReposted ? (prev.mirrors || 0) + 1 : (prev.mirrors || 0) - 1,
                 }));
             }
             showToast("Failed to update repost", "error");

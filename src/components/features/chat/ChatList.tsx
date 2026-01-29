@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom"
 import SearchBar from "@/components/ui/search-bar"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { UserPlus } from "lucide-react"
-// @ts-ignore
+import { ScrollArea } from "@/components/ui/scroll-area"
+// @ts-expect-error
 import { useTimeAgo } from "@/hooks/useTimeAgo"
 import type { User } from "@/types"
 
@@ -122,77 +123,81 @@ const ChatList: React.FC<ChatListProps> = ({
                 placeholder="Search people or messages..."
             />
         </div>
-        <div className="flex-1 overflow-y-auto">
-            {/* Existing Conversations */}
-            {conversations.length > 0 && (
-                <div className="py-2">
-                    {conversations
-                        .filter(
-                            (conv) =>
-                                conv.lastMessage !== "No messages yet" || conv.id === selectedId
-                        )
-                        .map((conv) => (
-                            <ConversationItem
-                                key={conv.id}
-                                conv={conv}
-                                selectedId={selectedId}
-                                onSelect={onSelect}
-                                onlineUsers={onlineUsers}
-                            />
-                        ))}
-                </div>
-            )}
-
-            {/* People Search Results */}
-            {userResults.length > 0 && (
-                <div className="border-t border-zinc-100 dark:border-zinc-800">
-                    <div className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-zinc-500">
-                        People
-                    </div>
-                    {userResults.map((user) => (
-                        <div
-                            key={user.id}
-                            onClick={() => onStartNew(user)}
-                            className="flex cursor-pointer items-center gap-3 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
-                        >
-                            <Avatar className="size-12">
-                                <AvatarImage
-                                    src={user.avatar}
-                                    alt={user.name}
-                                    className="object-cover"
-                                />
-                                <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                                <div className="truncate font-bold dark:text-white">
-                                    {user.name}
-                                </div>
-                                <div className="truncate text-sm text-zinc-500">
-                                    @{user.handle}
-                                </div>
-                            </div>
-                            <UserPlus size={18} className="text-violet-500" />
+        <div className="flex-1 min-h-0 relative">
+            <ScrollArea className="absolute inset-0 h-full">
+                <div className="flex flex-col min-h-full">
+                    {/* Existing Conversations */}
+                    {conversations.length > 0 && (
+                        <div className="py-2">
+                            {conversations
+                                .filter(
+                                    (conv) =>
+                                        conv.lastMessage !== "No messages yet" || conv.id === selectedId
+                                )
+                                .map((conv) => (
+                                    <ConversationItem
+                                        key={conv.id}
+                                        conv={conv}
+                                        selectedId={selectedId}
+                                        onSelect={onSelect}
+                                        onlineUsers={onlineUsers}
+                                    />
+                                ))}
                         </div>
-                    ))}
-                </div>
-            )}
+                    )}
 
-            {/* Empty State */}
-            {conversations.length === 0 && userResults.length === 0 && searchQuery && (
-                <div className="p-8 text-center">
-                    <p className="text-sm text-zinc-500">
-                        No conversations or people found for "{searchQuery}"
-                    </p>
-                </div>
-            )}
+                    {/* People Search Results */}
+                    {userResults.length > 0 && (
+                        <div className="border-t border-zinc-100 dark:border-zinc-800">
+                            <div className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                                People
+                            </div>
+                            {userResults.map((user) => (
+                                <div
+                                    key={user.id}
+                                    onClick={() => onStartNew(user)}
+                                    className="flex cursor-pointer items-center gap-3 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                                >
+                                    <Avatar className="size-12">
+                                        <AvatarImage
+                                            src={user.avatar}
+                                            alt={user.name}
+                                            className="object-cover"
+                                        />
+                                        <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="truncate font-bold dark:text-white">
+                                            {user.name}
+                                        </div>
+                                        <div className="truncate text-sm text-zinc-500">
+                                            @{user.handle}
+                                        </div>
+                                    </div>
+                                    <UserPlus size={18} className="text-violet-500" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-            {conversations.length === 0 && !searchQuery && (
-                <div className="p-8 text-center">
-                    <p className="text-sm text-zinc-500">
-                        No messages yet. Search for people to start a chat!
-                    </p>
+                    {/* Empty State */}
+                    {conversations.length === 0 && userResults.length === 0 && searchQuery && (
+                        <div className="p-8 text-center">
+                            <p className="text-sm text-zinc-500">
+                                No conversations or people found for "{searchQuery}"
+                            </p>
+                        </div>
+                    )}
+
+                    {conversations.length === 0 && !searchQuery && (
+                        <div className="p-8 text-center">
+                            <p className="text-sm text-zinc-500">
+                                No messages yet. Search for people to start a chat!
+                            </p>
+                        </div>
+                    )}
                 </div>
-            )}
+            </ScrollArea>
         </div>
     </div>
 )

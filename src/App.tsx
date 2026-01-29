@@ -91,7 +91,7 @@ export default function Sysm() {
         <VideoPlaybackProvider>
             <ScrollToTop />
 
-            <Suspense fallback={null}>
+            <Suspense fallback={<PageLoader />}>
                 <AnimatePresence mode="wait">
                     <Routes location={location} key={location.pathname}>
                         <Route

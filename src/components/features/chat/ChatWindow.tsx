@@ -9,7 +9,7 @@ import {
     X,
     Check,
     CheckCheck,
-    User,
+    User as UserIcon,
     BellOff,
     Eraser,
 } from "lucide-react"
@@ -242,13 +242,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem 
-                                className="cursor-pointer gap-2"
+                            <button
                                 onClick={() => navigate(`/u/${conversation.user.handle}`)}
+                                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             >
-                                <User size={16} />
-                                View Profile
-                            </DropdownMenuItem>
+                                <UserIcon size={16} />
+                                <span>View Profile</span>
+                            </button>
                             <DropdownMenuItem className="cursor-pointer gap-2">
                                 <BellOff size={16} />
                                 Mute Notifications
