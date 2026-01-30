@@ -2,7 +2,6 @@
 
 import { useState, Suspense, lazy } from "react"
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
-import { AnimatePresence } from "framer-motion"
 
 // Context
 import { useAuth } from "@/context/AuthContext"
@@ -92,120 +91,118 @@ export default function Sysm() {
             <ScrollToTop />
 
             <Suspense fallback={<PageLoader />}>
-                <AnimatePresence mode="wait">
-                    <Routes location={location} key={location.pathname}>
+                <Routes location={location} key={location.pathname}>
+                    <Route
+                        element={
+                            <MainLayout onPostClick={() => setIsPostModalOpen(true)} />
+                        }
+                    >
                         <Route
+                            path="/"
                             element={
-                                <MainLayout onPostClick={() => setIsPostModalOpen(true)} />
+                                <PageTransition>
+                                    <Home
+                                        // @ts-ignore
+                                        onStoryClick={setViewingStory}
+                                        onAddStory={() => setIsStoryModalOpen(true)}
+                                    />
+                                </PageTransition>
                             }
-                        >
-                            <Route
-                                path="/"
-                                element={
-                                    <PageTransition>
-                                        <Home
-                                            // @ts-ignore
-                                            onStoryClick={setViewingStory}
-                                            onAddStory={() => setIsStoryModalOpen(true)}
-                                        />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route path="/home" element={<Navigate to="/" replace />} />
-                            <Route
-                                path="/community"
-                                element={
-                                    <PageTransition>
-                                        <Explore />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/reels"
-                                element={
-                                    <PageTransition>
-                                        <Reels />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/messages"
-                                element={
-                                    <PageTransition>
-                                        <Messages />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/settings"
-                                element={
-                                    <PageTransition>
-                                        <Settings />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/messages/:id"
-                                element={
-                                    <PageTransition>
-                                        <Messages />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/notifications"
-                                element={
-                                    <PageTransition>
-                                        <Notifications />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/post/:id"
-                                element={
-                                    <PageTransition>
-                                        <PostDetails />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/c/:handle"
-                                element={
-                                    <PageTransition>
-                                        <Community
-                                            onPostInCommunity={(c: any) => {
-                                                setPostCommunity(c)
-                                                setIsPostModalOpen(true)
-                                            }}
-                                        />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/tags/:tag"
-                                element={
-                                    <PageTransition>
-                                        <HashtagFeed />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route
-                                path="/u/:handle"
-                                element={
-                                    <PageTransition>
-                                        <Profile
-                                            onEditProfile={(profile: any) => {
-                                                setEditProfileData(profile)
-                                                setIsEditProfileOpen(true)
-                                            }}
-                                        />
-                                    </PageTransition>
-                                }
-                            />
-                            <Route path="*" element={<Navigate to="/community" />} />
-                        </Route>
-                    </Routes>
-                </AnimatePresence>
+                        />
+                        <Route path="/home" element={<Navigate to="/" replace />} />
+                        <Route
+                            path="/community"
+                            element={
+                                <PageTransition>
+                                    <Explore />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/reels"
+                            element={
+                                <PageTransition>
+                                    <Reels />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/messages"
+                            element={
+                                <PageTransition>
+                                    <Messages />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/settings"
+                            element={
+                                <PageTransition>
+                                    <Settings />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/messages/:id"
+                            element={
+                                <PageTransition>
+                                    <Messages />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/notifications"
+                            element={
+                                <PageTransition>
+                                    <Notifications />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/post/:id"
+                            element={
+                                <PageTransition>
+                                    <PostDetails />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/c/:handle"
+                            element={
+                                <PageTransition>
+                                    <Community
+                                        onPostInCommunity={(c: any) => {
+                                            setPostCommunity(c)
+                                            setIsPostModalOpen(true)
+                                        }}
+                                    />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/tags/:tag"
+                            element={
+                                <PageTransition>
+                                    <HashtagFeed />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
+                            path="/u/:handle"
+                            element={
+                                <PageTransition>
+                                    <Profile
+                                        onEditProfile={(profile: any) => {
+                                            setEditProfileData(profile)
+                                            setIsEditProfileOpen(true)
+                                        }}
+                                    />
+                                </PageTransition>
+                            }
+                        />
+                        <Route path="*" element={<Navigate to="/community" />} />
+                    </Route>
+                </Routes>
             </Suspense>
 
             {/* Global Overlays */}

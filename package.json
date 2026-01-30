@@ -27,8 +27,6 @@
     "@supabase/supabase-js": "^2.93.2",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
-    "@vidstack/player": "^0.13.3",
-    "@vidstack/react": "^0.6.15",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

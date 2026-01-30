@@ -1,5 +1,4 @@
 import React from "react"
-import { motion } from "framer-motion"
 
 interface PageTransitionProps {
     children: React.ReactNode
@@ -7,18 +6,10 @@ interface PageTransitionProps {
 
 const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-                duration: 0.5,
-                ease: [0.4, 0, 0.2, 1]
-            }}
-            className="w-full"
-        >
+        <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] fill-mode-forwards">
             {children}
-        </motion.div>
+        </div>
     )
 }
+
 export default PageTransition
