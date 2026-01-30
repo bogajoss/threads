@@ -269,7 +269,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 </DropdownMenu>
             </div>
 
-            <div className="flex-1 space-y-4 overflow-y-auto p-4" ref={scrollRef}>
+            <div className="flex-1 min-h-0 space-y-4 overflow-y-auto p-4" ref={scrollRef}>
                 <div className="py-8 text-center">
                     <div className="relative mx-auto w-fit">
                         <Avatar className="mx-auto mb-3 size-20 border-4 border-zinc-50 shadow-sm dark:border-zinc-900">

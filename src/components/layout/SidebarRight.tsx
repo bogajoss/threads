@@ -46,7 +46,7 @@ const SidebarRight = () => {
 
     if (currentUser) {
         return (
-            <aside className="sticky top-5 hidden max-h-screen w-[320px] shrink-0 flex-col gap-y-6 overflow-y-auto lg:flex">
+            <aside className="sticky top-5 hidden max-h-screen w-[350px] shrink-0 flex-col gap-y-6 overflow-y-auto lg:flex">
                 <div className="flex items-center gap-3">
                     <div className="flex-1">
                         <SearchBar
@@ -101,7 +101,7 @@ const SidebarRight = () => {
     }
 
     return (
-        <aside className="sticky top-5 hidden w-[350px] shrink-0 flex-col gap-y-6 pr-4 lg:flex">
+        <aside className="sticky top-5 hidden w-[400px] shrink-0 flex-col gap-y-6 pr-4 lg:flex">
             {/* Top Auth Buttons + Theme Toggle */}
             <div className="flex gap-3">
                 <button

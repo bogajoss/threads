@@ -56,15 +56,15 @@ const Messages: React.FC = () => {
 
     return (
         <div
-            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overflow-hidden border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-2rem)] md:rounded-xl md:border`}
+            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overflow-hidden border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-xl md:border`}
         >
             <div
-                className={`flex-col border-r border-zinc-100 dark:border-zinc-800 md:flex md:w-80 ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 shrink-0 w-full md:w-80`}
+                className={`flex-col border-r border-zinc-100 dark:border-zinc-800 md:flex md:w-[380px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 shrink-0 w-full`}
             >
                 <div className="shrink-0 border-b border-zinc-100 p-4 dark:border-zinc-800">
                     <h2 className="text-xl font-bold dark:text-white">Messages</h2>
                 </div>
-                <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                <div className="flex-1 min-h-0 flex flex-col overflow-y-auto">
                     <ChatList
                         conversations={filteredConversations}
                         userResults={userSearchResults}

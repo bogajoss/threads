@@ -34,12 +34,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
         <div
             className={`min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
         >
-            <div className="mx-auto flex min-h-screen w-full max-w-[1300px] justify-center px-0 sm:px-0">
+            <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
                 {/* Left Sidebar - Fixed narrow icons */}
                 <SidebarLeft onPostClick={onPostClick} />
 
                 {/* Main Content Area */}
-                <main className="flex flex-1 justify-center gap-x-2 px-0 md:gap-x-8 md:px-4 md:py-5">
+                <main className="flex flex-1 justify-center px-0 gap-x-0 md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8">
                     {/* Center Feed */}
                     <div className="flex w-0 flex-1 flex-col overflow-x-hidden">
                         {isHomePage && (
