@@ -134,9 +134,17 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             }
         }, [isActive])
 
+        // Cleanup timer on unmount
+        useEffect(() => {
+            return () => {
+                if (clickTimer.current) clearTimeout(clickTimer.current)
+            }
+        }, [])
+
         const handleInteraction = (e: React.MouseEvent) => {
             // Don't trigger if clicked on interactive elements
-            if ((e.target as HTMLElement).closest("button") || (e.target as HTMLElement).closest("a")) return
+            const target = e.target as HTMLElement
+            if (target.closest("button") || target.closest("a") || target.closest(".plyr__controls")) return
 
             if (clickTimer.current) {
                 // Double Tap Detected
@@ -148,7 +156,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 clickTimer.current = setTimeout(() => {
                     clickTimer.current = null
                     handleTogglePlay()
-                }, 200)
+                }, 250) // Slightly more time for double-tap recognition
             }
         }
 
@@ -162,7 +170,8 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                     player.pause()
                     setShowPlayPauseIcon("pause")
                 }
-                setTimeout(() => setShowPlayPauseIcon(null), 500)
+                // Auto-hide icon
+                setTimeout(() => setShowPlayPauseIcon(null), 800)
             }
         }
 
@@ -170,7 +179,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             if (!currentUser) return
 
             setShowHeart(true)
-            setTimeout(() => setShowHeart(false), 800)
+            setTimeout(() => setShowHeart(false), 1000)
 
             if (!isLiked) {
                 setIsLiked(true)
@@ -228,7 +237,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 options: {
                     controls: [],
                     loop: { active: true },
-                    clickToPlay: true,
+                    clickToPlay: false, // Important: disable Plyr's default click to avoid conflict
                     ratio: "9:16",
                 },
             }),
@@ -238,11 +247,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         return (
             <div
                 data-id={reel.id}
-                className="reel-item relative flex h-screen w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer"
+                className="reel-item relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer"
                 onClick={handleInteraction}
             >
-                <div className="h-full w-full max-w-[450px]">
-                    <Plyr ref={playerRef} {...plyrProps} />
+                <div className="flex h-full w-full max-w-[450px] items-center justify-center">
+                    <div className="w-full">
+                        <Plyr ref={playerRef} {...plyrProps} />
+                    </div>
                 </div>
 
                 {showHeart && (

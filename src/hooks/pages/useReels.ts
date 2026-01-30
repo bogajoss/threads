@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
 // @ts-ignore
 import { fetchReels } from "@/lib/api/posts"
 
 export const useReels = () => {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const targetId = searchParams.get("id")
     const containerRef = useRef<HTMLDivElement>(null)
     const [activeReelId, setActiveReelId] = useState<string | null>(null)
     const [isMuted, setIsMuted] = useState(true)
@@ -31,12 +33,26 @@ export const useReels = () => {
         return data?.pages.flatMap((page) => page) || [];
     }, [data]);
 
-    // Set initial active reel
+    // Set initial active reel or scroll to targetId
     useEffect(() => {
-        if (reels.length > 0 && !activeReelId) {
-            setActiveReelId(reels[0].id)
+        if (reels.length > 0) {
+            if (targetId) {
+                const targetReel = reels.find(r => r.id === targetId)
+                if (targetReel) {
+                    setActiveReelId(targetId)
+                    // Wait a tick for DOM
+                    setTimeout(() => {
+                        const element = document.querySelector(`[data-id="${targetId}"]`)
+                        element?.scrollIntoView({ behavior: "instant" })
+                    }, 100)
+                } else if (!activeReelId) {
+                    setActiveReelId(reels[0].id)
+                }
+            } else if (!activeReelId) {
+                setActiveReelId(reels[0].id)
+            }
         }
-    }, [reels, activeReelId])
+    }, [reels, targetId, activeReelId])
 
     // Intersection Observer for Active Reel
     useEffect(() => {

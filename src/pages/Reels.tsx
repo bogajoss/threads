@@ -75,7 +75,7 @@ const Reels = () => {
                     />
                 ))}
                 {loadingMore && (
-                    <div className="flex h-screen w-full snap-start items-center justify-center bg-black">
+                    <div className="flex h-[100dvh] w-full snap-start items-center justify-center bg-black">
                         <Loader2 size={40} className="animate-spin text-white" />
                     </div>
                 )}
