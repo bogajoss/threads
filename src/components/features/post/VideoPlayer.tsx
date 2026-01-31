@@ -77,7 +77,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
 
     return (
         <div
-            className="mt-3 overflow-hidden rounded-2xl border border-zinc-100 bg-black shadow-sm dark:border-zinc-800"
+            className="w-full bg-black"
             onClick={(e) => e.stopPropagation()}
         >
             <Plyr ref={playerRef} {...plyrProps} />

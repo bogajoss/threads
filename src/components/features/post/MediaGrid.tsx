@@ -35,16 +35,16 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
     }
 
     return (
-        <div className="mt-3 space-y-2">
+        <div className="mt-2 space-y-2">
             {media.length > 0 && (
                 <div
                     className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 dark:border-zinc-800 ${media.length === 1
-                            ? "grid-cols-1"
-                            : media.length === 2
-                                ? "aspect-[16/9] grid-cols-2"
-                                : media.length === 3
-                                    ? "aspect-[16/9] grid-cols-2 grid-rows-2"
-                                    : "aspect-[16/9] grid-cols-2 grid-rows-2"
+                        ? "grid-cols-1"
+                        : media.length === 2
+                            ? "aspect-[16/9] grid-cols-2"
+                            : media.length === 3
+                                ? "aspect-[16/9] grid-cols-2 grid-rows-2"
+                                : "aspect-[16/9] grid-cols-2 grid-rows-2"
                         }`}
                 >
                     {media.map((item, idx) => (
