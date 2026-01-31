@@ -15,6 +15,12 @@ import {
     Share,
     Trash,
 } from "lucide-react"
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    type InfiniteData
+} from "@tanstack/react-query";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -56,7 +62,7 @@ import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api"
-import { isBangla, extractUrl, cn } from "@/lib/utils"
+import { isBangla, extractUrl, cn, isValidUUID } from "@/lib/utils"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
 import type { User, Media, CommunityShort } from "@/types"
@@ -122,6 +128,17 @@ const Post: React.FC<PostProps> = ({
         handleLike,
         handleRepost,
     } = usePostInteraction(id, stats, currentUser, showToast || (() => { }))
+
+    const { data: recentCommenters = [] } = useQuery({
+        queryKey: ["post", id, "commenters"],
+        queryFn: async () => {
+            const comments = await fetchCommentsByPostId(id, null, 3);
+            return comments.map(c => c.user);
+        },
+        enabled: isValidUUID(id) && localStats.comments > 0,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+
     const { deletePost, updatePost } = usePosts()
     const [comments, setComments] = useState<any[]>(initialComments || [])
     const [newComment, setNewComment] = useState("")
@@ -863,9 +880,9 @@ const Post: React.FC<PostProps> = ({
     return (
         <article
             onClick={onClick}
-            className={`p-4 transition-all ${isComment
+            className={`px-4 py-4 transition-all ${isComment
                 ? "border-b border-zinc-100/50 bg-transparent last:border-0 hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-800/30"
-                : "mb-4 rounded-xl bg-white hover:shadow-md dark:bg-black"
+                : "border-b border-zinc-100 bg-white hover:bg-zinc-50/30 dark:border-zinc-800 dark:bg-black dark:hover:bg-white/[0.02]"
                 } ${onClick ? "cursor-pointer" : ""}`}
         >
             {repostedBy && (
@@ -884,21 +901,68 @@ const Post: React.FC<PostProps> = ({
             )}
 
             <div className="flex items-start gap-x-3">
-                <div
-                    className="shrink-0 cursor-pointer"
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        onUserClick && onUserClick(user.handle)
-                    }}
-                >
-                    <Avatar className="size-10 border border-zinc-200 dark:border-zinc-700">
-                        <AvatarImage
-                            src={user.avatar}
-                            alt={user.handle}
-                            className="object-cover"
-                        />
-                        <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                <div className="flex shrink-0 flex-col items-center self-stretch py-0.5">
+                    <div
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onUserClick && onUserClick(user.handle)
+                        }}
+                    >
+                        <Avatar className="size-10 border-0 shadow-sm">
+                            <AvatarImage
+                                src={user.avatar}
+                                alt={user.handle}
+                                className="object-cover"
+                            />
+                            <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                    </div>
+                    {/* Vertical line connector (Threads style) */}
+                    {!isComment && (
+                        <div className={`mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800 ${localStats.comments > 0 ? "mb-1.5" : ""}`} />
+                    )}
+                    {!isComment && localStats.comments > 0 && (
+                        <div className="relative mb-2 mt-auto flex h-7 w-9 items-center justify-center">
+                            {recentCommenters.length > 0 ? (
+                                <div className="relative h-full w-full">
+                                    {/* Top Avatar - The latest or one of the participants */}
+                                    <Avatar className="absolute top-0 left-1/2 -translate-x-1/2 z-20 size-[14px] border border-white dark:border-black shadow-sm">
+                                        <AvatarImage src={recentCommenters[0]?.avatar} className="object-cover" />
+                                        <AvatarFallback className="text-[5px] font-bold">
+                                            {recentCommenters[0]?.handle?.[0]?.toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+
+                                    {/* Bottom Left Avatar */}
+                                    {recentCommenters.length > 1 && (
+                                        <Avatar className="absolute bottom-0 left-1 z-10 size-[16px] border-[1.5px] border-white dark:border-black shadow-sm">
+                                            <AvatarImage src={recentCommenters[1]?.avatar} className="object-cover" />
+                                            <AvatarFallback className="text-[6px] font-bold">
+                                                {recentCommenters[1]?.handle?.[0]?.toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    )}
+
+                                    {/* Bottom Right Avatar */}
+                                    {recentCommenters.length > 2 && (
+                                        <Avatar className="absolute bottom-1 right-1 z-10 size-3 border border-white dark:border-black shadow-sm">
+                                            <AvatarImage src={recentCommenters[2]?.avatar} className="object-cover" />
+                                            <AvatarFallback className="text-[5px] font-bold">
+                                                {recentCommenters[2]?.handle?.[0]?.toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="relative h-full w-full opacity-40">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 size-3 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                                    <div className="absolute bottom-0 left-1 size-3.5 rounded-full bg-zinc-400 dark:bg-zinc-600" />
+                                    <div className="absolute bottom-1 right-1 size-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-center justify-between">
@@ -992,31 +1056,25 @@ const Post: React.FC<PostProps> = ({
                     )}
 
                     {/* Action Buttons */}
-                    <div className="mt-3 flex items-center justify-between pr-4">
+                    <div className="mt-3 flex items-center gap-x-1">
                         <ActionButton
                             icon={Heart}
-                            count={localStats.likes}
                             onClick={handleLike}
                             active={liked}
                             activeColorClass="text-rose-500"
-                            label={""}
-                        />
-                        <ActionButton
-                            icon={Repeat2}
-                            count={localStats.reposts}
-                            onClick={handleRepost}
-                            active={reposted}
-                            activeColorClass="text-emerald-500"
-                            label={""}
                         />
                         <ActionButton
                             icon={MessageCircle}
-                            count={localStats.comments}
                             onClick={(e) => {
                                 e?.stopPropagation()
                                 onReply ? onReply(user.handle) : onClick && onClick()
                             }}
-                            label={""}
+                        />
+                        <ActionButton
+                            icon={Repeat2}
+                            onClick={handleRepost}
+                            active={reposted}
+                            activeColorClass="text-emerald-500"
                         />
                         {!isComment && (
                             <ActionButton
@@ -1025,10 +1083,28 @@ const Post: React.FC<PostProps> = ({
                                     e?.stopPropagation();
                                     setIsShareModalOpen(true);
                                 }}
-                                label={""}
                             />
                         )}
                     </div>
+
+                    {/* Stats Line (Threads style) */}
+                    {(localStats.comments > 0 || localStats.likes > 0) && (
+                        <div className="mt-1 flex items-center gap-x-1.5 px-0.5 text-[14px] font-medium text-zinc-500 dark:text-zinc-400">
+                            {localStats.comments > 0 && (
+                                <button className="hover:underline">
+                                    {localStats.comments} {localStats.comments === 1 ? "reply" : "replies"}
+                                </button>
+                            )}
+                            {localStats.comments > 0 && localStats.likes > 0 && (
+                                <span className="opacity-50">·</span>
+                            )}
+                            {localStats.likes > 0 && (
+                                <button className="hover:underline">
+                                    {localStats.likes} {localStats.likes === 1 ? "like" : "likes"}
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
