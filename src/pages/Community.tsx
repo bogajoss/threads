@@ -3,7 +3,6 @@ import {
     Loader2,
     ArrowLeft,
     Users,
-    Plus,
 } from "lucide-react"
 // @ts-ignore
 import { Post } from "@/components/features/post"
@@ -14,6 +13,9 @@ import {
     EditIcon,
     FollowIcon,
     FollowingIcon,
+    Avatar,
+    AvatarImage,
+    AvatarFallback,
     // @ts-ignore
 } from "@/components/ui"
 import {
@@ -197,6 +199,30 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                 </div>
 
                 <div className="border-t border-zinc-100 dark:border-zinc-800">
+                    {/* Create Post Entry Box */}
+                    {canPost && (
+                        <div className="border-b border-zinc-100 p-4 dark:border-zinc-800">
+                            <div className="flex items-center gap-3">
+                                <Avatar className="size-10 border border-zinc-200 dark:border-zinc-800">
+                                    <AvatarImage
+                                        src={currentUser?.avatar}
+                                        alt={currentUser?.handle}
+                                        className="object-cover"
+                                    />
+                                    <AvatarFallback>
+                                        {currentUser?.handle?.[0]?.toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <button
+                                    onClick={() => onPostInCommunity(community)}
+                                    className="flex-1 rounded-2xl bg-zinc-100 px-5 py-3 text-left text-[15px] font-medium text-zinc-500 transition-all hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900"
+                                >
+                                    Share something in {community.name}...
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {loadingPosts ? (
                         <div className="flex items-center justify-center py-20">
                             <Loader2 className="animate-spin text-violet-500" size={32} />
@@ -245,19 +271,6 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                 </div>
             </div>
 
-            {/* Floating Plus Button for members with permission */}
-            {canPost && (
-                <button
-                    onClick={() => onPostInCommunity(community)}
-                    className="group fixed bottom-20 right-5 z-50 flex size-12 cursor-pointer items-center justify-center rounded-full bg-zinc-950 text-white shadow-2xl transition-all hover:scale-110 active:scale-90 dark:bg-white dark:text-zinc-950 md:hidden"
-                    title={`Post to ${community.name}`}
-                >
-                    <Plus
-                        size={28}
-                        className="duration-300 transition-transform group-hover:rotate-90"
-                    />
-                </button>
-            )}
 
             <EditCommunityModal
                 isOpen={isEditModalOpen}

@@ -522,7 +522,28 @@ const Post: React.FC<PostProps> = ({
                                 const { href, ...props } = attributes
                                 const origin = window.location.origin
 
-                                // Check if link is internal (either relative or absolute to current origin)
+                                // 1. Handle our custom internal hashtag link
+                                if (href.includes("internal.tag/")) {
+                                    const tag = decodeURIComponent(href.split("internal.tag/")[1]);
+                                    return (
+                                        <span
+                                            key={content}
+                                            {...props}
+                                            className={cn(
+                                                "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400 font-bangla",
+                                                props.className
+                                            )}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                navigate(`/tags/${tag}`)
+                                            }}
+                                        >
+                                            #{tag}
+                                        </span>
+                                    )
+                                }
+
+                                // 2. Handle internal app links
                                 let internalPath = null
                                 if (href.startsWith("/")) {
                                     internalPath = href
@@ -549,7 +570,7 @@ const Post: React.FC<PostProps> = ({
                                     )
                                 }
 
-                                // Treat everything else as external
+                                // 3. Handle all other external links
                                 return (
                                     <a
                                         key={content}
@@ -569,7 +590,13 @@ const Post: React.FC<PostProps> = ({
                             },
                         }}
                     >
-                        {textToProcess}
+                        {/* 
+                            Pre-processing text to wrap Bangla hashtags in a URL-like format 
+                            that Linkify can process as a single unit without breaking Unicode clustering.
+                        */}
+                        {typeof textToProcess === "string"
+                            ? textToProcess.replace(/#([\u0980-\u09FF\w]+)/g, "https://internal.tag/$1")
+                            : textToProcess}
                     </Linkify>
                     {shouldTruncate && !isExpanded && "..."}
                     {shouldTruncate && (
@@ -922,12 +949,12 @@ const Post: React.FC<PostProps> = ({
                                     </div>
                                 )}
 
-                                <span className="text-[13px] text-zinc-500 dark:text-zinc-400">
-                                    · {timeAgo || "Recent"}
-                                </span>
                             </div>
                         </div>
-                        <div className="-mt-1 flex items-center">
+                        <div className="-mt-1 flex items-center gap-2">
+                            <span className="text-[12px] text-zinc-500 dark:text-zinc-400">
+                                {timeAgo || "Recent"}
+                            </span>
                             <PostActionsMenu
                                 trigger={
                                     <button

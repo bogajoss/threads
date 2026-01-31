@@ -14,8 +14,7 @@ import {
     MoreHorizontal,
     Loader2,
 } from "lucide-react"
-import { searchUsers, fetchFollowing } from "@/lib/api/users"
-import { getOrCreateConversation, sendMessage } from "@/lib/api/messages"
+import { getOrCreateConversation, sendMessage, fetchConversations } from "@/lib/api/messages"
 import type { User } from "@/types"
 
 interface ShareModalProps {
@@ -43,15 +42,18 @@ const ShareModal: React.FC<ShareModalProps> = ({
     const { addToast } = useToast()
     const { currentUser } = useAuth()
 
-    // Fetch initial friends (following)
+    // Fetch initial friends (people you have conversations with)
     const loadInitialFriends = useCallback(async () => {
-        if (!currentUser) return // Check here as well
+        if (!currentUser) return
         setLoadingFriends(true)
         try {
-            const following = await fetchFollowing(currentUser.id, null, 10)
-            setFriends(following)
+            const conversations = await fetchConversations(currentUser.id)
+            const users = conversations
+                .map(c => c.user)
+                .filter((u): u is User => u !== null)
+            setFriends(users.slice(0, 5))
         } catch (err) {
-            console.error("Failed to fetch following:", err)
+            console.error("Failed to fetch conversations:", err)
         } finally {
             setLoadingFriends(false)
         }
@@ -66,14 +68,20 @@ const ShareModal: React.FC<ShareModalProps> = ({
         }
     }, [isOpen, currentUser, loadInitialFriends])
 
-    // Search logic
+    // Search logic: Limit to searching within people you already message
     const handleSearch = useCallback(async () => {
         if (!currentUser) return
         setLoadingFriends(true)
         try {
-            const results = await searchUsers(searchTerm)
-            // Filter out self
-            setFriends(results.filter((u) => u.id !== currentUser.id))
+            // First get all conversations to have the current list
+            const conversations = await fetchConversations(currentUser.id)
+            const users = conversations
+                .map(c => c.user)
+                .filter((u): u is User => u !== null &&
+                    (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        u.handle.toLowerCase().includes(searchTerm.toLowerCase()))
+                )
+            setFriends(users)
         } catch (err) {
             console.error("Search failed:", err)
         } finally {
@@ -225,12 +233,10 @@ const ShareModal: React.FC<ShareModalProps> = ({
                                             className="size-full object-cover"
                                         />
                                     </div>
-                                    {sendingTo === friend.id ? (
+                                    {sendingTo === friend.id && (
                                         <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
                                             <Loader2 size={16} className="animate-spin text-white" />
                                         </div>
-                                    ) : (
-                                        <div className="absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-white bg-emerald-500 dark:border-zinc-900" />
                                     )}
                                 </div>
                                 <span className="max-w-[60px] truncate text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
@@ -292,8 +298,8 @@ const ShareModal: React.FC<ShareModalProps> = ({
                         <button
                             onClick={handleCopy}
                             className={`absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold shadow-sm transition-all active:scale-95 ${copied
-                                    ? "bg-emerald-500 text-white"
-                                    : "bg-zinc-900 text-white hover:opacity-90 dark:bg-white dark:text-zinc-900"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-zinc-900 text-white hover:opacity-90 dark:bg-white dark:text-zinc-900"
                                 }`}
                         >
                             {copied ? (

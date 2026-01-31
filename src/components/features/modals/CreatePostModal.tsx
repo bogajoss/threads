@@ -11,7 +11,6 @@ import {
     X,
     Trash2,
     Globe,
-    Users,
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { usePosts } from "@/context/PostContext"
@@ -193,14 +192,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         })
     )
 
-    // Set initial community if provided
+    // Set initial community only when modal opens
     useEffect(() => {
-        if (initialCommunity) {
-            setSelectedCommunity(initialCommunity)
-        } else {
-            setSelectedCommunity(null)
+        if (isOpen) {
+            setSelectedCommunity(initialCommunity || null)
         }
-    }, [initialCommunity, isOpen])
+    }, [isOpen, initialCommunity])
 
     // Fetch user's communities
     const { data: userCommunities = [] } = useQuery({
@@ -410,10 +407,20 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                             </span>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="group flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                                    <button
+                                        type="button"
+                                        onPointerDown={(e) => e.stopPropagation()}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="group flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                    >
                                         {selectedCommunity ? (
                                             <>
-                                                <Users size={12} className="text-violet-500" />
+                                                <Avatar className="size-4 shrink-0 overflow-hidden rounded-full border border-zinc-100 dark:border-zinc-800">
+                                                    <AvatarImage src={selectedCommunity.avatar} className="object-cover" />
+                                                    <AvatarFallback className="text-[6px]">
+                                                        {selectedCommunity.name?.[0]?.toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
                                                 <span className="max-w-[100px] truncate">
                                                     {selectedCommunity.name}
                                                 </span>
@@ -431,6 +438,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="start"
+                                    onCloseAutoFocus={(e) => e.preventDefault()}
                                     className="w-60 rounded-xl border-zinc-100 p-1.5 shadow-xl dark:border-zinc-800"
                                 >
                                     <DropdownMenuItem
