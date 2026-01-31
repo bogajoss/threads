@@ -15,12 +15,7 @@ import {
     Share,
     Trash,
 } from "lucide-react"
-import {
-    useQuery,
-    useMutation,
-    useQueryClient,
-    type InfiniteData
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,

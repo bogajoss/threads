@@ -129,7 +129,7 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     const getPostById = useCallback((id: string): Post | undefined => posts.find((p) => p.id === id), [posts]);
 
     const getUserPosts = useCallback((handle: string, filter: "feed" | "media" = "feed"): Post[] => {
-        let userPosts = posts.filter((post) => {
+        const userPosts = posts.filter((post) => {
             if (post.user?.handle === handle) return true;
             if (post.repostedBy && post.repostedBy.handle === handle) return true;
             return false;
