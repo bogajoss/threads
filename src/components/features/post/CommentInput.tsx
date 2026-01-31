@@ -1,6 +1,6 @@
 import React, { useRef } from "react"
 import { Image as ImageIcon, Paperclip, Loader2, X } from "lucide-react"
-import Button from "@/components/ui/button"
+import Button from "@/components/ui/Button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import type { User } from "@/types"
 

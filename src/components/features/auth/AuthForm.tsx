@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Loader2, AlertCircle } from "lucide-react"
-import Button from "@/components/ui/button"
-import Input from "@/components/ui/input"
+import Button from "@/components/ui/Button"
+import Input from "@/components/ui/Input"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 
@@ -87,7 +87,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                     type="email"
                     placeholder="john@example.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                     required
                 />
 
@@ -97,7 +97,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                             label="Name"
                             placeholder="John Doe"
                             value={formData.name}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setFormData({ ...formData, name: e.target.value })
                             }
                             required
@@ -106,7 +106,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                             label="Username"
                             placeholder="johndoe"
                             value={formData.username}
-                            onChange={(e) => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 const value = e.target.value.replace(/[^a-zA-Z0-9_]/g, "")
                                 setFormData({ ...formData, username: value })
                             }}
@@ -120,7 +120,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                     type="password"
                     placeholder="••••••••"
                     value={formData.password}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setFormData({ ...formData, password: e.target.value })
                     }
                     required

@@ -4,7 +4,6 @@ import SearchBar from "@/components/ui/search-bar"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { UserPlus } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-// @ts-expect-error
 import { useTimeAgo } from "@/hooks/useTimeAgo"
 import type { User } from "@/types"
 

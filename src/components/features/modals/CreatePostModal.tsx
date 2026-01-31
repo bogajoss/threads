@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react"
-import Modal from "@/components/ui/modal"
-import Button from "@/components/ui/button"
+import Modal from "@/components/ui/Modal"
+import Button from "@/components/ui/Button"
 import { useQuery } from "@tanstack/react-query"
 import {
     Plus,

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import Modal from "@/components/ui/modal"
-import Button from "@/components/ui/button"
+import Modal from "@/components/ui/Modal"
+import Button from "@/components/ui/Button"
 import { Loader2, X } from "lucide-react"
 // @ts-ignore
 import { EditIcon } from "@/components/ui"

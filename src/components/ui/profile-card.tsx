@@ -144,7 +144,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     onClick={
                         isCommunity
                             ? handleJoinToggle
-                            : (e) => {
+                            : (e: React.MouseEvent) => {
                                 e.stopPropagation()
                                 handleFollow()
                             }

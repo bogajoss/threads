@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import Modal from "@/components/ui/modal"
-import Button from "@/components/ui/button"
+import Modal from "@/components/ui/Modal"
+import Button from "@/components/ui/Button"
 import { Loader2, Users } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"

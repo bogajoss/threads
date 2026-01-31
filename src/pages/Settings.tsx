@@ -91,7 +91,7 @@ const Settings: React.FC = () => {
                                     type="password"
                                     placeholder="New Password"
                                     value={passwordData.newPassword}
-                                    onChange={(e) =>
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                         setPasswordData({
                                             ...passwordData,
                                             newPassword: e.target.value,
@@ -103,7 +103,7 @@ const Settings: React.FC = () => {
                                     type="password"
                                     placeholder="Confirm Password"
                                     value={passwordData.confirmPassword}
-                                    onChange={(e) =>
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                         setPasswordData({
                                             ...passwordData,
                                             confirmPassword: e.target.value,

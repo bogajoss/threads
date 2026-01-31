@@ -2,7 +2,7 @@ import React from "react"
 import { Heart, AtSign, Layers, Loader2, MessageSquare } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { formatTimeAgo } from "@/lib/utils"
-import Button from "@/components/ui/button"
+import Button from "@/components/ui/Button"
 import { FollowingIcon } from "@/components/ui/custom-icons"
 // @ts-ignore
 import { useNotificationsPage } from "@/hooks"

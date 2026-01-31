@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react"
-import Modal from "@/components/ui/modal"
-import Button from "@/components/ui/button"
-import Input from "@/components/ui/input"
+import Modal from "@/components/ui/Modal"
+import Button from "@/components/ui/Button"
+import Input from "@/components/ui/Input"
 import { Loader2, Plus } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
@@ -93,14 +93,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                         ref={coverInputRef}
                         className="hidden"
                         accept="image/*"
-                        onChange={(e) => handleFileChange(e, "cover")}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, "cover")}
                     />
                     <input
                         type="file"
                         ref={avatarInputRef}
                         className="hidden"
                         accept="image/*"
-                        onChange={(e) => handleFileChange(e, "avatar")}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileChange(e, "avatar")}
                     />
 
                     {/* Cover Preview */}
@@ -159,7 +159,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                         <Input
                             label="Name"
                             value={editProfileData?.name || ""}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                 setEditProfileData({ ...editProfileData, name: e.target.value })
                             }
                         />
@@ -167,14 +167,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                             label="Bio"
                             textarea={true}
                             value={editProfileData?.bio || ""}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                 setEditProfileData({ ...editProfileData, bio: e.target.value })
                             }
                         />
                         <Input
                             label="Location"
                             value={editProfileData?.location || ""}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                 setEditProfileData({
                                     ...editProfileData,
                                     location: e.target.value,
@@ -184,7 +184,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                         <Input
                             label="Website"
                             value={editProfileData?.website || ""}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
                                 setEditProfileData({
                                     ...editProfileData,
                                     website: e.target.value,

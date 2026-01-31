@@ -1,7 +1,7 @@
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import { Home, AlertCircle, ArrowLeft, type LucideIcon } from "lucide-react"
-import Button from "@/components/ui/button"
+import Button from "@/components/ui/Button"
 
 interface NotFoundProps {
     title?: string
