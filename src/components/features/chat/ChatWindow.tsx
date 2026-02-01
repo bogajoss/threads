@@ -505,19 +505,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 )}
 
                 <div className="flex items-end gap-2">
-                    {!isRecording && (
-                        <div className="flex items-center gap-1 mb-1">
-                            <button className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <ImageIcon size={24} />
-                            </button>
-                            <button className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                                <Paperclip size={22} />
-                            </button>
-                        </div>
-                    )}
-
                     <form
                         className={cn(
                             "flex-1 flex items-center gap-2 rounded-[28px] px-2 py-2 transition-all duration-300 overflow-hidden border",
@@ -566,16 +553,30 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             </div>
                         ) : (
                             <>
-                                <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
-                                    <PopoverTrigger asChild>
-                                        <button type="button" className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors">
-                                            <Smile size={24} />
-                                        </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0 border-none bg-transparent shadow-none" side="top" align="start">
-                                        <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-                                    </PopoverContent>
-                                </Popover>
+                                <div className="flex items-center gap-0.5 ml-1">
+                                    <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
+                                        <PopoverTrigger asChild>
+                                            <button type="button" className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors">
+                                                <Smile size={22} />
+                                            </button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0 border-none bg-transparent shadow-none" side="top" align="start">
+                                            <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    <button 
+                                        type="button"
+                                        className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <ImageIcon size={22} />
+                                    </button>
+                                    
+                                    <button type="button" className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800">
+                                        <Paperclip size={20} />
+                                    </button>
+                                </div>
 
                                 <textarea
                                     name="chat-input"
@@ -611,7 +612,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             <button
                                 type="button"
                                 onClick={startRecording}
-                                className="p-2 text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                                className="p-2 mr-1 text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
                             >
                                 <Mic size={22} />
                             </button>
