@@ -112,6 +112,14 @@ export default function Sysm() {
                             }
                         />
                         <Route
+                            path="/reels/:id"
+                            element={
+                                <PageTransition>
+                                    <Reels />
+                                </PageTransition>
+                            }
+                        />
+                        <Route
                             path="/messages"
                             element={
                                 <PageTransition>

@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams, useParams } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
 // @ts-ignore
 import { fetchReels } from "@/lib/api/posts"
 
 export const useReels = () => {
     const navigate = useNavigate()
+    const { id: routeId } = useParams()
     const [searchParams] = useSearchParams()
-    const targetId = searchParams.get("id")
+    const targetId = routeId || searchParams.get("id")
     const containerRef = useRef<HTMLDivElement>(null)
     const [activeReelId, setActiveReelId] = useState<string | null>(null)
     const [isMuted, setIsMuted] = useState(true)
