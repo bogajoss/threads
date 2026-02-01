@@ -24,7 +24,6 @@ export const useMessagesPage = () => {
         typingStatus,
         markAsRead,
         formatMessages,
-        onToggleReaction,
         conversationReactions,
         messages, // Flat list of messages from infinite query
         isMsgLoading,
@@ -84,9 +83,9 @@ export const useMessagesPage = () => {
         navigate(`/messages/${conv.id}`)
     }
 
-    const localMessages = useMemo(() => 
+    const localMessages = useMemo(() =>
         formatMessages(messages, conversationReactions),
-    [messages, conversationReactions, formatMessages]);
+        [messages, conversationReactions, formatMessages]);
 
     const filteredConversations = conversations.filter(
         (c: any) =>
@@ -119,7 +118,6 @@ export const useMessagesPage = () => {
         handleSelectConversation,
         sendMessage,
         sendTypingStatus,
-        onToggleReaction,
         navigate,
         // Expose infinite scroll props for ChatWindow
         fetchNextMessages,

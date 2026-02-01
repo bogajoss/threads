@@ -26,7 +26,6 @@ const Messages: React.FC = () => {
         handleSelectConversation,
         sendMessage,
         sendTypingStatus,
-        onToggleReaction,
         navigate,
     } = useMessagesPage()
 
@@ -56,14 +55,11 @@ const Messages: React.FC = () => {
 
     return (
         <div
-            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overflow-hidden border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-xl md:border`}
+            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overflow-hidden border-zinc-100 bg-white shadow-2xl dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-2xl md:border`}
         >
             <div
-                className={`flex-col border-r border-zinc-100 dark:border-zinc-800 md:flex md:w-[380px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 shrink-0 w-full`}
+                className={`flex-col border-r border-zinc-100 dark:border-zinc-800 md:flex md:w-[380px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 shrink-0 w-full bg-white dark:bg-black`}
             >
-                <div className="shrink-0 border-b border-zinc-100 p-4 dark:border-zinc-800">
-                    <h2 className="text-xl font-bold dark:text-white">Messages</h2>
-                </div>
                 <div className="flex-1 min-h-0 flex flex-col overflow-y-auto">
                     <ChatList
                         conversations={filteredConversations}
@@ -83,7 +79,6 @@ const Messages: React.FC = () => {
                     messages={localMessages}
                     onBack={() => navigate("/messages")}
                     onSendMessage={sendMessage}
-                    onToggleReaction={onToggleReaction}
                     currentUser={currentUser}
                     onTyping={(isTyping: boolean) =>
                         sendTypingStatus(selectedConversation.id, isTyping)
@@ -93,15 +88,21 @@ const Messages: React.FC = () => {
                     isOnline={!!otherUserIsOnline}
                 />
             ) : (
-                <div className="hidden flex-1 flex-col items-center justify-center gap-4 text-zinc-500 md:flex">
-                    <div className="rounded-full bg-zinc-50 p-6 dark:bg-zinc-900">
-                        <Mail size={48} className="text-zinc-300" />
+                <div className="hidden flex-1 flex-col items-center justify-center gap-6 text-zinc-500 md:flex bg-zinc-50/50 dark:bg-zinc-900/10">
+                    <div className="relative">
+                        <div className="absolute -inset-4 rounded-full bg-violet-500/10 blur-xl dark:bg-violet-500/20"></div>
+                        <div className="relative rounded-[2rem] bg-white p-8 shadow-2xl dark:bg-zinc-900 ring-1 ring-black/5 dark:ring-white/10">
+                            <Mail size={64} className="text-violet-500" />
+                        </div>
                     </div>
-                    <div className="text-center">
-                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
-                            Select a message
+                    <div className="text-center max-w-sm px-4">
+                        <h3 className="mb-2 text-2xl font-black text-zinc-900 dark:text-white">
+                            Your Messages
                         </h3>
-                        <p>Choose from your existing conversations or start a new one.</p>
+                        <p className="text-zinc-500 leading-relaxed">
+                            Send private photos and messages to a friend or group.
+                            Start a new chat to get started!
+                        </p>
                     </div>
                 </div>
             )}
