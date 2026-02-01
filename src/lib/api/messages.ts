@@ -339,6 +339,49 @@ export const sendMessage = async (
 };
 
 /**
+ * Deletes an entire conversation and all its messages.
+ */
+export const deleteConversation = async (conversationId: string): Promise<void> => {
+    // 1. Fetch all messages to clean up media
+    const { data: msgs } = await (supabase
+        .from("messages")
+        .select("media")
+        .eq("conversation_id", conversationId) as any);
+
+    if (msgs && msgs.length > 0) {
+        const allUrls: string[] = [];
+        msgs.forEach((m: any) => {
+            if (m.media) {
+                if (Array.isArray(m.media)) allUrls.push(...m.media);
+                else allUrls.push(m.media);
+            }
+        });
+        if (allUrls.length > 0) await deleteMultipleFiles(allUrls);
+    }
+
+    // 2. Delete conversation (cascades to participants and messages)
+    const { error } = await supabase
+        .from("conversations")
+        .delete()
+        .eq("id", conversationId);
+
+    if (error) throw error;
+};
+
+/**
+ * Removes a user from a conversation (Leave Group).
+ */
+export const leaveConversation = async (conversationId: string, userId: string): Promise<void> => {
+    const { error } = await (supabase
+        .from("conversation_participants") as any)
+        .delete()
+        .eq("conversation_id", conversationId)
+        .eq("user_id", userId);
+
+    if (error) throw error;
+};
+
+/**
  * Deletes a message by ID and cleans up its media from storage.
  */
 export const deleteMessage = async (messageId: string): Promise<void> => {

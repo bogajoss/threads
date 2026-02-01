@@ -7,8 +7,6 @@ import {
     X,
     Check,
     CheckCheck,
-    Phone,
-    Video,
     Info,
     Image as ImageIcon,
     Mic,
@@ -43,7 +41,7 @@ import EmojiPicker from "@/components/ui/emoji-picker"
 import Linkify from "linkify-react"
 import { linkifyOptions } from "@/lib/linkify"
 import { useNavigate } from "react-router-dom"
-import { GroupSettingsModal } from "@/components/features/modals"
+import { GroupSettingsModal, DMSettingsModal } from "@/components/features/modals"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -228,12 +226,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1">
-                    <button className="hidden sm:flex rounded-full p-2.5 text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
-                        <Phone size={20} />
-                    </button>
-                    <button className="hidden sm:flex rounded-full p-2.5 text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
-                        <Video size={20} />
-                    </button>
                     <button 
                         onClick={() => setIsSettingsOpen(true)}
                         className="rounded-full p-2.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -495,7 +487,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
             </div>
 
-            {conversation.isGroup && (
+            {conversation.isGroup ? (
                 <GroupSettingsModal
                     isOpen={isSettingsOpen}
                     onClose={() => setIsSettingsOpen(false)}
@@ -505,6 +497,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         // but React Query usually handles the refresh.
                         setIsSettingsOpen(false);
                     }}
+                />
+            ) : (
+                <DMSettingsModal
+                    isOpen={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                    user={conversation.user}
+                    conversationId={conversation.id}
                 />
             )}
         </div>
