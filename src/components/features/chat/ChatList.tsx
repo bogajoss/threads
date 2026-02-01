@@ -115,9 +115,9 @@ const ChatList: React.FC<ChatListProps> = ({
     const activeUsers = conversations.filter(c => onlineUsers.has(c.user?.id));
 
     return (
-        <div className="flex min-w-0 flex-1 flex-col bg-white dark:bg-black h-full">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-white dark:bg-black h-full">
             {/* Header */}
-            <div className="px-4 md:px-5 pt-5 pb-2">
+            <div className="px-4 md:px-5 pt-5 pb-2 shrink-0">
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Chats</h2>
                     <div className="flex gap-2">

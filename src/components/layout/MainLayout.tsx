@@ -29,7 +29,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
 
     return (
         <div
-            className={`min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
+            className={`min-h-screen overflow-x-hidden bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
         >
             <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
                 {/* Left Sidebar - Fixed narrow icons */}
