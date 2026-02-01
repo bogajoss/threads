@@ -104,8 +104,8 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             title="Create New Group"
             className="sm:max-w-md"
         >
-            <div className="p-5 space-y-6">
-                <div className="flex flex-col items-center gap-4 py-2">
+            <div className="px-6 pb-6 pt-8 space-y-8">
+                <div className="flex flex-col items-center gap-4">
                     <div 
                         className="group relative cursor-pointer"
                         onClick={() => fileInputRef.current?.click()}
@@ -133,7 +133,7 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Group Avatar</span>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <Input
                         label="Group Name"
                         placeholder="Team Discussion, Weekend Plans..."
