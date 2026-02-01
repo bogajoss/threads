@@ -72,12 +72,12 @@ const ConversationItem: React.FC<ConversationProps> = ({
                 </div>
                 <div className="flex items-center justify-between gap-2">
                     <p className={cn(
-                        "truncate text-[13px] leading-relaxed",
+                        "truncate text-[13px] leading-relaxed flex-1 line-clamp-1",
                         hasUnread
                             ? "font-semibold text-zinc-900 dark:text-zinc-100"
                             : "text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300"
                     )}>
-                        {conv.currentUserSent ? "You: " : ""}{conv.lastMessage?.length > 40 ? conv.lastMessage.substring(0, 40) + "..." : conv.lastMessage}
+                        {conv.currentUserSent ? "You: " : ""}{conv.lastMessage}
                     </p>
                     {hasUnread && (
                         <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white shadow-sm shadow-violet-500/30">
