@@ -8,11 +8,12 @@ import {
     X,
     Check,
     CheckCheck,
-    User as UserIcon,
-    BellOff,
-    Eraser,
-    Image,
-    Mic
+    Phone,
+    Video,
+    Info,
+    Image as ImageIcon,
+    Mic,
+    Paperclip
 } from "lucide-react"
 import {
     Button,
@@ -44,7 +45,6 @@ import {
     ContextMenuItem,
     ContextMenuTrigger,
     ContextMenuSeparator,
-    ContextMenuLabel,
 } from "@/components/ui/context-menu"
 import { Copy, Trash, Reply } from "lucide-react"
 // @ts-ignore
@@ -54,6 +54,7 @@ import { linkifyOptions } from "@/lib/linkify"
 import { useNavigate } from "react-router-dom"
 import type { User } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 interface ChatWindowProps {
     conversation: any
@@ -102,7 +103,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight
         }
-    }, [messages, isTyping])
+    }, [messages, isTyping, attachments, replyingTo])
 
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const val = e.target.value
@@ -110,7 +111,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
         // Auto-resize textarea
         e.target.style.height = 'auto';
-        e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
+        e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
 
         if (onTyping) {
             onTyping(true)
@@ -144,6 +145,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         setText("")
         setAttachments([])
         setReplyingTo(null)
+
+        // Reset height
+        const textarea = document.querySelector('textarea[name="chat-input"]') as HTMLTextAreaElement;
+        if (textarea) textarea.style.height = 'auto';
     }
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,7 +177,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         openLightbox(imageUrls, 0)
     }
 
-    // Find the ID of the last message sent by 'me' to show the read receipt
     const lastMyMessageId = useMemo(() => {
         const myMessages = messages.filter((m) => m.sender === "me")
         return myMessages.length > 0 ? myMessages[myMessages.length - 1].id : null
@@ -180,142 +184,92 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
     const findMessage = (id: string) => messages.find((m) => m.id === id)
 
-    // Helper to check if previous message was from same sender
     const isSameSender = (index: number, msg: any) => {
         if (index === 0) return false
         return messages[index - 1].sender === msg.sender
     }
 
-    // Helper to check if next message is from same sender (to group bubbles)
     const isNextSameSender = (index: number, msg: any) => {
         if (index === messages.length - 1) return false
         return messages[index + 1].sender === msg.sender
     }
 
     return (
-        <div className="relative flex h-full w-full flex-col overflow-hidden bg-zinc-50/50 dark:bg-black/50 md:border-l md:border-zinc-100 dark:md:border-zinc-800">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
-
+        <div className="relative flex h-full w-full flex-col overflow-hidden bg-white/50 dark:bg-black/50 md:border-l md:border-zinc-200/50 dark:md:border-zinc-800/50">
             {/* Header */}
-            <div className="sticky top-0 z-30 flex shrink-0 items-center justify-between border-b border-zinc-200/50 bg-white/80 px-4 py-3 backdrop-blur-xl dark:border-zinc-800/50 dark:bg-black/80 supports-[backdrop-filter]:bg-white/60">
-                <div className="flex items-center gap-2">
+            <div className="sticky top-0 z-30 flex shrink-0 items-center justify-between border-b border-zinc-100 bg-white/75 px-4 py-3 backdrop-blur-xl dark:border-zinc-800 dark:bg-black/75">
+                <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
                         className="mr-1 -ml-2 rounded-full p-2 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 md:hidden"
-                        aria-label="Back"
                     >
                         <ArrowLeft size={24} />
                     </button>
                     <div className="relative cursor-pointer" onClick={() => navigate(`/u/${conversation.user.handle}`)}>
-                        <Avatar className="size-9 border-2 border-white shadow-sm dark:border-zinc-800">
+                        <Avatar className="size-10 border-2 border-white shadow-sm dark:border-zinc-800">
                             <AvatarImage
                                 src={conversation.user.avatar}
                                 alt={conversation.user.name}
                                 className="object-cover"
                             />
-                            <AvatarFallback>
-                                {conversation.user.name?.[0]?.toUpperCase()}
-                            </AvatarFallback>
+                            <AvatarFallback>{conversation.user.name?.[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
                         {isOnline && (
-                            <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-white bg-emerald-500 ring-1 ring-white/50 dark:border-black dark:ring-black/50"></span>
+                            <span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-emerald-500 dark:border-black"></span>
                         )}
                     </div>
                     <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/u/${conversation.user.handle}`)}>
-                        <span className="text-sm font-bold leading-none dark:text-white">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
                             {conversation.user.name}
+                        </h3>
+                        <span className="text-[11px] font-medium text-zinc-500">
+                            {isOnline ? (
+                                <span className="text-emerald-500">Active now</span>
+                            ) : (
+                                conversation.user.lastSeen ? `Last seen ${lastSeenTime}` : "Offline"
+                            )}
                         </span>
-                        {isOnline ? (
-                            <span className="text-[10px] font-medium text-emerald-500">
-                                Active now
-                            </span>
-                        ) : (
-                            <span className="text-[10px] font-medium text-zinc-500">
-                                {conversation.user.lastSeen
-                                    ? `Last seen ${lastSeenTime}`
-                                    : "Offline"}
-                            </span>
-                        )}
                     </div>
                 </div>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <button
-                            className="rounded-full p-2 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
-                            aria-label="More options"
-                        >
-                            <MoreVertical size={20} />
-                        </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 rounded-xl border-zinc-100 dark:border-zinc-800 shadow-xl bg-white/90 dark:bg-black/90 backdrop-blur-xl">
-                        <DropdownMenuGroup>
-                            <button
-                                onClick={() => navigate(`/u/${conversation.user.handle}`)}
-                                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            >
-                                <UserIcon size={16} />
-                                <span>View Profile</span>
-                            </button>
-                            <DropdownMenuItem className="cursor-pointer gap-2">
-                                <BellOff size={16} />
-                                Mute Notifications
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem className="cursor-pointer gap-2">
-                                <Eraser size={16} />
-                                Clear Chat
-                            </DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive" className="cursor-pointer gap-2 text-rose-500 focus:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-900/10">
-                                <Trash size={16} />
-                                Delete Conversation
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+
+                <div className="flex items-center gap-1">
+                    <button className="hidden sm:flex rounded-full p-2.5 text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
+                        <Phone size={20} />
+                    </button>
+                    <button className="hidden sm:flex rounded-full p-2.5 text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
+                        <Video size={20} />
+                    </button>
+                    <button className="rounded-full p-2.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                        <Info size={20} />
+                    </button>
+                </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 min-h-0 space-y-2 overflow-y-auto p-4 z-10" ref={scrollRef}>
-                <div className="py-12 text-center">
-                    <div className="relative mx-auto w-fit">
-                        <Avatar className="mx-auto mb-4 size-24 border-4 border-white shadow-xl dark:border-zinc-900">
-                            <AvatarImage
-                                src={conversation.user.avatar}
-                                alt={conversation.user.name}
-                                className="object-cover"
-                            />
-                            <AvatarFallback className="text-3xl font-bold">
-                                {conversation.user.name?.[0]?.toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                        {isOnline && (
-                            <span className="absolute bottom-1 right-1 size-6 animate-in zoom-in rounded-full border-4 border-white bg-emerald-500 duration-300 dark:border-black"></span>
-                        )}
-                    </div>
-                    <h4 className="text-xl font-bold dark:text-white">
-                        {conversation.user.name}
-                    </h4>
-                    <p className="text-sm text-zinc-500">@{conversation.user.handle}</p>
-                    <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs text-zinc-500 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                        <span>Synced with blockchain</span>
-                    </div>
-                </div>
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4" ref={scrollRef}>
+                <div className="flex flex-col min-h-full justify-end">
 
-                {isLoading && messages.length === 0 ? (
-                    <div className="flex justify-center p-8">
-                        <Loader2 className="animate-spin text-violet-500" size={32} />
-                    </div>
-                ) : (
-                    <div className="flex flex-col justify-end min-h-0">
-                        {/* We iterate but need to reverse visual order if we want "bottom-up" stack behavior naturally, 
-                             but here sticking to standard order with flex-col is fine if we scroll to bottom. 
-                             Framer motion 'layout' helps when items are added. */}
-                        <AnimatePresence initial={false} mode="popLayout">
+                    {/* Intro Section */}
+                    {messages.length < 5 && (
+                        <div className="py-12 flex flex-col items-center justify-center opacity-80 mb-auto">
+                            <Avatar className="size-24 border-4 border-zinc-100 dark:border-zinc-800 mb-4 bg-zinc-50 dark:bg-zinc-900">
+                                <AvatarImage src={conversation.user.avatar} className="object-cover" />
+                                <AvatarFallback className="text-4xl">{conversation.user.name?.[0]}</AvatarFallback>
+                            </Avatar>
+                            <h2 className="text-xl font-bold dark:text-white">{conversation.user.name}</h2>
+                            <p className="text-zinc-500 text-sm mb-4">You're friends on AntiGravity</p>
+                            <Button variant="outline" size="sm" className="rounded-full h-8 text-xs">
+                                View Profile
+                            </Button>
+                        </div>
+                    )}
+
+                    {isLoading && messages.length === 0 ? (
+                        <div className="flex justify-center p-8">
+                            <Loader2 className="animate-spin text-violet-500" size={32} />
+                        </div>
+                    ) : (
+                        <div className="space-y-[2px]">
                             {messages.map((msg, index) => {
                                 const isMe = msg.sender === "me"
                                 const sameSenderPrev = isSameSender(index, msg)
@@ -323,394 +277,218 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
                                 return (
                                     <motion.div
-                                        layout
                                         key={msg.id}
-                                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.1 } }}
-                                        transition={{
-                                            type: "spring",
-                                            stiffness: 400,
-                                            damping: 25,
-                                            mass: 0.8
-                                        }}
-                                        className={`flex w-full origin-bottom ${isMe ? "justify-end" : "justify-start"} ${sameSenderNext ? "mb-[2px]" : "mb-4"}`}
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        className={cn(
+                                            "flex w-full",
+                                            isMe ? "justify-end" : "justify-start",
+                                            !sameSenderNext && "mb-4"
+                                        )}
                                     >
-                                        <ContextMenu>
-                                            <ContextMenuTrigger asChild>
-                                                <div
-                                                    id={`msg-${msg.id}`}
-                                                    className={`group flex max-w-[75%] items-end gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
-                                                >
-                                                    {!isMe && !sameSenderNext && (
-                                                        <Avatar className="size-8 shrink-0 border border-zinc-100 dark:border-zinc-800 transition-transform duration-300 hover:scale-110">
-                                                            <AvatarImage src={conversation.user.avatar} className="object-cover" />
+                                        <div className={cn(
+                                            "flex max-w-[75%] md:max-w-[65%] items-end gap-2 group",
+                                            isMe ? "flex-row-reverse" : "flex-row"
+                                        )}>
+                                            {/* Avatar for other user */}
+                                            {!isMe && (
+                                                <div className="w-7 shrink-0">
+                                                    {!sameSenderNext ? (
+                                                        <Avatar className="size-7 border border-zinc-100 shadow-sm dark:border-zinc-800">
+                                                            <AvatarImage src={conversation.user.avatar} />
                                                             <AvatarFallback>{conversation.user.name?.[0]}</AvatarFallback>
                                                         </Avatar>
-                                                    )}
-                                                    {!isMe && sameSenderNext && (
-                                                        <div className="w-8 shrink-0" />
-                                                    )}
+                                                    ) : null}
+                                                </div>
+                                            )}
 
-                                                    <motion.div
-                                                        layout
-                                                        className={`relative p-3.5 text-[15px] shadow-sm
-                                                            ${isMe
-                                                                ? "bg-gradient-to-tr from-violet-600 to-indigo-600 text-white"
-                                                                : "bg-white text-zinc-900 shadow-zinc-200/50 dark:bg-zinc-800 dark:text-zinc-100 dark:shadow-none"
-                                                            }
-                                                            ${!sameSenderNext && !sameSenderPrev ? "rounded-[20px]" : ""}
-                                                            ${isMe && !sameSenderNext && sameSenderPrev ? "rounded-[20px] rounded-tr-md" : ""}
-                                                            ${isMe && sameSenderNext && !sameSenderPrev ? "rounded-[20px] rounded-br-md" : ""}
-                                                            ${isMe && sameSenderNext && sameSenderPrev ? "rounded-[20px] rounded-r-md" : ""}
-                                                            
-                                                            ${!isMe && !sameSenderNext && sameSenderPrev ? "rounded-[20px] rounded-tl-md" : ""}
-                                                            ${!isMe && sameSenderNext && !sameSenderPrev ? "rounded-[20px] rounded-bl-md" : ""}
-                                                            ${!isMe && sameSenderNext && sameSenderPrev ? "rounded-[20px] rounded-l-md" : ""}
-                                                        `}
-                                                    >
+                                            <ContextMenu>
+                                                <ContextMenuTrigger>
+                                                    <div className={cn(
+                                                        "relative px-4 py-2.5 shadow-sm text-[15px] leading-[1.4]",
+                                                        isMe
+                                                            ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white"
+                                                            : "bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white border border-zinc-200/50 dark:border-zinc-700/50",
+                                                        // Corner Rounding Logic
+                                                        !sameSenderNext && !sameSenderPrev && "rounded-[22px]",
+                                                        isMe && !sameSenderNext && sameSenderPrev && "rounded-[22px] rounded-tr-md",
+                                                        isMe && sameSenderNext && !sameSenderPrev && "rounded-[22px] rounded-br-md",
+                                                        isMe && sameSenderNext && sameSenderPrev && "rounded-[22px] rounded-r-md",
+                                                        !isMe && !sameSenderNext && sameSenderPrev && "rounded-[22px] rounded-tl-md",
+                                                        !isMe && sameSenderNext && !sameSenderPrev && "rounded-[22px] rounded-bl-md",
+                                                        !isMe && sameSenderNext && sameSenderPrev && "rounded-[22px] rounded-l-md"
+                                                    )}>
                                                         {msg.replyToId && (
-                                                            <div
-                                                                className={`mb-2 cursor-pointer truncate rounded-xl p-2.5 text-xs backdrop-blur-sm transition-all hover:opacity-80 active:scale-95 ${isMe
-                                                                    ? "bg-black/20 text-white/90"
-                                                                    : "bg-zinc-100 text-zinc-600 dark:bg-zinc-700/50 dark:text-zinc-300"
-                                                                    }`}
+                                                            <div className={cn(
+                                                                "mb-1.5 -mx-1 px-3 py-1.5 rounded-xl text-xs border-l-2 cursor-pointer",
+                                                                isMe ? "bg-black/10 border-white/40 text-white/90" : "bg-zinc-100 border-zinc-300 text-zinc-600 dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-300"
+                                                            )}
                                                                 onClick={(e) => {
                                                                     e.stopPropagation()
-                                                                    const el = document.getElementById(
-                                                                        `msg-${msg.replyToId}`
-                                                                    )
-                                                                    if (el) {
-                                                                        el.scrollIntoView({
-                                                                            behavior: "smooth",
-                                                                            block: "center",
-                                                                        })
-                                                                        // Subtle flash effect to indicate target
-                                                                        if (el.animate) {
-                                                                            el.animate([
-                                                                                { transform: "scale(1)" },
-                                                                                { transform: "scale(1.05)" },
-                                                                                { transform: "scale(1)" }
-                                                                            ], {
-                                                                                duration: 300,
-                                                                                easing: "ease-out"
-                                                                            });
-                                                                        }
-                                                                    }
+                                                                    const el = document.getElementById(`msg-${msg.replyToId}`)
+                                                                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
                                                                 }}
                                                             >
-                                                                {(() => {
-                                                                    const parent = findMessage(msg.replyToId)
-
-                                                                    // Handle missing parent message (e.g. not loaded yet)
-                                                                    if (!parent) return (
-                                                                        <div className="flex flex-col gap-0.5">
-                                                                            <div className="flex items-center gap-1.5 opacity-70">
-                                                                                <Reply size={12} />
-                                                                                <span className="font-bold">Original Message</span>
-                                                                            </div>
-                                                                            <span className="italic opacity-60">Message unavailable</span>
-                                                                        </div>
-                                                                    )
-
-                                                                    // Handle resolved parent message
-                                                                    return (
-                                                                        <div className="flex flex-col gap-0.5">
-                                                                            <div className="flex items-center gap-1.5 opacity-70">
-                                                                                <Reply size={12} />
-                                                                                <span className="font-bold">
-                                                                                    {parent.sender === "me" ? "You" : conversation.user.name}
-                                                                                </span>
-                                                                            </div>
-                                                                            <span className="truncate block">
-                                                                                {parent.text || (parent.media?.length ? "📷 Photo" : "Attachment")}
-                                                                            </span>
-                                                                        </div>
-                                                                    )
-                                                                })()}
+                                                                <div className="flex items-center gap-1.5 mb-0.5 opacity-75">
+                                                                    <Reply size={10} />
+                                                                    <span className="font-bold">Reply</span>
+                                                                </div>
+                                                                <div className="truncate opacity-90">
+                                                                    {findMessage(msg.replyToId)?.text || "Attachment"}
+                                                                </div>
                                                             </div>
                                                         )}
 
                                                         {msg.media?.length > 0 && (
-                                                            <div
-                                                                className="mb-2 grid cursor-pointer grid-cols-1 gap-1 overflow-hidden rounded-2xl"
-                                                                onClick={() => handleImageClick(msg)}
-                                                            >
+                                                            <div className="grid gap-1 mb-1 overflow-hidden rounded-lg">
                                                                 {msg.media.map((m: any, i: number) => (
                                                                     <img
                                                                         key={i}
                                                                         src={m.url}
-                                                                        alt=""
-                                                                        className="max-h-80 w-full rounded-lg object-cover transition-all hover:scale-[1.02]"
+                                                                        className="max-h-64 object-cover w-full rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                                                                        onClick={() => handleImageClick(msg)}
                                                                     />
                                                                 ))}
                                                             </div>
                                                         )}
 
-                                                        {msg.text && (
-                                                            <div className="m-0 break-words whitespace-pre-line leading-relaxed tracking-wide">
-                                                                <Linkify
-                                                                    options={{
-                                                                        ...linkifyOptions,
-                                                                        render: ({ attributes, content: text }) => {
-                                                                            const { href, ...props } = attributes
-                                                                            const origin = window.location.origin
+                                                        <div className="whitespace-pre-wrap break-words">
+                                                            <Linkify options={{ ...linkifyOptions, className: isMe ? "text-white underline" : "text-violet-600 dark:text-violet-400 underline" }}>
+                                                                {msg.text}
+                                                            </Linkify>
+                                                        </div>
 
-                                                                            // Check if link is internal
-                                                                            let internalPath = null
-                                                                            if (href.startsWith("/")) {
-                                                                                internalPath = href
-                                                                            } else if (href.startsWith(origin)) {
-                                                                                internalPath = href.replace(origin, "")
-                                                                            }
-
-                                                                            if (internalPath) {
-                                                                                return (
-                                                                                    <span
-                                                                                        key={text}
-                                                                                        {...props}
-                                                                                        className={`cursor-pointer break-all font-semibold underline decoration-1 underline-offset-2 transition-opacity hover:opacity-80 ${isMe
-                                                                                            ? "text-white"
-                                                                                            : "text-violet-600 dark:text-violet-400"
-                                                                                            }`}
-                                                                                        onClick={(e) => {
-                                                                                            e.stopPropagation()
-                                                                                            navigate(internalPath!)
-                                                                                        }}
-                                                                                    >
-                                                                                        {text}
-                                                                                    </span>
-                                                                                )
-                                                                            }
-
-                                                                            return (
-                                                                                <a
-                                                                                    key={text}
-                                                                                    href={href}
-                                                                                    {...props}
-                                                                                    className={`break-all underline decoration-1 underline-offset-2 transition-opacity hover:opacity-80 ${isMe
-                                                                                        ? "text-white"
-                                                                                        : "text-violet-600 dark:text-violet-400"
-                                                                                        }`}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                    onClick={(e) => e.stopPropagation()}
-                                                                                >
-                                                                                    {text}
-                                                                                </a>
-                                                                            )
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    {msg.text}
-                                                                </Linkify>
+                                                        {/* Time & Read Status */}
+                                                        {(!sameSenderNext || true) && (
+                                                            <div className={cn(
+                                                                "flex justify-end items-center gap-1 mt-0.5 select-none",
+                                                                isMe ? "text-white/70" : "text-zinc-400"
+                                                            )}>
+                                                                <span className="text-[9px] font-medium">{msg.time}</span>
+                                                                {isMe && msg.id === lastMyMessageId && (
+                                                                    msg.isRead
+                                                                        ? <CheckCheck size={12} className="text-white" />
+                                                                        : <Check size={12} className="text-white/60" />
+                                                                )}
                                                             </div>
                                                         )}
-
-                                                        {/* Read receipt / Time */}
-                                                        <div
-                                                            className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${isMe ? "text-white/70" : "text-zinc-400"}`}
-                                                        >
-                                                            {msg.time}
-                                                            {isMe && msg.id === lastMyMessageId && (
-                                                                <span className="ml-0.5">
-                                                                    {msg.isRead ? (
-                                                                        <CheckCheck size={14} className="text-white" />
-                                                                    ) : (
-                                                                        <Check size={14} className="text-white/70" />
-                                                                    )}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </motion.div>
-                                                </div>
-                                            </ContextMenuTrigger>
-                                            <ContextMenuContent className="w-64 rounded-2xl border-zinc-100 bg-white/90 backdrop-blur-xl shadow-2xl dark:border-zinc-800 dark:bg-black/90">
-                                                <ContextMenuItem
-                                                    className="cursor-pointer gap-3 px-3 py-2.5 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(msg.text)
-                                                    }}
-                                                >
-                                                    <Copy size={16} className="text-zinc-500" />
-                                                    <span className="font-medium">Copy Text</span>
-                                                </ContextMenuItem>
-                                                <ContextMenuItem
-                                                    className="cursor-pointer gap-3 px-3 py-2.5 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                                                    onClick={() => setReplyingTo(msg)}
-                                                >
-                                                    <Reply size={16} className="text-zinc-500" />
-                                                    <span className="font-medium">Reply</span>
-                                                </ContextMenuItem>
-                                                <ContextMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
-                                                <ContextMenuItem
-                                                    className="cursor-pointer gap-3 px-3 py-2.5 text-rose-500 focus:bg-rose-50 focus:text-rose-500 dark:focus:bg-rose-900/20"
-                                                    onClick={() => onDeleteMessage && onDeleteMessage(msg.id)}
-                                                >
-                                                    <Trash size={16} />
-                                                    <span className="font-medium">Delete message</span>
-                                                </ContextMenuItem>
-                                            </ContextMenuContent>
-                                        </ContextMenu>
+                                                    </div>
+                                                </ContextMenuTrigger>
+                                                <ContextMenuContent className="w-48">
+                                                    <ContextMenuItem onClick={() => { navigator.clipboard.writeText(msg.text) }}>
+                                                        <Copy size={14} className="mr-2" /> Copy
+                                                    </ContextMenuItem>
+                                                    <ContextMenuItem onClick={() => setReplyingTo(msg)}>
+                                                        <Reply size={14} className="mr-2" /> Reply
+                                                    </ContextMenuItem>
+                                                    <ContextMenuSeparator />
+                                                    <ContextMenuItem className="text-red-500" onClick={() => onDeleteMessage && onDeleteMessage(msg.id)}>
+                                                        <Trash size={14} className="mr-2" /> Delete
+                                                    </ContextMenuItem>
+                                                </ContextMenuContent>
+                                            </ContextMenu>
+                                        </div>
                                     </motion.div>
                                 )
                             })}
-                        </AnimatePresence>
-                    </div>
-                )}
+                        </div>
+                    )}
 
-                {isTyping && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                        className="flex justify-start pb-4 pl-1"
-                    >
-                        <div className="flex items-end gap-2">
-                            <Avatar className="size-8 shrink-0 border border-zinc-100 dark:border-zinc-800">
-                                <AvatarImage src={conversation.user.avatar} className="object-cover" />
-                                <AvatarFallback>{conversation.user.name?.[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="rounded-[20px] rounded-bl-none border border-zinc-100 bg-white px-4 py-3 shadow-md shadow-zinc-200/50 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+                    {isTyping && (
+                        <div className="flex items-center gap-2 mt-2 ml-9">
+                            <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2.5 rounded-[22px] rounded-tl-md">
                                 <TypingIndicator />
                             </div>
                         </div>
-                    </motion.div>
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Input Area */}
-            <div className="shrink-0 z-30 border-t border-zinc-200/50 bg-white/80 p-3 pb-safe backdrop-blur-xl dark:border-zinc-800/50 dark:bg-black/80 md:p-4">
+            <div className="shrink-0 p-3 md:p-4 bg-white dark:bg-black border-t border-zinc-100 dark:border-zinc-800">
                 <AnimatePresence>
                     {replyingTo && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-                            animate={{ height: "auto", opacity: 1, marginBottom: 12 }}
-                            exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-                            className="flex items-center justify-between rounded-xl border border-violet-100 bg-violet-50/50 p-2 backdrop-blur-sm dark:border-violet-900/30 dark:bg-violet-900/10 mb-2"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
                         >
-                            <div className="min-w-0 flex-1 border-l-4 border-violet-500 pl-3">
-                                <span className="mb-0.5 block text-xs font-bold text-violet-600 dark:text-violet-400">
-                                    Replying to{" "}
-                                    {replyingTo.sender === "me"
-                                        ? "yourself"
-                                        : conversation.user.name}
-                                </span>
-                                <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">
-                                    {replyingTo.text || "Media Attachment"}
-                                </p>
+                            <div className="text-sm">
+                                <span className="text-xs font-bold text-violet-500 block mb-0.5">Replying to {replyingTo.sender === "me" ? "yourself" : conversation.user.name}</span>
+                                <p className="line-clamp-1 text-zinc-500">{replyingTo.text}</p>
                             </div>
-                            <button
-                                onClick={() => setReplyingTo(null)}
-                                className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-violet-100 dark:hover:bg-violet-900/30"
-                                aria-label="Cancel reply"
-                            >
-                                <X size={18} />
-                            </button>
+                            <button onClick={() => setReplyingTo(null)}><X size={16} className="text-zinc-400" /></button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {attachments.length > 0 && (
-                    <div className="mb-3 flex flex-wrap gap-2">
-                        {attachments.map((att) => (
-                            <div
-                                key={att.url}
-                                className="relative size-20 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-800"
-                            >
-                                <img src={att.url} className="size-full object-cover" alt="" />
-                                <button
-                                    type="button"
-                                    onClick={() => removeAttachment(att.url)}
-                                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white backdrop-blur-md transition-colors hover:bg-black"
-                                >
-                                    <X size={12} />
-                                </button>
+                    <div className="flex gap-2 mb-2 px-1">
+                        {attachments.map(att => (
+                            <div key={att.url} className="relative size-16 rounded-lg overflow-hidden border border-zinc-200">
+                                <img src={att.url} className="size-full object-cover" />
+                                <button onClick={() => removeAttachment(att.url)} className="absolute top-0 right-0 bg-black/50 text-white p-0.5"><X size={12} /></button>
                             </div>
                         ))}
-                        {isUploading && (
-                            <div className="flex size-20 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-900">
-                                <Loader2 className="animate-spin text-violet-500" size={24} />
-                            </div>
-                        )}
                     </div>
                 )}
 
-                <form
-                    onSubmit={handleSend}
-                    className="flex items-end gap-2 rounded-[26px] border border-zinc-200 bg-zinc-50/50 p-1.5 shadow-sm transition-all focus-within:border-violet-500/50 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10 dark:border-zinc-800 dark:bg-zinc-900/50 dark:focus-within:bg-black"
-                >
-                    <div className="flex items-center gap-0.5 pb-0.5 pl-1">
-                        <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
-                            <PopoverTrigger asChild>
-                                <button
-                                    type="button"
-                                    className="rounded-full p-2.5 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-violet-600 active:scale-95 dark:hover:bg-zinc-800"
-                                >
-                                    <Smile size={24} />
-                                </button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-fit border-none bg-transparent p-0 shadow-none"
-                                side="top"
-                                align="start"
-                                sideOffset={10}
-                            >
-                                <EmojiPicker
-                                    onEmojiSelect={(emoji: any) => {
-                                        handleEmojiSelect(emoji)
-                                    }}
-                                />
-                            </PopoverContent>
-                        </Popover>
-
-                        <button
-                            type="button"
+                <div className="flex items-end gap-2">
+                    <div className="flex items-center gap-1 mb-1">
+                        <button className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
                             onClick={() => fileInputRef.current?.click()}
-                            className="rounded-full p-2.5 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-violet-600 active:scale-95 dark:hover:bg-zinc-800"
-                            disabled={isUploading}
                         >
-                            <Image size={24} />
+                            <ImageIcon size={24} />
+                        </button>
+                        <button className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                            <Paperclip size={22} />
                         </button>
                     </div>
 
-                    <textarea
-                        className="max-h-32 min-h-[44px] w-full flex-1 resize-none bg-transparent px-2 py-3 text-[16px] outline-none placeholder:text-zinc-400 dark:text-white"
-                        placeholder="Message..."
-                        value={text}
-                        onChange={(e: any) => handleTextChange(e)}
-                        rows={1}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault()
-                                handleSend(e)
-                            }
-                        }}
-                    />
+                    <form
+                        className="flex-1 flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-[24px] px-2 py-1.5 transition-all focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 overflow-hidden border border-transparent focus-within:border-violet-200 dark:focus-within:border-violet-900"
+                        onSubmit={handleSend}
+                    >
+                        <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
+                            <PopoverTrigger asChild>
+                                <button type="button" className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors">
+                                    <Smile size={24} />
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 border-none bg-transparent shadow-none" side="top" align="start">
+                                <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                            </PopoverContent>
+                        </Popover>
 
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        multiple
-                        accept="image/*"
-                    />
+                        <textarea
+                            name="chat-input"
+                            value={text}
+                            onChange={handleTextChange}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            placeholder="Message..."
+                            className="flex-1 bg-transparent border-none outline-none text-[15px] resize-none max-h-32 py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
+                            rows={1}
+                        />
 
-                    <div className="pb-1 pr-1">
-                        <Button
-                            type="submit"
-                            className={`size-11 rounded-full !p-0 transition-all active:scale-95 ${text.trim() || attachments.length > 0 ? "bg-violet-600 hover:bg-violet-700 hover:scale-105 shadow-md shadow-violet-500/20" : "bg-zinc-200 text-zinc-400 dark:bg-zinc-800"}`}
-                            disabled={(!text.trim() && attachments.length === 0) || isUploading}
-                        >
-                            {text.trim() || attachments.length > 0 ? (
-                                <Send size={20} className="translate-x-0.5 translate-y-0.5" />
-                            ) : (
+                        {text.trim() || attachments.length > 0 ? (
+                            <button type="submit" className="p-2 mr-1 rounded-full bg-violet-600 text-white hover:bg-violet-700 hover:scale-105 transition-all shadow-sm">
+                                <Send size={18} className="translate-x-0.5 translate-y-0.5" />
+                            </button>
+                        ) : (
+                            <button type="button" className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
                                 <Mic size={22} />
-                            )}
-                        </Button>
-                    </div>
-                </form>
+                            </button>
+                        )}
+                    </form>
+
+                    <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*" />
+                </div>
             </div>
         </div>
     )
