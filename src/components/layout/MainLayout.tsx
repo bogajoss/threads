@@ -36,9 +36,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
                 <SidebarLeft onPostClick={onPostClick} />
 
                 {/* Main Content Area */}
-                <main className="flex flex-1 justify-center px-0 gap-x-0 md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8">
+                <main className="flex w-full flex-1 justify-center px-0 gap-x-0 md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8">
                     {/* Center Feed */}
-                    <div className="flex w-0 flex-1 flex-col overflow-x-hidden">
+                    <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
                         {isHomePage && (
                             <div className="w-full max-w-full overflow-hidden">
                                 <FeedHeader />
