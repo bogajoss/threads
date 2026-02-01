@@ -146,7 +146,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             />
 
             {/* Messages Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4" ref={scrollRef}>
+            <div className="flex-1 min-h-0 overflow-y-auto px-3 md:px-4 py-4" ref={scrollRef}>
                 <div className="flex flex-col min-h-full justify-end">
 
                     {/* Intro Section */}

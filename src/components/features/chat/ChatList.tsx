@@ -30,7 +30,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
         <div
             onClick={() => onSelect(conv)}
             className={cn(
-                "group relative flex cursor-pointer items-center gap-4 p-3 mx-2 rounded-2xl transition-all duration-200",
+                "group relative flex cursor-pointer items-center gap-4 p-3 mx-1 md:mx-2 rounded-2xl transition-all duration-200",
                 isSelected
                     ? "bg-violet-500/10 dark:bg-violet-500/20"
                     : "hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
@@ -117,7 +117,7 @@ const ChatList: React.FC<ChatListProps> = ({
     return (
         <div className="flex min-w-0 flex-1 flex-col bg-white dark:bg-black h-full">
             {/* Header */}
-            <div className="px-5 pt-5 pb-2">
+            <div className="px-4 md:px-5 pt-5 pb-2">
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Chats</h2>
                     <div className="flex gap-2">
@@ -141,7 +141,7 @@ const ChatList: React.FC<ChatListProps> = ({
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search Messenger"
-                        className="w-full rounded-2xl border-none bg-zinc-100 py-3 pl-12 pr-4 text-[15px] font-medium text-zinc-900 placeholder:text-zinc-500 transition-all focus:bg-white focus:ring-2 focus:ring-violet-500/20 focus:shadow-md dark:bg-zinc-900 dark:text-white dark:focus:bg-black"
+                        className="w-full rounded-2xl border-none bg-zinc-100 py-3 pl-12 pr-4 text-base font-medium text-zinc-900 placeholder:text-zinc-500 transition-all focus:bg-white focus:ring-2 focus:ring-violet-500/20 focus:shadow-md dark:bg-zinc-900 dark:text-white dark:focus:bg-black"
                     />
                 </div>
             </div>
@@ -151,7 +151,7 @@ const ChatList: React.FC<ChatListProps> = ({
                     {/* Active Now / Stories */}
                     {!searchQuery && activeUsers.length > 0 && (
                         <div className="mb-4 mt-2">
-                            <div className="flex gap-4 overflow-x-auto px-5 pb-4 pt-2 no-scrollbar">
+                            <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar">
                                 <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
                                     <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
                                         <UserPlus size={24} className="text-zinc-400" />

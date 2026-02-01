@@ -217,7 +217,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 }}
                                 onPaste={handlePaste}
                                 placeholder="Message..."
-                                className="flex-1 bg-transparent border-none outline-none text-[15px] resize-none py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
+                                className="flex-1 bg-transparent border-none outline-none text-base resize-none py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
                                 rows={1}
                             />
                         </>

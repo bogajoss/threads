@@ -32,7 +32,7 @@ const Messages: React.FC = () => {
 
     if (!currentUser) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center gap-6 border-zinc-100 bg-white p-8 text-center dark:border-zinc-800 dark:bg-black md:rounded-2xl md:border">
+            <div className="flex h-[100dvh] flex-col items-center justify-center gap-6 border-zinc-100 bg-white p-8 text-center dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-2xl md:border">
                 <div className="rounded-3xl bg-zinc-50 p-6 dark:bg-zinc-900">
                     <Zap size={48} className="text-zinc-300 dark:text-zinc-600" />
                 </div>
@@ -50,7 +50,7 @@ const Messages: React.FC = () => {
 
     if (isConvLoading) {
         return (
-            <div className="flex h-screen items-center justify-center border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:rounded-2xl md:border">
+            <div className="flex h-[100dvh] items-center justify-center border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-2xl md:border">
                 <Loader2 className="animate-spin text-violet-500" size={32} />
             </div>
         )
@@ -58,7 +58,7 @@ const Messages: React.FC = () => {
 
     return (
         <div
-            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overflow-hidden bg-white shadow-2xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-black dark:shadow-none md:h-[calc(100vh-1.5rem)] md:rounded-3xl md:border md:border-zinc-200/50`}
+            className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} overscroll-none overflow-hidden bg-white shadow-2xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-black dark:shadow-none md:h-[calc(100vh-1.5rem)] md:rounded-3xl md:border md:border-zinc-200/50`}
         >
             <div
                 className={`flex-col md:flex md:w-[400px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 shrink-0 w-full bg-white dark:bg-black border-r border-zinc-100 dark:border-zinc-800 z-10`}

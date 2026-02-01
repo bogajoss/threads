@@ -29,7 +29,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             <div className="flex items-center gap-3">
                 <button
                     onClick={onBack}
-                    className="mr-1 -ml-2 rounded-full p-2 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 md:hidden"
+                    className="mr-1 -ml-2.5 rounded-full p-2.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 md:hidden"
                 >
                     <ArrowLeft size={24} />
                 </button>
