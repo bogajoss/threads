@@ -231,6 +231,21 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         setActiveThumbnailId(null)
     }
 
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const files = e.clipboardData.files
+        if (files && files.length > 0) {
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith("image/"))
+            if (imageFiles.length > 0) {
+                e.preventDefault()
+                const newFiles: SelectedFile[] = imageFiles.map(file => ({
+                    id: Math.random().toString(36).substring(2, 11),
+                    file,
+                }))
+                setSelectedFiles((prev) => [...prev, ...newFiles])
+            }
+        }
+    }
+
     const removeFile = (id: string) => {
         setSelectedFiles((prev) => prev.filter((item) => item.id !== id))
         const newThumbs = { ...customThumbnails }
@@ -493,6 +508,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                             placeholder="What's on your mind?"
                             autoFocus
                             value={postContent}
+                            onPaste={handlePaste}
                             onChange={(e) => {
                                 setPostContent(e.target.value)
                                 e.target.style.height = "auto"

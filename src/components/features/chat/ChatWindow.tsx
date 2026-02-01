@@ -158,6 +158,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         }
     }
 
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        const clipboardFiles = e.clipboardData.files
+        if (clipboardFiles && clipboardFiles.length > 0) {
+            const imageFiles = Array.from(clipboardFiles).filter(file => file.type.startsWith("image/"))
+            
+            if (imageFiles.length > 0) {
+                e.preventDefault()
+                setIsUploading(true)
+                try {
+                    const uploaded = await Promise.all(imageFiles.map((file) => uploadFile(file)))
+                    setAttachments((prev) => [...prev, ...uploaded])
+                } catch (error) {
+                    console.error("Paste upload failed:", error)
+                } finally {
+                    setIsUploading(false)
+                }
+            }
+        }
+    }
+
     const removeAttachment = (url: string) => {
         setAttachments((prev) => prev.filter((a) => a.url !== url))
     }
@@ -467,6 +487,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                     handleSend();
                                 }
                             }}
+                            onPaste={handlePaste}
                             placeholder="Message..."
                             className="flex-1 bg-transparent border-none outline-none text-[15px] resize-none max-h-32 py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
                             rows={1}

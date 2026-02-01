@@ -42,6 +42,19 @@ const CommentInput: React.FC<CommentInputProps> = ({
         }
     }
 
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const files = e.clipboardData.files
+        if (files && files.length > 0) {
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith("image/"))
+            if (imageFiles.length > 0) {
+                e.preventDefault()
+                if (setSelectedFiles) {
+                    setSelectedFiles((prev) => [...prev, ...imageFiles])
+                }
+            }
+        }
+    }
+
     if (!currentUser) {
         return (
             <div className="border-y border-zinc-100 bg-zinc-50/30 p-6 text-center dark:border-zinc-800 dark:bg-zinc-900/10">
@@ -72,6 +85,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
                         placeholder="Post your reply..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
+                        onPaste={handlePaste}
                     />
 
                     {selectedFiles.length > 0 && (
