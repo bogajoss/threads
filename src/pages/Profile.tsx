@@ -42,6 +42,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         isFetchingMoreFollows,
         hasMoreFollows,
         openFollowModal,
+        fetchNextFollows,
         handlePostClick,
         handleUserClick,
         loadUserPosts,
@@ -228,7 +229,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                                         <Button
                                             variant="secondary"
                                             className="w-full text-xs"
-                                            onClick={() => openFollowModal(followModalType, true)}
+                                            onClick={() => fetchNextFollows()}
                                             disabled={isFetchingMoreFollows}
                                         >
                                             {isFetchingMoreFollows ? (

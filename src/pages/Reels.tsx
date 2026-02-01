@@ -12,6 +12,7 @@ const Reels = () => {
         activeReelId,
         isMuted,
         containerRef,
+        setReelRef,
         navigate,
         toggleMute,
     } = useReels()
@@ -66,13 +67,19 @@ const Reels = () => {
                 className="no-scrollbar h-full w-full snap-y snap-mandatory overflow-y-auto scroll-smooth"
             >
                 {reels.map((reel) => (
-                    <ReelItem
-                        key={reel.feed_id || reel.id}
-                        reel={reel}
-                        isActive={activeReelId === reel.id}
-                        isMuted={isMuted}
-                        onToggleMute={toggleMute}
-                    />
+                    <div 
+                        key={reel.feed_id || reel.id} 
+                        ref={(el) => setReelRef(reel.id, el)}
+                        data-id={reel.id}
+                        className="snap-start h-full w-full"
+                    >
+                        <ReelItem
+                            reel={reel}
+                            isActive={activeReelId === reel.id}
+                            isMuted={isMuted}
+                            onToggleMute={toggleMute}
+                        />
+                    </div>
                 ))}
                 {loadingMore && (
                     <div className="flex h-[100dvh] w-full snap-start items-center justify-center bg-black">

@@ -15,6 +15,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
     const [isPlaying, setIsPlaying] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
+    const [totalDuration, setTotalDuration] = useState(duration || 0)
 
     useEffect(() => {
         if (!containerRef.current) return
@@ -36,6 +37,9 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
 
         ws.on("ready", () => {
             setIsReady(true)
+            if (!duration) {
+                setTotalDuration(ws.getDuration())
+            }
         })
 
         ws.on("play", () => setIsPlaying(true))
@@ -55,7 +59,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
         return () => {
             ws.destroy()
         }
-    }, [url, isMe])
+    }, [url, isMe, duration])
 
     const togglePlay = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -99,7 +103,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
                 <div ref={containerRef} className="w-full cursor-pointer" />
                 <div className="flex justify-between items-center text-[10px] font-bold tracking-tight uppercase opacity-80">
                     <span className="tabular-nums">{formatTime(currentTime)}</span>
-                    <span className="tabular-nums">{duration ? formatTime(duration) : (isReady ? formatTime(wavesurferRef.current?.getDuration() || 0) : "0:00")}</span>
+                    <span className="tabular-nums">{totalDuration ? formatTime(totalDuration) : "0:00"}</span>
                 </div>
             </div>
         </div>

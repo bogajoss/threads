@@ -3,14 +3,13 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
-import { fetchPostsByUserId } from "@/lib/api"
-// @ts-ignore
-import { fetchFollowers, fetchFollowing } from "@/lib/api"
+import { fetchPostsByUserId, fetchProfileByHandle } from "@/lib/api"
+import { useFollowList } from "@/hooks/useFollowList"
 
 export const useProfile = () => {
     const { handle } = useParams()
     const navigate = useNavigate()
-    const { currentUser, getProfileByHandle } = useAuth()
+    const { currentUser } = useAuth()
     const { addToast } = useToast()
 
     // 1. Fetch Profile Data using useQuery
@@ -19,7 +18,7 @@ export const useProfile = () => {
         isLoading: loadingProfile 
     } = useQuery({
         queryKey: ["profile", handle],
-        queryFn: () => getProfileByHandle(handle!),
+        queryFn: () => fetchProfileByHandle(handle!),
         enabled: !!handle,
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
@@ -49,52 +48,21 @@ export const useProfile = () => {
         return postsData?.pages.flatMap(page => page) || [];
     }, [postsData]);
 
-    // Followers/Following Modal State (Kept manual for now as requested/scoped)
+    // Followers/Following Modal State
     const [isFollowModalOpen, setIsFollowModalOpen] = useState(false)
-    const [followModalType, setFollowModalType] = useState("Followers") // 'Followers' or 'Following'
-    const [followListData, setFollowListData] = useState<any[]>([])
-    const [isListLoading, setIsListLoading] = useState(false)
-    const [isFetchingMoreFollows, setIsFetchingMoreFollows] = useState(false)
-    const [hasMoreFollows, setHasMoreFollows] = useState(true)
+    const [followModalType, setFollowModalType] = useState<"Followers" | "Following">("Followers")
 
-    const openFollowModal = async (type: string, isLoadMore = false) => {
-        const userId = profile?.id
-        if (!userId) return
+    const {
+        followList: followListData,
+        fetchNextPage: fetchNextFollows,
+        hasNextPage: hasMoreFollows,
+        isFetchingNextPage: isFetchingMoreFollows,
+        isLoading: isListLoading
+    } = useFollowList(profile?.id, followModalType, isFollowModalOpen)
 
-        if (isLoadMore) setIsFetchingMoreFollows(true)
-        else {
-            setFollowModalType(type)
-            setIsFollowModalOpen(true)
-            setIsListLoading(true)
-            setFollowListData([])
-        }
-
-        try {
-            const lastTimestamp =
-                isLoadMore && followListData.length > 0
-                    ? followListData[followListData.length - 1].followed_at
-                    : null
-
-            const data =
-                type === "Followers"
-                    ? await fetchFollowers(userId, lastTimestamp, 10)
-                    : await fetchFollowing(userId, lastTimestamp, 10)
-
-            if (data.length < 10) setHasMoreFollows(false)
-            else setHasMoreFollows(true)
-
-            if (isLoadMore) {
-                setFollowListData((prev) => [...prev, ...data])
-            } else {
-                setFollowListData(data)
-            }
-        } catch (err) {
-            console.error(`Failed to fetch ${type}:`, err)
-            addToast(`Failed to load ${type}`)
-        } finally {
-            setIsListLoading(false)
-            setIsFetchingMoreFollows(false)
-        }
+    const openFollowModal = (type: string) => {
+        setFollowModalType(type as "Followers" | "Following")
+        setIsFollowModalOpen(true)
     }
 
     const filteredPosts = useMemo(() => {
@@ -153,6 +121,7 @@ export const useProfile = () => {
         isFetchingMoreFollows,
         hasMoreFollows,
         openFollowModal,
+        fetchNextFollows,
         handlePostClick,
         handleUserClick,
         loadUserPosts,

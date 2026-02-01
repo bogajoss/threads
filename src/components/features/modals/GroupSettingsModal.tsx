@@ -6,10 +6,9 @@ import { Camera, Trash2, LogOut, ShieldCheck, Search, UserPlus, X } from "lucide
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
 import { useNavigate } from "react-router-dom"
-import { uploadFile, searchUsers, addParticipantsToConversation, deleteConversation, leaveConversation } from "@/lib/api" 
-import { supabase } from "@/lib/supabase"
+import { uploadFile, searchUsers, addParticipantsToConversation, deleteConversation, leaveConversation, fetchConversationParticipants, updateConversation } from "@/lib/api"
 import { useToast } from "@/context/ToastContext"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 
 interface GroupSettingsModalProps {
@@ -31,53 +30,75 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
     const navigate = useNavigate()
     
     const [name, setName] = useState(conversation.name || "")
-    const [loading, setLoading] = useState(false)
-    const [participants, setParticipants] = useState<any[]>([])
-    const [loadingParts, setLoadingLoadingParts] = useState(false)
-
-    // Add member state
     const [showAddMember, setShowAddMember] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState<any[]>([])
     const [searching, setSearching] = useState(false)
-    const [addingMembers, setAddingMembers] = useState(false)
 
     const fileInputRef = useRef<HTMLInputElement>(null)
     const isCreator = currentUser?.id === conversation.creatorId
 
-    const fetchParticipants = async () => {
-        setLoadingLoadingParts(true)
-        try {
-            const { data, error } = await (supabase
-                .from("conversation_participants")
-                .select(`
-                    user:users (
-                        id,
-                        username,
-                        display_name,
-                        avatar_url
-                    )
-                `)
-                .eq("conversation_id", conversation.id) as any)
-            
-            if (error) throw error
-            setParticipants(data.map((p: any) => p.user))
-        } catch (error) {
-            console.error("Failed to fetch participants:", error)
-        } finally {
-            setLoadingLoadingParts(false)
+    // 1. Fetch Participants
+    const { data: participants = [], isLoading: loadingParts } = useQuery({
+        queryKey: ["conversation-participants", conversation.id],
+        queryFn: () => fetchConversationParticipants(conversation.id),
+        enabled: isOpen && !!conversation.id,
+        staleTime: 1000 * 60, 
+    })
+
+    const updateMutation = useMutation({
+        mutationFn: (data: any) => updateConversation(conversation.id, data),
+        onSuccess: (updated) => {
+            onUpdate(updated)
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] })
+            addToast("Group updated!")
+        },
+        onError: (err: any) => {
+            addToast(err.message || "Update failed", "error")
         }
-    }
+    })
+
+    const addMemberMutation = useMutation({
+        mutationFn: (userId: string) => addParticipantsToConversation(conversation.id, [userId]),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["conversation-participants", conversation.id] })
+            addToast("Member added!")
+            setSearchQuery("")
+            setSearchResults([])
+        },
+        onError: () => addToast("Failed to add member", "error")
+    })
+
+    const leaveMutation = useMutation({
+        mutationFn: () => leaveConversation(conversation.id, currentUser!.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] })
+            onClose()
+            addToast("You left the group.")
+            navigate("/messages")
+        },
+        onError: () => addToast("Failed to leave group", "error")
+    })
+
+    const deleteMutation = useMutation({
+        mutationFn: () => deleteConversation(conversation.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] })
+            onClose()
+            addToast("Group deleted.")
+            navigate("/messages")
+        },
+        onError: () => addToast("Failed to delete group", "error")
+    })
 
     React.useEffect(() => {
         if (isOpen) {
-            fetchParticipants()
             setName(conversation.name || "")
             setShowAddMember(false)
             setSearchQuery("")
             setSearchResults([])
         }
-    }, [isOpen, conversation.id])
+    }, [isOpen, conversation.id, conversation.name])
 
     const handleSearchMembers = async (query: string) => {
         setSearchQuery(query)
@@ -89,8 +110,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
         setSearching(true)
         try {
             const results = await searchUsers(query)
-            // Filter out those who are already participants
-            const existingIds = participants.map(p => p.id)
+            const existingIds = participants.map((p: any) => p.id)
             setSearchResults(results.filter(u => !existingIds.includes(u.id)))
         } catch (error) {
             console.error("Search failed:", error)
@@ -99,103 +119,33 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
         }
     }
 
-    const handleAddMember = async (userId: string) => {
-        setAddingMembers(true)
-        try {
-            await addParticipantsToConversation(conversation.id, [userId])
-            addToast("Member added successfully!")
-            // Refresh local participants list
-            fetchParticipants()
-            // Clear search
-            setSearchQuery("")
-            setSearchResults([])
-        } catch (error) {
-            console.error("Add failed:", error)
-            addToast("Failed to add member", "error")
-        } finally {
-            setAddingMembers(false)
-        }
-    }
-
     const handleUpdateAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file || !isCreator) return
 
-        setLoading(true)
         try {
             const res = await uploadFile(file)
-            const { error } = await (supabase
-                .from("conversations") as any)
-                .update({ avatar_url: res.url })
-                .eq("id", conversation.id)
-            
-            if (error) throw error
-            onUpdate({ ...conversation, avatar: res.url })
-            addToast("Group avatar updated!")
+            updateMutation.mutate({ avatar_url: res.url })
         } catch (error) {
-            console.error("Update failed:", error)
+            console.error("Upload failed:", error)
             addToast("Failed to update avatar", "error")
-        } finally {
-            setLoading(false)
         }
     }
 
-    const handleSaveName = async () => {
+    const handleSaveName = () => {
         if (!name.trim() || name === conversation.name || !isCreator) return
-
-        setLoading(true)
-        try {
-            const { error } = await (supabase
-                .from("conversations") as any)
-                .update({ name: name.trim() })
-                .eq("id", conversation.id)
-            
-            if (error) throw error
-            onUpdate({ ...conversation, name: name.trim() })
-            addToast("Group name updated!")
-        } catch (error) {
-            console.error("Update failed:", error)
-            addToast("Failed to update name", "error")
-        } finally {
-            setLoading(false)
-        }
+        updateMutation.mutate({ name: name.trim() })
     }
 
-    const handleLeaveGroup = async () => {
+    const handleLeaveGroup = () => {
         if (!window.confirm("Are you sure you want to leave this group?") || !currentUser) return
-        
-        setLoading(true)
-        try {
-            await leaveConversation(conversation.id, currentUser.id)
-            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser.id] })
-            onClose()
-            addToast("You left the group.")
-            navigate("/messages")
-        } catch (err) {
-            console.error("Leave failed:", err)
-            addToast("Failed to leave group", "error")
-        } finally {
-            setLoading(false)
-        }
+        leaveMutation.mutate()
     }
 
-    const handleDeleteGroup = async () => {
+    const handleDeleteGroup = () => {
         if (!isCreator) return
         if (!window.confirm("Are you sure you want to delete this group? All messages and media will be removed forever.")) return
-
-        setLoading(true)
-        try {
-            await deleteConversation(conversation.id)
-            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] })
-            onClose()
-            addToast("Group deleted.")
-            navigate("/messages")
-        } catch (err) {
-            console.error("Delete failed:", err)
-            addToast("Failed to delete group", "error")
-        } finally {
-            setLoading(false)
-        }
+        deleteMutation.mutate()
     }
 
     return (
@@ -239,7 +189,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                                     <Button 
                                         size="sm" 
                                         onClick={handleSaveName} 
-                                        loading={loading}
+                                        loading={updateMutation.isPending}
                                         disabled={name === conversation.name}
                                     >
                                         Save
@@ -308,11 +258,11 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                                                     </div>
                                                 </div>
                                                 <button 
-                                                    disabled={addingMembers}
-                                                    onClick={() => handleAddMember(user.id)}
+                                                    disabled={addMemberMutation.isPending}
+                                                    onClick={() => addMemberMutation.mutate(user.id)}
                                                     className="rounded-full bg-violet-600 px-3 py-1 text-[10px] font-bold text-white transition-all hover:bg-violet-700 active:scale-95 disabled:opacity-50"
                                                 >
-                                                    {addingMembers ? "Adding..." : "Add"}
+                                                    {addMemberMutation.isPending ? "Adding..." : "Add"}
                                                 </button>
                                             </div>
                                         ))}
@@ -326,7 +276,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                             {loadingParts ? (
                                 <div className="py-8 text-center text-zinc-400">Loading members...</div>
                             ) : (
-                                participants.map(user => (
+                                participants.map((user: any) => (
                                     <div key={user.id} className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900">
                                         <Avatar className="size-10">
                                             <AvatarImage src={user.avatar_url} className="object-cover" />
@@ -352,7 +302,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
                     {/* Footer Actions */}
                     <div className="flex flex-col gap-2 pt-2 pb-2">
-                        <Button variant="outline" className="w-full justify-start text-zinc-600 dark:text-zinc-400" onClick={handleLeaveGroup}>
+                        <Button variant="outline" className="w-full justify-start text-zinc-600 dark:text-zinc-400" onClick={handleLeaveGroup} loading={leaveMutation.isPending}>
                             <LogOut size={18} className="mr-2" />
                             Leave Group
                         </Button>
@@ -362,7 +312,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                                                     variant="ghost" 
                                                     className="w-full justify-start text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20"
                                                     onClick={handleDeleteGroup}
-                                                    loading={loading}
+                                                    loading={deleteMutation.isPending}
                                                 >
                                                     <Trash2 size={18} className="mr-2" />
                                                     Delete Group

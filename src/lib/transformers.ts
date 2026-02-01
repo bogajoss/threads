@@ -183,8 +183,13 @@ export const transformConversation = (item: any, currentUserId: string): Convers
         : null;
 
     const unreadCount =
-        conv.messages?.filter((m: any) => !m.is_read && m.sender_id !== currentUserId)
-            .length || 0;
+        conv.messages?.filter((m: any) => {
+            // Only count if it's unread
+            if (m.is_read) return false;
+            // Only count if I am NOT the sender
+            // Ensure both IDs exist and compare case-insensitively just in case
+            return m.sender_id && currentUserId && m.sender_id.toString().toLowerCase() !== currentUserId.toString().toLowerCase();
+        }).length || 0;
 
     return {
         id: conv.id,

@@ -3,9 +3,7 @@ import Modal from "@/components/ui/Modal"
 import Button from "@/components/ui/Button"
 import { useQuery } from "@tanstack/react-query"
 import {
-    Plus,
     ImageIcon,
-    FileText,
     BarChart2,
     X,
     Trash2,
@@ -23,127 +21,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// DND Kit Imports
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from "@dnd-kit/core"
-import type { DragEndEvent } from "@dnd-kit/core"
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    rectSortingStrategy,
-    useSortable,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-
-interface SortableMediaItemProps {
-    id: string
-    file: File
-    index: number
-    total: number
-    onRemove: (id: string) => void
-    onAddThumbnail: () => void
-    customThumbnail?: File
-}
-
-const SortableMediaItem: React.FC<SortableMediaItemProps> = ({
-    id,
-    file,
-    index,
-    total,
-    onRemove,
-    onAddThumbnail,
-    customThumbnail,
-}) => {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id })
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 50 : "auto",
-        opacity: isDragging ? 0.5 : 1,
-    }
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={`group relative overflow-hidden rounded-2xl border border-zinc-100 bg-zinc-100 shadow-sm transition-shadow dark:border-zinc-800 dark:bg-zinc-800 ${total === 3 && index === 0 ? "row-span-2" : ""
-                } ${isDragging ? "ring-2 ring-violet-500 shadow-xl" : ""}`}
-        >
-            <div
-                {...attributes}
-                {...listeners}
-                className="size-full cursor-grab active:cursor-grabbing"
-            >
-                {file.type.startsWith("image/") ? (
-                    <img
-                        src={URL.createObjectURL(file)}
-                        className="size-full pointer-events-none object-cover"
-                        alt=""
-                    />
-                ) : (
-                    <div className="pointer-events-none flex size-full flex-col items-center justify-center gap-2 text-zinc-500">
-                        {file.type.startsWith("video/") ? (
-                            <>
-                                {customThumbnail ? (
-                                    <img
-                                        src={URL.createObjectURL(customThumbnail)}
-                                        className="size-full opacity-60 object-cover"
-                                        alt="Custom thumbnail"
-                                    />
-                                ) : (
-                                    <div className="flex size-10 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm">
-                                        <Plus size={20} className="text-zinc-400" />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="flex flex-col items-center gap-2">
-                                <FileText size={24} />
-                                <span className="max-w-[100px] truncate px-2 text-[10px] font-bold">
-                                    {file.name}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {file.type.startsWith("video/") && (
-                <button
-                    type="button"
-                    onClick={onAddThumbnail}
-                    className="absolute inset-x-0 bottom-0 z-10 bg-black/60 py-2 text-[10px] font-bold text-white backdrop-blur-md transition-colors hover:bg-black/80"
-                >
-                    {customThumbnail ? "Change Cover" : "Add Cover"}
-                </button>
-            )}
-
-            <button
-                type="button"
-                onClick={() => onRemove(id)}
-                className="absolute right-2 top-2 z-20 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-rose-500"
-            >
-                <X size={14} strokeWidth={2.5} />
-            </button>
-        </div>
-    )
-}
+import MediaUploader from "./MediaUploader"
 
 interface CreatePostModalProps {
     isOpen: boolean
@@ -166,30 +44,17 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     const { addToast } = useToast()
 
     const [postContent, setPostContent] = useState("")
-    // selectedFiles items: { id: string, file: File }
     const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([])
     const [customThumbnails, setCustomThumbnails] = useState<
         Record<string, File>
-    >({}) // { itemId: thumbnailFile }
+    >({})
     const [showPoll, setShowPoll] = useState(false)
     const [pollData, setPollData] = useState({
         options: ["", ""],
         duration: "1 day",
     })
     const [loading, setLoading] = useState(false)
-    const [selectedCommunity, setSelectedCommunity] = useState<any | null>(null) // { id, name, handle }
-
-    // Sensors for DND Kit
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 8, // Avoid accidental drags when clicking remove/add thumbnail
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    )
+    const [selectedCommunity, setSelectedCommunity] = useState<any | null>(null)
 
     // Set initial community only when modal opens
     useEffect(() => {
@@ -206,10 +71,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     })
 
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const thumbnailInputRef = useRef<HTMLInputElement>(null)
-    const [activeThumbnailId, setActiveThumbnailId] = useState<string | null>(
-        null
-    )
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return
@@ -218,17 +79,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
             file,
         }))
         setSelectedFiles((prev) => [...prev, ...files])
-    }
-
-    const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file && activeThumbnailId !== null) {
-            setCustomThumbnails((prev) => ({
-                ...prev,
-                [activeThumbnailId]: file,
-            }))
-        }
-        setActiveThumbnailId(null)
     }
 
     const handlePaste = (e: React.ClipboardEvent) => {
@@ -243,25 +93,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 }))
                 setSelectedFiles((prev) => [...prev, ...newFiles])
             }
-        }
-    }
-
-    const removeFile = (id: string) => {
-        setSelectedFiles((prev) => prev.filter((item) => item.id !== id))
-        const newThumbs = { ...customThumbnails }
-        delete newThumbs[id]
-        setCustomThumbnails(newThumbs)
-    }
-
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event
-
-        if (over && active.id !== over.id) {
-            setSelectedFiles((items) => {
-                const oldIndex = items.findIndex((i) => i.id === active.id)
-                const newIndex = items.findIndex((i) => i.id === over.id)
-                return arrayMove(items, oldIndex, newIndex)
-            })
         }
     }
 
@@ -386,13 +217,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 multiple
                 className="hidden"
                 accept="image/*,video/*,application/pdf"
-            />
-            <input
-                type="file"
-                ref={thumbnailInputRef}
-                onChange={handleThumbnailSelect}
-                className="hidden"
-                accept="image/*"
             />
         </div>
     )
@@ -520,43 +344,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
 
                 {/* Attachments Area */}
                 <div className="px-1 mt-2">
-                    {selectedFiles.length > 0 && (
-                        <div className="mb-4 animate-in fade-in zoom-in-95 duration-200">
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={selectedFiles.map((i) => i.id)}
-                                    strategy={rectSortingStrategy}
-                                >
-                                    <div
-                                        className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 shadow-sm dark:border-zinc-800 ${selectedFiles.length === 1
-                                            ? "grid-cols-1"
-                                            : "aspect-[16/9] grid-cols-2"
-                                            }`}
-                                    >
-                                        {selectedFiles.map((item, idx) => (
-                                            <SortableMediaItem
-                                                key={item.id}
-                                                id={item.id}
-                                                file={item.file}
-                                                index={idx}
-                                                total={selectedFiles.length}
-                                                onRemove={removeFile}
-                                                customThumbnail={customThumbnails[item.id]}
-                                                onAddThumbnail={() => {
-                                                    setActiveThumbnailId(item.id)
-                                                    thumbnailInputRef.current?.click()
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
-                        </div>
-                    )}
+                    <MediaUploader
+                        selectedFiles={selectedFiles}
+                        setSelectedFiles={setSelectedFiles}
+                        customThumbnails={customThumbnails}
+                        setCustomThumbnails={setCustomThumbnails}
+                    />
 
                     {showPoll && (
                         <div className="mb-4 space-y-3 animate-in slide-in-from-top-2 duration-200 rounded-xl border border-violet-100 bg-violet-50/30 p-4 dark:border-violet-900/30 dark:bg-violet-900/10">

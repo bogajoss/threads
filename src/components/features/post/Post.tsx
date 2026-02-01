@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-    MessageCircle,
-    Repeat2,
-    Heart,
     MoreHorizontal,
     Loader2,
     Flag,
@@ -12,6 +9,7 @@ import {
     Pencil,
     Share,
     Trash,
+    Repeat2,
 } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -32,30 +30,25 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-    ShareIcon,
-    ChatIcon,
-} from "@/components/ui"
 // @ts-ignore
 import {
     PollDisplay,
     QuotedPost,
-    ActionButton,
     CommentInput,
     LinkPreview,
     ShareModal,
     PostHeader,
     PostContent,
     PostMedia,
+    PostActions,
+    PostStats,
 } from "@/components/features/post"
-import { usePostInteraction } from "@/hooks"
+import { usePostInteraction, useComments } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
-import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment, incrementPostViews } from "@/lib/api"
+import { uploadFile, deleteComment, updateComment, incrementPostViews } from "@/lib/api"
 import { extractUrl } from "@/lib/utils"
 import { useInView } from "react-intersection-observer"
-// @ts-ignore
-import { Textarea } from "@/components/ui/textarea"
 import type { User, Media, CommunityShort } from "@/types"
 
 interface PostProps {
@@ -126,12 +119,18 @@ const Post: React.FC<PostProps> = ({
     } = usePostInteraction(id, stats, currentUser, showToast || (() => { }))
 
     const { deletePost, updatePost } = usePosts()
-    const [comments, setComments] = useState<any[]>(initialComments || [])
+    
+    const {
+        comments,
+        fetchNextPage: loadMoreComments,
+        hasNextPage: hasMoreComments,
+        isFetchingNextPage: isFetchingMoreComments,
+        isLoading: loadingComments,
+        addComment: submitComment,
+        isSubmitting: submittingComment,
+    } = useComments(id, initialComments)
+
     const [newComment, setNewComment] = useState("")
-    const [loadingComments, setLoadingComments] = useState(false)
-    const [submittingComment, setSubmittingComment] = useState(false)
-    const [isFetchingMoreComments, setIsFetchingMoreComments] = useState(false)
-    const [hasMoreComments, setHasMoreComments] = useState(true)
     const [selectedFiles, setSelectedFiles] = useState<File[]>([])
     const [isUploading, setIsUploading] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -143,8 +142,12 @@ const Post: React.FC<PostProps> = ({
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
     const [replyTo, setReplyTo] = useState<{ handle: string, id: string } | null>(null)
     const [showReplies, setShowReplies] = useState(false)
-    const [replies, setReplies] = useState<any[]>([])
-    const [loadingReplies, setLoadingReplies] = useState(false)
+    
+    const {
+        comments: replies,
+        isLoading: loadingReplies,
+        refetch: refetchReplies,
+    } = useComments(post_id || id, [], showReplies ? id : undefined)
 
     // View Tracking
     const { ref: viewRef, inView } = useInView({
@@ -161,25 +164,11 @@ const Post: React.FC<PostProps> = ({
         }
     }, [inView, id, isComment])
 
-    const commentsRef = useRef(comments)
-
-    useEffect(() => {
-        commentsRef.current = comments
-    }, [comments])
-
     const loadReplies = useCallback(async () => {
-        if (!id || !post_id || localStats.comments === 0) return
-        setLoadingReplies(true)
-        try {
-            const data = await fetchCommentsByPostId(post_id, null, 10, id)
-            setReplies(data)
-            setShowReplies(true)
-        } catch (err) {
-            console.error("Failed to load replies:", err)
-        } finally {
-            setLoadingReplies(false)
-        }
-    }, [id, post_id, localStats.comments])
+        if (!id || (!post_id && !id) || localStats.comments === 0) return
+        setShowReplies(true)
+        refetchReplies()
+    }, [id, post_id, localStats.comments, refetchReplies])
 
     const handleUpdate = async () => {
         const hasMediaChanged =
@@ -216,12 +205,6 @@ const Post: React.FC<PostProps> = ({
             setIsEditing(false)
             if (showToast) showToast(`${isComment ? "Comment" : "Post"} updated`)
             if (onUpdate) onUpdate(id, editedContent, finalMedia)
-            
-            // For comments, we might want to trigger a local refresh or wait for cache invalidation
-            // Since comments are managed by local state in Post.tsx (initialComments), 
-            // we should probably update the local state too if we want immediate feedback
-            // or just rely on the parent's re-render if using React Query.
-            // However, in Post.tsx, we have a local comments state.
         } catch (err) {
             console.error(`Failed to update ${isComment ? "comment" : "post"}:`, err)
             if (showToast) showToast(`Failed to update ${isComment ? "comment" : "post"}`)
@@ -248,51 +231,11 @@ const Post: React.FC<PostProps> = ({
         }
     }
 
-    const loadComments = useCallback(
-        async (isLoadMore = false) => {
-            if (!id) return
-            if (isLoadMore) setIsFetchingMoreComments(true)
-            else setLoadingComments(true)
-
-            try {
-                const currentComments = commentsRef.current
-                const lastTimestamp =
-                    isLoadMore && currentComments.length > 0
-                        ? currentComments[currentComments.length - 1].created_at
-                        : null
-
-                const data = await fetchCommentsByPostId(id, lastTimestamp!, 10)
-
-                if (data.length < 10) setHasMoreComments(false)
-                else setHasMoreComments(true)
-
-                if (isLoadMore) {
-                    setComments((prev) => [...prev, ...data])
-                } else {
-                    setComments(data)
-                }
-            } catch (err) {
-                console.error("Failed to load comments:", err)
-            } finally {
-                setLoadingComments(false)
-                setIsFetchingMoreComments(false)
-            }
-        },
-        [id]
-    )
-
-    useEffect(() => {
-        if (isDetail && id) {
-            loadComments()
-        }
-    }, [isDetail, id, loadComments])
-
     const handleSubmitComment = async (e: React.MouseEvent) => {
         e.preventDefault()
         if ((!newComment.trim() && selectedFiles.length === 0) || !currentUser)
             return
 
-        setSubmittingComment(true)
         setIsUploading(true)
         try {
             const uploadedMedia = []
@@ -301,7 +244,13 @@ const Post: React.FC<PostProps> = ({
                 uploadedMedia.push(res)
             }
 
-            await addComment(id, currentUser.id, newComment, uploadedMedia, replyTo?.id)
+            await submitComment({
+                userId: currentUser.id,
+                content: newComment,
+                media: uploadedMedia,
+                replyToId: replyTo?.id
+            })
+            
             setNewComment("")
             setSelectedFiles([])
             setReplyTo(null)
@@ -310,12 +259,10 @@ const Post: React.FC<PostProps> = ({
                 comments: (prev.comments || 0) + 1,
             }))
             if (showToast) showToast("Reply posted!")
-            loadComments()
         } catch (err) {
             console.error("Failed to post comment:", err)
             if (showToast) showToast("Failed to post reply.")
         } finally {
-            setSubmittingComment(false)
             setIsUploading(false)
         }
     }
@@ -348,7 +295,7 @@ const Post: React.FC<PostProps> = ({
                             className="cursor-pointer gap-2 py-2.5"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                showToast && showToast("Post reported")
+                                if (showToast) showToast("Post reported")
                             }}
                         >
                             <Flag size={16} />
@@ -360,7 +307,7 @@ const Post: React.FC<PostProps> = ({
                             className="cursor-pointer gap-2 py-2.5"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                showToast && showToast("User blocked")
+                                if (showToast) showToast("User blocked")
                             }}
                         >
                             <UserMinus size={16} />
@@ -481,59 +428,23 @@ const Post: React.FC<PostProps> = ({
                         </div>
                     )}
 
-                    <div className="mt-4 flex items-center gap-x-6 border-b border-zinc-100 pb-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-                        <div className="flex items-center gap-x-1">
-                            <span className="font-bold text-black dark:text-white">
-                                {localStats.views || 0}
-                            </span>{" "}
-                            <span className="opacity-70">Views</span>
-                        </div>
-                        <div className="flex items-center gap-x-1">
-                            <span className="font-bold text-black dark:text-white">
-                                {localStats.likes || 0}
-                            </span>{" "}
-                            <span className="opacity-70">Likes</span>
-                        </div>
-                        <div className="flex items-center gap-x-1">
-                            <span className="font-bold text-black dark:text-white">
-                                {localStats.comments || 0}
-                            </span>{" "}
-                            <span className="opacity-70">Comments</span>
-                        </div>
-                    </div>
+                    <PostStats
+                        views={localStats.views || 0}
+                        likes={localStats.likes || 0}
+                        comments={localStats.comments || 0}
+                        isDetail={true}
+                    />
 
-                    <div className="mt-4 flex w-full items-center justify-around py-1">
-                        <ActionButton
-                            icon={Heart}
-                            label="Like"
-                            type="like"
-                            onClick={handleLike}
-                            active={liked}
-                        />
-                        {!isComment && (
-                            <ActionButton
-                                icon={Repeat2}
-                                label="Repost"
-                                type="repost"
-                                onClick={handleRepost}
-                                active={reposted}
-                            />
-                        )}
-                        <ActionButton
-                            icon={ChatIcon}
-                            label="Comment"
-                            type="comment"
-                            onClick={() => document.getElementById("comment-input")?.focus()}
-                        />
-                        {!isComment && (
-                            <ActionButton
-                                icon={ShareIcon}
-                                label="Share"
-                                type="share"
-                                onClick={() => setIsShareModalOpen(true)}
-                            />
-                        )}
-                    </div>
+                    <PostActions
+                        liked={liked}
+                        reposted={reposted}
+                        handleLike={handleLike}
+                        handleRepost={handleRepost}
+                        handleCommentClick={() => document.getElementById("comment-input")?.focus()}
+                        handleShareClick={() => setIsShareModalOpen(true)}
+                        isDetail={true}
+                        isComment={isComment}
+                    />
                 </article>
 
                 {replyTo && (
@@ -570,7 +481,7 @@ const Post: React.FC<PostProps> = ({
                         <>
                             {hasMoreComments && comments.length > 0 && (
                                 <button
-                                    onClick={() => loadComments(true)}
+                                    onClick={() => loadMoreComments()}
                                     disabled={isFetchingMoreComments}
                                     className="flex w-full items-center justify-center gap-2 py-3 text-sm font-bold text-violet-600 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
                                 >
@@ -590,20 +501,6 @@ const Post: React.FC<PostProps> = ({
                                     onUserClick={onUserClick}
                                     currentUser={currentUser}
                                     showToast={showToast}
-                                    onDelete={(deletedId) =>
-                                        setComments((prev) =>
-                                            prev.filter((pc) => pc.id !== deletedId)
-                                        )
-                                    }
-                                    onUpdate={(updatedId, content, media) =>
-                                        setComments((prev) =>
-                                            prev.map((pc) =>
-                                                pc.id === updatedId
-                                                    ? { ...pc, content, media }
-                                                    : pc
-                                            )
-                                        )
-                                    }
                                     // Fix missing props
                                     stats={{
                                         likes: c.stats?.likes || 0,
@@ -662,7 +559,7 @@ const Post: React.FC<PostProps> = ({
                         className="flex cursor-pointer items-center text-zinc-700 hover:underline dark:text-zinc-300"
                         onClick={(e) => {
                             e.stopPropagation()
-                            onUserClick && onUserClick(repostedBy.handle)
+                            if (onUserClick) onUserClick(repostedBy.handle)
                         }}
                     >
                         {repostedBy.handle} Reposted
@@ -676,7 +573,7 @@ const Post: React.FC<PostProps> = ({
                         className="cursor-pointer"
                         onClick={(e) => {
                             e.stopPropagation()
-                            onUserClick && onUserClick(user.handle)
+                            if (onUserClick) onUserClick(user.handle)
                         }}
                     >
                         <Avatar className={`${isComment ? "size-8" : "size-10"} border-0 shadow-sm`}>
@@ -754,78 +651,36 @@ const Post: React.FC<PostProps> = ({
                         </div>
                     )}
 
-                    {/* Action Buttons */}
-                    <div className={`flex items-center gap-x-1 ${isComment ? "mt-1.5" : "mt-3"}`}>
-                        <ActionButton
-                            icon={Heart}
-                            size={isComment ? 16 : 18}
-                            type="like"
-                            onClick={handleLike}
-                            active={liked}
-                        />
-                        <ActionButton
-                            icon={MessageCircle}
-                            size={isComment ? 16 : 18}
-                            type="comment"
-                            onClick={(e) => {
-                                e?.stopPropagation()
-                                onReply ? onReply(user.handle, id) : onClick && onClick()
-                            }}
-                        />
-                        <ActionButton
-                            icon={Repeat2}
-                            size={isComment ? 16 : 18}
-                            type="repost"
-                            onClick={handleRepost}
-                            active={reposted}
-                        />
-                        {!isComment && (
-                            <ActionButton
-                                icon={ShareIcon}
-                                type="share"
-                                onClick={(e) => {
-                                    e?.stopPropagation();
-                                    setIsShareModalOpen(true);
-                                }}
-                            />
-                        )}
-                    </div>
+                    <PostActions
+                        liked={liked}
+                        reposted={reposted}
+                        handleLike={handleLike}
+                        handleRepost={handleRepost}
+                        handleCommentClick={(e) => {
+                            e?.stopPropagation()
+                            if (onReply) {
+                                onReply(user.handle, id)
+                            } else if (onClick) {
+                                onClick()
+                            }
+                        }}
+                        handleShareClick={(e) => {
+                            e?.stopPropagation();
+                            setIsShareModalOpen(true);
+                        }}
+                        isComment={isComment}
+                    />
 
-                    {/* Stats Line (Threads style) */}
-                    {(localStats.comments > 0 || localStats.likes > 0 || (localStats.views || 0) > 0) && (
-                        <div className={`mt-1 flex items-center gap-x-1.5 px-0.5 ${isComment ? "text-[12px]" : "text-[14px]"} font-medium text-zinc-500 dark:text-zinc-400`}>
-                            {(localStats.views || 0) > 0 && !isComment && (
-                                <>
-                                    <span className="hover:underline">
-                                        {localStats.views} {localStats.views === 1 ? "view" : "views"}
-                                    </span>
-                                    {(localStats.comments > 0 || localStats.likes > 0) && (
-                                        <span className="opacity-50">·</span>
-                                    )}
-                                </>
-                            )}
-                            {localStats.comments > 0 && (
-                                <button 
-                                    className="hover:underline"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        if (showReplies) setShowReplies(false)
-                                        else loadReplies()
-                                    }}
-                                >
-                                    {localStats.comments} {localStats.comments === 1 ? "reply" : "replies"}
-                                </button>
-                            )}
-                            {localStats.comments > 0 && localStats.likes > 0 && (
-                                <span className="opacity-50">·</span>
-                            )}
-                            {localStats.likes > 0 && (
-                                <button className="hover:underline">
-                                    {localStats.likes} {localStats.likes === 1 ? "like" : "likes"}
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    <PostStats
+                        views={localStats.views || 0}
+                        likes={localStats.likes || 0}
+                        comments={localStats.comments || 0}
+                        isComment={isComment}
+                        onRepliesClick={() => {
+                            if (showReplies) setShowReplies(false)
+                            else loadReplies()
+                        }}
+                    />
 
                     {/* Nested Replies */}
                     {showReplies && (
@@ -847,25 +702,11 @@ const Post: React.FC<PostProps> = ({
                                                 <Post
                                                     {...reply}
                                                     isComment={true}
-                                                    post_id={post_id}
+                                                    post_id={post_id || id}
                                                     onReply={onReply}
                                                     onUserClick={onUserClick}
                                                     currentUser={currentUser}
                                                     showToast={showToast}
-                                                    onDelete={(deletedId) =>
-                                                        setReplies((prev) =>
-                                                            prev.filter((pr) => pr.id !== deletedId)
-                                                        )
-                                                    }
-                                                    onUpdate={(updatedId, content, media) =>
-                                                        setReplies((prev) =>
-                                                            prev.map((pr) =>
-                                                                pr.id === updatedId
-                                                                    ? { ...pr, content, media }
-                                                                    : pr
-                                                            )
-                                                        )
-                                                    }
                                                     stats={{
                                                         likes: reply.stats?.likes || 0,
                                                         comments: reply.stats?.comments || 0,
@@ -920,18 +761,25 @@ const Post: React.FC<PostProps> = ({
 }
 
 function arePropsEqual(prevProps: PostProps, nextProps: PostProps) {
+    const mediaEqual = 
+        (!prevProps.media && !nextProps.media) ||
+        (prevProps.media?.length === nextProps.media?.length && 
+         prevProps.media?.every((m, i) => m.url === nextProps.media?.[i].url));
+        
+    const repostedByEqual = prevProps.repostedBy?.handle === nextProps.repostedBy?.handle;
+
     return (
         prevProps.id === nextProps.id &&
         prevProps.content === nextProps.content &&
         prevProps.timeAgo === nextProps.timeAgo &&
-        prevProps.user.id === nextProps.user.id && // User ID check
-        prevProps.user.avatar === nextProps.user.avatar && // User avatar check
+        prevProps.user.id === nextProps.user.id &&
+        prevProps.user.avatar === nextProps.user.avatar &&
         prevProps.stats.likes === nextProps.stats.likes &&
         prevProps.stats.comments === nextProps.stats.comments &&
         prevProps.stats.reposts === nextProps.stats.reposts &&
         prevProps.currentUser?.id === nextProps.currentUser?.id &&
-        JSON.stringify(prevProps.media) === JSON.stringify(nextProps.media) &&
-        JSON.stringify(prevProps.repostedBy) === JSON.stringify(nextProps.repostedBy)
+        !!mediaEqual &&
+        !!repostedByEqual
     );
 }
 

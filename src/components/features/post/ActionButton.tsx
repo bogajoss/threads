@@ -63,7 +63,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <button
             onClick={(e) => {
                 e.stopPropagation()
-                onClick && onClick(e)
+                if (onClick) {
+                    onClick(e)
+                }
             }}
             aria-label={`${label} ${count !== undefined ? `(${count})` : ""}`}
             className={cn(

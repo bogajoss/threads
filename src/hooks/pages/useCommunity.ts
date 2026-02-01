@@ -21,7 +21,8 @@ export const useCommunity = () => {
     // 1. Fetch Community Metadata
     const { 
         data: community, 
-        isLoading: loadingCommunity 
+        isLoading: loadingCommunity,
+        refetch: refetchCommunity
     } = useQuery({
         queryKey: ["community", handle],
         queryFn: () => fetchCommunityByHandle(handle!),
@@ -131,6 +132,7 @@ export const useCommunity = () => {
         hasMorePosts,
         handleJoinToggle,
         loadCommunityPosts: fetchNextPage,
+        refetchCommunity,
         currentUser,
         addToast,
         navigate,

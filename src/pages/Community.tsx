@@ -44,6 +44,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
         hasMorePosts,
         handleJoinToggle,
         loadCommunityPosts,
+        refetchCommunity,
         currentUser,
         addToast,
         navigate,
@@ -277,9 +278,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                 onClose={() => setIsEditModalOpen(false)}
                 community={community}
                 onUpdate={() => {
-                    // You might need a setCommunity here, but useCommunity currently manages its own state.
-                    // For now, refreshing the page or re-fetching via hook is best.
-                    window.location.reload()
+                    refetchCommunity()
                 }}
             />
 

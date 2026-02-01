@@ -10,6 +10,7 @@ export const useReels = () => {
     const [searchParams] = useSearchParams()
     const targetId = routeId || searchParams.get("id")
     const containerRef = useRef<HTMLDivElement>(null)
+    const reelRefs = useRef<Map<string, HTMLDivElement>>(new Map())
     const [activeReelId, setActiveReelId] = useState<string | null>(null)
     const [isMuted, setIsMuted] = useState(true)
 
@@ -41,11 +42,10 @@ export const useReels = () => {
                 const targetReel = reels.find(r => r.id === targetId)
                 if (targetReel) {
                     setActiveReelId(targetId)
-                    // Wait a tick for DOM
-                    setTimeout(() => {
-                        const element = document.querySelector(`[data-id="${targetId}"]`)
-                        element?.scrollIntoView({ behavior: "instant" })
-                    }, 100)
+                    const element = reelRefs.current.get(targetId)
+                    if (element) {
+                         element.scrollIntoView({ behavior: "instant" })
+                    }
                 } else if (!activeReelId) {
                     setActiveReelId(reels[0].id)
                 }
@@ -67,18 +67,15 @@ export const useReels = () => {
         const callback = (entries: IntersectionObserverEntry[]) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    // @ts-ignore
-                    setActiveReelId(entry.target.dataset.id)
+                     const id = entry.target.getAttribute("data-id")
+                     if (id) setActiveReelId(id)
                 }
             })
         }
 
         const observer = new IntersectionObserver(callback, options)
-        // Wait a tick for DOM updates
-        setTimeout(() => {
-             const elements = document.querySelectorAll(".reel-item")
-             elements.forEach((el) => observer.observe(el))
-        }, 100)
+        
+        reelRefs.current.forEach((el) => observer.observe(el))
 
         return () => observer.disconnect()
     }, [reels.length]) // Only re-run if length changes
@@ -87,12 +84,13 @@ export const useReels = () => {
         setIsMuted(!isMuted)
     }
 
-    // Manual load more wrapper if needed by UI scroll event, 
-    // BUT the UI should ideally check scroll position and call fetchNextPage directly.
-    // Preserving the handleScroll interface if the UI component calls it manually on scroll event.
-    // However, the previous implementation attached the listener HERE. 
-    // Now we need to expose 'fetchNextPage' to be called when user scrolls near bottom.
-    // Let's re-add the scroll listener here to match original behavior, but using fetchNextPage.
+    const setReelRef = (id: string, el: HTMLDivElement | null) => {
+        if (el) {
+            reelRefs.current.set(id, el)
+        } else {
+            reelRefs.current.delete(id)
+        }
+    }
 
     useEffect(() => {
         const handleScroll = () => {
@@ -120,8 +118,9 @@ export const useReels = () => {
         hasMore: hasNextPage,
         isMuted,
         containerRef,
+        setReelRef,
         navigate,
         toggleMute,
-        loadReels: fetchNextPage, // Expose as loadReels for backward compat if needed
+        loadReels: fetchNextPage, 
     }
 }

@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect, useMemo, useCall
 import type { ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-    fetchProfileByHandle,
     updateProfile as updateProfileApi,
     fetchUserProfile,
     updateLastSeen,
@@ -15,12 +14,10 @@ interface AuthContextType {
     currentUser: User | null;
     authMode: 'login' | 'signup' | null;
     setAuthMode: React.Dispatch<React.SetStateAction<'login' | 'signup' | null>>;
-    profiles: Record<string, User>;
     login: (credentials: any) => Promise<any>;
     signup: (credentials: any) => Promise<any>;
     logout: () => Promise<void>;
     updateProfile: (updatedFields: Partial<User>) => Promise<void>;
-    getProfileByHandle: (handle: string) => Promise<User | null>;
     loading: boolean;
 }
 
@@ -33,7 +30,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
-    const [profiles, setProfiles] = useState<Record<string, User>>({});
     const [loading, setLoading] = useState<boolean>(true);
 
     const fetchUserProfileData = useCallback(async (user: any) => {
@@ -42,10 +38,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             if (data) {
                 setCurrentUser(data);
-                setProfiles((prev) => ({
-                    ...prev,
-                    [data.handle.toLowerCase()]: data,
-                }));
             } else {
                 // Fallback for new users or demo
                 const demoUser: User = {
@@ -165,50 +157,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await fetchUserProfileData(currentUser);
     }, [currentUser, fetchUserProfileData]);
 
-    const getProfileByHandle = useCallback(async (handle: string): Promise<User | null> => {
-        const lowerHandle = handle.toLowerCase();
-        // Since we are inside useCallback, we can't easily access 'profiles' state directly if we want this function to be stable
-        // But for getProfileByHandle to return the cached value from state, it needs 'profiles' in dependency array.
-        // However, updating profiles inside here suggests we should rely on the state or API.
-        // To avoid re-creating this function on every profiles change, let's just fetch from API or
-        // if we really want cache, we must include profiles.
-        // Given the performance goal, let's use the ref pattern or just rely on the API/React Query in the hook consuming this.
-        // BUT, since this is "Context", let's keep it simple and depend on profiles.
-        // The check 'if (profiles[lowerHandle])' reads from state closure.
-        // We will include 'profiles' in dependency to keep it correct.
-        
-        // Actually, to make it truly stable and avoid re-renders when profiles update (if this function is passed down),
-        // we might accept that it changes. Or use a ref for profiles.
-        // For now, including profiles is safer for correctness.
-        // wait, we can't access 'profiles' inside here unless it's in scope. It is in scope.
-        // But we want to avoid re-creating the function if possible.
-        // Let's rely on the fact that AuthContext consumers will re-render anyway if 'profiles' changes.
-        const profile = await fetchProfileByHandle(handle);
-        if (profile) {
-            setProfiles((prev) => ({ ...prev, [lowerHandle]: profile }));
-            return profile;
-        }
-        return null;
-    }, []); 
-
     const value = useMemo(() => ({
         currentUser,
         authMode,
         setAuthMode,
-        profiles,
         login,
         signup,
         logout,
         updateProfile: handleUpdateProfile,
-        getProfileByHandle, // Note: This function will likely change often if we depend on profiles. 
-                            // But actually getProfileByHandle logic above doesn't strictly *read* profiles from state 
-                            // inside the closure if we just fetch from API. 
-                            // The original code checked `if (profiles[lowerHandle])`.
-                            // Let's remove that check here and let the consuming hook (useProfile) handle caching via React Query, 
-                            // OR just accept that it fetches.
-                            // The original code had the check. Let's keep the original logic but be aware it updates.
         loading,
-    }), [currentUser, authMode, profiles, login, signup, logout, handleUpdateProfile, getProfileByHandle, loading]);
+    }), [currentUser, authMode, login, signup, logout, handleUpdateProfile, loading]);
 
     return (
         <AuthContext.Provider value={value}>

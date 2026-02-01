@@ -130,14 +130,12 @@ export const fetchUnreadMessagesCount = async (userId: string): Promise<number> 
 /**
  * Marks all messages in a conversation as read for the current user.
  */
-export const markMessagesAsRead = async (conversationId: string, userId: string): Promise<void> => {
-    if (!conversationId || !userId) return;
-    const { error } = await (supabase
-        .from("messages") as any)
-        .update({ is_read: true })
-        .eq("conversation_id", conversationId)
-        .neq("sender_id", userId)
-        .eq("is_read", false);
+export const markMessagesAsRead = async (conversationId: string, _userId: string): Promise<void> => {
+    if (!conversationId) return;
+    
+    const { error } = await (supabase.rpc as any)('mark_messages_read', {
+        p_conversation_id: conversationId
+    });
 
     if (error) throw error;
 };
@@ -178,6 +176,7 @@ export const fetchConversations = async (userId: string): Promise<Conversation[]
         `,
         )
         .eq("user_id", userId);
+
 
     if (error) throw error;
 
@@ -406,4 +405,39 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
         .delete()
         .eq("id", messageId);
     if (error) throw error;
+};
+
+/**
+ * Fetches participants of a conversation.
+ */
+export const fetchConversationParticipants = async (conversationId: string): Promise<any[]> => {
+    const { data, error } = await (supabase
+        .from("conversation_participants")
+        .select(`
+            user:users (
+                id,
+                username,
+                display_name,
+                avatar_url
+            )
+        `)
+        .eq("conversation_id", conversationId) as any)
+    
+    if (error) throw error;
+    return (data || []).map((p: any) => p.user);
+};
+
+/**
+ * Updates conversation details.
+ */
+export const updateConversation = async (conversationId: string, updates: any): Promise<any> => {
+    const { data, error } = await (supabase
+        .from("conversations") as any)
+        .update(updates)
+        .eq("id", conversationId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
 };

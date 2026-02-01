@@ -43,10 +43,7 @@ const PollDisplay: React.FC<PollDisplayProps> = ({ poll, onVote }) => {
                 return (
                     <div
                         key={option.id || idx}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            handleVote(option.id)
-                        }}
+                            onClick={() => handleVote(option.id)}
                         className={`relative h-10 w-full overflow-hidden rounded-xl border cursor-pointer ${isSelected ? "border-violet-500 dark:border-violet-500" : "border-zinc-200 dark:border-zinc-700"}`}
                     >
                         {/* Background Bar */}

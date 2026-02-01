@@ -6,8 +6,8 @@ import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 // @ts-ignore
 import { createCommunity } from "@/lib/api"
-import { supabase } from "@/lib/supabase"
 import { useNavigate } from "react-router-dom"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 interface CreateCommunityModalProps {
     isOpen: boolean
@@ -21,6 +21,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     const { currentUser } = useAuth()
     const { addToast } = useToast()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
     const [formData, setFormData] = useState({
         name: "",
@@ -28,53 +29,39 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
         description: "",
         isPrivate: false,
     })
-    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const createMutation = useMutation({
+        mutationFn: (data: any) => createCommunity(data),
+        onSuccess: (community: any) => {
+            if (!community) return;
+            addToast(`Community "${community.name}" created!`)
+            queryClient.invalidateQueries({ queryKey: ["user-communities", currentUser?.id] })
+            onClose()
+            navigate(`/c/${community.handle}`)
+        },
+        onError: (err: any) => {
+            console.error(err)
+            addToast(err.message || "Failed to create community", "error")
+        }
+    })
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!formData.name || !formData.handle || !currentUser) return
 
-        setLoading(true)
-        try {
-            // 1. Create community
-            const community = await createCommunity({
-                name: formData.name,
-                handle: formData.handle.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-                description: formData.description,
-                is_private: formData.isPrivate,
-                creator_id: currentUser.id,
-            })
-
-            if (!community) throw new Error("Failed to create community")
-
-            // 2. Automatically make creator an ADMIN
-            const { error: memberError } = await (supabase
-                .from("community_members") as any)
-                .insert([
-                    {
-                        community_id: community.id,
-                        user_id: currentUser.id,
-                        role: "admin",
-                    },
-                ])
-
-            if (memberError) throw memberError
-
-            addToast(`Community "${community.name}" created!`)
-            onClose()
-            navigate(`/c/${community.handle}`)
-        } catch (err: any) {
-            console.error(err)
-            addToast(err.message || "Failed to create community", "error")
-        } finally {
-            setLoading(false)
-        }
+        createMutation.mutate({
+            name: formData.name,
+            handle: formData.handle.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+            description: formData.description,
+            is_private: formData.isPrivate,
+            creator_id: currentUser.id,
+        })
     }
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={() => !loading && onClose()}
+            onClose={() => !createMutation.isPending && onClose()}
             title="Create Community"
             className="sm:max-w-md"
         >
@@ -165,16 +152,16 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
                         variant="outline"
                         className="flex-1"
                         onClick={onClose}
-                        disabled={loading}
+                        disabled={createMutation.isPending}
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         className="flex-1"
-                        disabled={loading || !formData.name || !formData.handle}
+                        disabled={createMutation.isPending || !formData.name || !formData.handle}
                     >
-                        {loading ? <Loader2 size={18} className="animate-spin" /> : "Create"}
+                        {createMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : "Create"}
                     </Button>
                 </div>
             </form>

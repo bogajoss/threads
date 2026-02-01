@@ -691,7 +691,12 @@ export interface Database {
             }
         }
         Functions: {
-            [_: string]: never
+            mark_messages_read: {
+                Args: {
+                    p_conversation_id: string
+                }
+                Returns: void
+            }
         }
         Enums: {
             post_type: 'text' | 'image' | 'video' | 'poll' | 'repost' | 'file'

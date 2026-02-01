@@ -14,6 +14,56 @@ import {
 import { useHome } from "@/hooks"
 import { Loader2 } from "lucide-react"
 
+const HomeHeader: React.FC<any> = ({ currentUser, groupedStories, onAddStory, onStoryClick }) => (
+    <div className="bg-white dark:bg-black">
+        <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
+            <div className="flex w-max gap-4 px-4 py-4">
+                {currentUser && (
+                    <StoryCircle
+                        user={currentUser}
+                        isAddStory={true}
+                        onClick={onAddStory}
+                    />
+                )}
+                {groupedStories.map((group: any) => (
+                    <StoryCircle
+                        key={group.user.id}
+                        user={group.user}
+                        isSeen={group.isSeen}
+                        onClick={() => onStoryClick(group)}
+                    />
+                ))}
+            </div>
+            <ScrollBar orientation="horizontal" className="hidden" />
+        </ScrollArea>
+
+        {!currentUser && (
+            <div className="px-4 py-2 md:hidden">
+                <SignupCard className="p-6" />
+            </div>
+        )}
+    </div>
+)
+
+const HomeFooter: React.FC<any> = ({ isFetchingNextPage, hasMore, hasPosts }) => (
+    <div className="flex justify-center py-8">
+        {isFetchingNextPage ? (
+            <Loader2 className="animate-spin text-violet-500" size={24} />
+        ) : hasMore ? (
+            <div className="h-4" /> 
+        ) : hasPosts ? (
+            <p className="text-sm font-medium text-zinc-500">
+                You've reached the end of the feed.
+            </p>
+        ) : (
+            <div className="p-20 text-center text-zinc-500">
+                <p className="text-lg font-medium">No posts yet.</p>
+                <p className="text-sm">Be the first to share something amazing!</p>
+            </div>
+        )}
+    </div>
+)
+
 const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
     const {
         currentUser,
@@ -47,71 +97,27 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
         )
     }
 
-    const Header = () => (
-        <div className="bg-white dark:bg-black">
-            <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
-                <div className="flex w-max gap-4 px-4 py-4">
-                    {currentUser && (
-                        <StoryCircle
-                            user={currentUser}
-                            isAddStory={true}
-                            onClick={onAddStory}
-                        />
-                    )}
-                    {groupedStories.map((group: any) => {
-                        const seenStories = JSON.parse(
-                            localStorage.getItem("seenStories") || "[]"
-                        )
-                        const isSeen = seenStories.includes(group.user.id)
-
-                        return (
-                            <StoryCircle
-                                key={group.user.id}
-                                user={group.user}
-                                isSeen={isSeen}
-                                onClick={() => onStoryClick(group)}
-                            />
-                        )
-                    })}
-                </div>
-                <ScrollBar orientation="horizontal" className="hidden" />
-            </ScrollArea>
-
-            {!currentUser && (
-                <div className="px-4 py-2 md:hidden">
-                    <SignupCard className="p-6" />
-                </div>
-            )}
-        </div>
-    )
-
-    const Footer = () => (
-        <div className="flex justify-center py-8">
-            {isFetchingNextPage ? (
-                <Loader2 className="animate-spin text-violet-500" size={24} />
-            ) : hasMore ? (
-                <div className="h-4" /> 
-            ) : homePosts.length > 0 ? (
-                <p className="text-sm font-medium text-zinc-500">
-                    You've reached the end of the feed.
-                </p>
-            ) : (
-                <div className="p-20 text-center text-zinc-500">
-                    <p className="text-lg font-medium">No posts yet.</p>
-                    <p className="text-sm">Be the first to share something amazing!</p>
-                </div>
-            )}
-        </div>
-    )
-
     return (
         <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
              <Virtuoso
                 useWindowScroll
                 data={homePosts}
                 components={{
-                    Header,
-                    Footer
+                    Header: () => (
+                        <HomeHeader 
+                            currentUser={currentUser} 
+                            groupedStories={groupedStories} 
+                            onAddStory={onAddStory} 
+                            onStoryClick={onStoryClick} 
+                        />
+                    ),
+                    Footer: () => (
+                        <HomeFooter 
+                            isFetchingNextPage={isFetchingNextPage} 
+                            hasMore={hasMore} 
+                            hasPosts={homePosts.length > 0} 
+                        />
+                    )
                 }}
                 endReached={() => {
                     if (hasMore && !isFetchingNextPage) {

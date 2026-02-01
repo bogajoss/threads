@@ -128,13 +128,27 @@ export const fetchUserCommunities = async (userId: string): Promise<CommunityWit
  * Creates a new community.
  */
 export const createCommunity = async (communityData: any): Promise<Community | null> => {
-    const { data, error } = await (supabase.from("communities") as any)
+    const { data: community, error } = await (supabase.from("communities") as any)
         .insert([communityData])
         .select()
         .single();
 
     if (error) throw error;
-    return transformCommunity(data);
+
+    // Automatically make creator an ADMIN
+    const { error: memberError } = await (supabase
+        .from("community_members") as any)
+        .insert([
+            {
+                community_id: community.id,
+                user_id: communityData.creator_id,
+                role: "admin",
+            },
+        ]);
+
+    if (memberError) throw memberError;
+
+    return transformCommunity(community);
 };
 
 /**

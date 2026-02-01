@@ -5,8 +5,8 @@ import type { Story } from "@/types/index";
 /**
  * Fetches recent stories.
  */
-export const fetchStories = async (): Promise<Story[]> => {
-    const { data, error } = await supabase
+export const fetchStories = async (lastTimestamp: string | null = null, limit: number = 10): Promise<Story[]> => {
+    let query = supabase
         .from("stories")
         .select(
             `
@@ -21,7 +21,14 @@ export const fetchStories = async (): Promise<Story[]> => {
         `,
         )
         .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+    if (lastTimestamp) {
+        query = query.lt("created_at", lastTimestamp);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return (data || []).map(transformStory).filter((s): s is Story => s !== null);

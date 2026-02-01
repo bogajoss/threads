@@ -1,66 +1,21 @@
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, Hash, Loader2 } from "lucide-react"
 // @ts-ignore
 import Post from "@/components/features/post/Post"
 import { Button } from "@/components/ui"
-// @ts-ignore
-import { searchPosts } from "@/lib/api"
-import { useToast } from "@/context/ToastContext"
-import { useAuth } from "@/context/AuthContext"
+import { useHashtagFeed } from "@/hooks/pages/useHashtagFeed"
 
 const HashtagFeed = () => {
-    const { tag } = useParams()
-    const navigate = useNavigate()
-    const { currentUser } = useAuth()
-    const { addToast } = useToast()
-
-    const [posts, setPosts] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-    const [fetchingMore, setFetchingMore] = useState(false)
-    const [hasMore, setHasMore] = useState(true)
-
-    // Load initial posts
-    useEffect(() => {
-        const loadPosts = async () => {
-            setLoading(true)
-            try {
-                // Search for the hashtag (prepend # if searching content)
-                // linkify strips # for the URL, so we add it back for the search query
-                const query = `#${tag}`
-                const data = await searchPosts(query, null, 10)
-                setPosts(data)
-                setHasMore(data.length >= 10)
-            } catch (error) {
-                console.error("Failed to load hashtag posts:", error)
-                addToast("Failed to load posts", "error")
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (tag) {
-            loadPosts()
-        }
-    }, [tag, addToast])
-
-    const loadMore = async () => {
-        if (fetchingMore || !hasMore) return
-        setFetchingMore(true)
-        try {
-            const lastPost = posts[posts.length - 1]
-            const lastTimestamp = lastPost ? lastPost.sortTimestamp : null
-            const query = `#${tag}`
-            const newPosts = await searchPosts(query, lastTimestamp, 10)
-
-            if (newPosts.length < 10) setHasMore(false)
-            setPosts((prev) => [...prev, ...newPosts])
-        } catch (error: any) {
-            console.error("Failed to load more posts:", error)
-        } finally {
-            setFetchingMore(false)
-        }
-    }
+    const {
+        tag,
+        posts,
+        loading,
+        fetchingMore,
+        hasMore,
+        loadMore,
+        navigate,
+        currentUser,
+        addToast,
+    } = useHashtagFeed()
 
     return (
         <div className="min-h-screen overflow-hidden rounded-none border-zinc-100 bg-white pb-20 dark:border-zinc-800 dark:bg-black md:rounded-xl">
@@ -113,7 +68,7 @@ const HashtagFeed = () => {
                         </div>
                     ) : posts.length > 0 ? (
                         <>
-                            {posts.map((post) => (
+                            {posts.map((post: any) => (
                                 <Post
                                     key={post.feed_id || post.id}
                                     currentUser={currentUser}
@@ -128,7 +83,7 @@ const HashtagFeed = () => {
                                     <Button
                                         variant="secondary"
                                         className="w-full max-w-xs"
-                                        onClick={loadMore}
+                                        onClick={() => loadMore()}
                                         disabled={fetchingMore}
                                     >
                                         {fetchingMore && (

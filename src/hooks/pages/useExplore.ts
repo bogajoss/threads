@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useState, useMemo } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 // @ts-ignore
@@ -12,25 +12,12 @@ import {
 export const useExplore = () => {
     const { currentUser } = useAuth()
     const navigate = useNavigate()
-    const location = useLocation()
+    const [searchParams, setSearchParams] = useSearchParams()
 
-    const queryParams = new URLSearchParams(location.search)
-    const initialSearch = queryParams.get("q") || ""
-    const initialTab =
-        queryParams.get("tab") || (initialSearch ? "posts" : "communities")
-
-    const [searchQuery, setSearchQuery] = useState(initialSearch)
-    const [activeTab, setActiveTab] = useState(initialTab)
+    const searchQuery = searchParams.get("q") || ""
+    const activeTab = searchParams.get("tab") || (searchQuery ? "posts" : "communities")
+    
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-
-    // Sync state if URL changes (like clicking a new hashtag)
-    useEffect(() => {
-        if (initialSearch !== searchQuery) {
-            setSearchQuery(initialSearch)
-            if (initialSearch) setActiveTab("posts")
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialSearch])
 
     // 1. Communities Data using useInfiniteQuery
     const {
@@ -79,6 +66,8 @@ export const useExplore = () => {
         return postsInfiniteData?.pages.flatMap(page => page) || [];
     }, [postsInfiniteData]);
 
+    // Note: Ideally, community search should also be server-side. 
+    // For now, keeping client-side filtering as per original logic but can be moved to API.
     const filteredCommunities = useMemo(() => {
         let list = communitiesData
         if (searchQuery) {
@@ -96,7 +85,18 @@ export const useExplore = () => {
     }
 
     const handleSearchChange = (val: string) => {
-        setSearchQuery(val)
+        setSearchParams(prev => {
+            if (val) prev.set("q", val)
+            else prev.delete("q")
+            return prev
+        }, { replace: true })
+    }
+
+    const handleTabChange = (val: string) => {
+        setSearchParams(prev => {
+            prev.set("tab", val)
+            return prev
+        }, { replace: true })
     }
 
     return {
@@ -104,7 +104,7 @@ export const useExplore = () => {
         searchQuery,
         setSearchQuery: handleSearchChange,
         activeTab,
-        setActiveTab,
+        setActiveTab: handleTabChange,
         isCreateModalOpen,
         setIsCreateModalOpen,
         communitiesData,
