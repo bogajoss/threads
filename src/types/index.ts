@@ -27,6 +27,7 @@ export interface PostStats {
     comments: number;
     likes: number;
     reposts: number;
+    views?: number;
     mirrors?: number;
     shares?: number;
 }

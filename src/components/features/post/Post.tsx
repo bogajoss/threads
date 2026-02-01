@@ -55,8 +55,9 @@ import {
 import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
-import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment } from "@/lib/api"
+import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment, incrementPostViews } from "@/lib/api"
 import { isBangla, extractUrl, cn } from "@/lib/utils"
+import { useInView } from "react-intersection-observer"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
 import type { User, Media, CommunityShort } from "@/types"
@@ -149,6 +150,21 @@ const Post: React.FC<PostProps> = ({
     const [showReplies, setShowReplies] = useState(false)
     const [replies, setReplies] = useState<any[]>([])
     const [loadingReplies, setLoadingReplies] = useState(false)
+
+    // View Tracking
+    const { ref: viewRef, inView } = useInView({
+        threshold: 0.5, // 50% visibility
+        triggerOnce: true, // Only count once per mount
+    })
+
+    useEffect(() => {
+        if (inView && !isComment) {
+            const timer = setTimeout(() => {
+                incrementPostViews(id).catch(console.error)
+            }, 1500) // Count as view after 1.5 seconds
+            return () => clearTimeout(timer)
+        }
+    }, [inView, id, isComment])
 
     const editFileInputRef = useRef<HTMLInputElement>(null)
     const commentsRef = useRef(comments)
@@ -675,7 +691,7 @@ const Post: React.FC<PostProps> = ({
 
     if (isDetail) {
         return (
-            <div className="flex flex-col">
+            <div className="flex flex-col" ref={viewRef}>
                 <article className="p-5 dark:bg-black">
                     <div className="flex items-start justify-between">
                         <div className="flex items-start gap-x-3">
@@ -776,6 +792,12 @@ const Post: React.FC<PostProps> = ({
                     )}
 
                     <div className="mt-4 flex items-center gap-x-6 border-b border-zinc-100 pb-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+                        <div className="flex items-center gap-x-1">
+                            <span className="font-bold text-black dark:text-white">
+                                {localStats.views || 0}
+                            </span>{" "}
+                            <span className="opacity-70">Views</span>
+                        </div>
                         <div className="flex items-center gap-x-1">
                             <span className="font-bold text-black dark:text-white">
                                 {localStats.likes || 0}
@@ -936,6 +958,7 @@ const Post: React.FC<PostProps> = ({
 
     return (
         <article
+            ref={viewRef}
             onClick={onClick}
             className={`px-4 transition-all ${isComment
                 ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
@@ -1109,8 +1132,18 @@ const Post: React.FC<PostProps> = ({
                     </div>
 
                     {/* Stats Line (Threads style) */}
-                    {(localStats.comments > 0 || localStats.likes > 0) && (
+                    {(localStats.comments > 0 || localStats.likes > 0 || (localStats.views || 0) > 0) && (
                         <div className={`mt-1 flex items-center gap-x-1.5 px-0.5 ${isComment ? "text-[12px]" : "text-[14px]"} font-medium text-zinc-500 dark:text-zinc-400`}>
+                            {(localStats.views || 0) > 0 && !isComment && (
+                                <>
+                                    <span className="hover:underline">
+                                        {localStats.views} {localStats.views === 1 ? "view" : "views"}
+                                    </span>
+                                    {(localStats.comments > 0 || localStats.likes > 0) && (
+                                        <span className="opacity-50">·</span>
+                                    )}
+                                </>
+                            )}
                             {localStats.comments > 0 && (
                                 <button 
                                     className="hover:underline"

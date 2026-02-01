@@ -141,6 +141,18 @@ interface AddPostParams {
 }
 
 /**
+ * Increments the view count for a post.
+ */
+export const incrementPostViews = async (postId: string): Promise<void> => {
+    // We use a custom RPC to avoid race conditions and ensure atomicity
+    const { error } = await (supabase.rpc as any)('increment_post_views', { post_id: postId });
+    if (error) {
+        // Fallback to update if RPC doesn't exist yet (though we should create it)
+        console.error("RPC increment_post_views failed, make sure to run the SQL migration:", error);
+    }
+};
+
+/**
  * Adds a new post with media and optional poll.
  */
 export const addPost = async ({

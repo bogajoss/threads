@@ -50,6 +50,7 @@ export const transformPost = (post: any): Post | null => {
             comments: post.comments_count || 0,
             likes: post.likes_count || 0,
             reposts: post.mirrors_count || 0,
+            views: post.views_count || 0,
             shares: post.shares_count || 0,
         },
         // Handle data from either direct table query or unified view
