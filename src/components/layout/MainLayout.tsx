@@ -1,12 +1,9 @@
 import React from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import {
-    SidebarLeft,
-    SidebarRight,
-    BottomNav,
-    FeedHeader,
-    // @ts-ignore
-} from "@/components/layout"
+import SidebarLeft from "./SidebarLeft"
+import SidebarRight from "./SidebarRight"
+import BottomNav from "./BottomNav"
+import FeedHeader from "./FeedHeader"
 import { useTheme } from "@/context/ThemeContext"
 
 interface MainLayoutProps {

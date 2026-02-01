@@ -9,8 +9,6 @@ import {
     Flag,
     UserMinus,
     X,
-    Plus,
-    Film,
     Pencil,
     Share,
     Trash,
@@ -35,28 +33,26 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import {
-    VerifiedIcon,
     ShareIcon,
     ChatIcon,
-    ChevronTagIcon,
 } from "@/components/ui"
-import Linkify from "linkify-react"
-import { linkifyOptions } from "@/lib/linkify"
 // @ts-ignore
 import {
     PollDisplay,
     QuotedPost,
     ActionButton,
-    MediaGrid,
     CommentInput,
     LinkPreview,
     ShareModal,
+    PostHeader,
+    PostContent,
+    PostMedia,
 } from "@/components/features/post"
 import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
 import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment, incrementPostViews } from "@/lib/api"
-import { isBangla, extractUrl, cn } from "@/lib/utils"
+import { extractUrl } from "@/lib/utils"
 import { useInView } from "react-intersection-observer"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
@@ -144,7 +140,6 @@ const Post: React.FC<PostProps> = ({
     const [editedMedia, setEditedMedia] = useState<Media[]>(media || [])
     const [newFiles, setNewFiles] = useState<File[]>([])
     const [isUpdating, setIsUpdating] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false)
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
     const [replyTo, setReplyTo] = useState<{ handle: string, id: string } | null>(null)
     const [showReplies, setShowReplies] = useState(false)
@@ -166,7 +161,6 @@ const Post: React.FC<PostProps> = ({
         }
     }, [inView, id, isComment])
 
-    const editFileInputRef = useRef<HTMLInputElement>(null)
     const commentsRef = useRef(comments)
 
     useEffect(() => {
@@ -410,268 +404,6 @@ const Post: React.FC<PostProps> = ({
 
     const isCurrentUser = currentUser?.handle === user.handle
 
-    const renderMedia = (m: any) => {
-        if (!m) return null
-
-        const currentMedia = (isEditing ? editedMedia : m) as Media[]
-        if (
-            !currentMedia ||
-            (Array.isArray(currentMedia) && currentMedia.length === 0)
-        )
-            return null
-
-        if (isEditing) {
-            return (
-                <div className="mt-3 space-y-3">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        {/* Existing Media */}
-                        {editedMedia.map((item, idx) => (
-                            <div
-                                key={`old-${idx}`}
-                                className="group relative aspect-square overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800"
-                            >
-                                {item.type === "video" ? (
-                                    <div className="flex size-full items-center justify-center bg-zinc-100 dark:bg-zinc-900">
-                                        <Film size={24} className="text-zinc-400" />
-                                    </div>
-                                ) : (
-                                    <img
-                                        src={item.url || (item as any).src}
-                                        className="size-full object-cover"
-                                        alt=""
-                                    />
-                                )}
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setEditedMedia((prev) => prev.filter((_, i) => i !== idx))
-                                    }}
-                                    className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        ))}
-
-                        {/* Newly Selected Files */}
-                        {newFiles.map((file, idx) => (
-                            <div
-                                key={`new-${idx}`}
-                                className="group relative aspect-square overflow-hidden rounded-xl border-2 border-dashed border-violet-500 bg-violet-50/10"
-                            >
-                                {file.type.startsWith("image/") ? (
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        className="size-full object-cover"
-                                        alt=""
-                                    />
-                                ) : (
-                                    <div className="flex size-full items-center justify-center">
-                                        <Film size={24} className="animate-pulse text-violet-500" />
-                                    </div>
-                                )}
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setNewFiles((prev) => prev.filter((_, i) => i !== idx))
-                                    }}
-                                    className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black"
-                                >
-                                    <X size={16} />
-                                </button>
-                                <div className="absolute bottom-1 left-1 rounded bg-violet-600 px-1 text-[8px] font-bold text-white">
-                                    NEW
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Add More Button */}
-                        {editedMedia.length + newFiles.length < 4 && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    editFileInputRef.current?.click()
-                                }}
-                                className="relative flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-200 text-zinc-400 transition-all hover:border-violet-500 hover:bg-violet-50/5 hover:text-violet-500 dark:border-zinc-800"
-                            >
-                                <Plus size={20} />
-                                <span className="text-[10px] font-bold">Add Media</span>
-                            </button>
-                        )}
-                    </div>
-
-                    <input
-                        type="file"
-                        ref={editFileInputRef}
-                        onChange={(e) => {
-                            if (e.target.files) {
-                                const files = Array.from(e.target.files)
-                                setNewFiles((prev) => [...prev, ...files])
-                            }
-                        }}
-                        multiple
-                        className="hidden"
-                        accept="image/*,video/*"
-                    />
-                </div>
-            )
-        }
-
-        if (React.isValidElement(currentMedia)) return currentMedia
-        return <MediaGrid items={currentMedia} />
-    }
-
-    const renderContent = (c: any, className?: string) => {
-        const isTxtBangla = typeof c === "string" && isBangla(c)
-
-        if (isEditing) {
-            return (
-                <div
-                    className="mt-2 flex flex-col gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <Textarea
-                        value={editedContent}
-                        onChange={(e: any) => setEditedContent(e.target.value)}
-                        className={`min-h-[100px] w-full rounded-xl border-zinc-200 bg-zinc-50 focus:ring-violet-500 dark:border-zinc-800 dark:bg-zinc-900 ${isTxtBangla ? "font-bangla text-lg" : "font-english"}`}
-                        autoFocus
-                    />
-                    <div className="flex justify-end gap-2">
-                        <button
-                            onClick={() => {
-                                setIsEditing(false)
-                                setEditedContent(content)
-                                setEditedMedia(media || [])
-                                setNewFiles([])
-                            }}
-                            className="px-4 py-1.5 text-sm font-bold text-zinc-500 transition-colors hover:text-zinc-700 dark:hover:text-zinc-300"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleUpdate}
-                            disabled={
-                                isUpdating || !editedContent.trim() || editedContent === content
-                            }
-                            className="rounded-full bg-violet-600 px-4 py-1.5 text-sm font-bold text-white transition-all hover:bg-violet-700 disabled:opacity-50 active:scale-95"
-                        >
-                            {isUpdating ? "Saving..." : "Save"}
-                        </button>
-                    </div>
-                </div>
-            )
-        }
-
-        if (typeof c === "string") {
-            const shouldTruncate = !isDetail && c.length > 280
-            const textToProcess =
-                shouldTruncate && !isExpanded ? c.substring(0, 280) : c
-
-            return (
-                <div
-                    className={`whitespace-pre-line ${className || ""} ${isTxtBangla ? "font-bangla text-[1.15em] leading-relaxed" : "font-english text-[1.05em]"}`}
-                >
-                    <Linkify
-                        options={{
-                            ...linkifyOptions,
-                            render: ({ attributes, content }) => {
-                                const { href, ...props } = attributes
-                                const origin = window.location.origin
-
-                                // 1. Handle our custom internal hashtag link
-                                if (href.includes("internal.tag/")) {
-                                    const tag = decodeURIComponent(href.split("internal.tag/")[1]);
-                                    return (
-                                        <span
-                                            key={content}
-                                            {...props}
-                                            className={cn(
-                                                "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400 font-bangla",
-                                                props.className
-                                            )}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                navigate(`/tags/${tag}`)
-                                            }}
-                                        >
-                                            #{tag}
-                                        </span>
-                                    )
-                                }
-
-                                // 2. Handle internal app links
-                                let internalPath = null
-                                if (href.startsWith("/")) {
-                                    internalPath = href
-                                } else if (href.startsWith(origin)) {
-                                    internalPath = href.replace(origin, "")
-                                }
-
-                                if (internalPath) {
-                                    return (
-                                        <span
-                                            key={content}
-                                            {...props}
-                                            className={cn(
-                                                "cursor-pointer font-medium text-violet-600 hover:underline dark:text-violet-400",
-                                                props.className
-                                            )}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                navigate(internalPath!)
-                                            }}
-                                        >
-                                            {content}
-                                        </span>
-                                    )
-                                }
-
-                                // 3. Handle all other external links
-                                return (
-                                    <a
-                                        key={content}
-                                        href={href}
-                                        {...props}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={cn(
-                                            "text-violet-600 hover:underline dark:text-violet-400",
-                                            props.className
-                                        )}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        {content}
-                                    </a>
-                                )
-                            },
-                        }}
-                    >
-                        {/* 
-                            Pre-processing text to wrap Bangla hashtags in a URL-like format 
-                            that Linkify can process as a single unit without breaking Unicode clustering.
-                        */}
-                        {typeof textToProcess === "string"
-                            ? textToProcess.replace(/#([\u0980-\u09FF\w]+)/g, "https://internal.tag/$1")
-                            : textToProcess}
-                    </Linkify>
-                    {shouldTruncate && !isExpanded && "..."}
-                    {shouldTruncate && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                setIsExpanded(!isExpanded)
-                            }}
-                            className="ml-1 cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400"
-                        >
-                            {isExpanded ? "Show less" : "See more"}
-                        </button>
-                    )}
-                </div>
-            )
-        }
-        return c
-    }
-
     const handleReplyClick = (handle: string, commentId?: string) => {
         if (commentId) {
             // If this is already a comment (reply), its parent_id is the main thread.
@@ -693,78 +425,14 @@ const Post: React.FC<PostProps> = ({
         return (
             <div className="flex flex-col" ref={viewRef}>
                 <article className="p-5 dark:bg-black">
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-x-3">
-                            <button
-                                className="shrink-0"
-                                onClick={() => onUserClick && onUserClick(user.handle)}
-                            >
-                                <Avatar className="size-12 border border-zinc-200 dark:border-zinc-700">
-                                    <AvatarImage
-                                        src={user.avatar}
-                                        alt={user.handle}
-                                        className="object-cover"
-                                    />
-                                    <AvatarFallback>
-                                        {user.handle[0]?.toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </button>
-                            <div className="flex min-w-0 flex-1 flex-col">
-                                <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
-                                    <div className="flex min-w-0 max-w-full items-center gap-1.5">
-                                        <button
-                                            className="flex shrink-0 items-center gap-1 text-base font-bold text-zinc-900 hover:underline sm:text-lg dark:text-white"
-                                            onClick={() => onUserClick && onUserClick(user.handle)}
-                                        >
-                                            <span className="max-w-[200px] truncate sm:max-w-none">
-                                                {user.handle}
-                                            </span>
-                                            {user.verified && (
-                                                <VerifiedIcon size={16} className="text-blue-500" />
-                                            )}
-                                        </button>
-
-                                        {community && (
-                                            <div className="flex min-w-0 items-center gap-1 text-zinc-500">
-                                                <ChevronTagIcon
-                                                    size={14}
-                                                    className="shrink-0 text-zinc-400"
-                                                />
-                                                <button
-                                                    className="flex items-center gap-1 text-[14px] font-bold text-zinc-900 hover:underline sm:text-[15px] dark:text-zinc-100"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        navigate(`/c/${community.handle}`)
-                                                    }}
-                                                >
-                                                    <Avatar className="size-4 shrink-0 border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
-                                                        <AvatarImage
-                                                            src={community.avatar}
-                                                            alt={community.name}
-                                                            className="object-cover"
-                                                        />
-                                                        <AvatarFallback className="text-[8px] font-bold text-zinc-500">
-                                                            {community.name?.[0]?.toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="max-w-[200px] truncate sm:max-w-none">
-                                                        {community.name}
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <span className="text-xs font-medium text-zinc-500 sm:text-sm dark:text-zinc-400">
-                                    @{user.handle}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="-mt-1 flex items-center gap-2">
-                            <span className="whitespace-nowrap text-[13px] text-zinc-500 sm:text-sm dark:text-zinc-400">
-                                {timeAgo || "Recent"}
-                            </span>
+                    <PostHeader
+                        user={user}
+                        timeAgo={timeAgo}
+                        community={community}
+                        onUserClick={onUserClick}
+                        isDetail={true}
+                        showAvatar={true}
+                        actionsMenu={
                             <PostActionsMenu
                                 trigger={
                                     <button
@@ -775,15 +443,37 @@ const Post: React.FC<PostProps> = ({
                                     </button>
                                 }
                             />
-                        </div>
-                    </div>
-                    <div
-                        className={`mt-4 whitespace-pre-line break-words text-lg leading-relaxed text-zinc-900 sm:text-xl sm:leading-8 dark:text-zinc-100`}
-                    >
-                        {renderContent(content, contentClass)}
-                    </div>
+                        }
+                    />
+
+                    <PostContent
+                        content={content}
+                        isDetail={true}
+                        isEditing={isEditing}
+                        editedContent={editedContent}
+                        setEditedContent={setEditedContent}
+                        onCancelEdit={() => {
+                            setIsEditing(false)
+                            setEditedContent(content)
+                            setEditedMedia(media || [])
+                            setNewFiles([])
+                        }}
+                        onSaveEdit={handleUpdate}
+                        isUpdating={isUpdating}
+                        contentClass={contentClass}
+                    />
+
                     {extractUrl(content) && <LinkPreview url={extractUrl(content)!} />}
-                    {renderMedia(media)}
+                    
+                    <PostMedia
+                        media={media}
+                        isEditing={isEditing}
+                        editedMedia={editedMedia}
+                        setEditedMedia={setEditedMedia}
+                        newFiles={newFiles}
+                        setNewFiles={setNewFiles}
+                    />
+
                     {poll && <PollDisplay poll={poll} />}
                     {quotedPost && (
                         <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-700">
@@ -981,7 +671,7 @@ const Post: React.FC<PostProps> = ({
             )}
 
             <div className="flex items-start gap-x-3">
-                <div className="flex shrink-0 flex-col items-center self-stretch py-0.5">
+                <div className="flex shrink-0 flex-col items-center self-stretch pt-0.5">
                     <div
                         className="cursor-pointer"
                         onClick={(e) => {
@@ -1004,60 +694,13 @@ const Post: React.FC<PostProps> = ({
                     )}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
-                            <div className="flex min-w-0 max-w-full items-center gap-1.5">
-                                <button
-                                    className={`flex shrink-0 items-center gap-1 ${isComment ? "text-[14px]" : "text-[15px]"} font-bold text-zinc-900 hover:underline dark:text-white`}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onUserClick && onUserClick(user.handle)
-                                    }}
-                                >
-                                    <span className="max-w-[150px] truncate sm:max-w-none">
-                                        {user.handle}
-                                    </span>
-                                    {user.verified && (
-                                        <VerifiedIcon size={isComment ? 12 : 14} className="text-blue-500" />
-                                    )}
-                                </button>
-
-                                {community && (
-                                    <div className="flex min-w-0 items-center gap-1 text-zinc-500">
-                                        <ChevronTagIcon
-                                            size={12}
-                                            className="shrink-0 text-zinc-400"
-                                        />
-                                        <button
-                                            className="flex items-center gap-1 text-[13px] font-bold text-zinc-900 hover:underline dark:text-zinc-100"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                navigate(`/c/${community.handle}`)
-                                            }}
-                                        >
-                                            <Avatar className="size-3.5 shrink-0 border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
-                                                <AvatarImage
-                                                    src={community.avatar}
-                                                    alt={community.name}
-                                                    className="object-cover"
-                                                />
-                                                <AvatarFallback className="text-[6px] font-bold text-zinc-500">
-                                                    {community.name?.[0]?.toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <span className="max-w-[150px] truncate sm:max-w-none">
-                                                {community.name}
-                                            </span>
-                                        </button>
-                                    </div>
-                                )}
-
-                            </div>
-                        </div>
-                        <div className="-mt-1 flex items-center gap-2">
-                            <span className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                                {timeAgo || "Recent"}
-                            </span>
+                    <PostHeader
+                        user={user}
+                        timeAgo={timeAgo}
+                        community={community}
+                        onUserClick={onUserClick}
+                        isComment={isComment}
+                        actionsMenu={
                             <PostActionsMenu
                                 trigger={
                                     <button
@@ -1068,18 +711,35 @@ const Post: React.FC<PostProps> = ({
                                     </button>
                                 }
                             />
-                        </div>
-                    </div>
+                        }
+                    />
 
-                    <div
-                        className={`mt-0.5 whitespace-pre-line break-words text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100`}
-                    >
-                        {renderContent(content, contentClass)}
-                    </div>
+                    <PostContent
+                        content={content}
+                        isEditing={isEditing}
+                        editedContent={editedContent}
+                        setEditedContent={setEditedContent}
+                        onCancelEdit={() => {
+                            setIsEditing(false)
+                            setEditedContent(content)
+                            setEditedMedia(media || [])
+                            setNewFiles([])
+                        }}
+                        onSaveEdit={handleUpdate}
+                        isUpdating={isUpdating}
+                        contentClass={contentClass}
+                    />
 
                     {/* Attachments */}
                     {extractUrl(content) && <LinkPreview url={extractUrl(content)!} />}
-                    {renderMedia(media)}
+                    <PostMedia
+                        media={media}
+                        isEditing={isEditing}
+                        editedMedia={editedMedia}
+                        setEditedMedia={setEditedMedia}
+                        newFiles={newFiles}
+                        setNewFiles={setNewFiles}
+                    />
                     {poll && <PollDisplay poll={poll} />}
 
                     {quotedPost && (

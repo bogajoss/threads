@@ -254,27 +254,11 @@ COMMENT ON COLUMN public.unified_posts.community_id IS 'FK communities(id)';
 COMMENT ON COLUMN public.unified_posts.reposter_id IS 'FK users(id)';
 
 -- ==========================================
--- 8. SECURITY (RLS DISABLED)
+-- 8. SECURITY (RLS ENABLED IN MIGRATIONS)
 -- ==========================================
 
-ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.follows DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.communities DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.community_members DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.posts DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.likes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comment_likes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reposts DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.hashtags DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.post_hashtags DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.link_previews DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.conversations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.conversation_participants DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.stories DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.message_reactions DISABLE ROW LEVEL SECURITY;
+-- RLS should be enabled and policies defined for all tables.
+-- See migration_v6_rls_policies.sql for details.
 
 -- ==========================================
 -- 9. STORAGE & REALTIME

@@ -149,6 +149,41 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 7. NOTIFICATIONS
 -- ==========================================
 
+CREATE OR REPLACE FUNCTION public.handle_mentions()
+RETURNS trigger AS $$
+DECLARE
+  mention_username TEXT;
+  mentioned_user_id UUID;
+BEGIN
+  IF NEW.content IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  -- Extract mentions using regex (matching @username)
+  -- regexp_matches returns a set of text arrays, unnest expands it
+  FOR mention_username IN 
+    SELECT unnest(regexp_matches(NEW.content, '@([[:alnum:]_]+)', 'g'))
+  LOOP
+    -- Find the user ID for this username (case-insensitive)
+    SELECT id INTO mentioned_user_id 
+    FROM public.users 
+    WHERE lower(username) = lower(mention_username);
+    
+    -- If user exists and is not the actor (don't notify self-mentions)
+    IF mentioned_user_id IS NOT NULL AND mentioned_user_id != NEW.user_id THEN
+      INSERT INTO public.notifications (recipient_id, actor_id, type, post_id)
+      VALUES (
+        mentioned_user_id, 
+        NEW.user_id, 
+        'mention', 
+        CASE WHEN TG_TABLE_NAME = 'comments' THEN NEW.post_id ELSE NEW.id END
+      );
+    END IF;
+  END LOOP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 CREATE OR REPLACE FUNCTION public.create_notification()
 RETURNS trigger AS $$
 BEGIN
@@ -224,7 +259,21 @@ DROP TRIGGER IF EXISTS on_post_hashtags ON public.posts;
 CREATE TRIGGER on_post_hashtags AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.extract_hashtags();
 
 -- Notifications
+DROP TRIGGER IF EXISTS on_like_notification ON public.likes;
 CREATE TRIGGER on_like_notification AFTER INSERT ON public.likes FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+
+DROP TRIGGER IF EXISTS on_follow_notification ON public.follows;
 CREATE TRIGGER on_follow_notification AFTER INSERT ON public.follows FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+
+DROP TRIGGER IF EXISTS on_comment_notification ON public.comments;
 CREATE TRIGGER on_comment_notification AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+
+DROP TRIGGER IF EXISTS on_repost_notification ON public.reposts;
 CREATE TRIGGER on_repost_notification AFTER INSERT ON public.reposts FOR EACH ROW EXECUTE FUNCTION public.create_notification();
+
+-- Mentions
+DROP TRIGGER IF EXISTS on_post_mentions ON public.posts;
+CREATE TRIGGER on_post_mentions AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.handle_mentions();
+
+DROP TRIGGER IF EXISTS on_comment_mentions ON public.comments;
+CREATE TRIGGER on_comment_mentions AFTER INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.handle_mentions();

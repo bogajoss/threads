@@ -104,7 +104,7 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             title="Create New Group"
             className="sm:max-w-md"
         >
-            <div className="space-y-6">
+            <div className="p-5 space-y-6">
                 <div className="flex flex-col items-center gap-4 py-2">
                     <div 
                         className="group relative cursor-pointer"

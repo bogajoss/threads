@@ -10,37 +10,24 @@ import { useLightbox } from "@/context/LightboxContext"
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext"
 
 // Layout & Components
-// @ts-ignore
 import { MainLayout, PageTransition } from "@/components/layout"
-// @ts-ignore
 import { GlobalModals } from "@/components/features/modals"
 // @ts-ignore
 import StoryViewer from "@/components/features/story/StoryViewer"
-// @ts-ignore
 import { ImageViewer } from "@/components/ui"
 import AuthForm from "@/components/features/auth/AuthForm"
 import { Loader2 } from "lucide-react"
 
 // Pages (Lazy Loaded)
-// @ts-ignore
 const Home = lazy(() => import("@/pages/Home"))
-// @ts-ignore
 const Explore = lazy(() => import("@/pages/Explore"))
-// @ts-ignore
 const Reels = lazy(() => import("@/pages/Reels"))
-// @ts-ignore
 const Messages = lazy(() => import("@/pages/Messages"))
-// @ts-ignore
 const Notifications = lazy(() => import("@/pages/Notifications"))
-// @ts-ignore
 const Profile = lazy(() => import("@/pages/Profile"))
-// @ts-ignore
 const Community = lazy(() => import("@/pages/Community"))
-// @ts-ignore
 const PostDetails = lazy(() => import("@/pages/PostDetails"))
-// @ts-ignore
 const Settings = lazy(() => import("@/pages/Settings"))
-// @ts-ignore
 const HashtagFeed = lazy(() => import("@/pages/HashtagFeed"))
 
 import { Plus } from "lucide-react"
@@ -75,7 +62,6 @@ export default function Sysm() {
                         <AuthForm
                             type={authMode}
                             onComplete={() => setAuthMode(null)}
-                            // @ts-ignore
                             onSwitch={() =>
                                 setAuthMode(authMode === "login" ? "signup" : "login")
                             }
@@ -102,7 +88,6 @@ export default function Sysm() {
                             element={
                                 <PageTransition>
                                     <Home
-                                        // @ts-ignore
                                         onStoryClick={setViewingStory}
                                         onAddStory={() => setIsStoryModalOpen(true)}
                                     />
@@ -221,6 +206,7 @@ export default function Sysm() {
                 postCommunity={postCommunity}
             />
 
+            {/* @ts-ignore */}
             {viewingStory && (
                 <StoryViewer
                     story={viewingStory}
@@ -241,7 +227,6 @@ export default function Sysm() {
                 />
             )}
 
-            {/* @ts-ignore */}
             {isOpen && (
                 <ImageViewer
                     images={images.map((img) => (typeof img === "string" ? img : img.url))}
