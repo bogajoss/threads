@@ -56,7 +56,7 @@ import {
 import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
-import { fetchCommentsByPostId, addComment, uploadFile, deleteComment } from "@/lib/api"
+import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment } from "@/lib/api"
 import { isBangla, extractUrl, cn, isValidUUID } from "@/lib/utils"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
@@ -86,10 +86,10 @@ interface PostProps {
     isDetail?: boolean
     initialComments?: any[]
     onDelete?: (id: string) => void
+    onUpdate?: (id: string, content: string, media: Media[]) => void
     isComment?: boolean
     onReply?: (handle: string, commentId?: string) => void
     community?: CommunityShort | null
-    feed_id?: string
     parent_id?: string | null
     post_id?: string
 }
@@ -112,9 +112,11 @@ const Post: React.FC<PostProps> = ({
     isDetail,
     initialComments,
     onDelete,
+    onUpdate,
     isComment,
     onReply,
     community,
+    parent_id,
     post_id,
 }) => {
     const navigate = useNavigate()
@@ -207,14 +209,25 @@ const Post: React.FC<PostProps> = ({
             // 2. Combine remaining old media + new uploaded media
             const finalMedia = [...editedMedia, ...uploadedNewMedia]
 
-            await updatePost(id, { content: editedContent, media: finalMedia })
+            if (isComment) {
+                await updateComment(id, { content: editedContent, media: finalMedia })
+            } else {
+                await updatePost(id, { content: editedContent, media: finalMedia })
+            }
 
             setNewFiles([])
             setIsEditing(false)
-            if (showToast) showToast("Post updated")
+            if (showToast) showToast(`${isComment ? "Comment" : "Post"} updated`)
+            if (onUpdate) onUpdate(id, editedContent, finalMedia)
+            
+            // For comments, we might want to trigger a local refresh or wait for cache invalidation
+            // Since comments are managed by local state in Post.tsx (initialComments), 
+            // we should probably update the local state too if we want immediate feedback
+            // or just rely on the parent's re-render if using React Query.
+            // However, in Post.tsx, we have a local comments state.
         } catch (err) {
-            console.error("Failed to update post:", err)
-            if (showToast) showToast("Failed to update post")
+            console.error(`Failed to update ${isComment ? "comment" : "post"}:`, err)
+            if (showToast) showToast(`Failed to update ${isComment ? "comment" : "post"}`)
         } finally {
             setIsUpdating(false)
         }
@@ -658,14 +671,17 @@ const Post: React.FC<PostProps> = ({
 
     const handleReplyClick = (handle: string, commentId?: string) => {
         if (commentId) {
-            setReplyTo({ handle, id: commentId })
+            // If this is already a comment (reply), its parent_id is the main thread.
+            // If it has no parent_id, it IS the main thread.
+            const targetParentId = isComment ? (parent_id || id) : commentId;
+            setReplyTo({ handle, id: targetParentId })
         } else {
             setReplyTo(null)
         }
         setNewComment((prev) => {
             const mention = `@${handle} `
             if (prev.includes(mention)) return prev
-            return prev + mention
+            return mention + prev // Prepend mention for clarity
         })
         document.getElementById("comment-input")?.focus()
     }
@@ -878,6 +894,15 @@ const Post: React.FC<PostProps> = ({
                                             prev.filter((pc) => pc.id !== deletedId)
                                         )
                                     }
+                                    onUpdate={(updatedId, content, media) =>
+                                        setComments((prev) =>
+                                            prev.map((pc) =>
+                                                pc.id === updatedId
+                                                    ? { ...pc, content, media }
+                                                    : pc
+                                            )
+                                        )
+                                    }
                                     // Fix missing props
                                     stats={{
                                         likes: c.stats?.likes || 0,
@@ -923,9 +948,9 @@ const Post: React.FC<PostProps> = ({
     return (
         <article
             onClick={onClick}
-            className={`px-4 py-4 transition-all ${isComment
-                ? "border-b border-zinc-100/50 bg-transparent last:border-0 hover:bg-zinc-50/50 dark:border-zinc-800/50 dark:hover:bg-zinc-800/30"
-                : "border-b border-zinc-100 bg-white hover:bg-zinc-50/30 dark:border-zinc-800 dark:bg-black dark:hover:bg-white/[0.02]"
+            className={`px-4 transition-all ${isComment
+                ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
+                : "py-4 border-b border-zinc-100 bg-white hover:bg-zinc-50/30 dark:border-zinc-800 dark:bg-black dark:hover:bg-white/[0.02]"
                 } ${onClick ? "cursor-pointer" : ""}`}
         >
             {repostedBy && (
@@ -952,13 +977,13 @@ const Post: React.FC<PostProps> = ({
                             onUserClick && onUserClick(user.handle)
                         }}
                     >
-                        <Avatar className="size-10 border-0 shadow-sm">
+                        <Avatar className={`${isComment ? "size-8" : "size-10"} border-0 shadow-sm`}>
                             <AvatarImage
                                 src={user.avatar}
                                 alt={user.handle}
                                 className="object-cover"
                             />
-                            <AvatarFallback>{user.handle[0]?.toUpperCase()}</AvatarFallback>
+                            <AvatarFallback className="text-xs">{user.handle[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
                     </div>
                     {/* Vertical line connector (Threads style) */}
@@ -1012,7 +1037,7 @@ const Post: React.FC<PostProps> = ({
                         <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
                             <div className="flex min-w-0 max-w-full items-center gap-1.5">
                                 <button
-                                    className="flex shrink-0 items-center gap-1 text-[15px] font-bold text-zinc-900 hover:underline dark:text-white"
+                                    className={`flex shrink-0 items-center gap-1 ${isComment ? "text-[14px]" : "text-[15px]"} font-bold text-zinc-900 hover:underline dark:text-white`}
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         onUserClick && onUserClick(user.handle)
@@ -1022,7 +1047,7 @@ const Post: React.FC<PostProps> = ({
                                         {user.handle}
                                     </span>
                                     {user.verified && (
-                                        <VerifiedIcon size={14} className="text-blue-500" />
+                                        <VerifiedIcon size={isComment ? 12 : 14} className="text-blue-500" />
                                     )}
                                 </button>
 
@@ -1099,15 +1124,17 @@ const Post: React.FC<PostProps> = ({
                     )}
 
                     {/* Action Buttons */}
-                    <div className="mt-3 flex items-center gap-x-1">
+                    <div className={`flex items-center gap-x-1 ${isComment ? "mt-1.5" : "mt-3"}`}>
                         <ActionButton
                             icon={Heart}
+                            size={isComment ? 16 : 18}
                             onClick={handleLike}
                             active={liked}
                             activeColorClass="text-rose-500"
                         />
                         <ActionButton
                             icon={MessageCircle}
+                            size={isComment ? 16 : 18}
                             onClick={(e) => {
                                 e?.stopPropagation()
                                 onReply ? onReply(user.handle, id) : onClick && onClick()
@@ -1115,6 +1142,7 @@ const Post: React.FC<PostProps> = ({
                         />
                         <ActionButton
                             icon={Repeat2}
+                            size={isComment ? 16 : 18}
                             onClick={handleRepost}
                             active={reposted}
                             activeColorClass="text-emerald-500"
@@ -1132,7 +1160,7 @@ const Post: React.FC<PostProps> = ({
 
                     {/* Stats Line (Threads style) */}
                     {(localStats.comments > 0 || localStats.likes > 0) && (
-                        <div className="mt-1 flex items-center gap-x-1.5 px-0.5 text-[14px] font-medium text-zinc-500 dark:text-zinc-400">
+                        <div className={`mt-1 flex items-center gap-x-1.5 px-0.5 ${isComment ? "text-[12px]" : "text-[14px]"} font-medium text-zinc-500 dark:text-zinc-400`}>
                             {localStats.comments > 0 && (
                                 <button 
                                     className="hover:underline"
@@ -1158,35 +1186,54 @@ const Post: React.FC<PostProps> = ({
 
                     {/* Nested Replies */}
                     {showReplies && (
-                        <div className="mt-2 space-y-2 border-l-2 border-zinc-100 pl-4 dark:border-zinc-800">
+                        <div className="relative mt-2 space-y-0">
+                            {/* Vertical connector line for the whole group */}
+                            <div className="absolute left-[19px] top-0 bottom-4 w-0.5 bg-zinc-100 dark:bg-zinc-800" />
+                            
                             {loadingReplies ? (
-                                <div className="flex py-2">
-                                    <Loader2 size={16} className="animate-spin text-violet-500" />
+                                <div className="flex py-4 pl-12">
+                                    <Loader2 size={18} className="animate-spin text-violet-500" />
                                 </div>
                             ) : (
-                                replies.map((reply) => (
-                                    <Post
-                                        key={reply.id}
-                                        {...reply}
-                                        isComment={true}
-                                        post_id={post_id}
-                                        onReply={onReply}
-                                        onUserClick={onUserClick}
-                                        currentUser={currentUser}
-                                        showToast={showToast}
-                                        onDelete={(deletedId) =>
-                                            setReplies((prev) =>
-                                                prev.filter((pr) => pr.id !== deletedId)
-                                            )
-                                        }
-                                        stats={{
-                                            likes: reply.stats?.likes || 0,
-                                            comments: reply.stats?.comments || 0,
-                                            reposts: reply.stats?.reposts || 0,
-                                        }}
-                                        timeAgo={reply.timeAgo || reply.created_at}
-                                    />
-                                ))
+                                <div className="flex flex-col">
+                                    {replies.map((reply) => (
+                                        <div key={reply.id} className="relative">
+                                            {/* Horizontal small elbow connector */}
+                                            <div className="absolute left-[19px] top-5 h-0.5 w-4 bg-zinc-100 dark:bg-zinc-800" />
+                                            <div className="pl-6">
+                                                <Post
+                                                    {...reply}
+                                                    isComment={true}
+                                                    post_id={post_id}
+                                                    onReply={onReply}
+                                                    onUserClick={onUserClick}
+                                                    currentUser={currentUser}
+                                                    showToast={showToast}
+                                                    onDelete={(deletedId) =>
+                                                        setReplies((prev) =>
+                                                            prev.filter((pr) => pr.id !== deletedId)
+                                                        )
+                                                    }
+                                                    onUpdate={(updatedId, content, media) =>
+                                                        setReplies((prev) =>
+                                                            prev.map((pr) =>
+                                                                pr.id === updatedId
+                                                                    ? { ...pr, content, media }
+                                                                    : pr
+                                                            )
+                                                        )
+                                                    }
+                                                    stats={{
+                                                        likes: reply.stats?.likes || 0,
+                                                        comments: reply.stats?.comments || 0,
+                                                        reposts: reply.stats?.reposts || 0,
+                                                    }}
+                                                    timeAgo={reply.timeAgo || reply.created_at}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}

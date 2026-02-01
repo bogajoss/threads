@@ -144,6 +144,15 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
                                             prev.filter((pc) => pc.id !== deletedId)
                                         )
                                     }
+                                    onUpdate={(updatedId, content, media) =>
+                                        setComments((prev) =>
+                                            prev.map((pc) =>
+                                                pc.id === updatedId
+                                                    ? { ...pc, content, media }
+                                                    : pc
+                                            )
+                                        )
+                                    }
                                 />
                             ))}
                             {hasMore && (

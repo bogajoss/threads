@@ -15,6 +15,7 @@ const PostDetails = () => {
         navigate,
         handleUserClick,
         handleDelete,
+        handleUpdate,
     } = usePostDetails()
 
     if (isLoading) {
@@ -60,6 +61,7 @@ const PostDetails = () => {
                     showToast={addToast}
                     onUserClick={handleUserClick}
                     onDelete={handleDelete}
+                    onUpdate={handleUpdate}
                 />
             </div>
         </div>

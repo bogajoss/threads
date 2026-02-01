@@ -81,10 +81,7 @@ const Messages: React.FC = () => {
                     messages={localMessages}
                     onBack={() => navigate("/messages")}
                     onSendMessage={sendMessage}
-                    currentUser={currentUser}
-                    onTyping={(isTyping: boolean) =>
-                        sendTypingStatus(selectedConversation.id, isTyping)
-                    }
+                    onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
                     isLoading={isMsgLoading}
                     isTyping={!!currentIsTyping}
                     isOnline={!!otherUserIsOnline}

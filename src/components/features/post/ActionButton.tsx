@@ -8,6 +8,7 @@ interface ActionButtonProps {
     onClick?: (e: React.MouseEvent) => void
     active?: boolean
     activeColorClass?: string
+    size?: number
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({
@@ -17,6 +18,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     onClick,
     active,
     activeColorClass = "text-violet-600",
+    size = 18,
 }) => {
     return (
         <button
@@ -31,7 +33,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
                 className={`rounded-full p-2 transition-colors ${active ? "" : "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800"}`}
             >
                 <Icon
-                    size={18}
+                    size={size}
                     strokeWidth={active ? 2.5 : 2}
                     className={active ? "fill-current" : ""}
                 />

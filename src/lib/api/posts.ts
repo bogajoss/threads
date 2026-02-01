@@ -208,6 +208,14 @@ export const updatePost = async (postId: string, data: any): Promise<void> => {
 };
 
 /**
+ * Updates a comment's content or media by ID.
+ */
+export const updateComment = async (commentId: string, data: any): Promise<void> => {
+    const { error } = await (supabase.from("comments") as any).update(data).eq("id", commentId);
+    if (error) throw error;
+};
+
+/**
  * Fetches comments for a post with pagination.
  */
 export const fetchCommentsByPostId = async (

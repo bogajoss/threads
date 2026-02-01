@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
 // @ts-ignore
@@ -11,6 +11,7 @@ export const usePostDetails = () => {
     const navigate = useNavigate()
     const { currentUser } = useAuth()
     const { addToast } = useToast()
+    const queryClient = useQueryClient()
 
     const {
         data: post,
@@ -36,6 +37,13 @@ export const usePostDetails = () => {
         navigate(-1)
     }
 
+    const handleUpdate = (id: string, content: string, media: any[]) => {
+        queryClient.setQueryData(["post", id], (old: any) => {
+            if (!old) return old;
+            return { ...old, content, media };
+        });
+    }
+
     return {
         post,
         isLoading,
@@ -45,5 +53,6 @@ export const usePostDetails = () => {
         navigate,
         handleUserClick,
         handleDelete,
+        handleUpdate,
     }
 }

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react"
 import {
     ArrowLeft,
-    MoreVertical,
     Send,
     Smile,
     Loader2,
@@ -22,14 +21,6 @@ import {
     AvatarFallback,
     TypingIndicator,
 } from "@/components/ui"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 // @ts-ignore
 import { useTimeAgo } from "@/hooks"
 import { useLightbox } from "@/context/LightboxContext"
@@ -52,7 +43,6 @@ import EmojiPicker from "@/components/ui/emoji-picker"
 import Linkify from "linkify-react"
 import { linkifyOptions } from "@/lib/linkify"
 import { useNavigate } from "react-router-dom"
-import type { User } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -68,7 +58,6 @@ interface ChatWindowProps {
         replyToId?: string
     ) => void
     onDeleteMessage?: (msgId: string) => void
-    currentUser: User | null
     onTyping: (isTyping: boolean) => void
     isLoading: boolean
     isTyping: boolean
@@ -81,7 +70,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     onBack,
     onSendMessage,
     onDeleteMessage,
-    currentUser,
     onTyping,
     isLoading,
     isTyping,
@@ -90,7 +78,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const navigate = useNavigate()
     const { openLightbox } = useLightbox()
     const [text, setText] = useState("")
-    const [isUploading, setIsUploading] = useState(false)
+    const [_isUploading, setIsUploading] = useState(false)
     const [attachments, setAttachments] = useState<any[]>([])
     const [isEmojiOpen, setIsEmojiOpen] = useState(false)
     const [replyingTo, setReplyingTo] = useState<any | null>(null)
@@ -258,7 +246,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             </Avatar>
                             <h2 className="text-xl font-bold dark:text-white">{conversation.user.name}</h2>
                             <p className="text-zinc-500 text-sm mb-4">You're friends on AntiGravity</p>
-                            <Button variant="outline" size="sm" className="rounded-full h-8 text-xs">
+                            <Button variant="outline" className="rounded-full h-8 text-xs">
                                 View Profile
                             </Button>
                         </div>
