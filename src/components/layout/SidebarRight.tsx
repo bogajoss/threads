@@ -59,33 +59,36 @@ const SidebarRight = () => {
                 </div>
 
                 {/* Trending Section */}
-                <div className="rounded-2xl border border-[--border] bg-zinc-50 p-4 dark:bg-zinc-900">
-                    <h3 className="mb-4 px-2 text-xl font-extrabold text-[--foreground]">
+                <div className="rounded-2xl border border-[--border] bg-[--card] overflow-hidden">
+                    <h3 className="px-4 pt-4 pb-2 text-xl font-black text-[--foreground]">
                         What's happening
                     </h3>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col">
                         {trendingHashtags.map((topic: any) => (
                             <div
                                 key={topic.id}
                                 onClick={() =>
                                     navigate(`/tags/${topic.name.replace(/^#/, "")}`)
                                 }
-                                className="group cursor-pointer rounded-xl px-3 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                className="group cursor-pointer px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
                             >
-                                <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                                <div className="text-[13px] font-medium text-zinc-500 dark:text-zinc-400">
                                     Trending
                                 </div>
-                                <div className="font-bold text-[--foreground]">
+                                <div className="text-[15px] font-bold text-[--foreground] group-hover:text-violet-500 transition-colors">
                                     #{topic.name.replace(/^#/, "")}
                                 </div>
-                                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <div className="text-[13px] text-zinc-500 dark:text-zinc-400">
                                     {topic.usage_count} posts
                                 </div>
                             </div>
                         ))}
                         {trendingHashtags.length === 0 && (
-                            <p className="px-2 text-sm text-zinc-500">No trends yet</p>
+                            <p className="px-4 py-6 text-sm text-zinc-500 text-center">No trends yet</p>
                         )}
+                        <button className="w-full px-4 py-4 text-left text-violet-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors text-sm font-medium">
+                            Show more
+                        </button>
                     </div>
                 </div>
 
