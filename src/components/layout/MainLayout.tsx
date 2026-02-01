@@ -45,7 +45,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
                             </div>
                         )}
 
-                        <div className="w-full">
+                        <div className="w-full min-w-0">
                             <Outlet />
                         </div>
                     </div>
