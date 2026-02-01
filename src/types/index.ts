@@ -80,8 +80,10 @@ export interface Comment {
     content: string;
     media: Media[] | null;
     created_at: string;
+    parent_id?: string | null;
     stats: {
         likes: number;
+        comments?: number;
     };
     user: User;
     timeAgo: string;

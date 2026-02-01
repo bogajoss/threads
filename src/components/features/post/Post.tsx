@@ -56,7 +56,7 @@ import {
 import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
-import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api"
+import { fetchCommentsByPostId, addComment, uploadFile, deleteComment } from "@/lib/api"
 import { isBangla, extractUrl, cn, isValidUUID } from "@/lib/utils"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
@@ -87,9 +87,11 @@ interface PostProps {
     initialComments?: any[]
     onDelete?: (id: string) => void
     isComment?: boolean
-    onReply?: (handle: string) => void
+    onReply?: (handle: string, commentId?: string) => void
     community?: CommunityShort | null
     feed_id?: string
+    parent_id?: string | null
+    post_id?: string
 }
 
 const Post: React.FC<PostProps> = ({
@@ -113,6 +115,7 @@ const Post: React.FC<PostProps> = ({
     isComment,
     onReply,
     community,
+    post_id,
 }) => {
     const navigate = useNavigate()
     const {
@@ -125,12 +128,14 @@ const Post: React.FC<PostProps> = ({
     } = usePostInteraction(id, stats, currentUser, showToast || (() => { }))
 
     const { data: recentCommenters = [] } = useQuery({
-        queryKey: ["post", id, "commenters"],
+        queryKey: ["post", id, "commenters", isComment ? "comment" : "post"],
         queryFn: async () => {
-            const comments = await fetchCommentsByPostId(id, null, 3);
+            const pid = isComment ? post_id : id;
+            if (!pid) return [];
+            const comments = await fetchCommentsByPostId(pid, null, 3, isComment ? id : null);
             return comments.map(c => c.user);
         },
-        enabled: isValidUUID(id) && localStats.comments > 0,
+        enabled: isValidUUID(id) && localStats.comments > 0 && (isComment ? !!post_id : true),
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
@@ -151,6 +156,10 @@ const Post: React.FC<PostProps> = ({
     const [isUpdating, setIsUpdating] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+    const [replyTo, setReplyTo] = useState<{ handle: string, id: string } | null>(null)
+    const [showReplies, setShowReplies] = useState(false)
+    const [replies, setReplies] = useState<any[]>([])
+    const [loadingReplies, setLoadingReplies] = useState(false)
 
     const editFileInputRef = useRef<HTMLInputElement>(null)
     const commentsRef = useRef(comments)
@@ -158,6 +167,20 @@ const Post: React.FC<PostProps> = ({
     useEffect(() => {
         commentsRef.current = comments
     }, [comments])
+
+    const loadReplies = useCallback(async () => {
+        if (!id || !post_id || localStats.comments === 0) return
+        setLoadingReplies(true)
+        try {
+            const data = await fetchCommentsByPostId(post_id, null, 10, id)
+            setReplies(data)
+            setShowReplies(true)
+        } catch (err) {
+            console.error("Failed to load replies:", err)
+        } finally {
+            setLoadingReplies(false)
+        }
+    }, [id, post_id, localStats.comments])
 
     const handleUpdate = async () => {
         const hasMediaChanged =
@@ -200,12 +223,16 @@ const Post: React.FC<PostProps> = ({
     const handleDelete = async (e: React.MouseEvent) => {
         if (e) e.stopPropagation()
         try {
-            await deletePost(id)
-            if (showToast) showToast("Post deleted successfully")
+            if (isComment) {
+                await deleteComment(id)
+            } else {
+                await deletePost(id)
+            }
+            if (showToast) showToast(`${isComment ? "Comment" : "Post"} deleted successfully`)
             if (onDelete) onDelete(id)
         } catch (err) {
-            console.error("Failed to delete post:", err)
-            if (showToast) showToast("Failed to delete post")
+            console.error(`Failed to delete ${isComment ? "comment" : "post"}:`, err)
+            if (showToast) showToast(`Failed to delete ${isComment ? "comment" : "post"}`)
         } finally {
             setIsDeleteDialogOpen(false)
         }
@@ -264,9 +291,10 @@ const Post: React.FC<PostProps> = ({
                 uploadedMedia.push(res)
             }
 
-            await addComment(id, currentUser.id, newComment, uploadedMedia)
+            await addComment(id, currentUser.id, newComment, uploadedMedia, replyTo?.id)
             setNewComment("")
             setSelectedFiles([])
+            setReplyTo(null)
             setLocalStats((prev) => ({
                 ...prev,
                 comments: (prev.comments || 0) + 1,
@@ -628,7 +656,12 @@ const Post: React.FC<PostProps> = ({
         return c
     }
 
-    const handleReplyClick = (handle: string) => {
+    const handleReplyClick = (handle: string, commentId?: string) => {
+        if (commentId) {
+            setReplyTo({ handle, id: commentId })
+        } else {
+            setReplyTo(null)
+        }
         setNewComment((prev) => {
             const mention = `@${handle} `
             if (prev.includes(mention)) return prev
@@ -786,6 +819,20 @@ const Post: React.FC<PostProps> = ({
                     </div>
                 </article>
 
+                {replyTo && (
+                    <div className="flex items-center justify-between bg-zinc-50 px-5 py-2 dark:bg-zinc-900/50">
+                        <span className="text-sm text-zinc-500">
+                            Replying to <span className="font-bold text-violet-600">@{replyTo.handle}</span>
+                        </span>
+                        <button 
+                            onClick={() => setReplyTo(null)}
+                            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                )}
+
                 <CommentInput
                     currentUser={currentUser}
                     newComment={newComment}
@@ -821,6 +868,7 @@ const Post: React.FC<PostProps> = ({
                                     key={c.id}
                                     {...c}
                                     isComment={true}
+                                    post_id={id}
                                     onReply={handleReplyClick}
                                     onUserClick={onUserClick}
                                     currentUser={currentUser}
@@ -1062,7 +1110,7 @@ const Post: React.FC<PostProps> = ({
                             icon={MessageCircle}
                             onClick={(e) => {
                                 e?.stopPropagation()
-                                onReply ? onReply(user.handle) : onClick && onClick()
+                                onReply ? onReply(user.handle, id) : onClick && onClick()
                             }}
                         />
                         <ActionButton
@@ -1086,7 +1134,14 @@ const Post: React.FC<PostProps> = ({
                     {(localStats.comments > 0 || localStats.likes > 0) && (
                         <div className="mt-1 flex items-center gap-x-1.5 px-0.5 text-[14px] font-medium text-zinc-500 dark:text-zinc-400">
                             {localStats.comments > 0 && (
-                                <button className="hover:underline">
+                                <button 
+                                    className="hover:underline"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (showReplies) setShowReplies(false)
+                                        else loadReplies()
+                                    }}
+                                >
                                     {localStats.comments} {localStats.comments === 1 ? "reply" : "replies"}
                                 </button>
                             )}
@@ -1097,6 +1152,41 @@ const Post: React.FC<PostProps> = ({
                                 <button className="hover:underline">
                                     {localStats.likes} {localStats.likes === 1 ? "like" : "likes"}
                                 </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Nested Replies */}
+                    {showReplies && (
+                        <div className="mt-2 space-y-2 border-l-2 border-zinc-100 pl-4 dark:border-zinc-800">
+                            {loadingReplies ? (
+                                <div className="flex py-2">
+                                    <Loader2 size={16} className="animate-spin text-violet-500" />
+                                </div>
+                            ) : (
+                                replies.map((reply) => (
+                                    <Post
+                                        key={reply.id}
+                                        {...reply}
+                                        isComment={true}
+                                        post_id={post_id}
+                                        onReply={onReply}
+                                        onUserClick={onUserClick}
+                                        currentUser={currentUser}
+                                        showToast={showToast}
+                                        onDelete={(deletedId) =>
+                                            setReplies((prev) =>
+                                                prev.filter((pr) => pr.id !== deletedId)
+                                            )
+                                        }
+                                        stats={{
+                                            likes: reply.stats?.likes || 0,
+                                            comments: reply.stats?.comments || 0,
+                                            reposts: reply.stats?.reposts || 0,
+                                        }}
+                                        timeAgo={reply.timeAgo || reply.created_at}
+                                    />
+                                ))
                             )}
                         </div>
                     )}

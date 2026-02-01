@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { Modal } from "@/components/ui"
-import { Loader2, MessageCircle } from "lucide-react"
+import { Loader2, MessageCircle, X } from "lucide-react"
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api"
 // @ts-ignore
 import { Post, CommentInput } from "@/components/features/post"
@@ -29,6 +29,7 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
     const [isUploading, setIsUploading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const [isFetchingMore, setIsFetchingMore] = useState(false)
+    const [replyTo, setReplyTo] = useState<{ handle: string, id: string } | null>(null)
 
     const commentsRef = useRef(comments)
     useEffect(() => {
@@ -92,9 +93,10 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
                 uploadedMedia.push(res)
             }
 
-            await addComment(reelId, currentUser.id, newComment, uploadedMedia)
+            await addComment(reelId, currentUser.id, newComment, uploadedMedia, replyTo?.id)
             setNewComment("")
             setSelectedFiles([])
+            setReplyTo(null)
             if (showToast) showToast("Reply posted!")
             loadComments()
         } catch (err) {
@@ -129,8 +131,14 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
                                     key={c.id}
                                     {...c}
                                     isComment={true}
+                                    post_id={reelId}
                                     currentUser={currentUser}
                                     showToast={showToast}
+                                    onReply={(handle, id) => {
+                                        if (id) setReplyTo({ handle, id });
+                                        else setReplyTo(null);
+                                        setNewComment(prev => prev.includes(`@${handle}`) ? prev : prev + `@${handle} `);
+                                    }}
                                     onDelete={(deletedId: string) =>
                                         setComments((prev) =>
                                             prev.filter((pc) => pc.id !== deletedId)
@@ -168,6 +176,19 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
 
                 {/* Fixed Footer for Comment Input */}
                 <div className="shrink-0 border-t border-zinc-100 bg-white pb-safe dark:border-zinc-800 dark:bg-zinc-900">
+                    {replyTo && (
+                        <div className="flex items-center justify-between border-b border-zinc-50 bg-zinc-50/50 px-4 py-2 dark:border-zinc-800/50 dark:bg-zinc-900/50">
+                            <span className="text-xs text-zinc-500">
+                                Replying to <span className="font-bold text-violet-600">@{replyTo.handle}</span>
+                            </span>
+                            <button
+                                onClick={() => setReplyTo(null)}
+                                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    )}
                     <CommentInput
                         currentUser={currentUser}
                         newComment={newComment}

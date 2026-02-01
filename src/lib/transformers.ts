@@ -91,8 +91,10 @@ export const transformComment = (comment: any): Comment | null => {
 
     return {
         ...comment,
+        parent_id: comment.parent_id,
         stats: {
             likes: comment.likes_count || 0,
+            comments: comment.replies_count || 0,
         },
         user: user,
         timeAgo: formatTimeAgo(comment.created_at),

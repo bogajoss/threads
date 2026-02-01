@@ -89,9 +89,11 @@ CREATE TABLE IF NOT EXISTS public.comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   media JSONB DEFAULT '[]'::jsonb,
   likes_count INTEGER DEFAULT 0,
+  replies_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

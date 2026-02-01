@@ -192,6 +192,14 @@ export const deletePost = async (postId: string): Promise<void> => {
 };
 
 /**
+ * Deletes a comment by ID.
+ */
+export const deleteComment = async (commentId: string): Promise<void> => {
+    const { error } = await supabase.from("comments").delete().eq("id", commentId);
+    if (error) throw error;
+};
+
+/**
  * Updates a post's content or media by ID.
  */
 export const updatePost = async (postId: string, data: any): Promise<void> => {
@@ -206,6 +214,7 @@ export const fetchCommentsByPostId = async (
     postId: string,
     lastTimestamp: string | null = null,
     limit: number = COMMENTS_PER_PAGE,
+    parentId: string | null = null,
 ): Promise<Comment[]> => {
     let query = supabase
         .from("comments")
@@ -225,6 +234,12 @@ export const fetchCommentsByPostId = async (
         .order("created_at", { ascending: true })
         .limit(limit);
 
+    if (parentId) {
+        query = query.eq("parent_id", parentId);
+    } else {
+        query = query.is("parent_id", null);
+    }
+
     if (lastTimestamp) {
         query = query.gt("created_at", lastTimestamp);
     }
@@ -238,7 +253,13 @@ export const fetchCommentsByPostId = async (
 /**
  * Adds a comment to a post.
  */
-export const addComment = async (postId: string, userId: string, content: string, media: Media[] = []): Promise<Comment | null> => {
+export const addComment = async (
+    postId: string,
+    userId: string,
+    content: string,
+    media: Media[] = [],
+    parentId: string | null = null
+): Promise<Comment | null> => {
     const { data, error } = await (supabase
         .from("comments") as any)
         .insert([
@@ -247,6 +268,7 @@ export const addComment = async (postId: string, userId: string, content: string
                 user_id: userId,
                 content,
                 media,
+                parent_id: parentId,
             },
         ])
         .select(
