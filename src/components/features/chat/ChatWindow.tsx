@@ -10,7 +10,9 @@ import {
     Info,
     Image as ImageIcon,
     Mic,
-    Paperclip
+    Paperclip,
+    Trash2,
+    Square
 } from "lucide-react"
 import {
     Button,
@@ -20,8 +22,9 @@ import {
     TypingIndicator,
 } from "@/components/ui"
 // @ts-ignore
-import { useTimeAgo } from "@/hooks"
+import { useTimeAgo, useAudioRecorder } from "@/hooks"
 import { useLightbox } from "@/context/LightboxContext"
+import { VoiceMessage } from "@/components/features/chat"
 import { uploadFile } from "@/lib/api"
 import {
     Popover,
@@ -86,6 +89,49 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const scrollRef = useRef<HTMLDivElement>(null)
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const lastSeenTime = useTimeAgo(conversation.user?.lastSeen)
+    const {
+        isRecording,
+        recordingTime,
+        startRecording,
+        stopRecording,
+        cancelRecording,
+        audioBlob,
+        clearAudio,
+    } = useAudioRecorder()
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins}:${secs.toString().padStart(2, "0")}`
+    }
+
+    const handleVoiceSend = async (blob: Blob, duration: number) => {
+        setIsUploading(true)
+        try {
+            const file = new File([blob], `voice-message-${Date.now()}.webm`, { type: blob.type })
+            const result = await uploadFile(file)
+            
+            onSendMessage(
+                conversation.id,
+                "Voice message",
+                "voice",
+                [{ url: result.url, duration }],
+                replyingTo?.id
+            )
+            clearAudio()
+        } catch (error) {
+            console.error("Failed to send voice message:", error)
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    // Handle sending after recording stops
+    useEffect(() => {
+        if (audioBlob && !isRecording) {
+            handleVoiceSend(audioBlob, recordingTime)
+        }
+    }, [audioBlob, isRecording])
 
     const displayName = conversation.isGroup ? conversation.name : conversation.user?.name
     const displayAvatar = conversation.isGroup ? conversation.avatar : conversation.user?.avatar
@@ -353,7 +399,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                             </div>
                                                         )}
 
-                                                        {msg.media?.length > 0 && (
+                                                        {msg.media?.length > 0 && msg.type !== "voice" && (
                                                             <div className="grid gap-1 mb-1 overflow-hidden rounded-lg">
                                                                 {msg.media.map((m: any, i: number) => (
                                                                     <img
@@ -366,11 +412,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                             </div>
                                                         )}
 
-                                                        <div className="whitespace-pre-wrap break-words">
-                                                            <Linkify options={{ ...linkifyOptions, className: isMe ? "text-white underline" : "text-violet-600 dark:text-violet-400 underline" }}>
-                                                                {msg.text}
-                                                            </Linkify>
-                                                        </div>
+                                                        {msg.type === "voice" ? (
+                                                            <VoiceMessage
+                                                                url={msg.media?.[0]?.url || msg.text}
+                                                                duration={msg.media?.[0]?.duration}
+                                                                isMe={isMe}
+                                                            />
+                                                        ) : (
+                                                            <div className="whitespace-pre-wrap break-words">
+                                                                <Linkify options={{ ...linkifyOptions, className: isMe ? "text-white underline" : "text-violet-600 dark:text-violet-400 underline" }}>
+                                                                    {msg.text}
+                                                                </Linkify>
+                                                            </div>
+                                                        )}
 
                                                         {/* Time & Read Status */}
                                                         {(!sameSenderNext || true) && (
@@ -451,54 +505,114 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 )}
 
                 <div className="flex items-end gap-2">
-                    <div className="flex items-center gap-1 mb-1">
-                        <button className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <ImageIcon size={24} />
-                        </button>
-                        <button className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                            <Paperclip size={22} />
-                        </button>
-                    </div>
+                    {!isRecording && (
+                        <div className="flex items-center gap-1 mb-1">
+                            <button className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <ImageIcon size={24} />
+                            </button>
+                            <button className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                <Paperclip size={22} />
+                            </button>
+                        </div>
+                    )}
 
                     <form
-                        className="flex-1 flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-[24px] px-2 py-1.5 transition-all focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 overflow-hidden border border-transparent focus-within:border-violet-200 dark:focus-within:border-violet-900"
+                        className={cn(
+                            "flex-1 flex items-center gap-2 rounded-[28px] px-2 py-2 transition-all duration-300 overflow-hidden border",
+                            isRecording 
+                                ? "bg-zinc-900 border-zinc-800 shadow-2xl scale-[1.02] ring-4 ring-red-500/10" 
+                                : "bg-zinc-100 dark:bg-zinc-900 border-transparent focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:border-violet-200 dark:focus-within:border-violet-900"
+                        )}
                         onSubmit={handleSend}
                     >
-                        <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
-                            <PopoverTrigger asChild>
-                                <button type="button" className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors">
-                                    <Smile size={24} />
+                        {isRecording ? (
+                            <div className="flex-1 flex items-center gap-4 px-3 py-1">
+                                <div className="flex items-center gap-2.5 bg-red-500/10 px-3 py-1.5 rounded-full border border-red-500/20">
+                                    <motion.div 
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ repeat: Infinity, duration: 1.5 }}
+                                        className="size-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
+                                    />
+                                    <span className="text-sm font-bold tabular-nums text-red-500">
+                                        {formatTime(recordingTime)}
+                                    </span>
+                                </div>
+                                <div className="flex-1 h-6 flex items-center justify-center gap-1 opacity-80">
+                                    {[...Array(16)].map((_, i) => (
+                                        <motion.div
+                                            key={i}
+                                            animate={{ 
+                                                height: [4, 12, 6, 16, 4],
+                                                opacity: [0.3, 1, 0.3] 
+                                            }}
+                                            transition={{
+                                                repeat: Infinity,
+                                                duration: 0.6,
+                                                delay: i * 0.04,
+                                            }}
+                                            className="w-1 bg-white rounded-full"
+                                        />
+                                    ))}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={cancelRecording}
+                                    className="p-2 text-zinc-400 hover:text-white transition-colors hover:bg-white/10 rounded-full"
+                                >
+                                    <Trash2 size={20} />
                                 </button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-full p-0 border-none bg-transparent shadow-none" side="top" align="start">
-                                <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-                            </PopoverContent>
-                        </Popover>
+                            </div>
+                        ) : (
+                            <>
+                                <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
+                                    <PopoverTrigger asChild>
+                                        <button type="button" className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors">
+                                            <Smile size={24} />
+                                        </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0 border-none bg-transparent shadow-none" side="top" align="start">
+                                        <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                                    </PopoverContent>
+                                </Popover>
 
-                        <textarea
-                            name="chat-input"
-                            value={text}
-                            onChange={handleTextChange}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSend();
-                                }
-                            }}
-                            onPaste={handlePaste}
-                            placeholder="Message..."
-                            className="flex-1 bg-transparent border-none outline-none text-[15px] resize-none max-h-32 py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
-                            rows={1}
-                        />
+                                <textarea
+                                    name="chat-input"
+                                    value={text}
+                                    onChange={handleTextChange}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSend();
+                                        }
+                                    }}
+                                    onPaste={handlePaste}
+                                    placeholder="Message..."
+                                    className="flex-1 bg-transparent border-none outline-none text-[15px] resize-none max-h-32 py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
+                                    rows={1}
+                                />
+                            </>
+                        )}
 
                         {text.trim() || attachments.length > 0 ? (
                             <button type="submit" className="p-2 mr-1 rounded-full bg-violet-600 text-white hover:bg-violet-700 hover:scale-105 transition-all shadow-sm">
                                 <Send size={18} className="translate-x-0.5 translate-y-0.5" />
                             </button>
+                        ) : isRecording ? (
+                            <button
+                                type="button"
+                                onClick={stopRecording}
+                                className="p-2.5 mr-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:scale-110 active:scale-95"
+                            >
+                                <Square size={16} fill="currentColor" />
+                            </button>
                         ) : (
-                            <button type="button" className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                            <button
+                                type="button"
+                                onClick={startRecording}
+                                className="p-2 text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                            >
                                 <Mic size={22} />
                             </button>
                         )}

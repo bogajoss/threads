@@ -20,7 +20,7 @@ interface FormattedMessage {
     senderName?: string;
     text: string;
     type: string;
-    media: string[];
+    media: any[];
     isRead: boolean;
     replyToId: string | null;
     reactions: Reaction[];

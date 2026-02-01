@@ -6,7 +6,7 @@ export interface UploadResult {
     url: string;
     poster: string | null;
     name: string;
-    type: "image" | "video" | "file";
+    type: "image" | "video" | "file" | "audio";
     size: number;
 }
 
@@ -71,7 +71,9 @@ export const uploadFile = async (
             ? "image"
             : file.type.startsWith("video/")
                 ? "video"
-                : "file",
+                : file.type.startsWith("audio/")
+                    ? "audio"
+                    : "file",
         size: fileToUpload.size,
     };
 };

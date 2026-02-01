@@ -16,7 +16,7 @@ export interface User {
 
 export interface Media {
     url: string;
-    type: 'image' | 'video' | 'file';
+    type: 'image' | 'video' | 'file' | 'audio';
     aspect_ratio?: number;
     poster?: string | null;
     name?: string;
@@ -131,8 +131,8 @@ export interface Message {
     sender_id: string;
     sender?: User | null;
     content: string;
-    type: "text" | "image" | "video";
-    media: string[] | null;
+    type: "text" | "image" | "video" | "voice";
+    media: any[] | null;
     reply_to_id: string | null;
     is_read: boolean;
     created_at: string;

@@ -125,6 +125,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
+      wavesurfer.js:
+        specifier: ^7.12.1
+        version: 7.12.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.2
@@ -169,7 +172,7 @@ importers:
         specifier: ^8.54.0
         version: 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       vite:
-        specifier: npm:rolldown-vite@^7.3.1
+        specifier: npm:rolldown-vite@latest
         version: rolldown-vite@7.3.1(@types/node@25.1.0)(esbuild@0.27.2)(jiti@2.6.1)
 
 packages:
@@ -2167,6 +2170,9 @@ packages:
   uzip@0.20201231.0:
     resolution: {integrity: sha512-OZeJfZP+R0z9D6TmBgLq2LHzSSptGMGDGigGiEe0pr8UBe/7fdflgHlHBNDASTXB5jnFuxHpNaJywSg8YFeGng==}
 
+  wavesurfer.js@7.12.1:
+    resolution: {integrity: sha512-NswPjVHxk0Q1F/VMRemCPUzSojjuHHisQrBqQiRXg7MVbe3f5vQ6r0rTTXA/a/neC/4hnOEC4YpXca4LpH0SUg==}
+
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
@@ -4039,6 +4045,8 @@ snapshots:
       react: 19.2.4
 
   uzip@0.20201231.0: {}
+
+  wavesurfer.js@7.12.1: {}
 
   which@2.0.2:
     dependencies:
