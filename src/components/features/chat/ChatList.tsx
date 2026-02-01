@@ -70,9 +70,9 @@ const ConversationItem: React.FC<ConversationProps> = ({
                         {conv.time}
                     </span>
                 </div>
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2 min-w-0">
                     <p className={cn(
-                        "truncate text-[13px] leading-relaxed flex-1 line-clamp-1",
+                        "truncate whitespace-nowrap text-[13px] leading-relaxed flex-1",
                         hasUnread
                             ? "font-semibold text-zinc-900 dark:text-zinc-100"
                             : "text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300"
@@ -150,8 +150,8 @@ const ChatList: React.FC<ChatListProps> = ({
                 <div className="flex flex-col pb-4 min-w-0">
                     {/* Active Now / Stories */}
                     {!searchQuery && activeUsers.length > 0 && (
-                        <div className="mb-4 mt-2 min-w-0">
-                            <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar max-w-full">
+                        <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
+                            <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
                                 <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
                                     <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
                                         <UserPlus size={24} className="text-zinc-400" />
