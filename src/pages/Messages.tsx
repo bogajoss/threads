@@ -25,6 +25,7 @@ const Messages: React.FC = () => {
         handleStartConversation,
         handleSelectConversation,
         sendMessage,
+        onDeleteMessage,
         sendTypingStatus,
         navigate,
     } = useMessagesPage()
@@ -81,6 +82,7 @@ const Messages: React.FC = () => {
                     messages={localMessages}
                     onBack={() => navigate("/messages")}
                     onSendMessage={sendMessage}
+                    onDeleteMessage={onDeleteMessage}
                     onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
                     isLoading={isMsgLoading}
                     isTyping={!!currentIsTyping}

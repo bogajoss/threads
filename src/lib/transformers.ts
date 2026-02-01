@@ -158,6 +158,7 @@ export const transformMessage = (m: any): Message | null => {
         id: m.id,
         conversation_id: m.conversation_id,
         sender_id: m.sender_id,
+        sender: transformUser(m.sender),
         content: m.content,
         type: m.type || "text",
         media: m.media || [],
@@ -174,9 +175,10 @@ export const transformConversation = (item: any, currentUserId: string): Convers
     if (!item || !item.conversation) return null;
     const conv = item.conversation;
 
-    const otherParticipant =
-        conv.participants.find((p: any) => p.user?.id !== currentUserId) ||
-        conv.participants[0];
+    // For DMs, find the other participant. For groups, this might be null or the list of users.
+    const otherParticipant = !conv.is_group 
+        ? (conv.participants?.find((p: any) => p.user?.id !== currentUserId) || conv.participants?.[0])
+        : null;
 
     const unreadCount =
         conv.messages?.filter((m: any) => !m.is_read && m.sender_id !== currentUserId)
@@ -184,7 +186,11 @@ export const transformConversation = (item: any, currentUserId: string): Convers
 
     return {
         id: conv.id,
-        user: transformUser(otherParticipant?.user),
+        isGroup: conv.is_group || false,
+        name: conv.name || null,
+        avatar: conv.avatar_url || null,
+        creatorId: conv.creator_id || null,
+        user: otherParticipant ? transformUser(otherParticipant.user) : null,
         lastMessage: conv.last_message_content || "No messages yet",
         lastMessageAt: conv.last_message_at,
         time: conv.last_message_at

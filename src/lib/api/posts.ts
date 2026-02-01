@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { transformPost, transformComment } from "@/lib/transformers";
 import type { Post, Comment, Media } from "@/types/index";
 import { POSTS_PER_PAGE, COMMENTS_PER_PAGE, REELS_PER_PAGE } from "@/lib/constants";
+import { deleteMultipleFiles } from "./storage";
 
 /**
  * Fetches posts with user details and pagination support.
@@ -196,17 +197,59 @@ export const addPost = async ({
 };
 
 /**
- * Deletes a post by ID.
+ * Deletes a post by ID and cleans up its media from storage.
  */
 export const deletePost = async (postId: string): Promise<void> => {
+    // 1. Fetch post to get media URLs
+    const { data: post } = await (supabase
+        .from("posts")
+        .select("media")
+        .eq("id", postId)
+        .single() as any);
+
+    if (post?.media && Array.isArray(post.media)) {
+        const urlsToDelete: string[] = [];
+        post.media.forEach((m: any) => {
+            if (m.url) urlsToDelete.push(m.url);
+            if (m.poster) urlsToDelete.push(m.poster);
+        });
+        
+        // 2. Delete files from storage
+        if (urlsToDelete.length > 0) {
+            await deleteMultipleFiles(urlsToDelete);
+        }
+    }
+
+    // 3. Delete from database
     const { error } = await supabase.from("posts").delete().eq("id", postId);
     if (error) throw error;
 };
 
 /**
- * Deletes a comment by ID.
+ * Deletes a comment by ID and cleans up its media from storage.
  */
 export const deleteComment = async (commentId: string): Promise<void> => {
+    // 1. Fetch comment to get media URLs
+    const { data: comment } = await (supabase
+        .from("comments")
+        .select("media")
+        .eq("id", commentId)
+        .single() as any);
+
+    if (comment?.media && Array.isArray(comment.media)) {
+        const urlsToDelete: string[] = [];
+        comment.media.forEach((m: any) => {
+            if (m.url) urlsToDelete.push(m.url);
+            if (m.poster) urlsToDelete.push(m.poster);
+        });
+        
+        // 2. Delete files from storage
+        if (urlsToDelete.length > 0) {
+            await deleteMultipleFiles(urlsToDelete);
+        }
+    }
+
+    // 3. Delete from database
     const { error } = await supabase.from("comments").delete().eq("id", commentId);
     if (error) throw error;
 };

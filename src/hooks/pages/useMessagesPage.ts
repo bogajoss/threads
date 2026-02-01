@@ -24,6 +24,7 @@ export const useMessagesPage = () => {
         typingStatus,
         markAsRead,
         formatMessages,
+        onDeleteMessage,
         conversationReactions,
         messages, // Flat list of messages from infinite query
         isMsgLoading,
@@ -117,6 +118,7 @@ export const useMessagesPage = () => {
         handleStartConversation,
         handleSelectConversation,
         sendMessage,
+        onDeleteMessage,
         sendTypingStatus,
         navigate,
         // Expose infinite scroll props for ChatWindow

@@ -1,30 +1,35 @@
 import { supabase } from "@/lib/supabase";
 import { transformConversation, transformMessage } from "@/lib/transformers";
 import type { Conversation, Message } from "@/types/index";
+import { deleteMultipleFiles } from "./storage";
 
 /**
- * Finds an existing conversation between two users or creates a new one.
+ * Finds an existing DM (non-group) conversation between two users or creates a new one.
  */
 export const getOrCreateConversation = async (userId: string, targetUserId: string): Promise<string> => {
+    // 1. Get all DM conversation IDs where I am a participant
     const { data: myParticipants } = await (supabase
         .from("conversation_participants") as any)
-        .select("conversation_id")
-        .eq("user_id", userId);
+        .select("conversation_id, conversation:conversations!inner(is_group)")
+        .eq("user_id", userId)
+        .eq("conversation.is_group", false);
 
-    const myConvIds = (myParticipants || []).map((p: any) => p.conversation_id);
+    const myDMConvIds = (myParticipants || []).map((p: any) => p.conversation_id);
 
+    // 2. Check if target user is in any of those same DM conversations
     const { data: existing } = await (supabase
         .from("conversation_participants") as any)
         .select("conversation_id")
         .eq("user_id", targetUserId)
-        .in("conversation_id", myConvIds)
+        .in("conversation_id", myDMConvIds)
         .maybeSingle();
 
     if (existing) return existing.conversation_id;
 
+    // 3. Create new DM conversation if none exists
     const { data: newConv, error: convError } = await (supabase
         .from("conversations") as any)
-        .insert({}) // Use default values if any, or empty object if allowed
+        .insert({ is_group: false }) 
         .select()
         .single();
 
@@ -36,6 +41,65 @@ export const getOrCreateConversation = async (userId: string, targetUserId: stri
     ]);
 
     return (newConv as any).id;
+};
+
+/**
+ * Creates a new Group Conversation.
+ */
+export const createGroupConversation = async (
+    creatorId: string, 
+    name: string, 
+    participantIds: string[], 
+    avatarUrl: string | null = null
+): Promise<string> => {
+    // 1. Create conversation record
+    const { data: newConv, error: convError } = await (supabase
+        .from("conversations") as any)
+        .insert({ 
+            is_group: true, 
+            name, 
+            avatar_url: avatarUrl,
+            creator_id: creatorId 
+        })
+        .select()
+        .single();
+
+    if (convError) throw convError;
+
+    const convId = (newConv as any).id;
+
+    // 2. Add participants (including creator)
+    const participants = Array.from(new Set([creatorId, ...participantIds])).map(uid => ({
+        conversation_id: convId,
+        user_id: uid
+    }));
+
+    const { error: partError } = await (supabase
+        .from("conversation_participants") as any)
+        .insert(participants);
+
+    if (partError) throw partError;
+
+    return convId;
+};
+
+/**
+ * Adds new members to an existing conversation.
+ */
+export const addParticipantsToConversation = async (
+    conversationId: string, 
+    userIds: string[]
+): Promise<void> => {
+    const participants = userIds.map(uid => ({
+        conversation_id: conversationId,
+        user_id: uid
+    }));
+
+    const { error } = await (supabase
+        .from("conversation_participants") as any)
+        .insert(participants);
+
+    if (error) throw error;
 };
 
 /**
@@ -90,6 +154,10 @@ export const fetchConversations = async (userId: string): Promise<Conversation[]
             `
             conversation:conversations (
                 id,
+                is_group,
+                name,
+                avatar_url,
+                creator_id,
                 last_message_at,
                 last_message_content,
                 participants:conversation_participants (
@@ -135,7 +203,15 @@ export const fetchMessages = async (
 ): Promise<Message[]> => {
     let query = supabase
         .from("messages")
-        .select("*")
+        .select(`
+            *,
+            sender:users!sender_id (
+                id,
+                username,
+                display_name,
+                avatar_url
+            )
+        `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: false }) // Fetch newest first for pagination
         .limit(limit);
@@ -263,9 +339,25 @@ export const sendMessage = async (
 };
 
 /**
- * Deletes a message by ID.
+ * Deletes a message by ID and cleans up its media from storage.
  */
 export const deleteMessage = async (messageId: string): Promise<void> => {
+    // 1. Fetch message to get media URLs
+    const { data: message } = await (supabase
+        .from("messages")
+        .select("media")
+        .eq("id", messageId)
+        .single() as any);
+
+    if (message?.media && Array.isArray(message.media)) {
+        // 2. Delete files from storage
+        await deleteMultipleFiles(message.media);
+    } else if (message?.media && typeof message.media === 'string') {
+        // Handle case where media might be a single string URL
+        await deleteMultipleFiles([message.media]);
+    }
+
+    // 3. Delete from database
     const { error } = await supabase
         .from("messages")
         .delete()

@@ -1,8 +1,8 @@
-import React from "react"
-import { Search } from "lucide-react"
+import React, { useState } from "react"
+import { Search, UserPlus, Edit, Users } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { UserPlus, Edit } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { CreateGroupModal } from "@/components/features/modals"
 import type { User } from "@/types"
 import { cn } from "@/lib/utils"
 
@@ -19,9 +19,12 @@ const ConversationItem: React.FC<ConversationProps> = ({
     onSelect,
     onlineUsers,
 }) => {
-    const isOnline = onlineUsers.has(conv.user?.id)
+    const isOnline = !conv.isGroup && conv.user ? onlineUsers.has(conv.user.id) : false
     const isSelected = selectedId === conv.id
     const hasUnread = conv.unread > 0
+
+    const displayName = conv.isGroup ? conv.name : conv.user?.name
+    const displayAvatar = conv.isGroup ? conv.avatar : conv.user?.avatar
 
     return (
         <div
@@ -39,12 +42,12 @@ const ConversationItem: React.FC<ConversationProps> = ({
                     isSelected ? "border-violet-500/30" : "border-transparent group-hover:border-zinc-200 dark:group-hover:border-zinc-700"
                 )}>
                     <AvatarImage
-                        src={conv.user?.avatar}
-                        alt={conv.user?.name}
+                        src={displayAvatar}
+                        alt={displayName || ""}
                         className="object-cover"
                     />
                     <AvatarFallback className="bg-zinc-100 text-zinc-500 font-bold text-lg dark:bg-zinc-800 dark:text-zinc-400">
-                        {conv.user?.name?.[0]?.toUpperCase()}
+                        {displayName?.[0]?.toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
                 {isOnline && (
@@ -58,7 +61,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
                         "truncate text-[15px] font-semibold",
                         hasUnread ? "text-zinc-900 dark:text-white" : "text-zinc-700 dark:text-zinc-200"
                     )}>
-                        {conv.user?.name}
+                        {displayName}
                     </span>
                     <span className={cn(
                         "ml-2 whitespace-nowrap text-[11px] font-medium",
@@ -108,6 +111,7 @@ const ChatList: React.FC<ChatListProps> = ({
     onSearchChange,
     onlineUsers = new Set(),
 }) => {
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
     const activeUsers = conversations.filter(c => onlineUsers.has(c.user?.id));
 
     return (
@@ -116,9 +120,18 @@ const ChatList: React.FC<ChatListProps> = ({
             <div className="px-5 pt-5 pb-2">
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Chats</h2>
-                    <button className="rounded-full bg-zinc-100 p-2.5 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800">
-                        <Edit size={20} />
-                    </button>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => setIsCreateGroupOpen(true)}
+                            className="rounded-full bg-zinc-100 p-2.5 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                            title="New Group"
+                        >
+                            <Users size={20} />
+                        </button>
+                        <button className="rounded-full bg-zinc-100 p-2.5 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                            <Edit size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="relative group">
@@ -227,6 +240,15 @@ const ChatList: React.FC<ChatListProps> = ({
                     )}
                 </div>
             </ScrollArea>
+
+            <CreateGroupModal
+                isOpen={isCreateGroupOpen}
+                onClose={() => setIsCreateGroupOpen(false)}
+                onCreated={(convId) => {
+                    // Force a selection of the new group
+                    onSelect({ id: convId, isGroup: true });
+                }}
+            />
         </div>
     )
 }

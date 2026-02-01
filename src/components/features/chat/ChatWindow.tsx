@@ -43,6 +43,7 @@ import EmojiPicker from "@/components/ui/emoji-picker"
 import Linkify from "linkify-react"
 import { linkifyOptions } from "@/lib/linkify"
 import { useNavigate } from "react-router-dom"
+import { GroupSettingsModal } from "@/components/features/modals"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -82,10 +83,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const [attachments, setAttachments] = useState<any[]>([])
     const [isEmojiOpen, setIsEmojiOpen] = useState(false)
     const [replyingTo, setReplyingTo] = useState<any | null>(null)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const scrollRef = useRef<HTMLDivElement>(null)
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const lastSeenTime = useTimeAgo(conversation.user?.lastSeen)
+
+    const displayName = conversation.isGroup ? conversation.name : conversation.user?.name
+    const displayAvatar = conversation.isGroup ? conversation.avatar : conversation.user?.avatar
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -193,28 +198,30 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     >
                         <ArrowLeft size={24} />
                     </button>
-                    <div className="relative cursor-pointer" onClick={() => navigate(`/u/${conversation.user.handle}`)}>
+                    <div className="relative cursor-pointer" onClick={() => !conversation.isGroup && conversation.user && navigate(`/u/${conversation.user.handle}`)}>
                         <Avatar className="size-10 border-2 border-white shadow-sm dark:border-zinc-800">
                             <AvatarImage
-                                src={conversation.user.avatar}
-                                alt={conversation.user.name}
+                                src={displayAvatar}
+                                alt={displayName || ""}
                                 className="object-cover"
                             />
-                            <AvatarFallback>{conversation.user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                            <AvatarFallback>{displayName?.[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        {isOnline && (
+                        {isOnline && !conversation.isGroup && (
                             <span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-emerald-500 dark:border-black"></span>
                         )}
                     </div>
-                    <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/u/${conversation.user.handle}`)}>
+                    <div className="flex flex-col cursor-pointer" onClick={() => !conversation.isGroup && conversation.user && navigate(`/u/${conversation.user.handle}`)}>
                         <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                            {conversation.user.name}
+                            {displayName}
                         </h3>
                         <span className="text-[11px] font-medium text-zinc-500">
-                            {isOnline ? (
+                            {conversation.isGroup ? (
+                                "Group Chat"
+                            ) : isOnline ? (
                                 <span className="text-emerald-500">Active now</span>
                             ) : (
-                                conversation.user.lastSeen ? `Last seen ${lastSeenTime}` : "Offline"
+                                conversation.user?.lastSeen ? `Last seen ${lastSeenTime}` : "Offline"
                             )}
                         </span>
                     </div>
@@ -227,7 +234,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <button className="hidden sm:flex rounded-full p-2.5 text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
                         <Video size={20} />
                     </button>
-                    <button className="rounded-full p-2.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                    <button 
+                        onClick={() => setIsSettingsOpen(true)}
+                        className="rounded-full p-2.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    >
                         <Info size={20} />
                     </button>
                 </div>
@@ -241,14 +251,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     {messages.length < 5 && (
                         <div className="py-12 flex flex-col items-center justify-center opacity-80 mb-auto">
                             <Avatar className="size-24 border-4 border-zinc-100 dark:border-zinc-800 mb-4 bg-zinc-50 dark:bg-zinc-900">
-                                <AvatarImage src={conversation.user.avatar} className="object-cover" />
-                                <AvatarFallback className="text-4xl">{conversation.user.name?.[0]}</AvatarFallback>
+                                <AvatarImage src={displayAvatar} className="object-cover" />
+                                <AvatarFallback className="text-4xl">{displayName?.[0]}</AvatarFallback>
                             </Avatar>
-                            <h2 className="text-xl font-bold dark:text-white">{conversation.user.name}</h2>
-                            <p className="text-zinc-500 text-sm mb-4">You're friends on AntiGravity</p>
-                            <Button variant="outline" className="rounded-full h-8 text-xs">
-                                View Profile
-                            </Button>
+                            <h2 className="text-xl font-bold dark:text-white">{displayName}</h2>
+                            <p className="text-zinc-500 text-sm mb-4">
+                                {conversation.isGroup ? "Group chat on AntiGravity" : "You're friends on AntiGravity"}
+                            </p>
+                            {!conversation.isGroup && (
+                                <Button variant="outline" className="rounded-full h-8 text-xs">
+                                    View Profile
+                                </Button>
+                            )}
                         </div>
                     )}
 
@@ -283,8 +297,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                 <div className="w-7 shrink-0">
                                                     {!sameSenderNext ? (
                                                         <Avatar className="size-7 border border-zinc-100 shadow-sm dark:border-zinc-800">
-                                                            <AvatarImage src={conversation.user.avatar} />
-                                                            <AvatarFallback>{conversation.user.name?.[0]}</AvatarFallback>
+                                                            <AvatarImage src={msg.senderAvatar || displayAvatar} />
+                                                            <AvatarFallback>{(msg.senderName || displayName)?.[0]}</AvatarFallback>
                                                         </Avatar>
                                                     ) : null}
                                                 </div>
@@ -403,7 +417,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
                         >
                             <div className="text-sm">
-                                <span className="text-xs font-bold text-violet-500 block mb-0.5">Replying to {replyingTo.sender === "me" ? "yourself" : conversation.user.name}</span>
+                                <span className="text-xs font-bold text-violet-500 block mb-0.5">
+                                    Replying to {replyingTo.sender === "me" ? "yourself" : (replyingTo.senderName || displayName)}
+                                </span>
                                 <p className="line-clamp-1 text-zinc-500">{replyingTo.text}</p>
                             </div>
                             <button onClick={() => setReplyingTo(null)}><X size={16} className="text-zinc-400" /></button>
@@ -478,6 +494,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*" />
                 </div>
             </div>
+
+            {conversation.isGroup && (
+                <GroupSettingsModal
+                    isOpen={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                    conversation={conversation}
+                    onUpdate={(_data) => {
+                        // This updates the local component state if needed, 
+                        // but React Query usually handles the refresh.
+                        setIsSettingsOpen(false);
+                    }}
+                />
+            )}
         </div>
     )
 }

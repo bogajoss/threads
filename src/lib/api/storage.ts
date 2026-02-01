@@ -75,3 +75,37 @@ export const uploadFile = async (
         size: fileToUpload.size,
     };
 };
+
+/**
+ * Extracts the storage path from a Supabase public URL and deletes the file.
+ */
+export const deleteFileFromUrl = async (url: string, bucket: string = "media"): Promise<void> => {
+    try {
+        if (!url) return;
+        
+        // Example URL: https://dbkcedktqhueqnulnosq.supabase.co/storage/v1/object/public/media/filename.webp
+        // We need to extract 'filename.webp'
+        const urlParts = url.split(`/public/${bucket}/`);
+        if (urlParts.length < 2) return;
+        
+        const filePath = urlParts[1];
+        const { error } = await supabase.storage.from(bucket).remove([filePath]);
+        
+        if (error) {
+            console.error(`Failed to delete file from storage: ${filePath}`, error);
+        }
+    } catch (err) {
+        console.error("Error in deleteFileFromUrl:", err);
+    }
+};
+
+/**
+ * Deletes multiple files from their URLs.
+ */
+export const deleteMultipleFiles = async (urls: (string | undefined | null)[], bucket: string = "media"): Promise<void> => {
+    const validUrls = urls.filter((url): url is string => !!url);
+    if (validUrls.length === 0) return;
+    
+    // Process in parallel
+    await Promise.all(validUrls.map(url => deleteFileFromUrl(url, bucket)));
+};

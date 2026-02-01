@@ -16,6 +16,8 @@ import type { User, Message, Reaction } from "@/types/index";
 interface FormattedMessage {
     id: string;
     sender: 'me' | 'them';
+    senderAvatar?: string;
+    senderName?: string;
     text: string;
     type: string;
     media: string[];
@@ -29,6 +31,41 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
     const queryClient = useQueryClient();
     const [typingStatus, setTypingStatus] = useState<Record<string, boolean>>({}); // { convId: boolean }
     const channelRef = useRef<any>(null);
+
+    // --- Helpers defined early for use in effects ---
+
+    const markAsRead = useCallback(
+        async (convId: string) => {
+            if (!currentUser?.id || !convId) return;
+            try {
+                await markMessagesAsRead(convId, currentUser.id);
+                queryClient.invalidateQueries({ queryKey: ["unread_messages_count", currentUser.id] });
+                queryClient.invalidateQueries({ queryKey: ["conversations", currentUser.id] });
+            } catch (err) {
+                console.error("Failed to mark as read:", err);
+            }
+        },
+        [currentUser?.id, queryClient],
+    );
+
+    const formatMessages = useCallback((messages: Message[] = [], reactions: Reaction[] = []): FormattedMessage[] => {
+        return messages.map((m) => ({
+            id: m.id,
+            sender: m.sender_id === currentUser?.id ? "me" : "them",
+            senderAvatar: m.sender?.avatar,
+            senderName: m.sender?.name,
+            text: m.content,
+            type: m.type || "text",
+            media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
+            isRead: m.is_read,
+            replyToId: m.reply_to_id,
+            reactions: reactions.filter((r) => r.message_id === m.id),
+            time: new Date(m.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            }),
+        }));
+    }, [currentUser?.id]);
 
     // 1. Fetch Conversations
     const { data: conversations = [], isLoading: isConvLoading } = useQuery({
@@ -77,29 +114,42 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
     useEffect(() => {
         if (!currentUser?.id) return;
 
-        // Channel for DB changes (private to user)
+        // Channel for DB changes
         const messagesChannel = supabase
-            .channel(`user_messages:${currentUser.id}`)
+            .channel(`messages_realtime:${activeConversationId || 'global'}`)
             .on(
                 // @ts-ignore
                 "postgres_changes",
                 { event: "INSERT", schema: "public", table: "messages" },
                 (payload: any) => {
                     const newM = payload.new;
+                    console.log("Realtime INSERT received:", newM);
                     
-                    // Invalidate specific conversation messages to refresh
-                    if (newM.conversation_id === activeConversationId) {
-                        queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
+                    // 1. If it's for the current open conversation, refetch immediately
+                    if (activeConversationId && newM.conversation_id === activeConversationId) {
+                        queryClient.invalidateQueries({ 
+                            queryKey: ["messages", activeConversationId]
+                        });
+                        
+                        // If sent by someone else, mark as read
+                        if (newM.sender_id !== currentUser.id) {
+                            markAsRead(activeConversationId);
+                        }
                     }
 
+                    // 2. Always refresh conversation list to update last message/unread count
+                    queryClient.invalidateQueries({
+                        queryKey: ["conversations", currentUser.id]
+                    });
+
+                    // 3. Update global unread count
                     if (newM.sender_id !== currentUser.id) {
                         queryClient.invalidateQueries({
                             queryKey: ["unread_messages_count", currentUser.id],
                         });
                     }
-                    queryClient.invalidateQueries({
-                        queryKey: ["conversations", currentUser.id]
-                    });
+
+                    // 4. Clear typing status
                     setTypingStatus((prev) => ({
                         ...prev,
                         [newM.conversation_id]: false,
@@ -110,7 +160,8 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
                 // @ts-ignore
                 "postgres_changes",
                 { event: "DELETE", schema: "public", table: "messages" },
-                () => {
+                (payload: any) => {
+                    console.log("Realtime DELETE received:", payload.old.id);
                     queryClient.invalidateQueries({ queryKey: ["messages"] });
                     queryClient.invalidateQueries({
                         queryKey: ["conversations", currentUser.id],
@@ -122,12 +173,16 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
                 "postgres_changes",
                 { event: "*", schema: "public", table: "message_reactions" },
                 () => {
-                    queryClient.invalidateQueries({ queryKey: ["reactions", activeConversationId] });
+                    if (activeConversationId) {
+                        queryClient.invalidateQueries({ queryKey: ["reactions", activeConversationId] });
+                    }
                 },
             )
-            .subscribe();
+            .subscribe((status) => {
+                console.log(`Supabase Realtime Status (${activeConversationId || 'global'}):`, status);
+            });
 
-        // Channel for Typing Broadcast (shared)
+        // Channel for Typing Broadcast
         const typingChannel = supabase
             .channel("chat_typing_shared")
             .on("broadcast", { event: "typing" }, ({ payload: _payload }: { payload: any }) => {
@@ -144,7 +199,7 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
             supabase.removeChannel(messagesChannel);
             supabase.removeChannel(typingChannel);
         };
-    }, [currentUser?.id, queryClient, activeConversationId]);
+    }, [currentUser?.id, queryClient, activeConversationId, markAsRead]);
 
     // 5. Mutation to send message
     const sendMutation = useMutation({
@@ -163,12 +218,8 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
         }) => sendMessage(convId, currentUser!.id, text, type, media, replyToId),
         onSuccess: (newMessage: Message | null) => {
             if (!newMessage) return;
-            // Invalidate to fetch the new message
             queryClient.invalidateQueries({ queryKey: ["messages", newMessage.conversation_id] });
-            // Refresh conversation list
-            queryClient.invalidateQueries({
-                queryKey: ["conversations", currentUser!.id]
-            });
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser!.id] });
         },
     });
 
@@ -181,20 +232,6 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
             });
         }
     };
-
-    const markAsRead = useCallback(
-        async (convId: string) => {
-            if (!currentUser?.id || !convId) return;
-            await markMessagesAsRead(convId, currentUser.id);
-            queryClient.invalidateQueries({
-                queryKey: ["unread_messages_count", currentUser.id],
-            });
-            queryClient.invalidateQueries({
-                queryKey: ["conversations", currentUser.id],
-            });
-        },
-        [currentUser, queryClient],
-    );
 
     const onToggleReaction = async (messageId: string, emoji: string) => {
         if (!currentUser?.id) return;
@@ -218,28 +255,8 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
     // Memoize the flat list of messages
     const flatMessages = useMemo(() => {
         const pages = messagesData?.pages.flatMap(page => page) || [];
-        // API returns newest first for pagination, but UI expects oldest at top (usually)
-        // or standard chat UI renders bottom-up.
-        // Let's reverse them here to be chronological (oldest -> newest) for standard mapping
         return [...pages].reverse();
     }, [messagesData]);
-
-    const formatMessages = useCallback((messages: Message[] = [], reactions: Reaction[] = []): FormattedMessage[] => {
-        return messages.map((m) => ({
-            id: m.id,
-            sender: m.sender_id === currentUser?.id ? "me" : "them",
-            text: m.content,
-            type: m.type || "text",
-            media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
-            isRead: m.is_read,
-            replyToId: m.reply_to_id,
-            reactions: reactions.filter((r) => r.message_id === m.id),
-            time: new Date(m.created_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            }),
-        }));
-    }, [currentUser?.id]);
 
     return {
         conversations,
@@ -253,9 +270,9 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
         formatMessages,
         onToggleReaction,
         onDeleteMessage,
-        conversationReactions, // Scoped reactions
+        conversationReactions,
         isSending: sendMutation.isPending,
-        messages: flatMessages, // Return pre-processed messages
+        messages: flatMessages,
         isMsgLoading,
         fetchNextMessages: fetchNextPage,
         hasMoreMessages: hasNextPage,

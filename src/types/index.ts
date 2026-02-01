@@ -129,6 +129,7 @@ export interface Message {
     id: string;
     conversation_id: string;
     sender_id: string;
+    sender?: User | null;
     content: string;
     type: "text" | "image" | "video";
     media: string[] | null;
@@ -139,7 +140,11 @@ export interface Message {
 
 export interface Conversation {
     id: string;
-    user: User | null;
+    user: User | null; // For DMs, this is the other user
+    isGroup: boolean;
+    name: string | null; // For groups
+    avatar: string | null; // For groups
+    creatorId: string | null;
     lastMessage: string;
     lastMessageAt: string;
     time: string;

@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { transformPost, transformCommunity } from "@/lib/transformers";
 import type { Community, Post } from "@/types/index";
+import { deleteFileFromUrl } from "./storage";
 
 /**
  * Fetches all communities.
@@ -140,6 +141,29 @@ export const createCommunity = async (communityData: any): Promise<Community | n
  * Updates an existing community.
  */
 export const updateCommunity = async (id: string, communityData: any): Promise<Community | null> => {
+    // 1. If updating avatar or cover, fetch old ones to delete
+    if (communityData.avatar_url || communityData.cover_url) {
+        const { data: oldCommunity } = await (supabase.from("communities") as any)
+            .select("avatar_url, cover_url")
+            .eq("id", id)
+            .single() as any;
+
+        if (oldCommunity) {
+            // Delete old avatar if it's a Supabase URL and different from new one
+            if (communityData.avatar_url && oldCommunity.avatar_url && oldCommunity.avatar_url !== communityData.avatar_url) {
+                if (oldCommunity.avatar_url.includes(supabase.storage.from('media').getPublicUrl('').data.publicUrl)) {
+                    await deleteFileFromUrl(oldCommunity.avatar_url);
+                }
+            }
+            // Delete old cover if it's a Supabase URL and different from new one
+            if (communityData.cover_url && oldCommunity.cover_url && oldCommunity.cover_url !== communityData.cover_url) {
+                if (oldCommunity.cover_url.includes(supabase.storage.from('media').getPublicUrl('').data.publicUrl)) {
+                    await deleteFileFromUrl(oldCommunity.cover_url);
+                }
+            }
+        }
+    }
+
     const { data, error } = await (supabase.from("communities") as any)
         .update(communityData)
         .eq("id", id)
