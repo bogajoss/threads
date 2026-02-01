@@ -15,7 +15,6 @@ import {
     Share,
     Trash,
 } from "lucide-react"
-import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -57,7 +56,7 @@ import { usePostInteraction } from "@/hooks"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
 import { fetchCommentsByPostId, addComment, uploadFile, deleteComment, updateComment } from "@/lib/api"
-import { isBangla, extractUrl, cn, isValidUUID } from "@/lib/utils"
+import { isBangla, extractUrl, cn } from "@/lib/utils"
 // @ts-ignore
 import { Textarea } from "@/components/ui/textarea"
 import type { User, Media, CommunityShort } from "@/types"
@@ -128,18 +127,6 @@ const Post: React.FC<PostProps> = ({
         handleLike,
         handleRepost,
     } = usePostInteraction(id, stats, currentUser, showToast || (() => { }))
-
-    const { data: recentCommenters = [] } = useQuery({
-        queryKey: ["post", id, "commenters", isComment ? "comment" : "post"],
-        queryFn: async () => {
-            const pid = isComment ? post_id : id;
-            if (!pid) return [];
-            const comments = await fetchCommentsByPostId(pid, null, 3, isComment ? id : null);
-            return comments.map(c => c.user);
-        },
-        enabled: isValidUUID(id) && localStats.comments > 0 && (isComment ? !!post_id : true),
-        staleTime: 1000 * 60 * 5, // 5 minutes
-    });
 
     const { deletePost, updatePost } = usePosts()
     const [comments, setComments] = useState<any[]>(initialComments || [])
@@ -987,49 +974,8 @@ const Post: React.FC<PostProps> = ({
                         </Avatar>
                     </div>
                     {/* Vertical line connector (Threads style) */}
-                    {!isComment && (
-                        <div className={`mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800 ${localStats.comments > 0 ? "mb-1.5" : ""}`} />
-                    )}
-                    {!isComment && localStats.comments > 0 && (
-                        <div className="relative mb-2 mt-auto flex h-7 w-9 items-center justify-center">
-                            {recentCommenters.length > 0 ? (
-                                <div className="relative h-full w-full">
-                                    {/* Top Avatar - The latest or one of the participants */}
-                                    <Avatar className="absolute top-0 left-1/2 -translate-x-1/2 z-20 size-[14px] border border-white dark:border-black shadow-sm">
-                                        <AvatarImage src={recentCommenters[0]?.avatar} className="object-cover" />
-                                        <AvatarFallback className="text-[5px] font-bold">
-                                            {recentCommenters[0]?.handle?.[0]?.toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-
-                                    {/* Bottom Left Avatar */}
-                                    {recentCommenters.length > 1 && (
-                                        <Avatar className="absolute bottom-0 left-1 z-10 size-[16px] border-[1.5px] border-white dark:border-black shadow-sm">
-                                            <AvatarImage src={recentCommenters[1]?.avatar} className="object-cover" />
-                                            <AvatarFallback className="text-[6px] font-bold">
-                                                {recentCommenters[1]?.handle?.[0]?.toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    )}
-
-                                    {/* Bottom Right Avatar */}
-                                    {recentCommenters.length > 2 && (
-                                        <Avatar className="absolute bottom-1 right-1 z-10 size-3 border border-white dark:border-black shadow-sm">
-                                            <AvatarImage src={recentCommenters[2]?.avatar} className="object-cover" />
-                                            <AvatarFallback className="text-[5px] font-bold">
-                                                {recentCommenters[2]?.handle?.[0]?.toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="relative h-full w-full opacity-40">
-                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 size-3 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                                    <div className="absolute bottom-0 left-1 size-3.5 rounded-full bg-zinc-400 dark:bg-zinc-600" />
-                                    <div className="absolute bottom-1 right-1 size-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                                </div>
-                            )}
-                        </div>
+                    {((!isComment && localStats.comments > 0) || (isComment && !parent_id && localStats.comments > 0)) && (
+                        <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
                     )}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
