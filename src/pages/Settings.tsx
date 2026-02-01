@@ -119,8 +119,8 @@ const Settings: React.FC = () => {
                                     >
                                         Cancel
                                     </Button>
-                                    <Button type="submit" disabled={loading}>
-                                        {loading ? "Saving..." : "Update Password"}
+                                    <Button type="submit" loading={loading}>
+                                        Update Password
                                     </Button>
                                 </div>
                             </form>

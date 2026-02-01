@@ -794,28 +794,30 @@ const Post: React.FC<PostProps> = ({
                         <ActionButton
                             icon={Heart}
                             label="Like"
+                            type="like"
                             onClick={handleLike}
                             active={liked}
-                            activeColorClass="text-rose-500"
                         />
                         {!isComment && (
                             <ActionButton
                                 icon={Repeat2}
                                 label="Repost"
+                                type="repost"
                                 onClick={handleRepost}
                                 active={reposted}
-                                activeColorClass="text-emerald-500"
                             />
                         )}
                         <ActionButton
                             icon={ChatIcon}
                             label="Comment"
+                            type="comment"
                             onClick={() => document.getElementById("comment-input")?.focus()}
                         />
                         {!isComment && (
                             <ActionButton
                                 icon={ShareIcon}
                                 label="Share"
+                                type="share"
                                 onClick={() => setIsShareModalOpen(true)}
                             />
                         )}
@@ -1074,13 +1076,14 @@ const Post: React.FC<PostProps> = ({
                         <ActionButton
                             icon={Heart}
                             size={isComment ? 16 : 18}
+                            type="like"
                             onClick={handleLike}
                             active={liked}
-                            activeColorClass="text-rose-500"
                         />
                         <ActionButton
                             icon={MessageCircle}
                             size={isComment ? 16 : 18}
+                            type="comment"
                             onClick={(e) => {
                                 e?.stopPropagation()
                                 onReply ? onReply(user.handle, id) : onClick && onClick()
@@ -1089,13 +1092,14 @@ const Post: React.FC<PostProps> = ({
                         <ActionButton
                             icon={Repeat2}
                             size={isComment ? 16 : 18}
+                            type="repost"
                             onClick={handleRepost}
                             active={reposted}
-                            activeColorClass="text-emerald-500"
                         />
                         {!isComment && (
                             <ActionButton
                                 icon={ShareIcon}
+                                type="share"
                                 onClick={(e) => {
                                     e?.stopPropagation();
                                     setIsShareModalOpen(true);

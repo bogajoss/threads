@@ -194,14 +194,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     </div>
                     <Button
                         className="w-full py-3"
-                        disabled={loading}
+                        loading={loading}
                         onClick={handleUpdateProfile}
                     >
-                        {loading ? (
-                            <Loader2 size={24} className="mx-auto animate-spin text-white" />
-                        ) : (
-                            "Save changes"
-                        )}
+                        Save changes
                     </Button>
                 </div>
             </Modal>

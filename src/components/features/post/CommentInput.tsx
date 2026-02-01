@@ -125,20 +125,12 @@ const CommentInput: React.FC<CommentInputProps> = ({
                         <Button
                             className="min-w-[70px] !w-auto px-5 py-1.5 text-sm font-bold"
                             onClick={handleSubmitComment}
+                            loading={loading || isUploading}
                             disabled={
-                                (!newComment.trim() && selectedFiles.length === 0) ||
-                                loading ||
-                                isUploading
+                                (!newComment.trim() && selectedFiles.length === 0)
                             }
                         >
-                            {loading || isUploading ? (
-                                <Loader2
-                                    size={16}
-                                    className="mx-auto animate-spin text-white"
-                                />
-                            ) : (
-                                "Reply"
-                            )}
+                            Reply
                         </Button>
                     </div>
                 </div>

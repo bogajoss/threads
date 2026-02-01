@@ -356,11 +356,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 <Button
                     onClick={handleCreatePost}
                     disabled={
-                        (!postContent.trim() && selectedFiles.length === 0) || loading
+                        (!postContent.trim() && selectedFiles.length === 0)
                     }
+                    loading={loading}
                     className="h-9 rounded-full bg-zinc-900 px-6 text-sm font-bold text-white shadow-md transition-all hover:opacity-90 disabled:opacity-50 active:scale-95 dark:bg-white dark:text-zinc-950"
                 >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : "Post"}
+                    Post
                 </Button>
             </div>
 

@@ -129,15 +129,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                 <Button
                     type="submit"
                     className="mt-6 w-full justify-center py-3 text-lg"
-                    disabled={loading}
+                    loading={loading}
                 >
-                    {loading ? (
-                        <Loader2 size={24} className="animate-spin" />
-                    ) : type === "login" ? (
-                        "Log in"
-                    ) : (
-                        "Sign up"
-                    )}
+                    {type === "login" ? "Log in" : "Sign up"}
                 </Button>
             </form>
 

@@ -122,13 +122,13 @@ const ChatList: React.FC<ChatListProps> = ({
                 </div>
 
                 <div className="relative group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-violet-500 transition-colors" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-violet-500 transition-colors" size={18} />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search Messenger"
-                        className="w-full rounded-full border-none bg-zinc-100 py-2.5 pl-10 pr-4 text-sm font-medium text-zinc-900 placeholder:text-zinc-500 transition-all focus:bg-white focus:ring-2 focus:ring-violet-500/20 focus:shadow-sm dark:bg-zinc-900 dark:text-white dark:focus:bg-black"
+                        className="w-full rounded-2xl border-none bg-zinc-100 py-3 pl-12 pr-4 text-[15px] font-medium text-zinc-900 placeholder:text-zinc-500 transition-all focus:bg-white focus:ring-2 focus:ring-violet-500/20 focus:shadow-md dark:bg-zinc-900 dark:text-white dark:focus:bg-black"
                     />
                 </div>
             </div>
