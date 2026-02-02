@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export interface AudioRecorderHook {
   isRecording: boolean;
@@ -24,6 +24,23 @@ export const useAudioRecorder = (): AudioRecorderHook => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerIntervalRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+        // Stop all tracks in the stream
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const startTimer = useCallback(() => {
     timerIntervalRef.current = window.setInterval(() => {

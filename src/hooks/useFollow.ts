@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleFollow, checkIfFollowing, fetchFollowStats } from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
 import type { User } from "@/types/index";
+import { useToast } from "@/context/ToastContext";
 
 interface FollowStats {
     followers: number;
@@ -11,11 +12,11 @@ interface FollowStats {
 
 export const useFollow = (
     profile: User | null,
-    currentUserId: string | null | undefined,
-    showToast: (msg: string, type?: 'success' | 'error' | 'info') => void
+    currentUserId: string | null | undefined
 ) => {
     const targetId = profile?.id;
     const queryClient = useQueryClient();
+    const { addToast } = useToast();
     
     // Local stats state for optimistic UI, initialized from profile prop
     const [stats, setStats] = useState<FollowStats>({
@@ -31,7 +32,7 @@ export const useFollow = (
                 following: profile.following_count || 0,
             });
         }
-    }, [profile]);
+    }, [profile?.id, profile?.follower_count, profile?.following_count]);
 
     const isValidIds = targetId && isValidUUID(targetId) && currentUserId && isValidUUID(currentUserId);
 
@@ -82,20 +83,20 @@ export const useFollow = (
                     followers: context.previousFollowing ? prev.followers + 1 : Math.max(0, prev.followers - 1)
                 }));
             }
-            showToast("Failed to update follow status", "error");
+            addToast("Failed to update follow status", "error");
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["isFollowing", currentUserId, targetId] });
             queryClient.invalidateQueries({ queryKey: ["followStats", targetId] });
         },
         onSuccess: (newItemState) => {
-            showToast(newItemState ? "Followed" : "Unfollowed");
+            addToast(newItemState ? "Followed" : "Unfollowed");
         }
     });
 
     const handleFollow = async () => {
-        if (!currentUserId) return showToast("Please login to follow!", "error");
-        if (currentUserId === targetId) return showToast("You cannot follow yourself!", "error");
+        if (!currentUserId) return addToast("Please login to follow!", "error");
+        if (currentUserId === targetId) return addToast("You cannot follow yourself!", "error");
         if (!isValidIds) return;
 
         followMutation.mutate();

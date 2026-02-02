@@ -10,8 +10,7 @@ import {
 import { NavLink, useLocation } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useNotifications } from "@/hooks/useNotifications"
-import { useMessages } from "@/hooks/useMessages"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useConversations } from "@/hooks/useConversations"
 
 interface BottomNavProps {
     handleProfileClick: (handle: string) => void
@@ -20,7 +19,7 @@ interface BottomNavProps {
 const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
     const { currentUser } = useAuth()
     const { unreadCount: notificationsCount } = useNotifications(currentUser)
-    const { unreadCount: messagesCount } = useMessages(currentUser)
+    const { unreadCount: messagesCount } = useConversations(currentUser)
     const location = useLocation()
 
     const navItems = [

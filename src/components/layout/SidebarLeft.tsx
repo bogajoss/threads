@@ -11,7 +11,7 @@ import {
 import { NavLink, Link } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useNotifications } from "@/hooks/useNotifications"
-import { useMessages } from "@/hooks/useMessages"
+import { useConversations } from "@/hooks/useConversations"
 
 interface SidebarLeftProps {
     onPostClick: () => void
@@ -20,7 +20,7 @@ interface SidebarLeftProps {
 const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
     const { currentUser } = useAuth()
     const { unreadCount: notificationsCount } = useNotifications(currentUser)
-    const { unreadCount: messagesCount } = useMessages(currentUser)
+    const { unreadCount: messagesCount } = useConversations(currentUser)
 
     const navItems = [
         { id: "home", icon: HomeIcon, path: "/" },
