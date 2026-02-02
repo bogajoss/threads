@@ -19,6 +19,8 @@ export const useMessagesPage = () => {
     const {
         conversations,
         isConvLoading,
+        refetchConversations,
+        refetchMessages,
         sendMessage,
         sendTypingStatus,
         typingStatus,
@@ -117,6 +119,8 @@ export const useMessagesPage = () => {
         otherUserIsOnline,
         handleStartConversation,
         handleSelectConversation,
+        refetchConversations,
+        refetchMessages,
         sendMessage,
         onDeleteMessage,
         sendTypingStatus,

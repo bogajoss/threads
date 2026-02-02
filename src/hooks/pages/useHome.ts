@@ -15,6 +15,7 @@ export const useHome = () => {
         hasMore,
         isFetchingNextPage,
         fetchNextPage,
+        refreshPosts,
     } = usePosts()
     const { addToast } = useToast()
     const navigate = useNavigate()
@@ -86,6 +87,7 @@ export const useHome = () => {
         hasMore,
         isFetchingNextPage,
         fetchNextPage,
+        refreshPosts,
         addToast,
         handlePostClick,
         handleUserClick,

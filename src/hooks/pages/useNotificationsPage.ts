@@ -17,7 +17,8 @@ export const useNotificationsPage = () => {
         fetchNextPage,
         hasNextPage: hasMore,
         isFetchingNextPage: isFetchingMore,
-        isLoading
+        isLoading,
+        refetch
     } = useInfiniteQuery({
         queryKey: ["notifications", currentUser?.id],
         queryFn: ({ pageParam }) => fetchNotifications(currentUser?.id!, pageParam, 10),
@@ -113,6 +114,7 @@ export const useNotificationsPage = () => {
         isFetchingMore,
         hasMore,
         loadNotifications: fetchNextPage, // Maintain interface name
+        refreshNotifications: refetch,
         handleNotificationClick,
         navigate,
     }

@@ -68,7 +68,11 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
     }, [currentUser?.id]);
 
     // 1. Fetch Conversations
-    const { data: conversations = [], isLoading: isConvLoading } = useQuery({
+    const {
+        data: conversations = [],
+        isLoading: isConvLoading,
+        refetch: refetchConversations
+    } = useQuery({
         queryKey: ["conversations", currentUser?.id],
         queryFn: () => fetchConversations(currentUser?.id || ""),
         enabled: !!currentUser?.id,
@@ -89,7 +93,8 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-        isLoading: isMsgLoading
+        isLoading: isMsgLoading,
+        refetch: refetchMessages
     } = useInfiniteQuery({
         queryKey: ["messages", activeConversationId],
         queryFn: ({ pageParam }) => fetchMessages(activeConversationId!, pageParam, 20),
@@ -262,6 +267,8 @@ export const useMessages = (currentUser: User | null, activeConversationId?: str
         conversations,
         unreadCount,
         isConvLoading,
+        refetchConversations,
+        refetchMessages,
         sendMessage: (convId: string, text: string, type?: string, media?: string[], replyToId?: string | null) =>
             sendMutation.mutate({ convId, text, type, media, replyToId }),
         sendTypingStatus,

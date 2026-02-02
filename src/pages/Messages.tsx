@@ -6,6 +6,8 @@ import ChatWindow from "@/components/features/chat/ChatWindow"
 import { Loader2, Zap, MessageSquareDashed } from "lucide-react"
 // @ts-ignore
 import { useMessagesPage } from "@/hooks"
+// @ts-ignore
+import PullToRefresh from "@/components/ui/PullToRefresh"
 
 const Messages: React.FC = () => {
     const {
@@ -24,6 +26,7 @@ const Messages: React.FC = () => {
         otherUserIsOnline,
         handleStartConversation,
         handleSelectConversation,
+        refetchConversations,
         sendMessage,
         onDeleteMessage,
         sendTypingStatus,
@@ -63,7 +66,7 @@ const Messages: React.FC = () => {
             <div
                 className={`flex-col md:flex md:w-[400px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 min-w-0 flex-1 md:flex-none bg-white dark:bg-black border-r border-zinc-100 dark:border-zinc-800 z-10`}
             >
-                <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+                <PullToRefresh onRefresh={async () => await refetchConversations()} className="flex-1 min-h-0 flex flex-col">
                     <ChatList
                         conversations={filteredConversations}
                         userResults={userSearchResults}
@@ -74,7 +77,7 @@ const Messages: React.FC = () => {
                         onSearchChange={setMsgSearchQuery}
                         onlineUsers={onlineUsers}
                     />
-                </div>
+                </PullToRefresh>
             </div>
             {selectedConversation ? (
                 <ChatWindow

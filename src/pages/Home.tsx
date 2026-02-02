@@ -13,6 +13,8 @@ import {
 // @ts-ignore
 import { useHome } from "@/hooks"
 import { Loader2 } from "lucide-react"
+// @ts-ignore
+import PullToRefresh from "@/components/ui/PullToRefresh"
 
 const HomeHeader: React.FC<any> = ({ currentUser, groupedStories, onAddStory, onStoryClick }) => (
     <div className="bg-white dark:bg-black">
@@ -74,6 +76,7 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
         hasMore,
         isFetchingNextPage,
         fetchNextPage,
+        refreshPosts,
         addToast,
         handlePostClick,
         handleUserClick,
@@ -99,42 +102,44 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
 
     return (
         <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-             <Virtuoso
-                useWindowScroll
-                data={homePosts}
-                components={{
-                    Header: () => (
-                        <HomeHeader 
-                            currentUser={currentUser} 
-                            groupedStories={groupedStories} 
-                            onAddStory={onAddStory} 
-                            onStoryClick={onStoryClick} 
+             <PullToRefresh onRefresh={async () => await refreshPosts()}>
+                <Virtuoso
+                    useWindowScroll
+                    data={homePosts}
+                    components={{
+                        Header: () => (
+                            <HomeHeader 
+                                currentUser={currentUser} 
+                                groupedStories={groupedStories} 
+                                onAddStory={onAddStory} 
+                                onStoryClick={onStoryClick} 
+                            />
+                        ),
+                        Footer: () => (
+                            <HomeFooter 
+                                isFetchingNextPage={isFetchingNextPage} 
+                                hasMore={hasMore} 
+                                hasPosts={homePosts.length > 0} 
+                            />
+                        )
+                    }}
+                    endReached={() => {
+                        if (hasMore && !isFetchingNextPage) {
+                            fetchNextPage()
+                        }
+                    }}
+                    itemContent={(_index, post) => (
+                        <Post
+                            key={post.feed_id || post.id}
+                            {...post}
+                            currentUser={currentUser}
+                            showToast={addToast}
+                            onClick={() => handlePostClick(post.id)}
+                            onUserClick={handleUserClick}
                         />
-                    ),
-                    Footer: () => (
-                        <HomeFooter 
-                            isFetchingNextPage={isFetchingNextPage} 
-                            hasMore={hasMore} 
-                            hasPosts={homePosts.length > 0} 
-                        />
-                    )
-                }}
-                endReached={() => {
-                    if (hasMore && !isFetchingNextPage) {
-                        fetchNextPage()
-                    }
-                }}
-                itemContent={(_index, post) => (
-                    <Post
-                        key={post.feed_id || post.id}
-                        {...post}
-                        currentUser={currentUser}
-                        showToast={addToast}
-                        onClick={() => handlePostClick(post.id)}
-                        onUserClick={handleUserClick}
-                    />
-                )}
-            />
+                    )}
+                />
+            </PullToRefresh>
         </div>
     )
 }
