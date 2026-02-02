@@ -32,6 +32,7 @@ const HashtagFeed = lazy(() => import("@/pages/HashtagFeed"))
 
 import { Plus } from "lucide-react"
 import { ScrollToTop } from "@/lib/utils"
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts"
 
 const PageLoader = () => (
     <div className="flex h-screen w-full items-center justify-center">
@@ -53,6 +54,9 @@ export default function Sysm() {
     const [editProfileData, setEditProfileData] = useState({})
     const [postCommunity, setPostCommunity] = useState(null)
     const [viewingStory, setViewingStory] = useState(null)
+
+    // Initialize Keyboard Shortcuts
+    useKeyboardShortcuts()
 
     if (authMode) {
         return (

@@ -1,4 +1,4 @@
-import { Loader2, ArrowLeft, Volume2, VolumeX } from "lucide-react"
+import { Loader2, ArrowLeft, Volume2, VolumeX, ChevronUp, ChevronDown } from "lucide-react"
 
 // @ts-ignore
 import ReelItem from "@/components/features/post/ReelItem"
@@ -15,6 +15,8 @@ const Reels = () => {
         setReelRef,
         navigate,
         toggleMute,
+        scrollToNext,
+        scrollToPrev,
     } = useReels()
 
     if (loading) {
@@ -61,6 +63,24 @@ const Reels = () => {
                     <Volume2 size={24} strokeWidth={2.5} />
                 )}
             </button>
+
+            {/* Navigation Buttons (Up/Down) */}
+            <div className="absolute right-6 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-4">
+                <button
+                    onClick={scrollToPrev}
+                    className="group rounded-full border border-white/10 bg-black/20 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
+                    title="Previous Reel"
+                >
+                    <ChevronUp size={28} strokeWidth={3} className="transition-transform group-hover:-translate-y-0.5" />
+                </button>
+                <button
+                    onClick={scrollToNext}
+                    className="group rounded-full border border-white/10 bg-black/20 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
+                    title="Next Reel"
+                >
+                    <ChevronDown size={28} strokeWidth={3} className="transition-transform group-hover:translate-y-0.5" />
+                </button>
+            </div>
 
             <div
                 ref={containerRef}

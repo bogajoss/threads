@@ -84,6 +84,71 @@ export const useReels = () => {
         setIsMuted(!isMuted)
     }
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement
+            const isTyping = 
+                target.tagName === "INPUT" || 
+                target.tagName === "TEXTAREA" || 
+                target.isContentEditable
+            
+            if (isTyping) return
+            
+            // Ignore if modifier keys are pressed
+            if (e.ctrlKey || e.altKey || e.metaKey) return
+
+            switch (e.key) {
+                case "ArrowUp":
+                    e.preventDefault()
+                    scrollToPrev()
+                    break
+                case "ArrowDown":
+                    e.preventDefault()
+                    scrollToNext()
+                    break
+                case "m":
+                case "M":
+                    toggleMute()
+                    break
+                case " ":
+                    e.preventDefault()
+                    // Get the active reel's video element/plyr instance and toggle it
+                    const activeElement = reelRefs.current.get(activeReelId || "")
+                    if (activeElement) {
+                        const playButton = activeElement.querySelector(".reel-item") as HTMLElement
+                        if (playButton) {
+                            // We trigger the click interaction which already handles play/pause logic
+                            playButton.click()
+                        }
+                    }
+                    break
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [activeReelId, reels, isMuted]) // Re-bind when state changes to ensure correct index logic
+
+    const scrollToNext = () => {
+        if (reels.length === 0) return
+        const currentIndex = reels.findIndex(r => r.id === activeReelId)
+        if (currentIndex < reels.length - 1) {
+            const nextReel = reels[currentIndex + 1]
+            const element = reelRefs.current.get(nextReel.id)
+            element?.scrollIntoView({ behavior: "smooth" })
+        }
+    }
+
+    const scrollToPrev = () => {
+        if (reels.length === 0) return
+        const currentIndex = reels.findIndex(r => r.id === activeReelId)
+        if (currentIndex > 0) {
+            const prevReel = reels[currentIndex - 1]
+            const element = reelRefs.current.get(prevReel.id)
+            element?.scrollIntoView({ behavior: "smooth" })
+        }
+    }
+
     const setReelRef = (id: string, el: HTMLDivElement | null) => {
         if (el) {
             reelRefs.current.set(id, el)
@@ -121,6 +186,8 @@ export const useReels = () => {
         setReelRef,
         navigate,
         toggleMute,
+        scrollToNext,
+        scrollToPrev,
         loadReels: fetchNextPage, 
     }
 }

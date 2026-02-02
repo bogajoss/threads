@@ -244,188 +244,187 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             [videoUrl]
         )
 
-        return (
-            <div
-                data-id={reel.id}
-                className="reel-item relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer"
-                onClick={handleInteraction}
-            >
-                <div className="flex h-full w-full max-w-[450px] items-center justify-center">
-                    <div className="w-full">
-                        <Plyr ref={playerRef} {...plyrProps} />
-                    </div>
-                </div>
-
-                {showHeart && (
-                    <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-                        <div className="animate-in zoom-in-50 fade-out fill-mode-forwards duration-500">
-                            <Heart
-                                size={120}
-                                fill="white"
-                                className="scale-125 text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]"
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {showPlayPauseIcon && (
-                    <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-                        <div className="animate-in fade-in zoom-in-90 scale-100 animate-out zoom-out-110 fade-out fill-mode-forwards duration-500">
-                            <div className="rounded-full border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
-                                {showPlayPauseIcon === "play" ? (
-                                    <Play size={50} fill="white" className="ml-1.5 text-white" />
-                                ) : (
-                                    <Pause size={50} fill="white" className="text-white" />
-                                )}
+                return (
+                    <div
+                        data-id={reel.id}
+                        className="reel-item relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer"
+                        onClick={handleInteraction}
+                    >
+                        <div className="relative flex h-full w-full max-w-[450px] items-center justify-center">
+                            <div className="w-full">
+                                <Plyr ref={playerRef} {...plyrProps} />
                             </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
-
-                <div className="pointer-events-none absolute bottom-6 left-4 right-16 text-white">
-                    <div className="pointer-events-auto mb-3 flex items-center gap-2">
-                        <Link
-                            to={`/u/${reel.user?.handle}`}
-                            className="flex items-center gap-2 transition-opacity hover:opacity-80"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <Avatar className="size-10 border-2 border-white">
-                                <AvatarImage
-                                    src={reel.user?.avatar}
-                                    alt={reel.user?.handle}
-                                    className="object-cover"
-                                />
-                                <AvatarFallback>
-                                    {reel.user?.handle?.[0]?.toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                            <span className="font-bold">@{reel.user?.handle}</span>
-                        </Link>
-                        {currentUser?.id !== reel.user?.id && (
-                            <button
-                                className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${isFollowing
-                                    ? "border border-white/50 bg-transparent text-white"
-                                    : "bg-white text-black hover:bg-zinc-200"
-                                    }`}
-                                onClick={handleToggleFollow}
-                            >
-                                {isFollowing ? (
-                                    <>
-                                        <FollowingIcon size={14} />
-                                        <span className="hidden sm:inline">Following</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <FollowIcon size={14} />
-                                        <span className="hidden sm:inline">Follow</span>
-                                    </>
-                                )}
-                            </button>
-                        )}
-                    </div>
-                    <Linkify
-                        options={{
-                            ...linkifyOptions,
-                            render: ({ attributes, content }) => {
-                                const { href, ...props } = attributes
-                                const isExternal =
-                                    !href.startsWith("/") &&
-                                    (href.startsWith("http") || href.startsWith("www"))
-
-                                if (
-                                    href.startsWith("/u/") ||
-                                    href.startsWith("/tags/") ||
-                                    href.startsWith("/c/") ||
-                                    href.startsWith("/explore")
-                                ) {
-                                    return (
-                                        <span
-                                            key={content}
-                                            {...props}
-                                            className="cursor-pointer font-bold text-white hover:underline"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                navigate(href)
-                                            }}
-                                        >
-                                            {content}
-                                        </span>
-                                    )
-                                }
-                                return (
-                                    <a
-                                        key={content}
-                                        href={href}
-                                        {...props}
-                                        className="text-white hover:underline"
-                                        target={isExternal ? "_blank" : undefined}
-                                        rel={isExternal ? "noopener noreferrer" : undefined}
+        
+                            {showHeart && (
+                                <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
+                                    <div className="animate-in zoom-in-50 fade-out fill-mode-forwards duration-500">
+                                        <Heart
+                                            size={120}
+                                            fill="white"
+                                            className="scale-125 text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+        
+                            {showPlayPauseIcon && (
+                                <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
+                                    <div className="animate-in fade-in zoom-in-90 scale-100 animate-out zoom-out-110 fade-out fill-mode-forwards duration-500">
+                                        <div className="rounded-full border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
+                                            {showPlayPauseIcon === "play" ? (
+                                                <Play size={50} fill="white" className="ml-1.5 text-white" />
+                                            ) : (
+                                                <Pause size={50} fill="white" className="text-white" />
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+        
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+        
+                            <div className="pointer-events-none absolute bottom-6 left-4 right-16 text-white">
+                                <div className="pointer-events-auto mb-3 flex items-center gap-2">
+                                    <Link
+                                        to={`/u/${reel.user?.handle}`}
+                                        className="flex items-center gap-2 transition-opacity hover:opacity-80"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        {content}
-                                    </a>
-                                )
-                            },
-                        }}
-                    >
-                        <p className="mb-3 line-clamp-2 text-sm">{reel.content}</p>
-                    </Linkify>
-                    <div className="flex items-center gap-2 text-xs opacity-90">
-                        <Music size={14} className="animate-spin-slow" />
-                        <span>Original Audio - {reel.user?.handle}</span>
-                    </div>
-                </div>
-
-                <div className="absolute bottom-6 right-2 z-10 flex flex-col items-center gap-6">
-                    <div className="pointer-events-auto flex flex-col items-center gap-1">
-                        <button
-                            className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${isLiked
-                                ? "bg-rose-500/20 text-rose-500"
-                                : "bg-zinc-800/50 text-white hover:bg-zinc-700"
-                                }`}
-                            onClick={handleToggleLike}
-                        >
-                            <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
-                        </button>
-                        <span className="text-xs font-bold text-white">{likesCount}</span>
-                    </div>
-                    <div className="pointer-events-auto flex flex-col items-center gap-1">
-                        <button
-                            className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                setIsCommentsOpen(true)
-                            }}
-                        >
-                            <ChatIcon size={28} />
-                        </button>
-                        <span className="text-xs font-bold text-white">
-                            {reel.stats?.comments || 0}
-                        </span>
-                    </div>
-                    <div className="pointer-events-auto flex flex-col items-center gap-1">
-                        <button
-                            className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
-                            onClick={handleShare}
-                        >
-                            <ShareIcon size={28} />
-                        </button>
-                        <span className="text-xs font-bold text-white">
-                            {reel.stats?.shares || 0}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Video Progress Bar */}
-                <div className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20">
-                    <div
-                        className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-100 ease-linear"
-                        style={{ width: `${progress}%` }}
-                    />
-                </div>
-
+                                        <Avatar className="size-10 border-2 border-white">
+                                            <AvatarImage
+                                                src={reel.user?.avatar}
+                                                alt={reel.user?.handle}
+                                                className="object-cover"
+                                            />
+                                            <AvatarFallback>
+                                                {reel.user?.handle?.[0]?.toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span className="font-bold">@{reel.user?.handle}</span>
+                                    </Link>
+                                    {currentUser?.id !== reel.user?.id && (
+                                        <button
+                                            className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${isFollowing
+                                                ? "border border-white/50 bg-transparent text-white"
+                                                : "bg-white text-black hover:bg-zinc-200"
+                                                }`}
+                                            onClick={handleToggleFollow}
+                                        >
+                                            {isFollowing ? (
+                                                <>
+                                                    <FollowingIcon size={14} />
+                                                    <span className="hidden sm:inline">Following</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FollowIcon size={14} />
+                                                    <span className="hidden sm:inline">Follow</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
+                                <Linkify
+                                    options={{
+                                        ...linkifyOptions,
+                                        render: ({ attributes, content }) => {
+                                            const { href, ...props } = attributes
+                                            const isExternal =
+                                                !href.startsWith("/") &&
+                                                (href.startsWith("http") || href.startsWith("www"))
+        
+                                            if (
+                                                href.startsWith("/u/") ||
+                                                href.startsWith("/tags/") ||
+                                                href.startsWith("/c/") ||
+                                                href.startsWith("/explore")
+                                            ) {
+                                                return (
+                                                    <span
+                                                        key={content}
+                                                        {...props}
+                                                        className="cursor-pointer font-bold text-white hover:underline"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            navigate(href)
+                                                        }}
+                                                    >
+                                                        {content}
+                                                    </span>
+                                                )
+                                            }
+                                            return (
+                                                <a
+                                                    key={content}
+                                                    href={href}
+                                                    {...props}
+                                                    className="text-white hover:underline"
+                                                    target={isExternal ? "_blank" : undefined}
+                                                    rel={isExternal ? "noopener noreferrer" : undefined}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    {content}
+                                                </a>
+                                            )
+                                        },
+                                    }}
+                                >
+                                    <p className="mb-3 line-clamp-2 text-sm">{reel.content}</p>
+                                </Linkify>
+                                <div className="flex items-center gap-2 text-xs opacity-90">
+                                    <Music size={14} className="animate-spin-slow" />
+                                    <span>Original Audio - {reel.user?.handle}</span>
+                                </div>
+                            </div>
+        
+                            <div className="absolute bottom-6 right-2 z-10 flex flex-col items-center gap-6">
+                                <div className="pointer-events-auto flex flex-col items-center gap-1">
+                                    <button
+                                        className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${isLiked
+                                            ? "bg-rose-500/20 text-rose-500"
+                                            : "bg-zinc-800/50 text-white hover:bg-zinc-700"
+                                            }`}
+                                        onClick={handleToggleLike}
+                                    >
+                                        <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
+                                    </button>
+                                    <span className="text-xs font-bold text-white">{likesCount}</span>
+                                </div>
+                                <div className="pointer-events-auto flex flex-col items-center gap-1">
+                                    <button
+                                        className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setIsCommentsOpen(true)
+                                        }}
+                                    >
+                                        <ChatIcon size={28} />
+                                    </button>
+                                    <span className="text-xs font-bold text-white">
+                                        {reel.stats?.comments || 0}
+                                    </span>
+                                </div>
+                                <div className="pointer-events-auto flex flex-col items-center gap-1">
+                                    <button
+                                        className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
+                                        onClick={handleShare}
+                                    >
+                                        <ShareIcon size={28} />
+                                    </button>
+                                    <span className="text-xs font-bold text-white">
+                                        {reel.stats?.shares || 0}
+                                    </span>
+                                </div>
+                            </div>
+        
+                            {/* Video Progress Bar */}
+                            <div className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20">
+                                <div
+                                    className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-100 ease-linear"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                        </div>
                 <ReelCommentsModal
                     isOpen={isCommentsOpen}
                     onClose={() => setIsCommentsOpen(false)}
