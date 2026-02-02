@@ -17,6 +17,7 @@ import {
 import { useLightbox } from "@/context/LightboxContext"
 // @ts-ignore
 import { VoiceMessage, ChatHeader, ChatInput } from "@/components/features/chat"
+import PullToRefresh from "@/components/ui/PullToRefresh"
 import { uploadFile } from "@/lib/api"
 import {
     ContextMenu,
@@ -44,6 +45,7 @@ interface ChatWindowProps {
     ) => void
     onDeleteMessage?: (msgId: string) => void
     onTyping: (isTyping: boolean) => void
+    onRefresh?: () => Promise<any>
     isLoading: boolean
     isTyping: boolean
     isOnline: boolean
@@ -56,6 +58,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     onSendMessage,
     onDeleteMessage,
     onTyping,
+    onRefresh,
     isLoading,
     isTyping,
     isOnline,
@@ -146,10 +149,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             />
 
             {/* Messages Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-3 md:px-4 py-4" ref={scrollRef}>
-                <div className="flex flex-col min-h-full justify-end">
+            <div className="flex-1 min-h-0 overflow-hidden">
+                <PullToRefresh
+                    onRefresh={onRefresh || (async () => {})}
+                    disabled={!onRefresh}
+                    className="h-full"
+                >
+                    <div className="h-full overflow-y-auto px-3 md:px-4 py-4" ref={scrollRef}>
+                        <div className="flex flex-col min-h-full justify-end">
 
-                    {/* Intro Section */}
+                            {/* Intro Section */}
                     {messages.length < 5 && (
                         <div className="py-12 flex flex-col items-center justify-center opacity-80 mb-auto">
                             <Avatar className="size-24 border-4 border-zinc-100 dark:border-zinc-800 mb-4 bg-zinc-50 dark:bg-zinc-900">
@@ -314,6 +323,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         </div>
                     )}
                 </div>
+            </div>
+                </PullToRefresh>
             </div>
 
             <ChatInput 

@@ -25,6 +25,7 @@ const Messages: React.FC = () => {
         handleStartConversation,
         handleSelectConversation,
         refetchConversations,
+        refetchMessages,
         sendMessage,
         onDeleteMessage,
         sendTypingStatus,
@@ -84,6 +85,7 @@ const Messages: React.FC = () => {
                     onSendMessage={sendMessage}
                     onDeleteMessage={onDeleteMessage}
                     onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
+                    onRefresh={async () => await refetchMessages()}
                     isLoading={isMsgLoading}
                     isTyping={!!currentIsTyping}
                     isOnline={!!otherUserIsOnline}
