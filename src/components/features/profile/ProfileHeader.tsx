@@ -37,13 +37,13 @@ import Linkify from "linkify-react"
 import { linkifyOptions } from "@/lib/linkify"
 
 import { useFollow } from "@/hooks/useFollow"
+import { useToast } from "@/context/ToastContext"
 
 interface ProfileHeaderProps {
     profile: any
     currentUser: any
     isCurrentUser: boolean
     onEditProfile?: (profile: any) => void
-    showToast: (message: string) => void
     isCommunity?: boolean
     onShowFollowers: () => void
     onShowFollowing: () => void
@@ -54,22 +54,21 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     currentUser,
     isCurrentUser,
     onEditProfile,
-    showToast,
     isCommunity,
     onShowFollowers,
     onShowFollowing,
 }) => {
+    const { addToast } = useToast()
     const { isFollowing, stats, loading, handleFollow } = useFollow(
         profile,
-        currentUser?.id,
-        showToast
+        currentUser?.id
     )
     const navigate = useNavigate()
     const [isStartingChat, setIsStartingChat] = useState(false)
 
     const handleMessageClick = async () => {
         if (!currentUser) {
-            showToast("Please sign in to message users")
+            addToast("Please sign in to message users", "info")
             return
         }
 
@@ -79,7 +78,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             navigate(`/messages/${convId}`)
         } catch (error) {
             console.error("Failed to start conversation:", error)
-            showToast("Failed to open chat")
+            addToast("Failed to open chat", "error")
         } finally {
             setIsStartingChat(false)
         }
@@ -182,7 +181,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                                 className="cursor-pointer gap-2"
                                                 onClick={() => {
                                                     navigator.clipboard.writeText(window.location.href);
-                                                    showToast("Profile link copied!");
+                                                    addToast("Profile link copied!");
                                                 }}
                                             >
                                                 <Share size={16} />
@@ -190,7 +189,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 className="cursor-pointer gap-2"
-                                                onClick={() => showToast("User reported")}
+                                                onClick={() => addToast("User reported", "info")}
                                             >
                                                 <Flag size={16} />
                                                 Report user
@@ -201,7 +200,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                             <DropdownMenuItem
                                                 variant="destructive"
                                                 className="cursor-pointer gap-2"
-                                                onClick={() => showToast("User blocked")}
+                                                onClick={() => addToast("User blocked", "info")}
                                             >
                                                 <Ban size={16} />
                                                 Block user

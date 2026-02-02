@@ -8,6 +8,7 @@ import {
     NotificationsIcon,
 } from "@/components/ui"
 import { NavLink, useLocation } from "react-router-dom"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useConversations } from "@/hooks/useConversations"

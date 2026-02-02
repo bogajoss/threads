@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
-// @ts-ignore
 import { searchPosts } from "@/lib/api"
 
 export const useHashtagFeed = () => {
@@ -27,7 +26,7 @@ export const useHashtagFeed = () => {
         initialPageParam: null as string | null,
         getNextPageParam: (lastPage) => {
             if (!lastPage || lastPage.length < 10) return undefined
-            return lastPage[lastPage.length - 1].sortTimestamp || lastPage[lastPage.length - 1].created_at
+            return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].created_at
         },
         enabled: !!tag
     })

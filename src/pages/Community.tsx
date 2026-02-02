@@ -46,7 +46,6 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
         loadCommunityPosts,
         refetchCommunity,
         currentUser,
-        addToast,
         navigate,
     } = useCommunity()
 
@@ -234,7 +233,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                                 <Post
                                     key={post.feed_id || post.id}
                                     currentUser={currentUser}
-                                    showToast={addToast}
+                                    
                                     {...post}
                                     onClick={() => navigate(`/post/${post.id}`)}
                                     onUserClick={(h: string) => navigate(`/u/${h}`)}

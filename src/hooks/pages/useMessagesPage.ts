@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
-// @ts-ignore
 import { searchUsers, getOrCreateConversation } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { usePresence } from "@/context/PresenceContext"

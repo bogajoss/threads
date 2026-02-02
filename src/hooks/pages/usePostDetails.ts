@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
-// @ts-ignore
 import { fetchPostById } from "@/lib/api"
 import { isValidUUID } from "@/lib/utils"
 

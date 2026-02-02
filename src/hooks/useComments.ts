@@ -1,6 +1,30 @@
 import { useMemo } from "react"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-...
+import { fetchCommentsByPostId, addComment } from "@/lib/api"
+import type { Media } from "@/types"
+
+export const useComments = (postId: string, initialData?: any[], parentId?: string) => {
+    const queryClient = useQueryClient()
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        refetch,
+    } = useInfiniteQuery({
+        queryKey: ["comments", postId, parentId],
+        queryFn: ({ pageParam }) => fetchCommentsByPostId(postId, pageParam, 10, parentId),
+        initialPageParam: null as string | null,
+        getNextPageParam: (lastPage) => {
+            if (!lastPage || lastPage.length < 10) return undefined
+            return lastPage[lastPage.length - 1].created_at
+        },
+        initialData: initialData ? { pages: [initialData], pageParams: [null] } : undefined,
+        enabled: !!postId,
+    })
+
     const comments = useMemo(() => {
         return data?.pages.flatMap((page) => page) || []
     }, [data])

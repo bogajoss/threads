@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useNavigate, useSearchParams, useParams } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
-// @ts-ignore
-import { fetchReels } from "@/lib/api/posts"
+import { fetchReels } from "@/lib/api"
 
 export const useReels = () => {
     const navigate = useNavigate()

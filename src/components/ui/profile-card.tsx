@@ -41,8 +41,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         handleFollow,
     } = useFollow(
         isCommunity ? null : (profile as User),
-        currentUser?.id,
-        addToast
+        currentUser?.id
     )
 
     useEffect(() => {

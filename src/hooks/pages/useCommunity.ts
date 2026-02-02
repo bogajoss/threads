@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/context/ToastContext"
-// @ts-ignore
 import {
     fetchCommunityByHandle,
     fetchCommunityPosts,
@@ -57,7 +56,6 @@ export const useCommunity = () => {
         initialPageParam: null as string | null,
         getNextPageParam: (lastPage) => {
             if (!lastPage || lastPage.length < 10) return undefined;
-            // @ts-ignore
             return lastPage[lastPage.length - 1].sort_timestamp;
         }
     });

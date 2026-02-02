@@ -15,11 +15,9 @@ import CreateCommunityModal from "@/components/features/modals/CreateCommunityMo
 import { useExplore } from "@/hooks/pages/useExplore"
 // @ts-ignore
 import { Post } from "@/components/features/post"
-import { useToast } from "@/context/ToastContext"
 import type { Post as PostType, Community } from "@/types"
 
 const Explore: React.FC = () => {
-    const { addToast } = useToast()
     const {
         currentUser,
         searchQuery,
@@ -149,7 +147,7 @@ const Explore: React.FC = () => {
                                     <Post
                                         key={post.feed_id || post.id}
                                         currentUser={currentUser}
-                                        showToast={addToast}
+                                        
                                         {...post}
                                         onClick={() => navigate(`/post/${post.id}`)}
                                         onUserClick={(h: string) => navigate(`/u/${h}`)}

@@ -47,7 +47,6 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         handleUserClick,
         loadUserPosts,
         currentUser,
-        addToast,
         navigate,
     } = useProfile()
 
@@ -89,7 +88,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                         <Post
                             key={post.id}
                             currentUser={currentUser}
-                            showToast={addToast}
+                            
                             {...post}
                             onClick={() => handlePostClick(post.id)}
                             onUserClick={handleUserClick}
@@ -161,7 +160,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                     currentUser={currentUser}
                     isCurrentUser={currentUser?.handle === displayProfile.handle}
                     onEditProfile={onEditProfile}
-                    showToast={addToast}
+                    
                     onShowFollowers={() => openFollowModal("Followers")}
                     onShowFollowing={() => openFollowModal("Following")}
                 />

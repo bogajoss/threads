@@ -11,7 +11,6 @@ const PostDetails = () => {
         isLoading,
         isError,
         currentUser,
-        addToast,
         navigate,
         handleUserClick,
         handleDelete,
@@ -58,7 +57,7 @@ const PostDetails = () => {
                     isDetail={true}
                     currentUser={currentUser}
                     initialComments={post.comments || []}
-                    showToast={addToast}
+                    
                     onUserClick={handleUserClick}
                     onDelete={handleDelete}
                     onUpdate={handleUpdate}

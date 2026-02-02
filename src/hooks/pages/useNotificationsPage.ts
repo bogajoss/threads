@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react"
 import { useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-// @ts-ignore
 import { fetchNotifications, markNotificationsAsRead } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { supabase } from "@/lib/supabase"
@@ -41,8 +40,7 @@ export const useNotificationsPage = () => {
         const channel = supabase
             .channel(`user_notifications:${currentUser.id}`)
             .on(
-                // @ts-ignore
-                "postgres_changes",
+                "postgres_changes" as any,
                 {
                     event: "INSERT",
                     schema: "public",

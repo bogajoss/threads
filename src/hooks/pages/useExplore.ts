@@ -2,12 +2,12 @@ import { useState, useMemo } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
-// @ts-ignore
 import {
     fetchCommunities,
     searchPosts,
     fetchCommunityExplorePosts,
 } from "@/lib/api"
+import type { Community } from "@/types"
 
 export const useExplore = () => {
     const { currentUser } = useAuth()
@@ -37,7 +37,7 @@ export const useExplore = () => {
     });
 
     const communitiesData = useMemo(() => {
-        return communitiesInfiniteData?.pages.flatMap(page => page) || [];
+        return communitiesInfiniteData?.pages.flatMap(page => page) as Community[] || [];
     }, [communitiesInfiniteData]);
 
     // 2. Posts Data using useInfiniteQuery
@@ -58,7 +58,7 @@ export const useExplore = () => {
         initialPageParam: null as string | null,
         getNextPageParam: (lastPage) => {
             if (!lastPage || lastPage.length < 10) return undefined;
-            return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].sortTimestamp;
+            return lastPage[lastPage.length - 1].sort_timestamp;
         }
     });
 

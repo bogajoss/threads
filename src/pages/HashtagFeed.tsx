@@ -14,7 +14,6 @@ const HashtagFeed = () => {
         loadMore,
         navigate,
         currentUser,
-        addToast,
     } = useHashtagFeed()
 
     return (
@@ -72,7 +71,7 @@ const HashtagFeed = () => {
                                 <Post
                                     key={post.feed_id || post.id}
                                     currentUser={currentUser}
-                                    showToast={addToast}
+                                    
                                     {...post}
                                     onClick={() => navigate(`/post/${post.id}`)}
                                     onUserClick={(h: string) => navigate(`/u/${h}`)}

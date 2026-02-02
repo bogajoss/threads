@@ -39,7 +39,6 @@ export const useProfile = () => {
         initialPageParam: null as string | null,
         getNextPageParam: (lastPage) => {
             if (!lastPage || lastPage.length < 10) return undefined;
-            // @ts-ignore
             return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].created_at;
         }
     });

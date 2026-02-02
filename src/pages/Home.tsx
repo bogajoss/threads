@@ -77,7 +77,6 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
         isFetchingNextPage,
         fetchNextPage,
         refreshPosts,
-        addToast,
         handlePostClick,
         handleUserClick,
     } = useHome()
@@ -133,7 +132,7 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
                             key={post.feed_id || post.id}
                             {...post}
                             currentUser={currentUser}
-                            showToast={addToast}
+                            
                             onClick={() => handlePostClick(post.id)}
                             onUserClick={handleUserClick}
                         />

@@ -44,6 +44,7 @@ import {
     PostStats,
 } from "@/components/features/post"
 import { usePostInteraction, useComments } from "@/hooks"
+import { useToast } from "@/context/ToastContext"
 // @ts-ignore
 import { usePosts } from "@/context/PostContext"
 import { uploadFile, deleteComment, updateComment, incrementPostViews } from "@/lib/api"
@@ -70,7 +71,6 @@ interface PostProps {
     repostedBy?: any
     onUserClick?: (handle: string) => void
     currentUser: User | null
-    showToast?: (message: string, type?: "success" | "error" | "info") => void
     poll?: any
     isDetail?: boolean
     initialComments?: any[]
@@ -96,7 +96,6 @@ const Post: React.FC<PostProps> = ({
     repostedBy,
     onUserClick,
     currentUser,
-    showToast,
     poll,
     isDetail,
     initialComments,
@@ -109,6 +108,7 @@ const Post: React.FC<PostProps> = ({
     post_id,
 }) => {
     const navigate = useNavigate()
+    const { addToast } = useToast()
     const {
         liked,
         reposted,
@@ -116,7 +116,7 @@ const Post: React.FC<PostProps> = ({
         setLocalStats,
         handleLike,
         handleRepost,
-    } = usePostInteraction(id, stats, currentUser, showToast || (() => { }))
+    } = usePostInteraction(id, stats, currentUser)
 
     const { deletePost, updatePost } = usePosts()
     
@@ -203,11 +203,11 @@ const Post: React.FC<PostProps> = ({
 
             setNewFiles([])
             setIsEditing(false)
-            if (showToast) showToast(`${isComment ? "Comment" : "Post"} updated`)
+            addToast(`${isComment ? "Comment" : "Post"} updated`)
             if (onUpdate) onUpdate(id, editedContent, finalMedia)
         } catch (err) {
             console.error(`Failed to update ${isComment ? "comment" : "post"}:`, err)
-            if (showToast) showToast(`Failed to update ${isComment ? "comment" : "post"}`)
+            addToast(`Failed to update ${isComment ? "comment" : "post"}`)
         } finally {
             setIsUpdating(false)
         }
@@ -221,11 +221,11 @@ const Post: React.FC<PostProps> = ({
             } else {
                 await deletePost(id)
             }
-            if (showToast) showToast(`${isComment ? "Comment" : "Post"} deleted successfully`)
+            addToast(`${isComment ? "Comment" : "Post"} deleted successfully`)
             if (onDelete) onDelete(id)
         } catch (err) {
             console.error(`Failed to delete ${isComment ? "comment" : "post"}:`, err)
-            if (showToast) showToast(`Failed to delete ${isComment ? "comment" : "post"}`)
+            addToast(`Failed to delete ${isComment ? "comment" : "post"}`)
         } finally {
             setIsDeleteDialogOpen(false)
         }
@@ -258,10 +258,10 @@ const Post: React.FC<PostProps> = ({
                 ...prev,
                 comments: (prev.comments || 0) + 1,
             }))
-            if (showToast) showToast("Reply posted!")
+            addToast("Reply posted!")
         } catch (err) {
             console.error("Failed to post comment:", err)
-            if (showToast) showToast("Failed to post reply.")
+            addToast("Failed to post reply.")
         } finally {
             setIsUploading(false)
         }
@@ -283,7 +283,7 @@ const Post: React.FC<PostProps> = ({
                             onClick={(e) => {
                                 e.stopPropagation();
                                 navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
-                                if (showToast) showToast("Link copied");
+                                addToast("Link copied");
                             }}
                         >
                             <Share size={16} />
@@ -295,7 +295,7 @@ const Post: React.FC<PostProps> = ({
                             className="cursor-pointer gap-2 py-2.5"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                if (showToast) showToast("Post reported")
+                                addToast("Post reported")
                             }}
                         >
                             <Flag size={16} />
@@ -307,7 +307,7 @@ const Post: React.FC<PostProps> = ({
                             className="cursor-pointer gap-2 py-2.5"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                if (showToast) showToast("User blocked")
+                                addToast("User blocked")
                             }}
                         >
                             <UserMinus size={16} />
@@ -500,7 +500,7 @@ const Post: React.FC<PostProps> = ({
                                     onReply={handleReplyClick}
                                     onUserClick={onUserClick}
                                     currentUser={currentUser}
-                                    showToast={showToast}
+                                    
                                     // Fix missing props
                                     stats={{
                                         likes: c.stats?.likes || 0,
@@ -706,7 +706,7 @@ const Post: React.FC<PostProps> = ({
                                                     onReply={onReply}
                                                     onUserClick={onUserClick}
                                                     currentUser={currentUser}
-                                                    showToast={showToast}
+                                                    
                                                     stats={{
                                                         likes: reply.stats?.likes || 0,
                                                         comments: reply.stats?.comments || 0,
