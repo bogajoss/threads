@@ -36,7 +36,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
     ]
 
     return (
-        <aside className="sticky top-0 hidden h-screen w-[68px] shrink-0 flex-col items-center border-r border-zinc-100 bg-white py-5 transition-colors duration-200 dark:border-zinc-800 dark:bg-black md:flex">
+        <aside className="sticky top-0 hidden h-screen w-[68px] shrink-0 self-start flex-col items-center border-r border-zinc-100 bg-white py-5 transition-colors duration-200 dark:border-zinc-800 dark:bg-black md:flex">
             <Link to="/" className="mb-8 transition-transform hover:scale-110">
                 <img src="/logo.webp" alt="Logo" className="size-8 rounded-lg" />
             </Link>

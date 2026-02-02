@@ -16,6 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
     const { darkMode } = useTheme()
 
     const isHomePage = location.pathname === "/"
+    const isReelsPage = location.pathname.startsWith("/reels")
 
     // Hide bottom nav on reels and specific messages for better UX
     const isNavHidden =
@@ -29,14 +30,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
 
     return (
         <div
-            className={`min-h-screen overflow-x-hidden bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
+            className={`min-h-screen ${isReelsPage ? "h-screen overflow-hidden" : ""} bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
         >
             <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
                 {/* Left Sidebar - Fixed narrow icons */}
                 <SidebarLeft onPostClick={onPostClick} />
 
                 {/* Main Content Area */}
-                <main className="flex w-full flex-1 justify-center px-0 gap-x-0 md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8">
+                <main className={`flex w-full flex-1 justify-center px-0 gap-x-0 ${isReelsPage ? "" : "md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8"}`}>
                     {/* Center Feed */}
                     <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
                         {isHomePage && (

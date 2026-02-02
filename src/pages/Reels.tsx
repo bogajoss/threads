@@ -64,14 +64,14 @@ const Reels = () => {
 
             <div
                 ref={containerRef}
-                className="no-scrollbar h-full w-full snap-y snap-mandatory overflow-y-auto scroll-smooth"
+                className="no-scrollbar h-full w-full snap-y snap-mandatory overflow-y-auto"
             >
                 {reels.map((reel) => (
                     <div 
                         key={reel.feed_id || reel.id} 
                         ref={(el) => setReelRef(reel.id, el)}
                         data-id={reel.id}
-                        className="snap-start h-full w-full"
+                        className="snap-start snap-always h-full w-full"
                     >
                         <ReelItem
                             reel={reel}
