@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { CreateGroupModal } from "@/components/features/modals"
 import type { User } from "@/types"
 import { cn } from "@/lib/utils"
+import PullToRefresh from "@/components/ui/PullToRefresh"
 
 interface ConversationProps {
     conv: any
@@ -99,6 +100,7 @@ interface ChatListProps {
     searchQuery: string
     onSearchChange: (query: string) => void
     onlineUsers?: Set<string>
+    onRefresh?: () => Promise<any>
 }
 
 const ChatList: React.FC<ChatListProps> = ({
@@ -110,6 +112,7 @@ const ChatList: React.FC<ChatListProps> = ({
     searchQuery,
     onSearchChange,
     onlineUsers = new Set(),
+    onRefresh,
 }) => {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
     const activeUsers = conversations.filter(c => onlineUsers.has(c.user?.id));
@@ -146,100 +149,108 @@ const ChatList: React.FC<ChatListProps> = ({
                 </div>
             </div>
 
-            <ScrollArea className="flex-1 min-w-0">
-                <div className="flex flex-col pb-4 min-w-0">
-                    {/* Active Now / Stories */}
-                    {!searchQuery && activeUsers.length > 0 && (
-                        <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
-                            <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
-                                <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
-                                    <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
-                                        <UserPlus size={24} className="text-zinc-400" />
-                                        <div className="absolute bottom-0 right-0 size-5 bg-white dark:bg-black rounded-full flex items-center justify-center">
-                                            <div className="size-4 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
-                                                <span className="text-[10px] text-zinc-500 font-bold">+</span>
+            <div className="flex-1 min-h-0 overflow-hidden">
+                <PullToRefresh 
+                    onRefresh={onRefresh || (async () => {})} 
+                    disabled={!onRefresh}
+                    className="h-full"
+                >
+                    <ScrollArea className="h-full min-w-0">
+                        <div className="flex flex-col pb-4 min-w-0">
+                            {/* Active Now / Stories */}
+                            {!searchQuery && activeUsers.length > 0 && (
+                                <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
+                                    <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
+                                        <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
+                                            <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
+                                                <UserPlus size={24} className="text-zinc-400" />
+                                                <div className="absolute bottom-0 right-0 size-5 bg-white dark:bg-black rounded-full flex items-center justify-center">
+                                                    <div className="size-4 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
+                                                        <span className="text-[10px] text-zinc-500 font-bold">+</span>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            <span className="text-[11px] font-medium text-zinc-500">Your Story</span>
                                         </div>
+                                        {activeUsers.map(conv => (
+                                            <div key={conv.id} onClick={() => onSelect(conv)} className="flex flex-col items-center gap-2 cursor-pointer group min-w-[64px] transition-transform active:scale-95">
+                                                <div className="relative">
+                                                    <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-orange-500 opacity-90 p-[2px]"></div>
+                                                    <div className="relative rounded-full border-[3px] border-white dark:border-black p-[2px] bg-white dark:bg-black">
+                                                        <Avatar className="size-[50px]">
+                                                            <AvatarImage src={conv.user?.avatar} className="object-cover" />
+                                                            <AvatarFallback>{conv.user?.name?.[0]}</AvatarFallback>
+                                                        </Avatar>
+                                                    </div>
+                                                    <span className="absolute bottom-1 right-1 size-3.5 rounded-full border-[2.5px] border-white bg-emerald-500 dark:border-black"></span>
+                                                </div>
+                                                <span className="w-full truncate text-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                                                    {conv.user?.name.split(' ')[0]}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <span className="text-[11px] font-medium text-zinc-500">Your Story</span>
                                 </div>
-                                {activeUsers.map(conv => (
-                                    <div key={conv.id} onClick={() => onSelect(conv)} className="flex flex-col items-center gap-2 cursor-pointer group min-w-[64px] transition-transform active:scale-95">
-                                        <div className="relative">
-                                            <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-orange-500 opacity-90 p-[2px]"></div>
-                                            <div className="relative rounded-full border-[3px] border-white dark:border-black p-[2px] bg-white dark:bg-black">
-                                                <Avatar className="size-[50px]">
-                                                    <AvatarImage src={conv.user?.avatar} className="object-cover" />
-                                                    <AvatarFallback>{conv.user?.name?.[0]}</AvatarFallback>
-                                                </Avatar>
-                                            </div>
-                                            <span className="absolute bottom-1 right-1 size-3.5 rounded-full border-[2.5px] border-white bg-emerald-500 dark:border-black"></span>
-                                        </div>
-                                        <span className="w-full truncate text-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                                            {conv.user?.name.split(' ')[0]}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                            )}
 
-                    {/* Messages List */}
-                    <div className="px-2 space-y-1">
-                        {conversations.length > 0 && conversations
-                            .filter(conv => conv.lastMessage !== "No messages yet" || conv.id === selectedId || searchQuery)
-                            .map((conv) => (
-                                <ConversationItem
-                                    key={conv.id}
-                                    conv={conv}
-                                    selectedId={selectedId}
-                                    onSelect={onSelect}
-                                    onlineUsers={onlineUsers}
-                                />
-                            ))}
-                    </div>
-
-                    {/* Search Results for Users */}
-                    {userResults.length > 0 && (
-                        <>
-                            <div className="px-6 py-3 mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                                More People
-                            </div>
+                            {/* Messages List */}
                             <div className="px-2 space-y-1">
-                                {userResults.map((user) => (
-                                    <div
-                                        key={user.id}
-                                        onClick={() => onStartNew(user)}
-                                        className="flex cursor-pointer items-center gap-4 px-3 py-2 rounded-2xl transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
-                                    >
-                                        <Avatar className="size-10">
-                                            <AvatarImage src={user.avatar} className="object-cover" />
-                                            <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="truncate text-sm font-bold text-zinc-900 dark:text-white">{user.name}</div>
-                                            <div className="truncate text-xs text-zinc-500">@{user.handle}</div>
-                                        </div>
-                                        <button className="flex size-8 items-center justify-center rounded-full bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400">
-                                            <UserPlus size={16} />
-                                        </button>
-                                    </div>
-                                ))}
+                                {conversations.length > 0 && conversations
+                                    .filter(conv => conv.lastMessage !== "No messages yet" || conv.id === selectedId || searchQuery)
+                                    .map((conv) => (
+                                        <ConversationItem
+                                            key={conv.id}
+                                            conv={conv}
+                                            selectedId={selectedId}
+                                            onSelect={onSelect}
+                                            onlineUsers={onlineUsers}
+                                        />
+                                    ))}
                             </div>
-                        </>
-                    )}
 
-                    {/* Empty States */}
-                    {conversations.length === 0 && userResults.length === 0 && searchQuery && (
-                        <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                            <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-900">
-                                <Search className="text-zinc-400" size={24} />
-                            </div>
-                            <p className="text-zinc-500">No results found for "{searchQuery}"</p>
+                            {/* Search Results for Users */}
+                            {userResults.length > 0 && (
+                                <>
+                                    <div className="px-6 py-3 mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                                        More People
+                                    </div>
+                                    <div className="px-2 space-y-1">
+                                        {userResults.map((user) => (
+                                            <div
+                                                key={user.id}
+                                                onClick={() => onStartNew(user)}
+                                                className="flex cursor-pointer items-center gap-4 px-3 py-2 rounded-2xl transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                                            >
+                                                <Avatar className="size-10">
+                                                    <AvatarImage src={user.avatar} className="object-cover" />
+                                                    <AvatarFallback>{user.name?.[0]?.toUpperCase()}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="truncate text-sm font-bold text-zinc-900 dark:text-white">{user.name}</div>
+                                                    <div className="truncate text-xs text-zinc-500">@{user.handle}</div>
+                                                </div>
+                                                <button className="flex size-8 items-center justify-center rounded-full bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400">
+                                                    <UserPlus size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Empty States */}
+                            {conversations.length === 0 && userResults.length === 0 && searchQuery && (
+                                <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+                                    <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-900">
+                                        <Search className="text-zinc-400" size={24} />
+                                    </div>
+                                    <p className="text-zinc-500">No results found for "{searchQuery}"</p>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-            </ScrollArea>
+                    </ScrollArea>
+                </PullToRefresh>
+            </div>
 
             <CreateGroupModal
                 isOpen={isCreateGroupOpen}

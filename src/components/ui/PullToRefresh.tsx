@@ -26,16 +26,22 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     const MAX_PULL = 120
 
     // Check if we are at the top of the scrollable element
-    const checkScrollTop = useCallback(() => {
-        if (!containerRef.current) return
-        
+    const checkScrollTop = useCallback((e?: any) => {
         // If it's the window scroll
-        const scrollTop = window.scrollY || document.documentElement.scrollTop
+        const windowScrollTop = window.scrollY || document.documentElement.scrollTop
         
-        // Or if the container itself is scrollable (like in Messages)
-        const elementScrollTop = containerRef.current.scrollTop
+        // If it's a specific element scroll (either from the container or bubbling from a child)
+        let elementScrollTop = 0
+        if (e && e.target && e.target !== window && e.target !== document) {
+            elementScrollTop = e.target.scrollTop
+        } else if (containerRef.current) {
+            // Also check common scrollable children if the container itself isn't scrolling
+            const scrollableChild = containerRef.current.querySelector('[data-radix-scroll-area-viewport]') || 
+                                   containerRef.current.querySelector('.overflow-y-auto')
+            elementScrollTop = scrollableChild ? scrollableChild.scrollTop : containerRef.current.scrollTop
+        }
         
-        setCanPull(scrollTop <= 0 && elementScrollTop <= 0)
+        setCanPull(windowScrollTop <= 0 && elementScrollTop <= 0)
     }, [])
 
     useEffect(() => {
