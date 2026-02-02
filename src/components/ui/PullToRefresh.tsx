@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
-import { motion, type PanInfo, useAnimation } from "framer-motion"
+import { motion } from "framer-motion"
 import { Loader2, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,76 +18,125 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 }) => {
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [pullDistance, setPullDistance] = useState(0)
-    const [canPull, setCanPull] = useState(true)
     const containerRef = useRef<HTMLDivElement>(null)
-    const controls = useAnimation()
+    const startY = useRef(0)
+    const isPulling = useRef(false)
     
     const THRESHOLD = 70
     const MAX_PULL = 120
 
-    // Check if we are at the top of the scrollable element
-    const checkScrollTop = useCallback((e?: any) => {
-        // If it's the window scroll
-        const windowScrollTop = window.scrollY || document.documentElement.scrollTop
+    // Find the actual scrollable element
+    const getScrollableElement = useCallback(() => {
+        if (!containerRef.current) return null;
+        // 1. Radix ScrollArea
+        const radixViewport = containerRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (radixViewport) return radixViewport;
         
-        // If it's a specific element scroll (either from the container or bubbling from a child)
-        let elementScrollTop = 0
-        if (e && e.target && e.target !== window && e.target !== document) {
-            elementScrollTop = e.target.scrollTop
-        } else if (containerRef.current) {
-            // Also check common scrollable children if the container itself isn't scrolling
-            const scrollableChild = containerRef.current.querySelector('[data-radix-scroll-area-viewport]') || 
-                                   containerRef.current.querySelector('.overflow-y-auto')
-            elementScrollTop = scrollableChild ? scrollableChild.scrollTop : containerRef.current.scrollTop
+        // 2. Standard overflow auto
+        const overflowAuto = containerRef.current.querySelector('.overflow-y-auto');
+        if (overflowAuto) return overflowAuto;
+
+        // 3. Fallback: Check direct children for scrolling
+        const children = containerRef.current.children;
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i] as HTMLElement;
+            if (window.getComputedStyle(child).overflowY === 'auto' || window.getComputedStyle(child).overflowY === 'scroll') {
+                return child;
+            }
         }
-        
-        setCanPull(windowScrollTop <= 0 && elementScrollTop <= 0)
-    }, [])
+
+        return containerRef.current; // Worst case, assume container itself
+    }, []);
 
     useEffect(() => {
-        window.addEventListener('scroll', checkScrollTop, { passive: true })
-        return () => window.removeEventListener('scroll', checkScrollTop)
-    }, [checkScrollTop])
+        const container = containerRef.current;
+        if (!container) return;
 
-    const handleDrag = useCallback((_: any, info: PanInfo) => {
-        if (disabled || isRefreshing || !canPull) return
-        
-        // Only allow pulling down when at the top
-        if (info.offset.y > 0) {
-            // Resistance formula
-            const distance = Math.min(info.offset.y * 0.4, MAX_PULL)
-            setPullDistance(distance)
-        } else {
-            setPullDistance(0)
-        }
-    }, [disabled, isRefreshing, canPull])
+        const handleTouchStart = (e: TouchEvent) => {
+            if (disabled || isRefreshing) return;
+            const scrollable = getScrollableElement();
+            if (!scrollable) return;
 
-    const handleDragEnd = useCallback(async (_: any, info: PanInfo) => {
-        if (disabled || isRefreshing || !canPull) return
-
-        if (info.offset.y * 0.4 >= THRESHOLD) {
-            setIsRefreshing(true)
-            setPullDistance(THRESHOLD)
-            
-            try {
-                await onRefresh()
-            } catch (error) {
-                console.error("Refresh failed:", error)
-            } finally {
-                setIsRefreshing(false)
-                setPullDistance(0)
-                controls.start({ y: 0 })
+            // Only start if we are at the top
+            if (scrollable.scrollTop <= 0) {
+                startY.current = e.touches[0].clientY;
+                isPulling.current = false;
+            } else {
+                startY.current = -1; // Invalid start
             }
-        } else {
-            setPullDistance(0)
-            controls.start({ y: 0 })
-        }
-    }, [disabled, isRefreshing, onRefresh, controls, canPull])
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (startY.current === -1 || disabled || isRefreshing) return;
+            
+            const currentY = e.touches[0].clientY;
+            const delta = currentY - startY.current;
+
+            // If pulling down
+            if (delta > 0) {
+                // Check scrollTop again to be sure
+                const scrollable = getScrollableElement();
+                if (scrollable && scrollable.scrollTop <= 0) {
+                    // Prevent default only if we are significantly pulling, 
+                    // otherwise it might feel like we blocked a slight scroll up gesture
+                    if (e.cancelable) {
+                         e.preventDefault(); // Stop native scroll/refresh
+                    }
+                    
+                    isPulling.current = true;
+                    // Logarithmic resistance
+                    const distance = Math.min(delta * 0.4, MAX_PULL);
+                    setPullDistance(distance);
+                }
+            } else {
+                // Moving up (scrolling down content) - let it happen
+                isPulling.current = false;
+                setPullDistance(0);
+                startY.current = -1; // Reset to avoid jitter
+            }
+        };
+
+        const handleTouchEnd = async () => {
+            if (!isPulling.current || disabled || isRefreshing) {
+                setPullDistance(0);
+                return;
+            }
+
+            isPulling.current = false;
+
+            if (pullDistance >= THRESHOLD) {
+                setIsRefreshing(true);
+                setPullDistance(THRESHOLD); // Snap to threshold
+                
+                try {
+                    await onRefresh();
+                } catch (error) {
+                    console.error("Refresh failed:", error);
+                } finally {
+                    setIsRefreshing(false);
+                    setPullDistance(0);
+                }
+            } else {
+                setPullDistance(0);
+            }
+        };
+
+        container.addEventListener('touchstart', handleTouchStart, { passive: true });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false }); // non-passive to allow preventDefault
+        container.addEventListener('touchend', handleTouchEnd);
+        container.addEventListener('touchcancel', handleTouchEnd);
+
+        return () => {
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
+            container.removeEventListener('touchcancel', handleTouchEnd);
+        };
+    }, [disabled, isRefreshing, onRefresh, getScrollableElement, pullDistance, THRESHOLD, MAX_PULL]);
 
     return (
         <div 
             ref={containerRef}
-            onScroll={checkScrollTop}
             className={cn("relative w-full h-full", className)}
         >
             {/* Refresh Indicator Area */}
@@ -120,13 +169,8 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
             {/* Content Area */}
             <motion.div
-                drag={canPull && !isRefreshing ? "y" : false}
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.1}
-                onDrag={handleDrag}
-                onDragEnd={handleDragEnd}
-                animate={controls}
-                style={{ y: isRefreshing ? THRESHOLD : pullDistance }}
+                animate={{ y: isRefreshing ? THRESHOLD : pullDistance }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="w-full h-full"
             >
                 {children}
