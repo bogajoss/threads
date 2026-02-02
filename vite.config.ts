@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import { visualizer } from "rollup-plugin-visualizer";
+import { compression } from "vite-plugin-compression2";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,7 +17,21 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
+        visualizer({
+            open: false,
+            filename: "dist/stats.html",
+            gzipSize: true,
+            brotliSize: true,
+        }),
+        compression({
+            algorithms: ["brotliCompress"],
+            exclude: [/\.(br)$/, /\.(gz)$/],
+        }),
     ],
+    server: {
+        host: true,
+    },
+    clearScreen: false,
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
@@ -52,12 +68,22 @@ export default defineConfig({
                         },
                         {
                             name: "ui-libs",
-                            test: /node_modules\/(plyr|lucide-react|@radix-ui|framer-motion|clsx|tailwind-merge)/,
+                            test: /node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/,
                             priority: 20,
                         },
                         {
-                            name: "utils",
-                            test: /node_modules\/(date-fns|dayjs)/,
+                            name: "animations",
+                            test: /node_modules\/(framer-motion|motion-dom|motion-utils)/,
+                            priority: 25,
+                        },
+                        {
+                            name: "media-libs",
+                            test: /node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/,
+                            priority: 15,
+                        },
+                        {
+                            name: "text-processing",
+                            test: /node_modules\/(linkifyjs|linkify-react)/,
                             priority: 10,
                         },
                     ],
@@ -73,6 +99,20 @@ export default defineConfig({
             "@supabase/supabase-js",
             "@tanstack/react-query",
             "lucide-react",
+            "framer-motion",
+            "plyr",
+            "wavesurfer.js",
+            "@dnd-kit/core",
+            "@dnd-kit/sortable",
+            "@dnd-kit/utilities",
+            "sonner",
+            "react-virtuoso",
+            "frimousse",
+            "next-themes",
+            "browser-image-compression",
+            "react-image-crop",
+            "linkifyjs",
+            "linkify-react",
         ],
     },
 });

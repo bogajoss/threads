@@ -6,7 +6,7 @@ import {
     Play,
     Pause,
 } from "lucide-react"
-import { Plyr } from "plyr-react"
+const Plyr = React.lazy(() => import("plyr-react").then(m => ({ default: m.Plyr })))
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import Linkify from "linkify-react"
 import { linkifyOptions } from "@/lib/linkify"
@@ -252,7 +252,9 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                     >
                         <div className="relative flex h-full w-full max-w-[450px] items-center justify-center">
                             <div className="w-full">
-                                <Plyr ref={playerRef} {...plyrProps} />
+                                <React.Suspense fallback={<div className="aspect-[9/16] w-full bg-zinc-900 animate-pulse" />}>
+                                    <Plyr ref={playerRef} {...plyrProps} />
+                                </React.Suspense>
                             </div>
         
                             {showHeart && (

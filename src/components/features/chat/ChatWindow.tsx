@@ -16,7 +16,8 @@ import {
 } from "@/components/ui"
 import { useLightbox } from "@/context/LightboxContext"
 // @ts-ignore
-import { VoiceMessage, ChatHeader, ChatInput } from "@/components/features/chat"
+import { ChatHeader, ChatInput } from "@/components/features/chat"
+const VoiceMessage = React.lazy(() => import("@/components/features/chat/VoiceMessage"))
 import PullToRefresh from "@/components/ui/PullToRefresh"
 import { uploadFile } from "@/lib/api"
 import {
@@ -266,11 +267,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                         )}
 
                                                         {msg.type === "voice" ? (
-                                                            <VoiceMessage
-                                                                url={msg.media?.[0]?.url || msg.text}
-                                                                duration={msg.media?.[0]?.duration}
-                                                                isMe={isMe}
-                                                            />
+                                                            <React.Suspense fallback={
+                                                                <div className="flex h-[36px] w-[220px] items-center gap-3 py-1.5 opacity-50">
+                                                                    <div className="size-11 shrink-0 rounded-full bg-zinc-200 animate-pulse dark:bg-zinc-700" />
+                                                                    <div className="flex-1 h-2 bg-zinc-200 animate-pulse dark:bg-zinc-700 rounded" />
+                                                                </div>
+                                                            }>
+                                                                <VoiceMessage
+                                                                    url={msg.media?.[0]?.url || msg.text}
+                                                                    duration={msg.media?.[0]?.duration}
+                                                                    isMe={isMe}
+                                                                />
+                                                            </React.Suspense>
                                                         ) : (
                                                             <div className="whitespace-pre-wrap break-words">
                                                                 <Linkify options={{ ...linkifyOptions, className: isMe ? "text-white underline" : "text-violet-600 dark:text-violet-400 underline" }}>

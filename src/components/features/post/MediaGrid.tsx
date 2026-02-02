@@ -1,5 +1,5 @@
-import React from "react"
-import VideoPlayer from "@/components/features/post/VideoPlayer"
+import React, { Suspense } from "react"
+const VideoPlayer = React.lazy(() => import("@/components/features/post/VideoPlayer"))
 import FileCard from "@/components/features/post/FileCard"
 import { useLightbox } from "@/context/LightboxContext"
 import type { Media } from "@/types"
@@ -60,7 +60,13 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
                             }}
                         >
                             {item.type === "video" ? (
-                                <VideoPlayer src={item.url} poster={item.poster || undefined} />
+                                <Suspense fallback={
+                                    <div className="flex aspect-video w-full items-center justify-center bg-zinc-100 dark:bg-zinc-900">
+                                        <div className="size-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+                                    </div>
+                                }>
+                                    <VideoPlayer src={item.url} poster={item.poster || undefined} />
+                                </Suspense>
                             ) : (
 
                                 <img
