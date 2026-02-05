@@ -8,16 +8,17 @@ import {
   ZoomOut,
   RotateCcw,
 } from "lucide-react";
+import type { Media } from "@/types";
 
 interface ImageViewerProps {
-  images?: string[];
+  media?: (string | Media)[];
   currentIndex?: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
 }
 
 const ImageViewer: React.FC<ImageViewerProps> = ({
-  images,
+  media,
   currentIndex = 0,
   onClose,
   onNavigate,
@@ -58,11 +59,11 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   }, [currentIndex, onNavigate]);
 
   const handleNext = useCallback(() => {
-    if (currentIndex < (images?.length || 0) - 1) {
+    if (currentIndex < (media?.length || 0) - 1) {
       handleReset();
       onNavigate(currentIndex + 1);
     }
-  }, [currentIndex, images?.length, onNavigate]);
+  }, [currentIndex, media?.length, onNavigate]);
 
   // Keyboard Navigation
   useEffect(() => {
@@ -75,21 +76,24 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, onClose, handlePrev, handleNext]);
 
-  if (!images || images.length === 0) return null;
+  if (!media || media.length === 0) return null;
 
-  const currentImage = images[currentIndex];
-  const hasMultiple = images.length > 1;
+  const currentItem = media[currentIndex];
+  const isVideo =
+    typeof currentItem !== "string" && currentItem.type === "video";
+  const currentUrl = typeof currentItem === "string" ? currentItem : currentItem.url;
+  const hasMultiple = media.length > 1;
 
   // Mouse Dragging (only when zoomed)
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale > 1) {
+    if (scale > 1 && !isVideo) {
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && scale > 1) {
+    if (isDragging && scale > 1 && !isVideo) {
       setPosition({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y,
@@ -107,14 +111,14 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         y: e.touches[0].clientY,
         time: Date.now(),
       });
-      if (scale > 1) {
+      if (scale > 1 && !isVideo) {
         setIsDragging(true);
         setDragStart({
           x: e.touches[0].clientX - position.x,
           y: e.touches[0].clientY - position.y,
         });
       }
-    } else if (e.touches.length === 2) {
+    } else if (e.touches.length === 2 && !isVideo) {
       const distance = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY,
@@ -125,13 +129,13 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
-      if (isDragging && scale > 1) {
+      if (isDragging && scale > 1 && !isVideo) {
         setPosition({
           x: e.touches[0].clientX - dragStart.x,
           y: e.touches[0].clientY - dragStart.y,
         });
       }
-    } else if (e.touches.length === 2 && initialDistance) {
+    } else if (e.touches.length === 2 && initialDistance && !isVideo) {
       const distance = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY,
@@ -169,8 +173,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     const link = document.createElement("a");
-    link.href = currentImage;
-    link.download = `sysm-${Date.now()}.jpg`;
+    link.href = currentUrl;
+    link.download = `sysm-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -193,8 +197,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         <div className="flex flex-col">
           <span className="text-lg font-bold text-white drop-shadow-md">
             {hasMultiple
-              ? `${currentIndex + 1} / ${images.length}`
-              : "Image View"}
+              ? `${currentIndex + 1} / ${media.length}`
+              : isVideo ? "Video View" : "Image View"}
           </span>
         </div>
 
@@ -202,24 +206,28 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           className="flex items-center gap-1 sm:gap-3"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={handleZoomOut}
-            className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
-          >
-            <ZoomOut size={20} />
-          </button>
-          <button
-            onClick={handleZoomIn}
-            className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
-          >
-            <ZoomIn size={20} />
-          </button>
-          <button
-            onClick={handleReset}
-            className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
-          >
-            <RotateCcw size={20} />
-          </button>
+          {!isVideo && (
+            <>
+              <button
+                onClick={handleZoomOut}
+                className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
+              >
+                <ZoomOut size={20} />
+              </button>
+              <button
+                onClick={handleZoomIn}
+                className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
+              >
+                <ZoomIn size={20} />
+              </button>
+              <button
+                onClick={handleReset}
+                className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
+              >
+                <RotateCcw size={20} />
+              </button>
+            </>
+          )}
           <button
             onClick={handleDownload}
             className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
@@ -251,23 +259,33 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         )}
 
         <div
-          className="relative cursor-grab transition-transform duration-200 ease-out active:cursor-grabbing"
+          className={`relative ${!isVideo ? "cursor-grab active:cursor-grabbing" : "" } transition-transform duration-200 ease-out`}
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           }}
           onMouseDown={handleMouseDown}
           onClick={(e) => e.stopPropagation()}
         >
-          <img
-            ref={imageRef}
-            src={currentImage}
-            className="max-h-[85vh] max-w-[95vw] select-none rounded-sm object-contain shadow-2xl"
-            alt=""
-            draggable={false}
-          />
+          {isVideo ? (
+            <video
+              src={currentUrl}
+              controls
+              autoPlay
+              className="max-h-[85vh] max-w-[95vw] rounded-sm shadow-2xl"
+              poster={typeof currentItem !== "string" ? currentItem.poster || undefined : undefined}
+            />
+          ) : (
+            <img
+              ref={imageRef}
+              src={currentUrl}
+              className="max-h-[85vh] max-w-[95vw] select-none rounded-sm object-contain shadow-2xl"
+              alt=""
+              draggable={false}
+            />
+          )}
         </div>
 
-        {hasMultiple && currentIndex < images.length - 1 && scale === 1 && (
+        {hasMultiple && currentIndex < media.length - 1 && scale === 1 && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -286,22 +304,26 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           className="hide-scrollbar absolute bottom-8 flex max-w-[90%] gap-3 overflow-x-auto rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                handleReset();
-                onNavigate(idx);
-              }}
-              className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
-                idx === currentIndex
-                  ? "scale-110 border-violet-500 shadow-lg shadow-violet-500/20"
-                  : "border-transparent opacity-40 hover:opacity-100"
-              }`}
-            >
-              <img src={img} className="size-full object-cover" alt="" />
-            </button>
-          ))}
+          {media.map((item, idx) => {
+            const url = typeof item === "string" ? item : item.url;
+            const thumb = typeof item !== "string" && item.poster ? item.poster : url;
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  handleReset();
+                  onNavigate(idx);
+                }}
+                className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                  idx === currentIndex
+                    ? "scale-110 border-violet-500 shadow-lg shadow-violet-500/20"
+                    : "border-transparent opacity-40 hover:opacity-100"
+                }`}
+              >
+                <img src={thumb} className="size-full object-cover" alt="" />
+              </button>
+            );
+          })}
         </div>
       )}
 

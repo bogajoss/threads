@@ -5,3 +5,4 @@ export { default as PageTransition } from "./PageTransition";
 export { default as SidebarLeft } from "./SidebarLeft";
 export { default as SidebarRight } from "./SidebarRight";
 export { default as ThemeToggle } from "./ThemeToggle";
+export { default as CreateActionMenu } from "./CreateActionMenu";

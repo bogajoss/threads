@@ -9,7 +9,7 @@ import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 
 // Layout & Components
-import { MainLayout, PageTransition } from "@/components/layout";
+import { MainLayout, PageTransition, CreateActionMenu } from "@/components/layout";
 import { GlobalModals } from "@/components/features/modals";
 // @ts-ignore
 import StoryViewer from "@/components/features/story/StoryViewer";
@@ -31,7 +31,6 @@ const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 
-import { Plus } from "lucide-react";
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
@@ -67,7 +66,7 @@ export default function Sysm() {
           <Route path="/register" element={<Register />} />
           <Route
             element={
-              <MainLayout />
+              <MainLayout onAddStory={() => setIsStoryModalOpen(true)} />
             }
           >
             <Route path="/" element={<Navigate to="/feed" replace />} />
@@ -226,9 +225,7 @@ export default function Sysm() {
 
       {isOpen && (
         <ImageViewer
-          images={images.map((img) =>
-            typeof img === "string" ? img : img.url,
-          )}
+          media={images}
           currentIndex={currentIndex}
           onClose={closeLightbox}
           onNavigate={setIndex}
@@ -236,16 +233,14 @@ export default function Sysm() {
       )}
 
       {currentUser && location.pathname === "/feed" && (
-        <button
-          onClick={() => navigate("/create")}
-          className="group fixed bottom-20 right-5 z-50 flex size-12 cursor-pointer items-center justify-center rounded-full bg-zinc-950 text-white shadow-2xl transition-all hover:scale-110 active:scale-90 dark:bg-white dark:text-zinc-950 md:hidden"
-          title="Create Post"
-        >
-          <Plus
-            size={28}
-            className="duration-300 transition-transform group-hover:rotate-90"
+        <div className="fixed bottom-20 right-5 z-50 md:hidden">
+          <CreateActionMenu
+            onAddStory={() => setIsStoryModalOpen(true)}
+            side="top"
+            align="end"
+            triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
           />
-        </button>
+        </div>
       )}
     </VideoPlaybackProvider>
   );

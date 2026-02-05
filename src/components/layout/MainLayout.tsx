@@ -7,9 +7,10 @@ import FeedHeader from "./FeedHeader";
 import { useTheme } from "@/context/ThemeContext";
 
 interface MainLayoutProps {
+  onAddStory: () => void;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = () => {
+const MainLayout: React.FC<MainLayoutProps> = ({ onAddStory }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode } = useTheme();
@@ -33,7 +34,7 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
         {/* Left Sidebar - Fixed narrow icons */}
-        <SidebarLeft />
+        <SidebarLeft onAddStory={onAddStory} />
 
         {/* Main Content Area */}
         <main
