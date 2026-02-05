@@ -81,6 +81,16 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  @keyframes pulse-once {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .animate-pulse-once {
+    animation: pulse-once 0.3s ease-out;
+  }
 }
 
 /* Ensure Tailwind v4 knows about our dark class */

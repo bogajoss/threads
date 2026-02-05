@@ -28,6 +28,7 @@ const Messages: React.FC = () => {
         refetchMessages,
         sendMessage,
         onDeleteMessage,
+        onToggleReaction,
         sendTypingStatus,
         navigate,
     } = useMessagesPage()
@@ -81,9 +82,11 @@ const Messages: React.FC = () => {
                 <ChatWindow
                     conversation={selectedConversation}
                     messages={localMessages}
+                    currentUser={currentUser}
                     onBack={() => navigate("/messages")}
                     onSendMessage={sendMessage}
                     onDeleteMessage={onDeleteMessage}
+                    onToggleReaction={onToggleReaction}
                     onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
                     onRefresh={async () => await refetchMessages()}
                     isLoading={isMsgLoading}

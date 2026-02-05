@@ -6,6 +6,7 @@ import {
     Mic,
     Paperclip,
     Square,
+    Play,
     X,
     Trash2
 } from "lucide-react"
@@ -49,8 +50,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
         stopRecording,
         cancelRecording,
         audioBlob,
+        audioUrl,
         clearAudio,
     } = useAudioRecorder()
+
+    const [isPreviewPlaying, setIsPreviewPlaying] = useState(false)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
@@ -73,7 +78,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const handleSend = (e?: React.FormEvent) => {
         if (e) e.preventDefault()
-        if (!text.trim() && attachments.length === 0 && !audioBlob) return
+        
+        if (audioBlob) {
+            onSendMessage("", [], audioBlob, recordingTime)
+            clearAudio()
+            return
+        }
+
+        if (!text.trim() && attachments.length === 0) return
 
         if (onTyping) {
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
@@ -86,13 +98,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setReplyingTo(null)
     }
 
-    // Handle sending voice message specifically when stopped
-    React.useEffect(() => {
-        if (audioBlob && !isRecording) {
-            onSendMessage("", [], audioBlob, recordingTime)
-            clearAudio()
+    const togglePreviewPlay = () => {
+        if (!audioUrl) return
+        if (!audioRef.current) {
+            audioRef.current = new Audio(audioUrl)
+            audioRef.current.onended = () => setIsPreviewPlaying(false)
         }
-    }, [audioBlob, isRecording])
+        
+        if (isPreviewPlaying) {
+            audioRef.current.pause()
+        } else {
+            audioRef.current.play()
+        }
+        setIsPreviewPlaying(!isPreviewPlaying)
+    }
+
+    // Clean up audio preview when cleared
+    React.useEffect(() => {
+        if (!audioBlob && audioRef.current) {
+            audioRef.current.pause()
+            audioRef.current = null
+            setIsPreviewPlaying(false)
+        }
+    }, [audioBlob])
 
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +178,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         "flex-1 flex items-center gap-2 rounded-[28px] px-2 py-2 transition-all duration-300 overflow-hidden border",
                         isRecording 
                             ? "bg-zinc-900 border-zinc-800 shadow-2xl scale-[1.02] ring-4 ring-red-500/10" 
-                            : "bg-zinc-100 dark:bg-zinc-900 border-transparent focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:border-violet-200 dark:focus-within:border-violet-900"
+                            : audioBlob
+                                ? "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 shadow-sm"
+                                : "bg-zinc-100 dark:bg-zinc-900 border-transparent focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:border-violet-200 dark:focus-within:border-violet-900"
                     )}
                     onSubmit={handleSend}
                 >
@@ -167,13 +197,41 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 </span>
                             </div>
                             <div className="flex-1 h-6 flex items-center justify-center gap-1 opacity-80">
-                                {/* Visualizer placeholder */}
-                                <div className="w-full h-1 bg-white/20 rounded-full" />
+                                <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                                    <motion.div 
+                                        animate={{ x: ["-100%", "100%"] }}
+                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                        className="w-1/2 h-full bg-white/40"
+                                    />
+                                </div>
                             </div>
                             <button
                                 type="button"
                                 onClick={cancelRecording}
                                 className="p-2 text-zinc-400 hover:text-white transition-colors hover:bg-white/10 rounded-full"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
+                    ) : audioBlob ? (
+                        <div className="flex-1 flex items-center gap-3 px-2 py-1">
+                            <button
+                                type="button"
+                                onClick={togglePreviewPlay}
+                                className="size-9 flex shrink-0 items-center justify-center rounded-full bg-violet-500 text-white hover:bg-violet-600 transition-colors"
+                            >
+                                {isPreviewPlaying ? <Square size={14} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                            </button>
+                            
+                            <div className="flex-1 flex flex-col justify-center">
+                                <div className="text-xs font-bold text-violet-600 dark:text-violet-400">Voice Message Preview</div>
+                                <div className="text-[11px] font-medium text-zinc-500 tabular-nums">{formatTime(recordingTime)}</div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={clearAudio}
+                                className="p-2 text-zinc-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-950/30"
                             >
                                 <Trash2 size={20} />
                             </button>
@@ -223,7 +281,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         </>
                     )}
 
-                    {text.trim() || attachments.length > 0 ? (
+                    {text.trim() || attachments.length > 0 || audioBlob ? (
                         <button type="submit" className="p-2 mr-1 rounded-full bg-violet-600 text-white hover:bg-violet-700 hover:scale-105 transition-all shadow-sm">
                             <Send size={18} className="translate-x-0.5 translate-y-0.5" />
                         </button>

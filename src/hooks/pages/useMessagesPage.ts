@@ -22,6 +22,7 @@ export const useMessagesPage = () => {
         refetchMessages,
         sendMessage,
         sendTypingStatus,
+        onToggleReaction,
         typingStatus,
         markAsRead,
         formatMessages,
@@ -123,6 +124,7 @@ export const useMessagesPage = () => {
         sendMessage,
         onDeleteMessage,
         sendTypingStatus,
+        onToggleReaction,
         navigate,
         // Expose infinite scroll props for ChatWindow
         fetchNextMessages,
