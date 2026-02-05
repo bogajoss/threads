@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense, lazy } from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
 
 // Context
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +27,7 @@ const Community = lazy(() => import("@/pages/(feed)/Community"));
 const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
 const Settings = lazy(() => import("@/pages/(feed)/Settings"));
 const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
+const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 
@@ -42,16 +43,15 @@ const PageLoader = () => (
 
 export default function Sysm() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
 
   // Modal States
-  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({});
-  const [postCommunity, setPostCommunity] = useState(null);
   const [viewingStory, setViewingStory] = useState(null);
 
   // Initialize Keyboard Shortcuts
@@ -67,7 +67,7 @@ export default function Sysm() {
           <Route path="/register" element={<Register />} />
           <Route
             element={
-              <MainLayout onPostClick={() => setIsPostModalOpen(true)} />
+              <MainLayout />
             }
           >
             <Route path="/" element={<Navigate to="/feed" replace />} />
@@ -148,13 +148,20 @@ export default function Sysm() {
               }
             />
             <Route
+              path="/create"
+              element={
+                <PageTransition>
+                  <CreatePost />
+                </PageTransition>
+              }
+            />
+            <Route
               path="/c/:handle"
               element={
                 <PageTransition>
                   <Community
                     onPostInCommunity={(c: any) => {
-                      setPostCommunity(c);
-                      setIsPostModalOpen(true);
+                      navigate("/create", { state: { initialCommunity: c } });
                     }}
                   />
                 </PageTransition>
@@ -188,18 +195,12 @@ export default function Sysm() {
 
       {/* Global Overlays */}
       <GlobalModals
-        isPostModalOpen={isPostModalOpen}
-        setIsPostModalOpen={(val: boolean) => {
-          setIsPostModalOpen(val);
-          if (!val) setPostCommunity(null);
-        }}
         isEditProfileOpen={isEditProfileOpen}
         setIsEditProfileOpen={setIsEditProfileOpen}
         isStoryModalOpen={isStoryModalOpen}
         setIsStoryModalOpen={setIsStoryModalOpen}
         editProfileData={editProfileData}
         setEditProfileData={setEditProfileData}
-        postCommunity={postCommunity}
       />
 
       {/* @ts-ignore */}
@@ -234,9 +235,9 @@ export default function Sysm() {
         />
       )}
 
-      {currentUser && location.pathname === "/" && (
+      {currentUser && location.pathname === "/feed" && (
         <button
-          onClick={() => setIsPostModalOpen(true)}
+          onClick={() => navigate("/create")}
           className="group fixed bottom-20 right-5 z-50 flex size-12 cursor-pointer items-center justify-center rounded-full bg-zinc-950 text-white shadow-2xl transition-all hover:scale-110 active:scale-90 dark:bg-white dark:text-zinc-950 md:hidden"
           title="Create Post"
         >

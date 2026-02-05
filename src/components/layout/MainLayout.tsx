@@ -7,10 +7,9 @@ import FeedHeader from "./FeedHeader";
 import { useTheme } from "@/context/ThemeContext";
 
 interface MainLayoutProps {
-  onPostClick: () => void;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
+const MainLayout: React.FC<MainLayoutProps> = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode } = useTheme();
@@ -34,7 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
         {/* Left Sidebar - Fixed narrow icons */}
-        <SidebarLeft onPostClick={onPostClick} />
+        <SidebarLeft />
 
         {/* Main Content Area */}
         <main

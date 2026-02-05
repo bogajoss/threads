@@ -8,5 +8,6 @@ export { default as Profile } from "./(feed)/Profile";
 export { default as Reels } from "./(feed)/Reels";
 export { default as Settings } from "./(feed)/Settings";
 export { default as HashtagFeed } from "./(feed)/HashtagFeed";
+export { default as CreatePost } from "./(feed)/CreatePost";
 export { default as Login } from "./(auth)/login/page";
 export { default as Register } from "./(auth)/register/page";

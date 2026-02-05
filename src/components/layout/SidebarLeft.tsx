@@ -8,17 +8,17 @@ import {
   ReelsIcon,
   NotificationsIcon,
 } from "@/components/ui";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 
 interface SidebarLeftProps {
-  onPostClick: () => void;
 }
 
-const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
+const SidebarLeft: React.FC<SidebarLeftProps> = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const { unreadCount: notificationsCount } = useNotifications(currentUser);
   const { unreadCount: messagesCount } = useConversations(currentUser);
 
@@ -64,7 +64,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
 
         {currentUser && (
           <button
-            onClick={onPostClick}
+            onClick={() => navigate("/create")}
             aria-label="Create Post"
             className="mt-2 cursor-pointer rounded-xl bg-zinc-950 p-2.5 text-white shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 dark:bg-white dark:text-zinc-950"
             title="Create Post"
