@@ -5,14 +5,7 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query";
-import {
-  sendMessage,
-  toggleMessageReaction,
-  deleteMessage as deleteMessageApi,
-  fetchReactionsByConversation,
-  fetchMessages,
-  editMessage as editMessageApi,
-} from "@/lib/api";
+import { sendMessage, fetchMessages, toggleMessageReaction, deleteMessage as deleteMessageApi, fetchReactionsByConversation, editMessage as editMessageApi } from "@/lib/api";
 import type { User, Message, Reaction } from "@/types/index";
 import { useToast } from "@/context/ToastContext";
 
@@ -29,6 +22,7 @@ interface FormattedMessage {
   reactions: Reaction[];
   time: string;
   updatedAt?: string;
+  isOptimistic?: boolean;
 }
 
 export const useChatMessages = (
@@ -48,17 +42,18 @@ export const useChatMessages = (
         sender: m.sender_id === currentUser?.id ? "me" : "them",
         senderAvatar: m.sender?.avatar,
         senderName: m.sender?.name,
-        text: m.content,
+        text: m.content || "",
         type: m.type || "text",
         media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
-        isRead: m.is_read,
+        isRead: m.is_read || false,
         replyToId: m.reply_to_id,
         reactions: reactions.filter((r) => r.message_id === m.id),
-        time: new Date(m.created_at).toLocaleTimeString([], {
+        time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-        }),
+        }) : "Just now",
         updatedAt: m.updated_at,
+        isOptimistic: m.isOptimistic,
       }));
     },
     [currentUser?.id],
@@ -93,7 +88,7 @@ export const useChatMessages = (
     staleTime: 1000 * 60 * 5,
   });
 
-  // 3. Mutation to send message
+  // 3. Mutation to send message with Optimistic UI
   const sendMutation = useMutation({
     mutationFn: ({
       convId,
@@ -105,20 +100,49 @@ export const useChatMessages = (
       convId: string;
       text: string;
       type?: string;
-      media?: string[];
+      media?: any[];
       replyToId?: string | null;
-    }) => sendMessage(convId, currentUser!.id, text, type, media, replyToId),
-    onSuccess: (newMessage: Message | null) => {
-      if (!newMessage) return;
-      queryClient.invalidateQueries({
-        queryKey: ["messages", newMessage.conversation_id],
+    }) => sendMessage(convId, currentUser!.id, text, type, media as any, replyToId),
+    
+    onMutate: async (newMessage) => {
+      await queryClient.cancelQueries({ queryKey: ["messages", activeConversationId] });
+      const previousMessages = queryClient.getQueryData(["messages", activeConversationId]);
+
+      const optimisticMsg = {
+        id: `temp-${Date.now()}`,
+        conversation_id: activeConversationId,
+        sender_id: currentUser!.id,
+        content: newMessage.text,
+        type: newMessage.type || "text",
+        media: newMessage.media || [],
+        reply_to_id: newMessage.replyToId,
+        is_read: false,
+        created_at: new Date().toISOString(),
+        isOptimistic: true,
+        sender: {
+          id: currentUser!.id,
+          username: currentUser!.handle,
+          display_name: currentUser!.name,
+          avatar_url: currentUser!.avatar
+        } as any
+      };
+
+      queryClient.setQueryData(["messages", activeConversationId], (old: any) => {
+        if (!old) return { pages: [[optimisticMsg]], pageParams: [null] };
+        const newPages = [...old.pages];
+        newPages[0] = [optimisticMsg, ...newPages[0]];
+        return { ...old, pages: newPages };
       });
-      queryClient.invalidateQueries({
-        queryKey: ["conversations", currentUser!.id],
-      });
+
+      return { previousMessages };
     },
-    onError: () => {
+    onError: (_err, _newMessage, context) => {
+      queryClient.setQueryData(["messages", activeConversationId], context?.previousMessages);
       addToast("Failed to send message", "error");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
+      queryClient.invalidateQueries({ queryKey: ["conversations", currentUser!.id] });
     },
   });
 

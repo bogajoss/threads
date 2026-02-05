@@ -26,6 +26,7 @@ const Messages: React.FC = () => {
     onDeleteMessage,
     onToggleReaction,
     sendTypingStatus,
+    typingStatus,
     navigate,
   } = useMessagesPage();
 
@@ -71,6 +72,7 @@ const Messages: React.FC = () => {
           searchQuery={msgSearchQuery}
           onSearchChange={setMsgSearchQuery}
           onlineUsers={onlineUsers}
+          typingStatus={typingStatus}
         />
       </div>
       {selectedConversation ? (

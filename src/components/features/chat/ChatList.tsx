@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, UserPlus, Edit, Users } from "lucide-react";
+import { Search, UserPlus, Edit } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreateGroupModal } from "@/components/features/modals";
@@ -11,6 +11,7 @@ interface ConversationProps {
   selectedId: string | null;
   onSelect: (conv: any) => void;
   onlineUsers: Set<string>;
+  isTyping?: boolean;
 }
 
 const ConversationItem: React.FC<ConversationProps> = ({
@@ -18,6 +19,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
   selectedId,
   onSelect,
   onlineUsers,
+  isTyping,
 }) => {
   const isOnline =
     !conv.isGroup && conv.user ? onlineUsers.has(conv.user.id) : false;
@@ -90,27 +92,36 @@ const ConversationItem: React.FC<ConversationProps> = ({
 
         {/* Subtitle Row */}
         <div className="flex items-center justify-between gap-2 mt-0.5">
-          <p
-            className={cn(
-              "truncate text-[14px] leading-relaxed flex-1",
-              isSelected
-                ? "text-white/90"
-                : hasUnread
-                  ? "text-zinc-900 font-medium dark:text-zinc-200"
-                  : "text-zinc-500 dark:text-zinc-400",
-            )}
-          >
-            {conv.isGroup && conv.lastMessageSender && (
-              <span className={cn(
-                "font-semibold mr-1",
-                isSelected ? "text-white" : "text-violet-500 dark:text-violet-400"
-              )}>
-                {conv.lastMessageSender}:
-              </span>
-            )}
-            {conv.currentUserSent && !conv.lastMessageSender && "You: "}
-            {conv.lastMessage}
-          </p>
+          {isTyping ? (
+            <p className={cn(
+              "truncate text-[14px] leading-relaxed flex-1 italic animate-pulse",
+              isSelected ? "text-white/90" : "text-violet-500 dark:text-violet-400 font-medium"
+            )}>
+              typing...
+            </p>
+          ) : (
+            <p
+              className={cn(
+                "truncate text-[14px] leading-relaxed flex-1",
+                isSelected
+                  ? "text-white/90"
+                  : hasUnread
+                    ? "text-zinc-900 font-medium dark:text-zinc-200"
+                    : "text-zinc-500 dark:text-zinc-400",
+              )}
+            >
+              {conv.isGroup && conv.lastMessageSender && (
+                <span className={cn(
+                  "font-semibold mr-1",
+                  isSelected ? "text-white" : "text-violet-500 dark:text-violet-400"
+                )}>
+                  {conv.lastMessageSender}:
+                </span>
+              )}
+              {conv.currentUserSent && !conv.lastMessageSender && "You: "}
+              {conv.lastMessage}
+            </p>
+          )}
           {hasUnread && (
             <span className={cn(
               "flex min-w-[20px] h-[20px] px-1.5 items-center justify-center rounded-full text-[11px] font-bold shadow-sm",
@@ -136,6 +147,7 @@ interface ChatListProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onlineUsers?: Set<string>;
+  typingStatus?: Record<string, boolean>;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
@@ -147,6 +159,7 @@ const ChatList: React.FC<ChatListProps> = ({
   searchQuery,
   onSearchChange,
   onlineUsers = new Set(),
+  typingStatus = {},
 }) => {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
@@ -286,6 +299,7 @@ const ChatList: React.FC<ChatListProps> = ({
                         selectedId={selectedId}
                         onSelect={onSelect}
                         onlineUsers={onlineUsers}
+                        isTyping={typingStatus[conv.id]}
                       />
                     ))}
               </div>

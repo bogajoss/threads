@@ -11,7 +11,6 @@ import {
   X,
   Trash2,
 } from "lucide-react";
-import { MediaIcon } from "@/components/ui";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Popover,
@@ -82,15 +81,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const lastTypingSentRef = useRef<number>(0);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setText(val);
 
     if (onTyping) {
-      onTyping(true);
+      const now = Date.now();
+      // Only send "typing: true" every 3 seconds to avoid spamming
+      if (now - lastTypingSentRef.current > 3000) {
+        onTyping(true);
+        lastTypingSentRef.current = now;
+      }
+
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
         onTyping(false);
+        lastTypingSentRef.current = 0; // Reset so next keystroke sends true immediately
       }, 2000);
     }
   };
@@ -150,19 +158,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
     setAttachments((prev) => [...prev, ...files]);
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const clipboardFiles = e.clipboardData.files;
-    if (clipboardFiles && clipboardFiles.length > 0) {
-      const imageFiles = Array.from(clipboardFiles).filter((file) =>
-        file.type.startsWith("image/"),
-      );
-      if (imageFiles.length > 0) {
-        e.preventDefault();
-        setAttachments((prev) => [...prev, ...imageFiles]);
-      }
-    }
   };
 
   return (

@@ -11,6 +11,7 @@ export const useChatRealtime = (
   const queryClient = useQueryClient();
   const [typingStatus, setTypingStatus] = useState<Record<string, boolean>>({});
   const channelRef = useRef<any>(null);
+  const typingTimeoutsRef = useRef<Record<string, number>>({});
 
   const markAsRead = useCallback(
     async (convId: string) => {
@@ -98,6 +99,18 @@ export const useChatRealtime = (
         const { conversationId, isTyping, userId } = payload;
         if (userId !== currentUser.id) {
           setTypingStatus((prev) => ({ ...prev, [conversationId]: isTyping }));
+
+          // Clear existing timeout
+          if (typingTimeoutsRef.current[conversationId]) {
+            window.clearTimeout(typingTimeoutsRef.current[conversationId]);
+          }
+
+          // If they are typing, set a safety timeout to clear it after 5 seconds
+          if (isTyping) {
+            typingTimeoutsRef.current[conversationId] = window.setTimeout(() => {
+              setTypingStatus((prev) => ({ ...prev, [conversationId]: false }));
+            }, 5000);
+          }
         }
       })
       .subscribe();
@@ -107,6 +120,8 @@ export const useChatRealtime = (
     return () => {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(typingChannel);
+      // Clean up timeouts
+      Object.values(typingTimeoutsRef.current).forEach(window.clearTimeout);
     };
   }, [currentUser?.id, queryClient, activeConversationId, markAsRead]);
 

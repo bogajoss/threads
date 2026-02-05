@@ -1,18 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Loader2,
   Check,
   CheckCheck,
-  Reply,
-  Trash,
-  Copy,
-  Edit2,
 } from "lucide-react";
 import {
-  Button,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
   TypingIndicator,
 } from "@/components/ui";
 import { useLightbox } from "@/context/LightboxContext";
@@ -41,7 +33,6 @@ import {
 } from "@/components/features/modals";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 
 interface ChatWindowProps {
   conversation: any;
@@ -78,19 +69,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   isTyping,
   isOnline,
 }) => {
-  const navigate = useNavigate();
   const { openLightbox } = useLightbox();
   const [replyingTo, setReplyingTo] = useState<any | null>(null);
   const [editingMessage, setEditingMessage] = useState<any | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const displayName = conversation.isGroup
-    ? conversation.name
-    : conversation.user?.name;
-  const displayAvatar = conversation.isGroup
-    ? conversation.avatar
-    : conversation.user?.avatar;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -162,18 +145,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     openLightbox(imageUrls, 0);
   };
 
-  const lastMyMessageId = useMemo(() => {
-    const myMessages = messages.filter((m) => m.sender === "me");
-    return myMessages.length > 0 ? myMessages[myMessages.length - 1].id : null;
-  }, [messages]);
-
-  const findMessage = (id: string) => messages.find((m) => m.id === id);
-
-  const isSameSender = (index: number, msg: any) => {
-    if (index === 0) return false;
-    return messages[index - 1].sender === msg.sender;
-  };
-
   const isNextSameSender = (index: number, msg: any) => {
     if (index === messages.length - 1) return false;
     return messages[index + 1].sender === msg.sender;
@@ -207,10 +178,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 <div className="flex flex-col gap-[2px]">
                   {messages.map((msg, index) => {
                     const isMe = msg.sender === "me";
-                    const sameSenderPrev = isSameSender(index, msg);
                     const sameSenderNext = isNextSameSender(index, msg);
                     const isLastInGroup = !sameSenderNext;
-                    const isFirstInGroup = !sameSenderPrev;
 
                     return (
                       <motion.div
@@ -239,79 +208,79 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                           >
                             <ContextMenu>
                               <ContextMenuTrigger>
-                                <div
-                                  className={cn(
-                                    "relative px-3 py-1.5 shadow-sm text-[15px] leading-[1.4] transition-all",
-                                    isMe
-                                      ? "bg-[#8774e1] text-white border border-[#7059d0]"
-                                      : "bg-white text-zinc-900 dark:bg-[#212121] dark:text-white",
-                                    
-                                    "rounded-[15px]",
-                                  )}
-                                >
-                                  {msg.media?.length > 0 && msg.type !== "voice" && (
-                                    <div className={cn(
-                                      "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
-                                      !msg.text && "-mb-1.5",
-                                      msg.text && "mb-1.5",
-                                      "rounded-[15px]",
-                                    )}>
-                                      {msg.media.map((m: any, i: number) => (
-                                        <div key={i} className="relative group/media min-w-[280px] md:min-w-[400px]">
-                                          {msg.type === "video" ? (
-                                            <div className="aspect-video w-full bg-black">
-                                              <VideoPlayer src={m.url} poster={m.poster} />
-                                            </div>
-                                          ) : (
-                                            <img 
-                                              src={m.url} 
-                                              className="max-h-[400px] md:max-h-[500px] w-full object-cover cursor-pointer hover:brightness-95 transition-all" 
-                                              onClick={() => handleImageClick(msg)} 
-                                            />
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                  {msg.type === "voice" && msg.media?.[0] && (
-                                    <React.Suspense fallback={<div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />}>
-                                      <VoiceMessage 
-                                        url={msg.media[0].url} 
-                                        duration={msg.media[0].duration} 
-                                        isMe={isMe} 
-                                      />
-                                    </React.Suspense>
-                                  )}
-
-                                  {msg.text && msg.type !== "voice" && (
-                                    <div className="whitespace-pre-wrap break-words pr-12">
-                                      <Linkify options={{ ...linkifyOptions, className: "underline" }}>
-                                        {msg.text}
-                                      </Linkify>
-                                    </div>
-                                  )}
-
-                                  {/* Compact Time & Status - Only show if there is text or it's a voice message */}
-                                  {(msg.text || msg.type === "voice") && (
-                                    <div className={cn(
-                                      "absolute bottom-1 right-1.5 flex items-center gap-0.5 select-none",
-                                      isMe ? "text-white/70" : "text-[#aaaaaa]"
-                                    )}>
-                                      <span className="text-[10px]">
-                                        {msg.time}
-                                      </span>
-                                      {isMe && (
-                                        msg.isRead ? (
-                                          <CheckCheck size={13} className="text-white" />
-                                        ) : (
-                                          <Check size={13} className="text-white/60" />
-                                        )
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </ContextMenuTrigger>
+                                                                  <div
+                                                                  className={cn(
+                                                                    "relative px-3 py-1.5 shadow-sm text-[15px] leading-[1.4] transition-all",
+                                                                    isMe
+                                                                      ? "bg-[#8774e1] text-white border border-[#7059d0]"
+                                                                      : "bg-white text-zinc-900 dark:bg-[#212121] dark:text-white",
+                                                                    
+                                                                    "rounded-[15px]",
+                                                                    msg.isOptimistic && "opacity-60 grayscale-[0.5]"
+                                                                  )}
+                                                                >
+                                                                  {msg.media?.length > 0 && msg.type !== "voice" && (
+                                                                    <div className={cn(
+                                                                      "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
+                                                                      !msg.text && "-mb-1.5",
+                                                                      msg.text && "mb-1.5",
+                                                                      "rounded-[15px]",
+                                                                    )}>
+                                                                      {msg.media.map((m: any, i: number) => (
+                                                                        <div key={i} className="relative group/media min-w-[280px] md:min-w-[400px]">
+                                                                          {msg.type === "video" ? (
+                                                                            <div className="aspect-video w-full bg-black">
+                                                                              <VideoPlayer src={m.url} poster={m.poster} />
+                                                                            </div>
+                                                                          ) : (
+                                                                            <img 
+                                                                              src={m.url} 
+                                                                              className="max-h-[400px] md:max-h-[500px] w-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                                                                              onClick={() => handleImageClick(msg)} 
+                                                                            />
+                                                                          )}
+                                                                        </div>
+                                                                      ))}
+                                                                    </div>
+                                                                  )}
+                                
+                                                                  {msg.type === "voice" && msg.media?.[0] && (
+                                                                    <React.Suspense fallback={<div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />}>
+                                                                      <VoiceMessage 
+                                                                        url={msg.media[0].url} 
+                                                                        duration={msg.media[0].duration} 
+                                                                        isMe={isMe} 
+                                                                      />
+                                                                    </React.Suspense>
+                                                                  )}
+                                
+                                                                  {msg.text && msg.type !== "voice" && (
+                                                                    <div className="whitespace-pre-wrap break-words pr-12">
+                                                                      <Linkify options={{ ...linkifyOptions, className: "underline" }}>
+                                                                        {msg.text}
+                                                                      </Linkify>
+                                                                    </div>
+                                                                  )}
+                                
+                                                                  {/* Compact Time & Status - Only show if there is text or it's a voice message */}
+                                                                  {(msg.text || msg.type === "voice") && (
+                                                                    <div className={cn(
+                                                                      "absolute bottom-1 right-1.5 flex items-center gap-0.5 select-none",
+                                                                      isMe ? "text-white/70" : "text-[#aaaaaa]"
+                                                                    )}>
+                                                                      <span className="text-[10px]">
+                                                                        {msg.isOptimistic ? "sending..." : msg.time}
+                                                                      </span>
+                                                                      {isMe && !msg.isOptimistic && (
+                                                                        msg.isRead ? (
+                                                                          <CheckCheck size={13} className="text-white" />
+                                                                        ) : (
+                                                                          <Check size={13} className="text-white/60" />
+                                                                        )
+                                                                      )}
+                                                                    </div>
+                                                                  )}
+                                                                </div>                              </ContextMenuTrigger>
                               <ContextMenuContent>
                                 <ContextMenuItem onSelect={() => setReplyingTo(msg)}>Reply</ContextMenuItem>
                                 <ContextMenuItem onSelect={() => navigator.clipboard.writeText(msg.text)}>Copy</ContextMenuItem>

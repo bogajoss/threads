@@ -129,6 +129,7 @@ export const useMessagesPage = () => {
     editMessage,
     onDeleteMessage,
     sendTypingStatus,
+    typingStatus,
     onToggleReaction,
     navigate,
     // Expose infinite scroll props for ChatWindow

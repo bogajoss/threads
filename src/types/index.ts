@@ -136,6 +136,7 @@ export interface Message {
   media: any[] | null;
   reply_to_id: string | null;
   is_read: boolean;
+  isOptimistic?: boolean;
   created_at: string;
   updated_at?: string;
 }
@@ -149,8 +150,11 @@ export interface Conversation {
   creatorId: string | null;
   lastMessage: string;
   lastMessageAt: string;
+  lastMessageSender?: string | null;
+  currentUserSent?: boolean;
   time: string;
   unread: number;
+  isMuted?: boolean;
 }
 
 export interface Reaction {
