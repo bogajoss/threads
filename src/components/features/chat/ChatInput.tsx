@@ -166,257 +166,150 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="shrink-0 p-3 md:p-4 bg-white dark:bg-black border-t border-zinc-100 dark:border-zinc-800">
+    <div className="shrink-0 p-2 md:p-3 relative z-20">
       <AnimatePresence>
-        {replyingTo && (
+        {attachments.length > 0 && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            className="flex gap-2 overflow-x-auto mx-auto mb-2 px-2 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 max-w-3xl no-scrollbar"
           >
-            <div className="text-sm flex items-center gap-2">
-              <Reply size={14} className="text-violet-500" />
-              <div>
-                <span className="text-xs font-bold text-violet-500 block mb-0.5">
-                  Replying to{" "}
-                  {replyingTo.sender === "me"
-                    ? "yourself"
-                    : replyingTo.senderName}
-                </span>
-                <p className="line-clamp-1 text-zinc-500">{replyingTo.text}</p>
+            {attachments.map((file, idx) => (
+              <div
+                key={idx}
+                className="relative size-20 shrink-0 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 group"
+              >
+                {file.type.startsWith("video/") ? (
+                  <div className="size-full bg-black flex items-center justify-center">
+                    <Play size={20} className="text-white opacity-50" />
+                  </div>
+                ) : (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    className="size-full object-cover"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAttachments((prev) => prev.filter((_, i) => i !== idx))
+                  }
+                  className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                >
+                  <X size={14} />
+                </button>
               </div>
-            </div>
-            <button onClick={() => setReplyingTo(null)}>
-              <X size={16} className="text-zinc-400" />
-            </button>
+            ))}
           </motion.div>
         )}
 
-        {editingMessage && (
+        {(replyingTo || editingMessage) && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            className="flex items-center justify-between mx-auto mb-1.5 px-4 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 max-w-3xl"
           >
-            <div className="text-sm flex items-center gap-2">
-              <Edit2 size={14} className="text-violet-500" />
-              <div>
-                <span className="text-xs font-bold text-violet-500 block mb-0.5">
-                  Edit Message
+            <div className="text-sm flex items-center gap-3 min-w-0">
+              <div className="size-8 flex items-center justify-center rounded-full bg-violet-500/10 text-violet-500">
+                {editingMessage ? <Edit2 size={16} /> : <Reply size={16} />}
+              </div>
+              <div className="min-w-0">
+                <span className="text-[13px] font-bold text-violet-500 block leading-tight">
+                  {editingMessage ? "Edit Message" : `Reply to ${replyingTo.sender === "me" ? "yourself" : replyingTo.senderName}`}
                 </span>
-                <p className="line-clamp-1 text-zinc-500">
-                  {editingMessage.text}
+                <p className="truncate text-xs text-zinc-500 dark:text-[#aaaaaa]">
+                  {editingMessage ? editingMessage.text : replyingTo.text}
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setEditingMessage(null);
-                setText("");
-              }}
-            >
-              <X size={16} className="text-zinc-400" />
+            <button onClick={() => { setReplyingTo(null); setEditingMessage(null); if(editingMessage) setText(""); }} className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10">
+              <X size={18} className="text-zinc-400" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {attachments.length > 0 && (
-        <div className="flex gap-2 mb-2 px-1">
-          {attachments.map((file, idx) => (
-            <div
-              key={idx}
-              className="relative size-16 rounded-lg overflow-hidden border border-zinc-200"
-            >
-              <img
-                src={URL.createObjectURL(file)}
-                className="size-full object-cover"
-              />
-              <button
-                onClick={() =>
-                  setAttachments((prev) => prev.filter((_, i) => i !== idx))
-                }
-                className="absolute top-0 right-0 bg-black/50 text-white p-0.5"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex items-end gap-2">
-        <form
+      <div className="flex items-end gap-2 max-w-3xl mx-auto">
+        <div
           className={cn(
-            "flex-1 flex items-center gap-2 rounded-[28px] px-2 py-2 transition-all duration-300 overflow-hidden border",
-            isRecording
-              ? "bg-zinc-900 border-zinc-800 shadow-2xl scale-[1.02] ring-4 ring-red-500/10"
-              : audioBlob
-                ? "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 shadow-sm"
-                : "bg-zinc-100 dark:bg-zinc-900 border-transparent focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:border-violet-200 dark:focus-within:border-violet-900",
+            "flex-1 flex items-center gap-1 rounded-[24px] px-1.5 py-1.5 transition-all bg-white dark:bg-[#212121] shadow-md border-0 ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-violet-500/30",
+            isRecording && "bg-zinc-900 ring-red-500"
           )}
-          onSubmit={handleSend}
         >
           {isRecording ? (
             <div className="flex-1 flex items-center gap-4 px-3 py-1">
-              <div className="flex items-center gap-2.5 bg-red-500/10 px-3 py-1.5 rounded-full border border-red-500/20">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className="size-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-                />
-                <span className="text-sm font-bold tabular-nums text-red-500">
+              <div className="flex items-center gap-2">
+                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity }} className="size-2 rounded-full bg-red-500" />
+                <span className="text-[15px] font-medium tabular-nums text-red-500">
                   {formatTime(recordingTime)}
                 </span>
               </div>
-              <div className="flex-1 h-6 flex items-center justify-center gap-1 opacity-80">
-                <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
-                  <motion.div
-                    animate={{ x: ["-100%", "100%"] }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 1,
-                      ease: "linear",
-                    }}
-                    className="w-1/2 h-full bg-white/40"
-                  />
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={cancelRecording}
-                className="p-2 text-zinc-400 hover:text-white transition-colors hover:bg-white/10 rounded-full"
-              >
-                <Trash2 size={20} />
-              </button>
-            </div>
-          ) : audioBlob ? (
-            <div className="flex-1 flex items-center gap-3 px-2 py-1">
-              <button
-                type="button"
-                onClick={togglePreviewPlay}
-                className="size-9 flex shrink-0 items-center justify-center rounded-full bg-violet-500 text-white hover:bg-violet-600 transition-colors"
-              >
-                {isPreviewPlaying ? (
-                  <Square size={14} fill="currentColor" />
-                ) : (
-                  <Play size={18} fill="currentColor" className="ml-0.5" />
-                )}
-              </button>
-
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="text-xs font-bold text-violet-600 dark:text-violet-400">
-                  Voice Message Preview
-                </div>
-                <div className="text-[11px] font-medium text-zinc-500 tabular-nums">
-                  {formatTime(recordingTime)}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={clearAudio}
-                className="p-2 text-zinc-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-950/30"
-              >
+              <div className="flex-1 text-center text-sm text-zinc-500">Slide to cancel</div>
+              <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-red-500">
                 <Trash2 size={20} />
               </button>
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-0.5 ml-1">
-                <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="p-2 text-zinc-400 hover:text-yellow-500 transition-colors"
-                    >
-                      <Smile size={22} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-full p-0 border-none bg-transparent shadow-none"
-                    side="top"
-                    align="start"
-                  >
-                    <EmojiPicker
-                      onEmojiSelect={(emoji: any) =>
-                        setText((prev) => prev + emoji.emoji)
-                      }
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <button
-                  type="button"
-                  className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <MediaIcon size={22} />
-                </button>
-
-                <button
-                  type="button"
-                  className="hidden sm:block p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
-                >
-                  <Paperclip size={20} />
-                </button>
-              </div>
+              <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
+                <PopoverTrigger asChild>
+                  <button type="button" className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors">
+                    <Smile size={24} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 border-none bg-transparent" side="top" align="start">
+                  <EmojiPicker onEmojiSelect={(emoji: any) => setText((p) => p + emoji.emoji)} />
+                </PopoverContent>
+              </Popover>
 
               <textarea
                 ref={textAreaRef}
                 value={text}
                 onChange={handleTextChange}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                onPaste={handlePaste}
-                placeholder="Message..."
-                className="flex-1 bg-transparent border-none outline-none text-base resize-none py-2.5 min-h-[40px] text-zinc-900 dark:text-white placeholder:text-zinc-500"
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                placeholder="Message"
+                className="flex-1 bg-transparent border-none outline-none text-[16px] resize-none py-2 px-1 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-[#aaaaaa] min-h-[40px] max-h-[200px]"
                 rows={1}
               />
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors"
+              >
+                <Paperclip size={24} className="-rotate-45" />
+              </button>
             </>
           )}
+        </div>
 
-          {text.trim() || attachments.length > 0 || audioBlob ? (
-            <button
-              type="submit"
-              className="p-2 mr-1 rounded-full bg-violet-600 text-white hover:bg-violet-700 hover:scale-105 transition-all shadow-sm"
-            >
-              <Send size={18} className="translate-x-0.5 translate-y-0.5" />
-            </button>
-          ) : isRecording ? (
-            <button
-              type="button"
-              onClick={stopRecording}
-              className="p-2.5 mr-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:scale-110 active:scale-95"
-            >
-              <Square size={16} fill="currentColor" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={startRecording}
-              className="p-2 mr-1 text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-            >
-              <Mic size={22} />
-            </button>
-          )}
-        </form>
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileSelect}
-          className="hidden"
-          multiple
-          accept="image/*,video/*"
-        />
+        {text.trim() || attachments.length > 0 || audioBlob ? (
+          <button
+            onClick={handleSend}
+            className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-[#8774e1] text-white shadow-md hover:scale-105 transition-transform"
+          >
+            <Send size={24} className="ml-0.5" />
+          </button>
+        ) : isRecording ? (
+          <button
+            onClick={stopRecording}
+            className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:scale-105 transition-transform"
+          >
+            <Square size={20} fill="currentColor" />
+          </button>
+        ) : (
+          <button
+            onClick={startRecording}
+            className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-[#212121] text-zinc-500 dark:text-[#aaaaaa] shadow-md hover:scale-105 transition-transform"
+          >
+            <Mic size={24} />
+          </button>
+        )}
       </div>
+
+      <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*,video/*" />
     </div>
   );
 };

@@ -21,6 +21,7 @@ import {
   ChatInput,
   MessageReactions,
 } from "@/components/features/chat";
+import VideoPlayer from "@/components/features/post/VideoPlayer";
 const VoiceMessage = React.lazy(
   () => import("@/components/features/chat/VoiceMessage"),
 );
@@ -179,7 +180,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-white/50 dark:bg-black/50 md:border-l md:border-zinc-200/50 dark:md:border-zinc-800/50">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#8774e1]/10 dark:bg-[#0f0f0f] md:border-l md:border-zinc-200/50 dark:md:border-zinc-800/50">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
+           style={{ backgroundImage: 'url("https://web.telegram.org/a/chat-bg-pattern-light.63857502396e95c469b6.png")', backgroundSize: '400px' }} />
+      
       <ChatHeader
         conversation={conversation}
         isOnline={isOnline}
@@ -188,322 +193,127 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       />
 
       {/* Messages Area */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden relative z-10">
         <div
-          className="h-full overflow-y-auto px-3 md:px-4 py-4"
+          className="h-full overflow-y-auto px-2 md:px-12 py-4 no-scrollbar"
           ref={scrollRef}
         >
-            <div className="flex flex-col min-h-full justify-end">
-              {/* Intro Section */}
-              {messages.length < 5 && (
-                <div className="py-12 flex flex-col items-center justify-center opacity-80 mb-auto">
-                  <Avatar className="size-24 border-4 border-zinc-100 dark:border-zinc-800 mb-4 bg-zinc-50 dark:bg-zinc-900">
-                    <AvatarImage src={displayAvatar} className="object-cover" />
-                    <AvatarFallback className="text-4xl">
-                      {displayName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h2 className="text-xl font-bold dark:text-white">
-                    {displayName}
-                  </h2>
-                  <p className="text-zinc-500 text-sm mb-4">
-                    {conversation.isGroup
-                      ? "Group chat on Sysm"
-                      : "You're friends on Sysm"}
-                  </p>
-                  {!conversation.isGroup && conversation.user?.handle && (
-                    <Button
-                      variant="outline"
-                      className="rounded-full h-8 text-xs"
-                      onClick={() => navigate(`/u/${conversation.user.handle}`)}
-                    >
-                      View Profile
-                    </Button>
-                  )}
-                </div>
-              )}
-
+            <div className="flex flex-col min-h-full justify-end max-w-3xl mx-auto">
               {isLoading && messages.length === 0 ? (
                 <div className="flex justify-center p-8">
                   <Loader2 className="animate-spin text-violet-500" size={32} />
                 </div>
               ) : (
-                <div className="space-y-[2px]">
+                <div className="flex flex-col gap-[2px]">
                   {messages.map((msg, index) => {
                     const isMe = msg.sender === "me";
                     const sameSenderPrev = isSameSender(index, msg);
                     const sameSenderNext = isNextSameSender(index, msg);
+                    const isLastInGroup = !sameSenderNext;
+                    const isFirstInGroup = !sameSenderPrev;
 
                     return (
                       <motion.div
                         key={msg.id}
                         id={`msg-${msg.id}`}
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
                         className={cn(
-                          "flex w-full",
+                          "flex w-full group relative",
                           isMe ? "justify-end" : "justify-start",
-                          !sameSenderNext && "mb-4",
+                          isLastInGroup && "mb-3",
                         )}
                       >
                         <div
                           className={cn(
-                            "flex max-w-[75%] md:max-w-[65%] items-end gap-2 group",
+                            "flex max-w-[85%] md:max-w-[70%] items-end gap-1.5",
                             isMe ? "flex-row-reverse" : "flex-row",
                           )}
                         >
-                          {/* Avatar for other user */}
-                          {!isMe && (
-                            <div className="w-7 shrink-0">
-                              {!sameSenderNext ? (
-                                <Avatar className="size-7 border border-zinc-100 shadow-sm dark:border-zinc-800">
-                                  <AvatarImage
-                                    src={msg.senderAvatar || displayAvatar}
-                                  />
-                                  <AvatarFallback>
-                                    {(msg.senderName || displayName)?.[0]}
-                                  </AvatarFallback>
-                                </Avatar>
-                              ) : null}
-                            </div>
-                          )}
-
+                          {/* Message Bubble */}
                           <div
                             className={cn(
-                              "relative flex flex-col",
+                              "relative flex flex-col min-w-[60px]",
                               isMe ? "items-end" : "items-start",
                             )}
                           >
                             <ContextMenu>
-                              <ContextMenuTrigger
-                                onClick={(e) => {
-                                  // Simulate right-click for context menu on normal click/tap
-                                  const event = new MouseEvent("contextmenu", {
-                                    bubbles: true,
-                                    cancelable: true,
-                                    view: window,
-                                    button: 2,
-                                    buttons: 2,
-                                    clientX: e.clientX,
-                                    clientY: e.clientY,
-                                  });
-                                  e.currentTarget.dispatchEvent(event);
-                                }}
-                              >
+                              <ContextMenuTrigger>
                                 <div
                                   className={cn(
-                                    "relative px-4 py-2.5 shadow-sm text-[15px] leading-[1.4]",
+                                    "relative px-3 py-1.5 shadow-sm text-[15px] leading-[1.4] transition-all",
                                     isMe
-                                      ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white"
-                                      : "bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white border border-zinc-200/50 dark:border-zinc-700/50",
-                                    // Corner Rounding Logic
-                                    !sameSenderNext &&
-                                      !sameSenderPrev &&
-                                      "rounded-[22px]",
-                                    isMe &&
-                                      !sameSenderNext &&
-                                      sameSenderPrev &&
-                                      "rounded-[22px] rounded-tr-md",
-                                    isMe &&
-                                      sameSenderNext &&
-                                      !sameSenderPrev &&
-                                      "rounded-[22px] rounded-br-md",
-                                    isMe &&
-                                      sameSenderNext &&
-                                      sameSenderPrev &&
-                                      "rounded-[22px] rounded-r-md",
-                                    !isMe &&
-                                      !sameSenderNext &&
-                                      sameSenderPrev &&
-                                      "rounded-[22px] rounded-tl-md",
-                                    !isMe &&
-                                      sameSenderNext &&
-                                      !sameSenderPrev &&
-                                      "rounded-[22px] rounded-bl-md",
-                                    !isMe &&
-                                      sameSenderNext &&
-                                      sameSenderPrev &&
-                                      "rounded-[22px] rounded-l-md",
+                                      ? "bg-[#8774e1] text-white border border-[#7059d0]"
+                                      : "bg-white text-zinc-900 dark:bg-[#212121] dark:text-white",
+                                    
+                                    "rounded-[15px]",
                                   )}
                                 >
-                                  {msg.replyToId && (
-                                    <div
-                                      className={cn(
-                                        "mb-1.5 -mx-1 px-3 py-1.5 rounded-xl text-xs border-l-2 cursor-pointer",
-                                        isMe
-                                          ? "bg-black/10 border-white/40 text-white/90"
-                                          : "bg-zinc-100 border-zinc-300 text-zinc-600 dark:bg-zinc-700 dark:border-zinc-500 dark:text-zinc-300",
-                                      )}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const el = document.getElementById(
-                                          `msg-${msg.replyToId}`,
-                                        );
-                                        if (el)
-                                          el.scrollIntoView({
-                                            behavior: "smooth",
-                                            block: "center",
-                                          });
-                                      }}
-                                    >
-                                      <div className="flex items-center gap-1.5 mb-0.5 opacity-75">
-                                        <Reply size={10} />
-                                        <span className="font-bold">Reply</span>
-                                      </div>
-                                      <div className="truncate opacity-90">
-                                        {findMessage(msg.replyToId)?.text ||
-                                          "Attachment"}
-                                      </div>
+                                  {msg.media?.length > 0 && msg.type !== "voice" && (
+                                    <div className={cn(
+                                      "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
+                                      !msg.text && "-mb-1.5",
+                                      msg.text && "mb-1.5",
+                                      "rounded-[15px]",
+                                    )}>
+                                      {msg.media.map((m: any, i: number) => (
+                                        <div key={i} className="relative group/media min-w-[280px] md:min-w-[400px]">
+                                          {msg.type === "video" ? (
+                                            <div className="aspect-video w-full bg-black">
+                                              <VideoPlayer src={m.url} poster={m.poster} />
+                                            </div>
+                                          ) : (
+                                            <img 
+                                              src={m.url} 
+                                              className="max-h-[400px] md:max-h-[500px] w-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                                              onClick={() => handleImageClick(msg)} 
+                                            />
+                                          )}
+                                        </div>
+                                      ))}
                                     </div>
                                   )}
 
-                                  {msg.media?.length > 0 &&
-                                    msg.type !== "voice" && (
-                                      <div className="grid gap-1 mb-1 overflow-hidden rounded-lg">
-                                        {msg.media.map((m: any, i: number) => (
-                                          <React.Fragment key={i}>
-                                            {msg.type === "video" ? (
-                                              <video
-                                                src={m.url}
-                                                controls
-                                                className="max-h-64 w-full rounded-md bg-black"
-                                                poster={m.poster}
-                                                playsInline
-                                              />
-                                            ) : (
-                                              <img
-                                                src={m.url}
-                                                className="max-h-64 object-cover w-full rounded-md cursor-pointer hover:opacity-90 transition-opacity"
-                                                onClick={() =>
-                                                  handleImageClick(msg)
-                                                }
-                                              />
-                                            )}
-                                          </React.Fragment>
-                                        ))}
-                                      </div>
-                                    )}
-
-                                  {msg.type === "voice" ? (
-                                    <React.Suspense
-                                      fallback={
-                                        <div className="flex h-[44px] w-[200px] items-center gap-2 py-1 px-1 opacity-50">
-                                          <div className="size-9 shrink-0 rounded-full bg-zinc-200 animate-pulse dark:bg-zinc-700" />
-                                          <div className="flex-1 h-3 bg-zinc-200 animate-pulse dark:bg-zinc-700 rounded-sm" />
-                                        </div>
-                                      }
-                                    >
-                                      <VoiceMessage
-                                        url={msg.media?.[0]?.url || msg.text}
-                                        duration={msg.media?.[0]?.duration}
-                                        isMe={isMe}
-                                      />
-                                    </React.Suspense>
-                                  ) : (
-                                    <div className="whitespace-pre-wrap break-words">
-                                      <Linkify
-                                        options={{
-                                          ...linkifyOptions,
-                                          className: isMe
-                                            ? "text-white underline"
-                                            : "text-violet-600 dark:text-violet-400 underline",
-                                        }}
-                                      >
+                                  {msg.text && (
+                                    <div className="whitespace-pre-wrap break-words pr-12">
+                                      <Linkify options={{ ...linkifyOptions, className: "underline" }}>
                                         {msg.text}
                                       </Linkify>
                                     </div>
                                   )}
 
-                                  {/* Time & Read Status */}
-                                  <div
-                                    className={cn(
-                                      "flex justify-end items-center gap-1 mt-0.5 select-none",
-                                      isMe
-                                        ? "text-white/70"
-                                        : "text-zinc-400",
-                                    )}
-                                  >
-                                    <span className="text-[9px] font-medium">
-                                      {msg.time}
-                                    </span>
-                                    {isMe &&
-                                      msg.id === lastMyMessageId &&
-                                      (msg.isRead ? (
-                                        <CheckCheck
-                                          size={12}
-                                          className="text-white"
-                                        />
-                                      ) : (
-                                        <Check
-                                          size={12}
-                                          className="text-white/60"
-                                        />
-                                      ))}
-                                  </div>
-                                </div>
-                              </ContextMenuTrigger>
-                              <ContextMenuContent className="w-48">
-                                <div className="flex items-center justify-between p-1 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                                  {["❤️", "😂", "😮", "😢", "🙏", "👍"].map(
-                                    (emoji) => (
-                                      <ContextMenuItem
-                                        key={emoji}
-                                        onSelect={() =>
-                                          onToggleReaction?.(msg.id, emoji)
-                                        }
-                                        className="flex-1 justify-center p-2 text-lg hover:scale-125 transition-transform active:scale-90 focus:bg-transparent cursor-pointer"
-                                      >
-                                        {emoji}
-                                      </ContextMenuItem>
-                                    ),
+                                  {/* Compact Time & Status - Only show if there is text or it's a voice message */}
+                                  {(msg.text || msg.type === "voice") && (
+                                    <div className={cn(
+                                      "absolute bottom-1 right-1.5 flex items-center gap-0.5 select-none",
+                                      isMe ? "text-white/70" : "text-[#aaaaaa]"
+                                    )}>
+                                      <span className="text-[10px]">
+                                        {msg.time}
+                                      </span>
+                                      {isMe && (
+                                        msg.isRead ? (
+                                          <CheckCheck size={13} className="text-white" />
+                                        ) : (
+                                          <Check size={13} className="text-white/60" />
+                                        )
+                                      )}
+                                    </div>
                                   )}
                                 </div>
-                                <ContextMenuItem
-                                  onSelect={() => {
-                                    navigator.clipboard.writeText(msg.text);
-                                  }}
-                                >
-                                  <Copy size={14} className="mr-2" /> Copy
-                                </ContextMenuItem>
-                                <ContextMenuItem
-                                  onSelect={() => setReplyingTo(msg)}
-                                >
-                                  <Reply size={14} className="mr-2" /> Reply
-                                </ContextMenuItem>
-                                {isMe && (
-                                  <ContextMenuItem
-                                    onSelect={() => setEditingMessage(msg)}
-                                  >
-                                    <Edit2 size={14} className="mr-2" /> Edit
-                                  </ContextMenuItem>
-                                )}
+                              </ContextMenuTrigger>
+                              <ContextMenuContent>
+                                <ContextMenuItem onSelect={() => setReplyingTo(msg)}>Reply</ContextMenuItem>
+                                <ContextMenuItem onSelect={() => navigator.clipboard.writeText(msg.text)}>Copy</ContextMenuItem>
+                                {isMe && <ContextMenuItem onSelect={() => setEditingMessage(msg)}>Edit</ContextMenuItem>}
                                 <ContextMenuSeparator />
-                                <ContextMenuItem
-                                  onSelect={() =>
-                                    onDeleteMessage && onDeleteMessage(msg.id)
-                                  }
-                                  className="text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30 cursor-pointer"
-                                >
-                                  <Trash size={14} className="mr-2" /> Delete
-                                </ContextMenuItem>
+                                <ContextMenuItem onSelect={() => onDeleteMessage?.(msg.id)} className="text-red-500">Delete</ContextMenuItem>
                               </ContextMenuContent>
                             </ContextMenu>
 
-                            {/* Reactions Display (Active reactions only) */}
                             {msg.reactions && msg.reactions.length > 0 && (
-                              <div
-                                className={cn(
-                                  "mt-1 flex",
-                                  isMe ? "justify-end" : "justify-start",
-                                )}
-                              >
-                                <MessageReactions
-                                  reactions={msg.reactions}
-                                  currentUser={currentUser}
-                                  onToggle={(emoji) =>
-                                    onToggleReaction?.(msg.id, emoji)
-                                  }
-                                />
+                              <div className={cn("mt-1", isMe ? "mr-1" : "ml-1")}>
+                                <MessageReactions reactions={msg.reactions} currentUser={currentUser} onToggle={(e) => onToggleReaction?.(msg.id, e)} />
                               </div>
                             )}
                           </div>
@@ -515,8 +325,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               )}
 
               {isTyping && (
-                <div className="flex items-center gap-2 mt-2 ml-9">
-                  <div className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2.5 rounded-[22px] rounded-tl-md">
+                <div className="flex items-center gap-2 mt-1 ml-1">
+                  <div className="bg-white dark:bg-[#212121] px-4 py-2 rounded-[15px] rounded-tl-[2px] shadow-sm">
                     <TypingIndicator />
                   </div>
                 </div>

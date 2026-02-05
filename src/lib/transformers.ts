@@ -190,35 +190,39 @@ export const transformConversation = (
   if (!item || !item.conversation) return null;
   const conv = item.conversation;
 
-  // For DMs, find the other participant. For groups, this might be null or the list of users.
+  // For DMs, find the other participant.
   const otherParticipant = !conv.is_group
     ? conv.participants?.find((p: any) => p.user?.id !== currentUserId) ||
       conv.participants?.[0]
     : null;
 
-  const unreadCount =
-    conv.messages?.filter((m: any) => {
-      // Only count if it's unread
-      if (m.is_read) return false;
-      // Only count if I am NOT the sender
-      // Ensure both IDs exist and compare case-insensitively just in case
-      return (
-        m.sender_id &&
-        currentUserId &&
-        m.sender_id.toString().toLowerCase() !==
-          currentUserId.toString().toLowerCase()
-      );
-    }).length || 0;
+  const messages = conv.messages || [];
+  const unreadCount = messages.filter((m: any) => {
+    return (
+      !m.is_read &&
+      m.sender_id &&
+      currentUserId &&
+      m.sender_id.toString().toLowerCase() !==
+        currentUserId.toString().toLowerCase()
+    );
+  }).length;
+
+  // Heuristic: If it's a group, we'd ideally want the last sender's name.
+  // For now, we'll mark if the last message was from the current user.
+  const lastMessage = messages[0]; // Assuming order or we just use conv.last_message_content
+  const isLastMessageFromMe = lastMessage?.sender_id === currentUserId;
 
   return {
     id: conv.id,
     isGroup: conv.is_group || false,
-    name: conv.name || null,
-    avatar: conv.avatar_url || null,
+    name: conv.name || (otherParticipant ? otherParticipant.user?.display_name : "Unknown"),
+    avatar: conv.avatar_url || (otherParticipant ? otherParticipant.user?.avatar_url : null),
     creatorId: conv.creator_id || null,
     user: otherParticipant ? transformUser(otherParticipant.user) : null,
     lastMessage: conv.last_message_content || "No messages yet",
     lastMessageAt: conv.last_message_at,
+    lastMessageSender: null, // Placeholder for future expansion
+    currentUserSent: isLastMessageFromMe,
     time: conv.last_message_at
       ? new Date(conv.last_message_at).toLocaleTimeString([], {
           hour: "2-digit",
@@ -226,5 +230,6 @@ export const transformConversation = (
         })
       : "",
     unread: unreadCount,
+    isMuted: false, // Default
   };
 };

@@ -22,13 +22,13 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: isMe ? "rgba(255, 255, 255, 0.4)" : "rgba(139, 92, 246, 0.25)",
-      progressColor: isMe ? "#ffffff" : "#8b5cf6",
+      waveColor: isMe ? "rgba(255, 255, 255, 0.35)" : "rgba(135, 116, 225, 0.25)",
+      progressColor: isMe ? "#ffffff" : "#8774e1",
       cursorColor: "transparent",
       barWidth: 2,
-      barGap: 2,
-      barRadius: 1,
-      height: 24,
+      barGap: 3,
+      barRadius: 2,
+      height: 28,
       normalize: true,
       url: url,
     });
@@ -49,79 +49,58 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
       ws.setTime(0);
       setCurrentTime(0);
     });
-    ws.on("audioprocess", () => {
-      setCurrentTime(ws.getCurrentTime());
-    });
-    ws.on("interaction", () => {
-      setCurrentTime(ws.getCurrentTime());
-    });
+    ws.on("audioprocess", () => setCurrentTime(ws.getCurrentTime()));
+    ws.on("interaction", () => setCurrentTime(ws.getCurrentTime()));
 
-    return () => {
-      ws.destroy();
-    };
+    return () => ws.destroy();
   }, [url, isMe, duration]);
 
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (wavesurferRef.current) {
-      wavesurferRef.current.playPause();
-    }
+    wavesurferRef.current?.playPause();
   };
 
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 py-1 px-1 min-w-[200px] md:min-w-[240px]",
-        isMe ? "text-white" : "text-zinc-900 dark:text-white",
-      )}
-    >
-      {/* Play Button */}
+    <div className="flex items-center gap-3 py-1 min-w-[220px] md:min-w-[280px]">
+      {/* Telegram Style Play Button */}
       <button
         type="button"
         onClick={togglePlay}
         disabled={!isReady}
         className={cn(
-          "size-9 flex shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-90",
+          "size-10 flex shrink-0 items-center justify-center rounded-full transition-all active:scale-90",
           isMe
-            ? "bg-white/20 hover:bg-white/30 text-white"
-            : "bg-violet-500 text-white hover:bg-violet-600",
+            ? "bg-white/20 text-white"
+            : "bg-[#8774e1] text-white"
         )}
       >
         {!isReady ? (
-          <Loader2 size={16} className="animate-spin" />
+          <Loader2 size={18} className="animate-spin" />
         ) : isPlaying ? (
-          <Pause size={18} fill="currentColor" />
+          <Pause size={20} fill="currentColor" />
         ) : (
-          <Play size={18} fill="currentColor" className="ml-0.5" />
+          <Play size={20} fill="currentColor" className="ml-0.5" />
         )}
       </button>
 
       <div className="flex-1 flex flex-col justify-center min-w-0">
-        {/* Waveform Container */}
-        <div className="relative h-6 flex items-center">
+        {/* Waveform */}
+        <div className="h-7 w-full overflow-hidden">
           <div ref={containerRef} className="w-full cursor-pointer" />
         </div>
 
-        {/* Time Display */}
-        <div className="flex items-center gap-1.5 mt-0.5 opacity-80 select-none">
-          <span className="text-[11px] font-medium tabular-nums">
-            {isPlaying || currentTime > 0
-              ? formatTime(currentTime)
-              : formatTime(totalDuration)}
-          </span>
-          {isPlaying && (
-            <div className="flex gap-[2px]">
-              <div className="size-1 rounded-full bg-current animate-pulse" />
-              <div className="size-1 rounded-full bg-current animate-pulse delay-75" />
-              <div className="size-1 rounded-full bg-current animate-pulse delay-150" />
-            </div>
-          )}
+        {/* Time Info */}
+        <div className={cn(
+          "text-[11px] font-medium mt-0.5 select-none tabular-nums",
+          isMe ? "text-white/80" : "text-[#8774e1]"
+        )}>
+          {isPlaying || currentTime > 0 ? formatTime(currentTime) : formatTime(totalDuration)}
         </div>
       </div>
     </div>
