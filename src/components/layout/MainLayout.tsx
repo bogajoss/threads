@@ -14,9 +14,10 @@ const MainLayout: React.FC<Record<string, never>> = () => {
   const isHomePage = location.pathname === "/" || location.pathname === "/feed";
   const isReelsPage = location.pathname.startsWith("/r");
 
-  // Hide bottom nav on reels and specific messages for better UX
+  // Hide bottom nav on reels, create page, and specific messages for better UX
   const isNavHidden =
     location.pathname.startsWith("/r") ||
+    location.pathname.startsWith("/create") ||
     (location.pathname.startsWith("/m") &&
       location.pathname.split("/").length > 2);
 
