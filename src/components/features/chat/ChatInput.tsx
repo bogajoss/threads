@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-// @ts-ignore
 import EmojiPicker from "@/components/ui/emoji-picker";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";

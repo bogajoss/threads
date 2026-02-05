@@ -2,7 +2,6 @@ import React from "react";
 import { ArrowLeft, Info } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
-// @ts-ignore
 import { useTimeAgo } from "@/hooks";
 
 interface ChatHeaderProps {

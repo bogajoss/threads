@@ -21,7 +21,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui";
-// @ts-ignore
 import { useSettings } from "@/hooks";
 
 const Settings: React.FC = () => {

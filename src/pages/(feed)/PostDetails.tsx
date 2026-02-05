@@ -1,5 +1,4 @@
 import { ArrowLeft, FileX } from "lucide-react";
-// @ts-ignore
 import Post from "@/components/features/post/Post";
 import NotFound from "@/components/ui/not-found";
 import SkeletonPost from "@/components/ui/skeleton-post";

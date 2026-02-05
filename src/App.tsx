@@ -11,7 +11,6 @@ import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 // Layout & Components
 import { MainLayout, PageTransition, CreateActionMenu } from "@/components/layout";
 import { GlobalModals } from "@/components/features/modals";
-// @ts-ignore
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
 import { Loader2 } from "lucide-react";
@@ -198,7 +197,6 @@ export default function Sysm() {
         setEditProfileData={setEditProfileData}
       />
 
-      {/* @ts-ignore */}
       {viewingStory && (
         <StoryViewer
           story={viewingStory}

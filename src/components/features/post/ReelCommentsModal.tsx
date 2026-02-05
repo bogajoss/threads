@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Modal } from "@/components/ui";
 import { Loader2, MessageCircle, X } from "lucide-react";
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
-// @ts-ignore
 import { Post, CommentInput } from "@/components/features/post";
 import type { User } from "@/types";
 

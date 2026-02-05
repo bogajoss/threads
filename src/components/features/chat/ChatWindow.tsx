@@ -16,7 +16,6 @@ import {
   TypingIndicator,
 } from "@/components/ui";
 import { useLightbox } from "@/context/LightboxContext";
-// @ts-ignore
 import {
   ChatHeader,
   ChatInput,

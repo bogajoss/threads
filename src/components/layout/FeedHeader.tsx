@@ -4,7 +4,6 @@ const FeedHeader = () => {
       <img
         src="/welcome-banner.webp"
         alt="Welcome Banner"
-        // @ts-ignore
         fetchPriority="high"
         loading="eager"
         decoding="async"

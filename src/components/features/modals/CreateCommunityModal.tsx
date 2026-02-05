@@ -4,7 +4,6 @@ import Button from "@/components/ui/Button";
 import { Loader2, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-// @ts-ignore
 import { createCommunity } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

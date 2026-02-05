@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-// @ts-ignore
 import { fetchFollowers, fetchFollowing } from "@/lib/api";
 
 export const useFollowList = (

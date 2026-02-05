@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Loader2, ArrowLeft, Users } from "lucide-react";
-// @ts-ignore
 import { Post } from "@/components/features/post";
 import {
   NotFound,
@@ -12,12 +11,10 @@ import {
   Avatar,
   AvatarImage,
   AvatarFallback,
-  // @ts-ignore
 } from "@/components/ui";
 import {
   EditCommunityModal,
   ManageMembersModal,
-  // @ts-ignore
 } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
 

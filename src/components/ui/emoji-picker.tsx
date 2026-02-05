@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-// @ts-ignore
 import { EmojiPicker as EmojiPickerPrimitive } from "frimousse";
 import { cn } from "@/lib/utils";
 

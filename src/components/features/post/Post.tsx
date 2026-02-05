@@ -30,7 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// @ts-ignore
 import {
   PollDisplay,
   QuotedPost,
@@ -45,7 +44,6 @@ import {
 } from "@/components/features/post";
 import { usePostInteraction, useComments } from "@/hooks";
 import { useToast } from "@/context/ToastContext";
-// @ts-ignore
 import { usePosts } from "@/context/PostContext";
 import {
   uploadFile,
@@ -694,6 +692,7 @@ const Post: React.FC<PostProps> = ({
             views={localStats.views || 0}
             likes={localStats.likes || 0}
             comments={localStats.comments || 0}
+            commenterAvatars={comments.slice(0, 3).map((c) => c.user.avatar)}
             isComment={isComment}
             onRepliesClick={() => {
               if (showReplies) setShowReplies(false);

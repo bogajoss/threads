@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-// @ts-ignore
 import { SearchBar, SignupCard } from "@/components/ui";
-// @ts-ignore
 import { fetchTrendingHashtags } from "@/lib/api";
 
 const SidebarRight = () => {

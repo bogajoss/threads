@@ -1,5 +1,4 @@
 import React from "react";
-// @ts-ignore
 import EditProfileModal from "@/components/features/modals/EditProfileModal";
 
 interface GlobalModalsProps {

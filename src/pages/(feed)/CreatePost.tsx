@@ -11,7 +11,6 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-// @ts-ignore
 import { uploadFile, fetchUserCommunities, addStory } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {

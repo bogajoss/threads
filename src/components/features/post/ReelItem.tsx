@@ -10,7 +10,6 @@ import { linkifyOptions } from "@/lib/linkify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-// @ts-ignore
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
@@ -105,7 +104,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     useEffect(() => {
       const player = playerRef.current?.plyr;
       if (player) {
-        // eslint-disable-next-line react-hooks/immutability
         player.muted = isMuted;
       }
     }, [isMuted]);

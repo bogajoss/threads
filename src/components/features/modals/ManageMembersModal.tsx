@@ -11,7 +11,6 @@ import {
   TabsContent,
 } from "@/components/ui";
 import { Loader2, ShieldCheck, User as UserIcon, Search } from "lucide-react";
-// @ts-ignore
 import { fetchCommunityMembers, updateMemberRole } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";

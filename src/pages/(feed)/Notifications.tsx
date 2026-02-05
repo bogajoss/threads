@@ -4,10 +4,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import { FollowingIcon } from "@/components/ui/custom-icons";
-// @ts-ignore
 import { useNotificationsPage } from "@/hooks";
 import type { Notification } from "@/types";
-// @ts-ignore
 import { PullToRefresh } from "@/components/ui";
 
 const Notifications: React.FC = () => {

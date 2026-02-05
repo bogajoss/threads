@@ -11,7 +11,6 @@ import { LightboxProvider } from "@/context/LightboxContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "plyr/dist/plyr.css";
 import "@/index.css";
-// @ts-ignore
 import App from "@/App";
 
 const queryClient = new QueryClient({

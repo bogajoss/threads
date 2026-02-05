@@ -1,5 +1,4 @@
 import { ArrowLeft, Hash, Loader2 } from "lucide-react";
-// @ts-ignore
 import Post from "@/components/features/post/Post";
 import { Button } from "@/components/ui";
 import { useHashtagFeed } from "@/hooks/pages/useHashtagFeed";

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-// @ts-ignore
 import { Modal, Button } from "@/components/ui";
 import { Loader2, Camera } from "lucide-react";
-// @ts-ignore
 import { updateCommunity, uploadFile } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 

@@ -7,7 +7,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-// @ts-ignore
 import ReelItem from "@/components/features/post/ReelItem";
 import { useReels } from "@/hooks/pages/useReels";
 

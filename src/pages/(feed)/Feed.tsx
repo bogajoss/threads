@@ -1,9 +1,7 @@
 import React from "react";
 import { Virtuoso } from "react-virtuoso";
 import { useNavigate } from "react-router-dom";
-// @ts-ignore
 import StoryCircle from "@/components/features/story/StoryCircle";
-// @ts-ignore
 import { Post } from "@/components/features/post";
 import {
   SkeletonPost,
@@ -11,10 +9,8 @@ import {
   ScrollArea,
   ScrollBar,
 } from "@/components/ui";
-// @ts-ignore
 import { useHome } from "@/hooks";
 import { Loader2 } from "lucide-react";
-// @ts-ignore
 import PullToRefresh from "@/components/ui/PullToRefresh";
 
 const HomeHeader: React.FC<any> = ({

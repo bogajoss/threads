@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import {
@@ -52,7 +51,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < 10) return undefined;
-      // @ts-ignore - sort_timestamp exists in runtime from unified_posts
       return (
         lastPage[lastPage.length - 1].sort_timestamp ||
         lastPage[lastPage.length - 1].created_at
@@ -135,7 +133,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   );
 
   // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setPosts: React.Dispatch<React.SetStateAction<Post[]>> = useCallback(
     (_action) => {
       console.warn(

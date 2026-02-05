@@ -1,6 +1,5 @@
 import React from "react";
 import { User } from "lucide-react";
-// @ts-ignore
 import {
   HomeIcon,
   ChatIcon,
@@ -51,7 +50,6 @@ const SidebarLeft: React.FC<SidebarLeftProps> = () => {
               `relative rounded-xl border border-transparent p-2.5 transition-all duration-200 ${isActive ? "border-zinc-200 bg-zinc-100 text-black dark:border-zinc-800 dark:bg-zinc-900 dark:text-white" : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900"}`
             }
           >
-            {/* @ts-ignore */}
             <item.icon size={26} strokeWidth={2.5} />
             {item.id === "notifications" && notificationsCount > 0 && (
               <span className="absolute right-2 top-2 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>

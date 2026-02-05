@@ -1,10 +1,7 @@
 import React from "react";
-// @ts-ignore
 import ChatList from "@/components/features/chat/ChatList";
-// @ts-ignore
 import ChatWindow from "@/components/features/chat/ChatWindow";
 import { Loader2, Zap, MessageSquareDashed } from "lucide-react";
-// @ts-ignore
 import { useMessagesPage } from "@/hooks";
 
 const Messages: React.FC = () => {

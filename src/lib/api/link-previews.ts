@@ -41,7 +41,6 @@ export const getCachedLinkPreview = async (
     }
 
     // 2. If not in cache, scrape it
-    // @ts-ignore - Assuming detailed typing for scrapePreview isn't available or simple enough
     const scrapedData = await scrapePreview(url);
     if (!scrapedData) return null;
 

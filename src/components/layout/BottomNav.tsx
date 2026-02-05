@@ -1,5 +1,4 @@
 import React from "react";
-// @ts-ignore
 import {
   HomeIcon,
   ChatIcon,
@@ -44,7 +43,6 @@ const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
         >
           {({ isActive }) => (
             <>
-              {/* @ts-ignore */}
               <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
               {item.id === "notifications" && notificationsCount > 0 && (
                 <span className="absolute right-[30%] top-3 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>

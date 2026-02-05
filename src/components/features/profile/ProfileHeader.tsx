@@ -9,7 +9,6 @@ import {
   Ban,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// @ts-ignore
 import {
   Button,
   VerifiedIcon,
@@ -31,7 +30,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// @ts-ignore
 import { getOrCreateConversation } from "@/lib/api";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";

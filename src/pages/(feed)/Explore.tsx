@@ -9,11 +9,8 @@ import {
   TabsTrigger,
 } from "@/components/ui";
 import { Loader2, Plus, Users, Hash } from "lucide-react";
-// @ts-ignore
 import CreateCommunityModal from "@/components/features/modals/CreateCommunityModal";
-// @ts-ignore
 import { useExplore } from "@/hooks/pages/useExplore";
-// @ts-ignore
 import { Post } from "@/components/features/post";
 import type { Post as PostType, Community } from "@/types";
 

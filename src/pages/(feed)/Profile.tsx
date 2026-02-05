@@ -1,8 +1,6 @@
 import React from "react";
 import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
-// @ts-ignore
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
-// @ts-ignore
 import { Post } from "@/components/features/post";
 import {
   Modal,
@@ -14,7 +12,6 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui";
-// @ts-ignore
 import { useProfile } from "@/hooks/pages/useProfile";
 import type { Post as PostType } from "@/types";
 
