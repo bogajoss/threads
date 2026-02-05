@@ -5,7 +5,6 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 // Context
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 
@@ -15,20 +14,21 @@ import { GlobalModals } from "@/components/features/modals";
 // @ts-ignore
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
-import AuthForm from "@/components/features/auth/AuthForm";
 import { Loader2 } from "lucide-react";
 
 // Pages (Lazy Loaded)
-const Home = lazy(() => import("@/pages/Home"));
-const Explore = lazy(() => import("@/pages/Explore"));
-const Reels = lazy(() => import("@/pages/Reels"));
-const Messages = lazy(() => import("@/pages/Messages"));
-const Notifications = lazy(() => import("@/pages/Notifications"));
-const Profile = lazy(() => import("@/pages/Profile"));
-const Community = lazy(() => import("@/pages/Community"));
-const PostDetails = lazy(() => import("@/pages/PostDetails"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const HashtagFeed = lazy(() => import("@/pages/HashtagFeed"));
+const Home = lazy(() => import("@/pages/(feed)/Feed"));
+const Explore = lazy(() => import("@/pages/(feed)/Explore"));
+const Reels = lazy(() => import("@/pages/(feed)/Reels"));
+const Messages = lazy(() => import("@/pages/(feed)/Messages"));
+const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
+const Profile = lazy(() => import("@/pages/(feed)/Profile"));
+const Community = lazy(() => import("@/pages/(feed)/Community"));
+const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
+const Settings = lazy(() => import("@/pages/(feed)/Settings"));
+const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
+const Login = lazy(() => import("@/pages/(auth)/login/page"));
+const Register = lazy(() => import("@/pages/(auth)/register/page"));
 
 import { Plus } from "lucide-react";
 import { ScrollToTop } from "@/lib/utils";
@@ -42,8 +42,7 @@ const PageLoader = () => (
 
 export default function Sysm() {
   const location = useLocation();
-  const { currentUser, authMode, setAuthMode } = useAuth();
-  const { darkMode } = useTheme();
+  const { currentUser } = useAuth();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
 
@@ -58,37 +57,22 @@ export default function Sysm() {
   // Initialize Keyboard Shortcuts
   useKeyboardShortcuts();
 
-  if (authMode) {
-    return (
-      <div className={darkMode ? "dark" : ""}>
-        <div className="flex min-h-screen items-center justify-center bg-white p-4 dark:bg-black">
-          <PageTransition>
-            <AuthForm
-              type={authMode}
-              onComplete={() => setAuthMode(null)}
-              onSwitch={() =>
-                setAuthMode(authMode === "login" ? "signup" : "login")
-              }
-            />
-          </PageTransition>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <VideoPlaybackProvider>
       <ScrollToTop />
 
       <Suspense fallback={<PageLoader />}>
         <Routes location={location} key={location.pathname}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             element={
               <MainLayout onPostClick={() => setIsPostModalOpen(true)} />
             }
           >
+            <Route path="/" element={<Navigate to="/feed" replace />} />
             <Route
-              path="/"
+              path="/feed"
               element={
                 <PageTransition>
                   <Home
@@ -98,7 +82,7 @@ export default function Sysm() {
                 </PageTransition>
               }
             />
-            <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route path="/home" element={<Navigate to="/feed" replace />} />
             <Route
               path="/community"
               element={

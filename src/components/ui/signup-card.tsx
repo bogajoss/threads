@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface SignupCardProps {
@@ -7,7 +7,7 @@ interface SignupCardProps {
 }
 
 const SignupCard: React.FC<SignupCardProps> = ({ className }) => {
-  const { setAuthMode } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div
@@ -26,7 +26,7 @@ const SignupCard: React.FC<SignupCardProps> = ({ className }) => {
         Get your Sysm account now!
       </h2>
       <button
-        onClick={() => setAuthMode("signup")}
+        onClick={() => navigate("/register")}
         className="w-full cursor-pointer rounded-full bg-zinc-950 py-2.5 text-sm font-black uppercase tracking-wider text-white shadow-lg transition-all hover:opacity-90 active:scale-95 dark:bg-white dark:text-zinc-950"
       >
         Signup now

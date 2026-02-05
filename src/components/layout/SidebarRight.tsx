@@ -10,7 +10,7 @@ import { SearchBar, SignupCard } from "@/components/ui";
 import { fetchTrendingHashtags } from "@/lib/api";
 
 const SidebarRight = () => {
-  const { currentUser, setAuthMode } = useAuth();
+  const { currentUser } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -110,13 +110,13 @@ const SidebarRight = () => {
       {/* Top Auth Buttons + Theme Toggle */}
       <div className="flex gap-3">
         <button
-          onClick={() => setAuthMode("signup")}
+          onClick={() => navigate("/register")}
           className="cursor-pointer flex-1 rounded-full border border-[--border] bg-[--card] py-2.5 font-bold text-[--foreground] shadow-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
         >
           Signup
         </button>
         <button
-          onClick={() => setAuthMode("login")}
+          onClick={() => navigate("/login")}
           className="cursor-pointer flex flex-1 items-center justify-center gap-2 rounded-full bg-zinc-950 py-2.5 font-bold text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-zinc-950"
         >
           <img src="/logo.webp" alt="" className="size-4 rounded-sm" />

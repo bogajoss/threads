@@ -23,7 +23,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
   const { unreadCount: messagesCount } = useConversations(currentUser);
 
   const navItems = [
-    { id: "home", icon: HomeIcon, path: "/" },
+    { id: "home", icon: HomeIcon, path: "/feed" },
     { id: "community", icon: CommunityIcon, path: "/community" },
     { id: "reels", icon: ReelsIcon, path: "/reels" },
     { id: "messages", icon: ChatIcon, path: "/messages" },
@@ -31,7 +31,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onPostClick }) => {
     {
       id: "profile",
       icon: User,
-      path: currentUser ? `/u/${currentUser.handle}` : "/community",
+      path: currentUser ? `/u/${currentUser.handle}` : "/login",
     },
   ];
 

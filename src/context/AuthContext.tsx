@@ -19,8 +19,6 @@ import type { User } from "@/types/index";
 // Define the shape of the auth context
 interface AuthContextType {
   currentUser: User | null;
-  authMode: "login" | "signup" | null;
-  setAuthMode: React.Dispatch<React.SetStateAction<"login" | "signup" | null>>;
   login: (credentials: any) => Promise<any>;
   signup: (credentials: any) => Promise<any>;
   logout: () => Promise<void>;
@@ -36,7 +34,6 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [authMode, setAuthMode] = useState<"login" | "signup" | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchUserProfileData = useCallback(async (user: any) => {
@@ -129,7 +126,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password,
     });
     if (error) throw error;
-    setAuthMode(null);
     return data;
   }, []);
 
@@ -149,7 +145,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
       if (signUpError) throw signUpError;
-      setAuthMode(null);
       return user;
     },
     [],
@@ -158,7 +153,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setCurrentUser(null);
-    setAuthMode(null);
   }, []);
 
   const handleUpdateProfile = useCallback(
@@ -173,8 +167,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = useMemo(
     () => ({
       currentUser,
-      authMode,
-      setAuthMode,
       login,
       signup,
       logout,
@@ -183,7 +175,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }),
     [
       currentUser,
-      authMode,
       login,
       signup,
       logout,
