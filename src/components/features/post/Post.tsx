@@ -87,6 +87,49 @@ interface PostProps {
   commenterAvatars?: string[];
 }
 
+const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
+  if (!avatars || avatars.length === 0) return null;
+
+  const displayAvatars = avatars.slice(0, 3);
+  
+  // Positioning patterns for Threads-style reply avatars
+  // 1 avatar: centered
+  // 2 avatars: diagonal
+  // 3 avatars: triangle
+  
+  return (
+    <div className="relative mt-2 h-7 w-7">
+      {displayAvatars.map((avatar, i) => {
+        let positionClass = "";
+        let sizeClass = "";
+        
+        if (displayAvatars.length === 1) {
+          positionClass = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+          sizeClass = "size-5";
+        } else if (displayAvatars.length === 2) {
+          sizeClass = "size-4";
+          positionClass = i === 0 ? "top-0 right-0" : "bottom-0 left-0";
+        } else {
+          sizeClass = i === 0 ? "size-3.5" : "size-3";
+          if (i === 0) positionClass = "top-0 right-0";
+          else if (i === 1) positionClass = "bottom-0 right-0";
+          else positionClass = "top-1/2 left-0 -translate-y-1/2";
+        }
+
+        return (
+          <div
+            key={i}
+            className={`absolute rounded-full border border-white bg-zinc-100 dark:border-black dark:bg-zinc-800 overflow-hidden shadow-sm ${positionClass} ${sizeClass}`}
+            style={{ zIndex: 10 - i }}
+          >
+            <img src={avatar} alt="" className="h-full w-full object-cover" />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const Post: React.FC<PostProps> = ({
   id,
   user,
@@ -606,7 +649,18 @@ const Post: React.FC<PostProps> = ({
           {/* Vertical line connector (Threads style) */}
           {((!isComment && localStats.comments > 0) ||
             (isComment && !parent_id && localStats.comments > 0)) && (
-            <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+            <>
+              <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+              {!isComment && (
+                <ReplyAvatars 
+                  avatars={
+                    commenterAvatars.length > 0 
+                      ? commenterAvatars 
+                      : (comments || []).slice(0, 3).map(c => c.user.avatar)
+                  } 
+                />
+              )}
+            </>
           )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
@@ -694,11 +748,6 @@ const Post: React.FC<PostProps> = ({
             views={localStats.views || 0}
             likes={localStats.likes || 0}
             comments={localStats.comments || 0}
-            commenterAvatars={
-              commenterAvatars.length > 0
-                ? commenterAvatars
-                : comments.slice(0, 3).map((c) => c.user.avatar)
-            }
             isComment={isComment}
             onRepliesClick={() => {
               if (showReplies) setShowReplies(false);
