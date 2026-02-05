@@ -13,7 +13,6 @@ import {
     TabsList,
     TabsTrigger,
     TabsContent,
-    CreditCard,
 } from "@/components/ui"
 // @ts-ignore
 import { useProfile } from "@/hooks/pages/useProfile"
@@ -121,14 +120,10 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                     <Search size={40} className="text-zinc-300 dark:text-zinc-700" />
                 </div>
                 <h3 className="text-xl font-bold dark:text-white">
-                    {activeProfileTab === "collections"
-                        ? "No collections yet"
-                        : "No posts yet"}
+                    No posts yet
                 </h3>
                 <p className="max-w-[250px] text-sm text-zinc-500 dark:text-zinc-400">
-                    {activeProfileTab === "collections"
-                        ? "Saved posts and curated collections will appear here."
-                        : `When @${displayProfile.handle} shares posts, they will appear here.`}
+                    When @{displayProfile.handle} shares posts, they will appear here.
                 </p>
             </div>
         )
@@ -172,7 +167,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                 >
                     <div className="sticky top-[60px] z-10 border-b border-zinc-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-black/90 md:top-0">
                         <TabsList className="hide-scrollbar h-auto w-full justify-start overflow-x-auto rounded-none bg-transparent p-0 px-2">
-                            {["feed", "collections", "media"].map((tab) => (
+                            {["feed", "media"].map((tab) => (
                                 <TabsTrigger
                                     key={tab}
                                     value={tab}
@@ -187,10 +182,6 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                     <TabsContent value="feed" className="m-0 border-none">
                         {renderPosts()}
                     </TabsContent>
-                    <TabsContent value="collections" className="m-0 border-none">
-                        <CreditCard name={displayProfile.name} number={displayProfile.id} />
-                        {renderPosts(true)}
-                    </TabsContent>
                     <TabsContent value="media" className="m-0 border-none">
                         {renderPosts()}
                     </TabsContent>
@@ -202,6 +193,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                 isOpen={isFollowModalOpen}
                 onClose={() => setIsFollowModalOpen(false)}
                 title={followModalType}
+                description={followModalType === "Followers" ? `People who follow @${displayProfile.handle}` : `People @${displayProfile.handle} follows`}
                 className="sm:max-w-md"
             >
                 <div className="flex max-h-[75vh] flex-col overflow-y-auto">

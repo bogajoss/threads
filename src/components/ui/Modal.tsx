@@ -39,6 +39,7 @@ const Modal: React.FC<ModalProps> = ({
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent
                 onDragClose={onClose}
+                aria-describedby={undefined}
                 className={cn(
                     "flex max-h-[calc(100dvh-1rem)] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
                     className

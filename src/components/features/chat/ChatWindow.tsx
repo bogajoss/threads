@@ -32,6 +32,7 @@ import { linkifyOptions } from "@/lib/linkify"
 import { GroupSettingsModal, DMSettingsModal } from "@/components/features/modals"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 
 interface ChatWindowProps {
     conversation: any
@@ -64,6 +65,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     isTyping,
     isOnline,
 }) => {
+    const navigate = useNavigate()
     const { openLightbox } = useLightbox()
     const [replyingTo, setReplyingTo] = useState<any | null>(null)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -170,8 +172,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             <p className="text-zinc-500 text-sm mb-4">
                                 {conversation.isGroup ? "Group chat on Sysm" : "You're friends on Sysm"}
                             </p>
-                            {!conversation.isGroup && (
-                                <Button variant="outline" className="rounded-full h-8 text-xs">
+                            {!conversation.isGroup && conversation.user?.handle && (
+                                <Button 
+                                    variant="outline" 
+                                    className="rounded-full h-8 text-xs"
+                                    onClick={() => navigate(`/u/${conversation.user.handle}`)}
+                                >
                                     View Profile
                                 </Button>
                             )}

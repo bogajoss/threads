@@ -75,22 +75,32 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         }
     }
 
-    const isMe = currentUser?.id === profile.id
+    const isMe = currentUser?.id && profile?.id && String(currentUser.id) === String(profile.id)
     const loading = isCommunity ? loadingMember : loadingFollow
-    const handle = profile.handle
-    const avatar = profile.avatar
-    const name = profile.name
-    const followers = "follower_count" in profile ? profile.follower_count : 0
-    const membersCount = "membersCount" in profile ? profile.membersCount : 0
-    const verified = "verified" in profile ? profile.verified : false
+    const handle = profile?.handle || ""
+    const avatar = profile?.avatar
+    const name = profile?.name || ""
+    const membersCount = "membersCount" in profile ? (profile as any).membersCount : 0
+    const verified = "verified" in profile ? (profile as any).verified : false
+
+    const onButtonClick = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (isCommunity) {
+            handleJoinToggle(e)
+        } else {
+            handleFollow()
+        }
+    }
 
     return (
         <div
-            className="group flex cursor-pointer items-center justify-between border-b border-zinc-100 p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/40"
-            onClick={() => onUserClick(handle)}
+            className="group flex items-center justify-between border-b border-zinc-100 p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/40"
         >
-            <div className="flex items-center gap-3">
-                <div className="relative">
+            <div 
+                className="flex flex-1 items-center gap-3 cursor-pointer min-w-0"
+                onClick={() => onUserClick(handle)}
+            >
+                <div className="relative shrink-0">
                     <Avatar
                         className={`size-12 border border-zinc-200 shadow-sm dark:border-zinc-800 ${isCommunity ? "rounded-2xl" : ""}`}
                     >
@@ -107,22 +117,17 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                         <span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-emerald-500 shadow-sm dark:border-black"></span>
                     )}
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0">
                     <span className="flex items-center gap-1 truncate font-extrabold text-zinc-900 dark:text-zinc-100">
                         {name}
                         {verified && (
                             <VerifiedIcon size={16} className="shrink-0 text-blue-500" />
                         )}
                     </span>
-                    <span className="mt-0.5 text-sm text-zinc-500">@{handle}</span>
+                    <span className="truncate text-sm text-zinc-500">@{handle}</span>
                     {isCommunity && (
                         <span className="mt-1 text-xs text-zinc-400">
                             {membersCount || 0} members
-                        </span>
-                    )}
-                    {!isCommunity && followers !== undefined && (
-                        <span className="mt-1 text-xs text-zinc-400">
-                            {followers} followers
                         </span>
                     )}
                 </div>
@@ -139,15 +144,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                                 ? "secondary"
                                 : "outline"
                     }
-                    className="flex !w-auto items-center gap-1.5 rounded-full border-zinc-200 !px-4 !py-1.5 text-sm font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-                    onClick={
-                        isCommunity
-                            ? handleJoinToggle
-                            : (e: React.MouseEvent) => {
-                                e.stopPropagation()
-                                handleFollow()
-                            }
-                    }
+                    className="ml-4 flex !w-auto shrink-0 items-center gap-1.5 rounded-full border-zinc-200 !px-4 !py-1.5 text-sm font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                    onClick={onButtonClick}
                     disabled={loading}
                 >
                     {loading ? (
@@ -156,23 +154,23 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                         isJoined ? (
                             <>
                                 <FollowingIcon size={16} />
-                                <span className="hidden sm:inline">Joined</span>
+                                <span className="inline">Joined</span>
                             </>
                         ) : (
                             <>
                                 <FollowIcon size={16} />
-                                <span className="hidden sm:inline">Join</span>
+                                <span className="inline">Join</span>
                             </>
                         )
                     ) : isFollowing ? (
                         <>
                             <FollowingIcon size={16} />
-                            <span className="hidden sm:inline">Following</span>
+                            <span className="inline">Following</span>
                         </>
                     ) : (
                         <>
                             <FollowIcon size={16} />
-                            <span className="hidden sm:inline">Follow</span>
+                            <span className="inline">Follow</span>
                         </>
                     )}
                 </Button>

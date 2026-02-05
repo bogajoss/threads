@@ -60,6 +60,7 @@ const DialogContent = React.forwardRef<
             <DialogPrimitive.Content
                 ref={ref}
                 asChild
+                aria-describedby={undefined}
                 {...props}
             >
                 <motion.div

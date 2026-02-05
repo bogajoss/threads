@@ -29,7 +29,7 @@ export const getOrCreateConversation = async (userId: string, targetUserId: stri
     // 3. Create new DM conversation if none exists
     const { data: newConv, error: convError } = await (supabase
         .from("conversations") as any)
-        .insert({ is_group: false }) 
+        .insert({ is_group: false, creator_id: userId }) 
         .select()
         .single();
 
