@@ -15,7 +15,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
   const navigate = useNavigate();
   const { darkMode } = useTheme();
 
-  const isHomePage = location.pathname === "/";
+  const isHomePage = location.pathname === "/" || location.pathname === "/feed";
   const isReelsPage = location.pathname.startsWith("/reels");
 
   // Hide bottom nav on reels and specific messages for better UX
