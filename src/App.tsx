@@ -31,6 +31,7 @@ const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 const ShopPage = lazy(() => import("@/pages/(marketplace)/shop/page"));
+const ProductPage = lazy(() => import("@/pages/(marketplace)/shop/product/page"));
 
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -193,6 +194,8 @@ export default function Sysm() {
           <Route element={<MarketplaceLayout />}>
             <Route path="/pro" element={<ProPage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/shop/product/:id" element={<ProductPage />} />
+            <Route path="/shop/product" element={<ProductPage />} />
           </Route>
         </Routes>
       </Suspense>
