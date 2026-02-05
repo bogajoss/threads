@@ -274,7 +274,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                     </div>
                                   )}
 
-                                  {msg.text && (
+                                  {msg.type === "voice" && msg.media?.[0] && (
+                                    <React.Suspense fallback={<div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />}>
+                                      <VoiceMessage 
+                                        url={msg.media[0].url} 
+                                        duration={msg.media[0].duration} 
+                                        isMe={isMe} 
+                                      />
+                                    </React.Suspense>
+                                  )}
+
+                                  {msg.text && msg.type !== "voice" && (
                                     <div className="whitespace-pre-wrap break-words pr-12">
                                       <Linkify options={{ ...linkifyOptions, className: "underline" }}>
                                         {msg.text}

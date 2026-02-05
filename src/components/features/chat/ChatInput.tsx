@@ -235,7 +235,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <div
           className={cn(
             "flex-1 flex items-center gap-1 rounded-[24px] px-1.5 py-1.5 transition-all bg-white dark:bg-[#212121] shadow-md border-0 ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-violet-500/30",
-            isRecording && "bg-zinc-900 ring-red-500"
+            (isRecording || audioBlob) && "bg-zinc-900 ring-red-500/50"
           )}
         >
           {isRecording ? (
@@ -246,8 +246,35 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   {formatTime(recordingTime)}
                 </span>
               </div>
-              <div className="flex-1 text-center text-sm text-zinc-500">Slide to cancel</div>
+              <div className="flex-1 text-center text-sm text-zinc-500">Recording...</div>
               <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-red-500">
+                <Trash2 size={20} />
+              </button>
+            </div>
+          ) : audioBlob ? (
+            <div className="flex-1 flex items-center gap-3 px-3 py-1">
+              <button
+                type="button"
+                onClick={togglePreviewPlay}
+                className="size-10 flex items-center justify-center rounded-full bg-[#8774e1] text-white"
+              >
+                {isPreviewPlaying ? <Square size={16} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
+              </button>
+              <div className="flex-1">
+                <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: isPreviewPlaying ? "100%" : "0%" }}
+                    transition={{ duration: recordingTime, ease: "linear" }}
+                    className="h-full bg-[#8774e1]"
+                  />
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span className="text-[10px] text-zinc-500">Voice message</span>
+                  <span className="text-[10px] text-zinc-500 tabular-nums">{formatTime(recordingTime)}</span>
+                </div>
+              </div>
+              <button type="button" onClick={clearAudio} className="p-2 text-zinc-400 hover:text-red-500">
                 <Trash2 size={20} />
               </button>
             </div>

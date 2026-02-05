@@ -353,9 +353,13 @@ export const sendMessage = async (
     .update({
       last_message_at: new Date().toISOString(),
       last_message_content:
-        type === "image" || (media && media.length > 0)
+        type === "image"
           ? "Sent an image"
-          : content,
+          : type === "video"
+            ? "Sent a video"
+            : type === "voice"
+              ? "Voice message"
+              : content,
     })
     .eq("id", conversationId);
 
