@@ -1,182 +1,221 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, {
-    createContext,
-    useContext,
-    useMemo,
-    useCallback,
-} from "react";
+import React, { createContext, useContext, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import {
-    useInfiniteQuery,
-    useMutation,
-    useQueryClient,
-    type InfiniteData
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
 } from "@tanstack/react-query";
 import {
-    fetchPosts,
-    addPost as addPostApi,
-    deletePost as deletePostApi,
-    updatePost as updatePostApi,
+  fetchPosts,
+  addPost as addPostApi,
+  deletePost as deletePostApi,
+  updatePost as updatePostApi,
 } from "@/lib/api";
 import type { Post } from "@/types/index";
 
 interface PostContextType {
-    posts: Post[];
-    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
-    addPost: (postData: any) => Promise<Post | null>;
-    deletePost: (postId: string) => Promise<void>;
-    updatePost: (postId: string, data: any) => Promise<void>;
-    getPostById: (id: string) => Post | undefined;
-    getUserPosts: (handle: string, filter?: "feed" | "media") => Post[];
-    loading: boolean;
-    hasMore: boolean;
-    isFetchingNextPage: boolean;
-    fetchNextPage: () => void;
-    refreshPosts: () => void;
+  posts: Post[];
+  setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+  addPost: (postData: any) => Promise<Post | null>;
+  deletePost: (postId: string) => Promise<void>;
+  updatePost: (postId: string, data: any) => Promise<void>;
+  getPostById: (id: string) => Post | undefined;
+  getUserPosts: (handle: string, filter?: "feed" | "media") => Post[];
+  loading: boolean;
+  hasMore: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => void;
+  refreshPosts: () => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 interface PostProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        refetch
-    } = useInfiniteQuery({
-        queryKey: ["posts", "feed"],
-        queryFn: ({ pageParam }) => fetchPosts(pageParam, 10),
-        initialPageParam: null as string | null,
-        getNextPageParam: (lastPage) => {
-            if (!lastPage || lastPage.length < 10) return undefined;
-            // @ts-ignore - sort_timestamp exists in runtime from unified_posts
-            return lastPage[lastPage.length - 1].sort_timestamp || lastPage[lastPage.length - 1].created_at;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["posts", "feed"],
+    queryFn: ({ pageParam }) => fetchPosts(pageParam, 10),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.length < 10) return undefined;
+      // @ts-ignore - sort_timestamp exists in runtime from unified_posts
+      return (
+        lastPage[lastPage.length - 1].sort_timestamp ||
+        lastPage[lastPage.length - 1].created_at
+      );
+    },
+  });
+
+  const posts = useMemo(() => {
+    return data?.pages.flatMap((page) => page) || [];
+  }, [data]);
+
+  const addPostMutation = useMutation({
+    mutationFn: addPostApi,
+    onSuccess: () => {
+      // Invalidate to refetch the feed and show the new post
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: deletePostApi,
+    onMutate: async (postId) => {
+      await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
+      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>([
+        "posts",
+        "feed",
+      ]);
+
+      queryClient.setQueryData<InfiniteData<Post[]>>(
+        ["posts", "feed"],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => page.filter((p) => p.id !== postId)),
+          };
         },
-    });
+      );
 
-    const posts = useMemo(() => {
-        return data?.pages.flatMap((page) => page) || [];
-    }, [data]);
+      return { previousPosts };
+    },
+    onError: (_err, _postId, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts", "feed"], context.previousPosts);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
+    },
+  });
 
-    const addPostMutation = useMutation({
-        mutationFn: addPostApi,
-        onSuccess: () => {
-             // Invalidate to refetch the feed and show the new post
-             queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
-        },
-    });
+  const updatePostMutation = useMutation({
+    mutationFn: ({ postId, data }: { postId: string; data: any }) =>
+      updatePostApi(postId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
+    },
+  });
 
-    const deletePostMutation = useMutation({
-        mutationFn: deletePostApi,
-        onMutate: async (postId) => {
-            await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
-            const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>(["posts", "feed"]);
+  // Wrapper functions to match the original context interface
+  const addPost = useCallback(
+    async (postData: any): Promise<Post | null> => {
+      return await addPostMutation.mutateAsync(postData);
+    },
+    [addPostMutation],
+  );
 
-            queryClient.setQueryData<InfiniteData<Post[]>>(["posts", "feed"], (old) => {
-                if (!old) return old;
-                return {
-                    ...old,
-                    pages: old.pages.map((page) => page.filter((p) => p.id !== postId)),
-                };
-            });
+  const deletePost = useCallback(
+    async (postId: string): Promise<void> => {
+      await deletePostMutation.mutateAsync(postId);
+    },
+    [deletePostMutation],
+  );
 
-            return { previousPosts };
-        },
-        onError: (_err, _postId, context) => {
-            if (context?.previousPosts) {
-                queryClient.setQueryData(["posts", "feed"], context.previousPosts);
-            }
-        },
-        onSuccess: () => {
-             queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
-        },
-    });
+  const updatePost = useCallback(
+    async (postId: string, data: any): Promise<void> => {
+      await updatePostMutation.mutateAsync({ postId, data });
+    },
+    [updatePostMutation],
+  );
 
-    const updatePostMutation = useMutation({
-        mutationFn: ({ postId, data }: { postId: string; data: any }) => updatePostApi(postId, data),
-        onSuccess: () => {
-             queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
-        },
-    });
+  // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const setPosts: React.Dispatch<React.SetStateAction<Post[]>> = useCallback(
+    (_action) => {
+      console.warn(
+        "setPosts is deprecated in favor of React Query cache updates",
+      );
+    },
+    [],
+  );
 
-    // Wrapper functions to match the original context interface
-    const addPost = useCallback(async (postData: any): Promise<Post | null> => {
-        return await addPostMutation.mutateAsync(postData);
-    }, [addPostMutation]);
+  const getPostById = useCallback(
+    (id: string): Post | undefined => posts.find((p) => p.id === id),
+    [posts],
+  );
 
-    const deletePost = useCallback(async (postId: string): Promise<void> => {
-        await deletePostMutation.mutateAsync(postId);
-    }, [deletePostMutation]);
+  const getUserPosts = useCallback(
+    (handle: string, filter: "feed" | "media" = "feed"): Post[] => {
+      const userPosts = posts.filter((post) => {
+        if (post.user?.handle === handle) return true;
+        if (post.repostedBy && post.repostedBy.handle === handle) return true;
+        return false;
+      });
 
-    const updatePost = useCallback(async (postId: string, data: any): Promise<void> => {
-        await updatePostMutation.mutateAsync({ postId, data });
-    }, [updatePostMutation]);
+      if (filter === "feed") {
+        return userPosts.filter((p) => p.parent_id === null);
+      }
+      if (filter === "media") {
+        return userPosts.filter(
+          (p) =>
+            p.parent_id === null &&
+            (p.type === "video" ||
+              p.type === "image" ||
+              (p.media?.length || 0) > 0),
+        );
+      }
 
-    // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const setPosts: React.Dispatch<React.SetStateAction<Post[]>> = useCallback((_action) => {
-        console.warn("setPosts is deprecated in favor of React Query cache updates");
-    }, []);
+      return userPosts;
+    },
+    [posts],
+  );
 
-    const getPostById = useCallback((id: string): Post | undefined => posts.find((p) => p.id === id), [posts]);
+  const refreshPosts = useCallback(() => refetch(), [refetch]);
 
-    const getUserPosts = useCallback((handle: string, filter: "feed" | "media" = "feed"): Post[] => {
-        const userPosts = posts.filter((post) => {
-            if (post.user?.handle === handle) return true;
-            if (post.repostedBy && post.repostedBy.handle === handle) return true;
-            return false;
-        });
+  const value = useMemo(
+    () => ({
+      posts,
+      setPosts,
+      addPost,
+      deletePost,
+      updatePost,
+      getPostById,
+      getUserPosts,
+      loading: isLoading,
+      hasMore: hasNextPage || false,
+      isFetchingNextPage,
+      fetchNextPage,
+      refreshPosts,
+    }),
+    [
+      posts,
+      setPosts,
+      addPost,
+      deletePost,
+      updatePost,
+      getPostById,
+      getUserPosts,
+      isLoading,
+      hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage,
+      refreshPosts,
+    ],
+  );
 
-        if (filter === "feed") {
-            return userPosts.filter((p) => p.parent_id === null);
-        }
-        if (filter === "media") {
-            return userPosts.filter(
-                (p) =>
-                    p.parent_id === null &&
-                    (p.type === "video" || p.type === "image" || ((p.media?.length || 0) > 0)),
-            );
-        }
-
-        return userPosts;
-    }, [posts]);
-
-    const refreshPosts = useCallback(() => refetch(), [refetch]);
-
-    const value = useMemo(() => ({
-        posts,
-        setPosts,
-        addPost,
-        deletePost,
-        updatePost,
-        getPostById,
-        getUserPosts,
-        loading: isLoading,
-        hasMore: hasNextPage || false,
-        isFetchingNextPage,
-        fetchNextPage,
-        refreshPosts,
-    }), [posts, setPosts, addPost, deletePost, updatePost, getPostById, getUserPosts, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage, refreshPosts]);
-
-    return (
-        <PostContext.Provider value={value}>
-            {children}
-        </PostContext.Provider>
-    );
+  return <PostContext.Provider value={value}>{children}</PostContext.Provider>;
 };
 
 export const usePosts = (): PostContextType => {
-    const context = useContext(PostContext);
-    if (!context) {
-        throw new Error("usePosts must be used within a PostProvider");
-    }
-    return context;
+  const context = useContext(PostContext);
+  if (!context) {
+    throw new Error("usePosts must be used within a PostProvider");
+  }
+  return context;
 };

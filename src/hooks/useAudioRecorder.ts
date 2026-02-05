@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from "react";
 
 export interface AudioRecorderHook {
   isRecording: boolean;
@@ -31,10 +31,15 @@ export const useAudioRecorder = (): AudioRecorderHook => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
         mediaRecorderRef.current.stop();
         // Stop all tracks in the stream
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        mediaRecorderRef.current.stream
+          .getTracks()
+          .forEach((track) => track.stop());
       }
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
@@ -69,7 +74,9 @@ export const useAudioRecorder = (): AudioRecorderHook => {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
+        const blob = new Blob(chunksRef.current, {
+          type: "audio/webm;codecs=opus",
+        });
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
@@ -82,7 +89,7 @@ export const useAudioRecorder = (): AudioRecorderHook => {
       setRecordingTime(0);
       startTimer();
     } catch (err) {
-      console.error('Error accessing microphone:', err);
+      console.error("Error accessing microphone:", err);
       throw err;
     }
   }, [startTimer]);
@@ -120,10 +127,12 @@ export const useAudioRecorder = (): AudioRecorderHook => {
       setIsPaused(false);
       stopTimer();
       setRecordingTime(0);
-      
+
       // Stop all tracks
       if (mediaRecorderRef.current.stream) {
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        mediaRecorderRef.current.stream
+          .getTracks()
+          .forEach((track) => track.stop());
       }
     }
   }, [isRecording, stopTimer]);

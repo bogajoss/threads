@@ -1,146 +1,154 @@
-import React from "react"
-import { Virtuoso } from "react-virtuoso"
+import React from "react";
+import { Virtuoso } from "react-virtuoso";
 // @ts-ignore
-import StoryCircle from "@/components/features/story/StoryCircle"
+import StoryCircle from "@/components/features/story/StoryCircle";
 // @ts-ignore
-import { Post } from "@/components/features/post"
+import { Post } from "@/components/features/post";
 import {
-    SkeletonPost,
-    SignupCard,
-    ScrollArea,
-    ScrollBar,
-} from "@/components/ui"
+  SkeletonPost,
+  SignupCard,
+  ScrollArea,
+  ScrollBar,
+} from "@/components/ui";
 // @ts-ignore
-import { useHome } from "@/hooks"
-import { Loader2 } from "lucide-react"
+import { useHome } from "@/hooks";
+import { Loader2 } from "lucide-react";
 // @ts-ignore
-import PullToRefresh from "@/components/ui/PullToRefresh"
+import PullToRefresh from "@/components/ui/PullToRefresh";
 
-const HomeHeader: React.FC<any> = ({ currentUser, groupedStories, onAddStory, onStoryClick }) => (
-    <div className="bg-white dark:bg-black">
-        <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
-            <div className="flex w-max gap-4 px-4 py-4">
-                {currentUser && (
-                    <StoryCircle
-                        user={currentUser}
-                        isAddStory={true}
-                        onClick={onAddStory}
-                    />
-                )}
-                {groupedStories.map((group: any) => (
-                    <StoryCircle
-                        key={group.user.id}
-                        user={group.user}
-                        isSeen={group.isSeen}
-                        onClick={() => onStoryClick(group)}
-                    />
-                ))}
-            </div>
-            <ScrollBar orientation="horizontal" className="hidden" />
-        </ScrollArea>
-
-        {!currentUser && (
-            <div className="px-4 py-2 md:hidden">
-                <SignupCard className="p-6" />
-            </div>
+const HomeHeader: React.FC<any> = ({
+  currentUser,
+  groupedStories,
+  onAddStory,
+  onStoryClick,
+}) => (
+  <div className="bg-white dark:bg-black">
+    <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
+      <div className="flex w-max gap-4 px-4 py-4">
+        {currentUser && (
+          <StoryCircle
+            user={currentUser}
+            isAddStory={true}
+            onClick={onAddStory}
+          />
         )}
-    </div>
-)
+        {groupedStories.map((group: any) => (
+          <StoryCircle
+            key={group.user.id}
+            user={group.user}
+            isSeen={group.isSeen}
+            onClick={() => onStoryClick(group)}
+          />
+        ))}
+      </div>
+      <ScrollBar orientation="horizontal" className="hidden" />
+    </ScrollArea>
 
-const HomeFooter: React.FC<any> = ({ isFetchingNextPage, hasMore, hasPosts }) => (
-    <div className="flex justify-center py-8">
-        {isFetchingNextPage ? (
-            <Loader2 className="animate-spin text-violet-500" size={24} />
-        ) : hasMore ? (
-            <div className="h-4" /> 
-        ) : hasPosts ? (
-            <p className="text-sm font-medium text-zinc-500">
-                You've reached the end of the feed.
-            </p>
-        ) : (
-            <div className="p-20 text-center text-zinc-500">
-                <p className="text-lg font-medium">No posts yet.</p>
-                <p className="text-sm">Be the first to share something amazing!</p>
-            </div>
-        )}
-    </div>
-)
+    {!currentUser && (
+      <div className="px-4 py-2 md:hidden">
+        <SignupCard className="p-6" />
+      </div>
+    )}
+  </div>
+);
+
+const HomeFooter: React.FC<any> = ({
+  isFetchingNextPage,
+  hasMore,
+  hasPosts,
+}) => (
+  <div className="flex justify-center py-8">
+    {isFetchingNextPage ? (
+      <Loader2 className="animate-spin text-violet-500" size={24} />
+    ) : hasMore ? (
+      <div className="h-4" />
+    ) : hasPosts ? (
+      <p className="text-sm font-medium text-zinc-500">
+        You've reached the end of the feed.
+      </p>
+    ) : (
+      <div className="p-20 text-center text-zinc-500">
+        <p className="text-lg font-medium">No posts yet.</p>
+        <p className="text-sm">Be the first to share something amazing!</p>
+      </div>
+    )}
+  </div>
+);
 
 const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
-    const {
-        currentUser,
-        homePosts,
-        groupedStories,
-        isPostsLoading,
-        isStoriesLoading,
-        hasMore,
-        isFetchingNextPage,
-        fetchNextPage,
-        refreshPosts,
-        handlePostClick,
-        handleUserClick,
-    } = useHome()
+  const {
+    currentUser,
+    homePosts,
+    groupedStories,
+    isPostsLoading,
+    isStoriesLoading,
+    hasMore,
+    isFetchingNextPage,
+    fetchNextPage,
+    refreshPosts,
+    handlePostClick,
+    handleUserClick,
+  } = useHome();
 
-    if (isPostsLoading || isStoriesLoading) {
-        return (
-            <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-                <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800">
-                    <div className="flex w-max gap-3 px-4 py-4">
-                        <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                        <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                        <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
-                    </div>
-                    <ScrollBar orientation="horizontal" className="hidden" />
-                </ScrollArea>
-                {[1, 2, 3].map((i) => (
-                    <SkeletonPost key={i} />
-                ))}
-            </div>
-        )
-    }
-
+  if (isPostsLoading || isStoriesLoading) {
     return (
-        <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-             <PullToRefresh onRefresh={async () => await refreshPosts()}>
-                <Virtuoso
-                    useWindowScroll
-                    data={homePosts}
-                    components={{
-                        Header: () => (
-                            <HomeHeader 
-                                currentUser={currentUser} 
-                                groupedStories={groupedStories} 
-                                onAddStory={onAddStory} 
-                                onStoryClick={onStoryClick} 
-                            />
-                        ),
-                        Footer: () => (
-                            <HomeFooter 
-                                isFetchingNextPage={isFetchingNextPage} 
-                                hasMore={hasMore} 
-                                hasPosts={homePosts.length > 0} 
-                            />
-                        )
-                    }}
-                    endReached={() => {
-                        if (hasMore && !isFetchingNextPage) {
-                            fetchNextPage()
-                        }
-                    }}
-                    itemContent={(_index, post) => (
-                        <Post
-                            key={post.feed_id || post.id}
-                            {...post}
-                            currentUser={currentUser}
-                            
-                            onClick={() => handlePostClick(post.id)}
-                            onUserClick={handleUserClick}
-                        />
-                    )}
-                />
-            </PullToRefresh>
-        </div>
-    )
-}
+      <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+        <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex w-max gap-3 px-4 py-4">
+            <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
+            <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
+            <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
+          </div>
+          <ScrollBar orientation="horizontal" className="hidden" />
+        </ScrollArea>
+        {[1, 2, 3].map((i) => (
+          <SkeletonPost key={i} />
+        ))}
+      </div>
+    );
+  }
 
-export default Home
+  return (
+    <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+      <PullToRefresh onRefresh={async () => await refreshPosts()}>
+        <Virtuoso
+          useWindowScroll
+          data={homePosts}
+          components={{
+            Header: () => (
+              <HomeHeader
+                currentUser={currentUser}
+                groupedStories={groupedStories}
+                onAddStory={onAddStory}
+                onStoryClick={onStoryClick}
+              />
+            ),
+            Footer: () => (
+              <HomeFooter
+                isFetchingNextPage={isFetchingNextPage}
+                hasMore={hasMore}
+                hasPosts={homePosts.length > 0}
+              />
+            ),
+          }}
+          endReached={() => {
+            if (hasMore && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          itemContent={(_index, post) => (
+            <Post
+              key={post.feed_id || post.id}
+              {...post}
+              currentUser={currentUser}
+              onClick={() => handlePostClick(post.id)}
+              onUserClick={handleUserClick}
+            />
+          )}
+        />
+      </PullToRefresh>
+    </div>
+  );
+};
+
+export default Home;

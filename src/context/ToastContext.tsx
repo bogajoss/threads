@@ -4,48 +4,51 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
 interface ToastContextType {
-    addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  addToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 interface ToastProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-    /**
-     * Adds a toast message using Sonner.
-     * @param {string} message - The message to display.
-     * @param {string} type - 'success' | 'error' | 'info'
-     */
-    const addToast = (message: string, type: 'success' | 'error' | 'info' = "success") => {
-        if (type === "error") {
-            toast.error(message);
-        } else if (type === "info") {
-            toast.info(message);
-        } else {
-            toast.success(message);
-        }
-    };
+  /**
+   * Adds a toast message using Sonner.
+   * @param {string} message - The message to display.
+   * @param {string} type - 'success' | 'error' | 'info'
+   */
+  const addToast = (
+    message: string,
+    type: "success" | "error" | "info" = "success",
+  ) => {
+    if (type === "error") {
+      toast.error(message);
+    } else if (type === "info") {
+      toast.info(message);
+    } else {
+      toast.success(message);
+    }
+  };
 
-    return (
-        <ToastContext.Provider value={{ addToast }}>
-            {children}
-            <Toaster
-                position="bottom-center"
-                toastOptions={{
-                    className: "rounded-full font-bold",
-                }}
-            />
-        </ToastContext.Provider>
-    );
+  return (
+    <ToastContext.Provider value={{ addToast }}>
+      {children}
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          className: "rounded-full font-bold",
+        }}
+      />
+    </ToastContext.Provider>
+  );
 };
 
 export const useToast = (): ToastContextType => {
-    const context = useContext(ToastContext);
-    if (!context) {
-        throw new Error("useToast must be used within a ToastProvider");
-    }
-    return context;
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
 };

@@ -1,38 +1,37 @@
-import { useMemo } from "react"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useMemo } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 // @ts-ignore
-import { fetchFollowers, fetchFollowing } from "@/lib/api"
+import { fetchFollowers, fetchFollowing } from "@/lib/api";
 
-export const useFollowList = (userId: string | undefined, type: "Followers" | "Following", enabled: boolean) => {
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-    } = useInfiniteQuery({
-        queryKey: ["follows", type, userId],
-        queryFn: ({ pageParam }) => {
-            const fetchFn = type === "Followers" ? fetchFollowers : fetchFollowing
-            return fetchFn(userId!, pageParam, 10)
-        },
-        initialPageParam: null as string | null,
-        getNextPageParam: (lastPage) => {
-            if (!lastPage || lastPage.length < 10) return undefined
-            return lastPage[lastPage.length - 1].followed_at
-        },
-        enabled: !!userId && enabled,
-    })
+export const useFollowList = (
+  userId: string | undefined,
+  type: "Followers" | "Following",
+  enabled: boolean,
+) => {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["follows", type, userId],
+      queryFn: ({ pageParam }) => {
+        const fetchFn = type === "Followers" ? fetchFollowers : fetchFollowing;
+        return fetchFn(userId!, pageParam, 10);
+      },
+      initialPageParam: null as string | null,
+      getNextPageParam: (lastPage) => {
+        if (!lastPage || lastPage.length < 10) return undefined;
+        return lastPage[lastPage.length - 1].followed_at;
+      },
+      enabled: !!userId && enabled,
+    });
 
-    const followList = useMemo(() => {
-        return data?.pages.flatMap((page) => page) || []
-    }, [data])
+  const followList = useMemo(() => {
+    return data?.pages.flatMap((page) => page) || [];
+  }, [data]);
 
-    return {
-        followList,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-    }
-}
+  return {
+    followList,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  };
+};
