@@ -72,7 +72,7 @@ const HashtagFeed = () => {
                   key={post.feed_id || post.id}
                   currentUser={currentUser}
                   {...post}
-                  onClick={() => navigate(`/post/${post.id}`)}
+                  onClick={() => navigate(`/p/${post.id}`)}
                   onUserClick={(h: string) => navigate(`/u/${h}`)}
                 />
               ))}

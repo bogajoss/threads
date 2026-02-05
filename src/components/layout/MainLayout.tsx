@@ -21,7 +21,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
   // Hide bottom nav on reels and specific messages for better UX
   const isNavHidden =
     location.pathname.startsWith("/reels") ||
-    (location.pathname.startsWith("/messages") &&
+    (location.pathname.startsWith("/m") &&
       location.pathname.split("/").length > 2);
 
   const handleProfileClick = (handle: string) => {
@@ -54,7 +54,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onPostClick }) => {
           </div>
 
           {/* Right Sidebar - Now on all pages, except Messages */}
-          {!location.pathname.startsWith("/messages") && <SidebarRight />}
+          {!location.pathname.startsWith("/m") && <SidebarRight />}
         </main>
       </div>
 

@@ -114,7 +114,7 @@ export const useNotificationsPage = () => {
     if (notif.type === "follow") {
       navigate(`/u/${notif.user}`);
     } else if (notif.post_id) {
-      navigate(`/post/${notif.post_id}`);
+      navigate(`/p/${notif.post_id}`);
     }
   };
 

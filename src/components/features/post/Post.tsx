@@ -290,7 +290,7 @@ const Post: React.FC<PostProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 navigator.clipboard.writeText(
-                  `${window.location.origin}/post/${id}`,
+                  `${window.location.origin}/p/${id}`,
                 );
                 addToast("Link copied");
               }}
@@ -663,7 +663,7 @@ const Post: React.FC<PostProps> = ({
               className="mt-3 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm transition-all hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/post/${quotedPost.id}`);
+                navigate(`/p/${quotedPost.id}`);
               }}
             >
               <QuotedPost {...quotedPost} />
@@ -745,7 +745,7 @@ const Post: React.FC<PostProps> = ({
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        url={`${window.location.origin}/post/${id}`}
+        url={`${window.location.origin}/p/${id}`}
         title="Share Post"
       />
 

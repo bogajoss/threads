@@ -75,7 +75,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setIsStartingChat(true);
     try {
       const convId = await getOrCreateConversation(currentUser.id, profile.id);
-      navigate(`/messages/${convId}`);
+      navigate(`/m/${convId}`);
     } catch (error) {
       console.error("Failed to start conversation:", error);
       addToast("Failed to open chat", "error");

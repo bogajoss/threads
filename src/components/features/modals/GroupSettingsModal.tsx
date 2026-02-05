@@ -98,7 +98,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
       });
       onClose();
       addToast("You left the group.");
-      navigate("/messages");
+      navigate("/m");
     },
     onError: () => addToast("Failed to leave group", "error"),
   });
@@ -111,7 +111,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
       });
       onClose();
       addToast("Group deleted.");
-      navigate("/messages");
+      navigate("/m");
     },
     onError: () => addToast("Failed to delete group", "error"),
   });

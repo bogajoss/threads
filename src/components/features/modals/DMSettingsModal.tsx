@@ -55,7 +55,7 @@ const DMSettingsModal: React.FC<DMSettingsModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       addToast("Conversation deleted.");
       onClose();
-      navigate("/messages");
+      navigate("/m");
     } catch (err) {
       console.error("Delete failed:", err);
       addToast("Failed to delete conversation", "error");

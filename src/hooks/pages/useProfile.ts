@@ -89,7 +89,7 @@ export const useProfile = () => {
   }, [userPosts, activeProfileTab]);
 
   const handlePostClick = (id: string) => {
-    navigate(`/post/${id}`);
+    navigate(`/p/${id}`);
   };
 
   const handleUserClick = (targetHandle: string) => {

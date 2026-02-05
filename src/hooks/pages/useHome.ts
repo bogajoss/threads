@@ -68,7 +68,7 @@ export const useHome = () => {
   }, [storiesData]);
 
   const handlePostClick = (id: string) => {
-    navigate(`/post/${id}`);
+    navigate(`/p/${id}`);
   };
 
   const handleUserClick = (handle: string) => {

@@ -108,7 +108,7 @@ export default function Sysm() {
               }
             />
             <Route
-              path="/messages"
+              path="/m"
               element={
                 <PageTransition>
                   <Messages />
@@ -124,7 +124,7 @@ export default function Sysm() {
               }
             />
             <Route
-              path="/messages/:id"
+              path="/m/:id"
               element={
                 <PageTransition>
                   <Messages />
@@ -140,7 +140,7 @@ export default function Sysm() {
               }
             />
             <Route
-              path="/post/:id"
+              path="/p/:id"
               element={
                 <PageTransition>
                   <PostDetails />

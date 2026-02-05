@@ -77,14 +77,14 @@ export const useMessagesPage = () => {
         queryKey: ["conversations", currentUser.id],
       });
       setMsgSearchQuery("");
-      navigate(`/messages/${convId}`);
+      navigate(`/m/${convId}`);
     } catch (error) {
       console.error("Failed to start conversation:", error);
     }
   };
 
   const handleSelectConversation = (conv: any) => {
-    navigate(`/messages/${conv.id}`);
+    navigate(`/m/${conv.id}`);
   };
 
   const localMessages = useMemo(

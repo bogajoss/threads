@@ -84,7 +84,7 @@ const Messages: React.FC = () => {
           conversation={selectedConversation}
           messages={localMessages}
           currentUser={currentUser}
-          onBack={() => navigate("/messages")}
+          onBack={() => navigate("/m")}
           onSendMessage={sendMessage}
           onEditMessage={editMessage}
           onDeleteMessage={onDeleteMessage}
