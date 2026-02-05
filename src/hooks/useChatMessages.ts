@@ -6,6 +6,7 @@ import {
     deleteMessage as deleteMessageApi,
     fetchReactionsByConversation,
     fetchMessages,
+    editMessage as editMessageApi,
 } from "@/lib/api";
 import type { User, Message, Reaction } from "@/types/index";
 import { useToast } from "@/context/ToastContext";
@@ -22,6 +23,7 @@ interface FormattedMessage {
     replyToId: string | null;
     reactions: Reaction[];
     time: string;
+    updatedAt?: string;
 }
 
 export const useChatMessages = (currentUser: User | null, activeConversationId?: string) => {
@@ -44,6 +46,7 @@ export const useChatMessages = (currentUser: User | null, activeConversationId?:
                 hour: "2-digit",
                 minute: "2-digit",
             }),
+            updatedAt: m.updated_at,
         }));
     }, [currentUser?.id]);
 
@@ -100,6 +103,21 @@ export const useChatMessages = (currentUser: User | null, activeConversationId?:
         }
     });
 
+    // 4. Mutation to edit message
+    const editMutation = useMutation({
+        mutationFn: ({ messageId, content }: { messageId: string; content: string }) =>
+            editMessageApi(messageId, content),
+        onSuccess: (updatedMessage) => {
+            if (!updatedMessage) return;
+            queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
+            // Also update last message in conversation list if needed
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] });
+        },
+        onError: () => {
+            addToast("Failed to edit message", "error");
+        }
+    });
+
     const onToggleReaction = async (messageId: string, emoji: string) => {
         if (!currentUser?.id) return;
         try {
@@ -136,7 +154,10 @@ export const useChatMessages = (currentUser: User | null, activeConversationId?:
         isFetchingMoreMessages: isFetchingNextPage,
         sendMessage: (convId: string, text: string, type?: string, media?: string[], replyToId?: string | null) =>
             sendMutation.mutate({ convId, text, type, media, replyToId }),
+        editMessage: (messageId: string, content: string) =>
+            editMutation.mutate({ messageId, content }),
         isSending: sendMutation.isPending,
+        isEditing: editMutation.isPending,
         onToggleReaction,
         onDeleteMessage,
         conversationReactions,

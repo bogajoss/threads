@@ -338,6 +338,21 @@ export const sendMessage = async (
 };
 
 /**
+ * Updates an existing message content.
+ */
+export const editMessage = async (messageId: string, content: string): Promise<Message | null> => {
+    const { data, error } = await (supabase
+        .from("messages") as any)
+        .update({ content })
+        .eq("id", messageId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return transformMessage(data);
+};
+
+/**
  * Deletes an entire conversation and all its messages.
  */
 export const deleteConversation = async (conversationId: string): Promise<void> => {

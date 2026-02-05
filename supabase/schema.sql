@@ -636,6 +636,7 @@ CREATE POLICY "Participants delete policy" ON public.conversation_participants F
 -- Messages
 CREATE POLICY "Messages select policy" ON public.messages FOR SELECT TO authenticated USING ( public.is_conversation_participant(conversation_id) );
 CREATE POLICY "Messages insert policy" ON public.messages FOR INSERT TO authenticated WITH CHECK ( sender_id = auth.uid() AND public.is_conversation_participant(conversation_id) );
+CREATE POLICY "Messages update policy" ON public.messages FOR UPDATE TO authenticated USING ( sender_id = auth.uid() AND public.is_conversation_participant(conversation_id) ) WITH CHECK ( sender_id = auth.uid() AND public.is_conversation_participant(conversation_id) );
 
 -- Reactions
 CREATE POLICY "Reactions select policy" ON public.message_reactions FOR SELECT TO authenticated USING ( EXISTS ( SELECT 1 FROM public.messages m WHERE m.id = message_id AND public.is_conversation_participant(m.conversation_id) ) );

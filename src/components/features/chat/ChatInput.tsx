@@ -7,6 +7,8 @@ import {
     Paperclip,
     Square,
     Play,
+    Edit2,
+    Reply,
     X,
     Trash2
 } from "lucide-react"
@@ -27,13 +29,17 @@ interface ChatInputProps {
     onTyping: (isTyping: boolean) => void
     replyingTo: any | null
     setReplyingTo: (msg: any | null) => void
+    editingMessage: any | null
+    setEditingMessage: (msg: any | null) => void
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
     onSendMessage,
     onTyping,
     replyingTo,
-    setReplyingTo
+    setReplyingTo,
+    editingMessage,
+    setEditingMessage
 }) => {
     const [text, setText] = useState("")
     const [attachments, setAttachments] = useState<File[]>([])
@@ -42,6 +48,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     
     const textAreaRef = useAutoResizeTextArea(text)
+
+    // Handle editing pre-fill
+    React.useEffect(() => {
+        if (editingMessage) {
+            setText(editingMessage.text)
+            setReplyingTo(null)
+            if (textAreaRef.current) textAreaRef.current.focus()
+        }
+    }, [editingMessage])
 
     const {
         isRecording,
@@ -150,13 +165,39 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         exit={{ height: 0, opacity: 0 }}
                         className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
                     >
-                        <div className="text-sm">
-                            <span className="text-xs font-bold text-violet-500 block mb-0.5">
-                                Replying to {replyingTo.sender === "me" ? "yourself" : (replyingTo.senderName)}
-                            </span>
-                            <p className="line-clamp-1 text-zinc-500">{replyingTo.text}</p>
+                        <div className="text-sm flex items-center gap-2">
+                            <Reply size={14} className="text-violet-500" />
+                            <div>
+                                <span className="text-xs font-bold text-violet-500 block mb-0.5">
+                                    Replying to {replyingTo.sender === "me" ? "yourself" : (replyingTo.senderName)}
+                                </span>
+                                <p className="line-clamp-1 text-zinc-500">{replyingTo.text}</p>
+                            </div>
                         </div>
                         <button onClick={() => setReplyingTo(null)}><X size={16} className="text-zinc-400" /></button>
+                    </motion.div>
+                )}
+
+                {editingMessage && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="flex items-center justify-between mb-2 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800"
+                    >
+                        <div className="text-sm flex items-center gap-2">
+                            <Edit2 size={14} className="text-violet-500" />
+                            <div>
+                                <span className="text-xs font-bold text-violet-500 block mb-0.5">
+                                    Edit Message
+                                </span>
+                                <p className="line-clamp-1 text-zinc-500">{editingMessage.text}</p>
+                            </div>
+                        </div>
+                        <button onClick={() => {
+                            setEditingMessage(null)
+                            setText("")
+                        }}><X size={16} className="text-zinc-400" /></button>
                     </motion.div>
                 )}
             </AnimatePresence>

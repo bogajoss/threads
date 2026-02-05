@@ -136,6 +136,7 @@ export interface Message {
     reply_to_id: string | null;
     is_read: boolean;
     created_at: string;
+    updated_at?: string;
 }
 
 export interface Conversation {

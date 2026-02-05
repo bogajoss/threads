@@ -27,6 +27,7 @@ const Messages: React.FC = () => {
         refetchConversations,
         refetchMessages,
         sendMessage,
+        editMessage,
         onDeleteMessage,
         onToggleReaction,
         sendTypingStatus,
@@ -85,6 +86,7 @@ const Messages: React.FC = () => {
                     currentUser={currentUser}
                     onBack={() => navigate("/messages")}
                     onSendMessage={sendMessage}
+                    onEditMessage={editMessage}
                     onDeleteMessage={onDeleteMessage}
                     onToggleReaction={onToggleReaction}
                     onTyping={(isTyping) => sendTypingStatus(selectedConversation.id, isTyping)}
