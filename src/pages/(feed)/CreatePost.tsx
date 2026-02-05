@@ -373,9 +373,20 @@ const CreatePost: React.FC = () => {
 
           {/* Media Section */}
           <div className="flex flex-col gap-2.5">
-            <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-              {isStoryPage ? "Select Media" : "Add Photos"}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
+                {isStoryPage ? "Select Media" : "Add Photos"}
+              </label>
+              {selectedFiles.length > 0 && !isStoryPage && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 transition-colors font-english"
+                >
+                  + ADD MORE
+                </button>
+              )}
+            </div>
             
             {selectedFiles.length === 0 ? (
               <div 
