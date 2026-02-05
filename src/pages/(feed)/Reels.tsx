@@ -72,7 +72,7 @@ const Reels = () => {
       </button>
 
       {/* Navigation Buttons (Up/Down) */}
-      <div className="absolute right-6 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-4">
+      <div className="absolute right-6 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-4 md:flex">
         <button
           onClick={scrollToPrev}
           className="group rounded-full border border-white/10 bg-black/20 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"

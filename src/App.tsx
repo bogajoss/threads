@@ -91,7 +91,7 @@ export default function Sysm() {
               }
             />
             <Route
-              path="/reels"
+              path="/r"
               element={
                 <PageTransition>
                   <Reels />
@@ -99,7 +99,7 @@ export default function Sysm() {
               }
             />
             <Route
-              path="/reels/:id"
+              path="/r/:id"
               element={
                 <PageTransition>
                   <Reels />

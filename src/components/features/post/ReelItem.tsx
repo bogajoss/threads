@@ -452,7 +452,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         <ShareModal
           isOpen={isShareOpen}
           onClose={() => setIsShareOpen(false)}
-          url={`${window.location.origin}/reels/${reel.id}`}
+          url={`${window.location.origin}/r/${reel.id}`}
           title="Share Reel"
         />
       </div>

@@ -26,7 +26,7 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onAddStory }) => {
   const navItems = [
     { id: "home", icon: HomeIcon, path: "/feed" },
     { id: "community", icon: CommunityIcon, path: "/community" },
-    { id: "reels", icon: ReelsIcon, path: "/reels" },
+    { id: "reels", icon: ReelsIcon, path: "/r" },
     { id: "messages", icon: ChatIcon, path: "/m" },
     { id: "notifications", icon: NotificationsIcon, path: "/notifications" },
     {

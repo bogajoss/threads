@@ -7,7 +7,7 @@
 -- ==========================================
 
 -- 1. EXTENSIONS & TYPES
-CREATE TYPE post_type AS ENUM ('text', 'image', 'video', 'poll', 'repost', 'file');
+CREATE TYPE post_type AS ENUM ('text', 'image', 'video', 'poll', 'repost', 'file', 'reel');
 CREATE TYPE notification_type AS ENUM ('like', 'mention', 'follow', 'repost', 'comment');
 
 -- 2. IDENTITY & PROFILES

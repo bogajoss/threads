@@ -58,7 +58,7 @@ export interface Post {
   user_id: string;
   content: string;
   media: Media[] | null;
-  type: "text" | "image" | "video";
+  type: "text" | "image" | "video" | "reel";
   poll: any | null; // Define Poll interface if needed
   parent_id: string | null;
   community_id: string | null;
@@ -131,7 +131,7 @@ export interface Message {
   sender_id: string;
   sender?: User | null;
   content: string;
-  type: "text" | "image" | "video" | "voice";
+  type: "text" | "image" | "video" | "voice" | "reel";
   media: any[] | null;
   reply_to_id: string | null;
   is_read: boolean;

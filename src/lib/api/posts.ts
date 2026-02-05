@@ -18,6 +18,7 @@ export const fetchPosts = async (
   let query = supabase
     .from("unified_posts")
     .select("*")
+    .neq("type", "reel")
     .order("sort_timestamp", { ascending: false })
     .limit(limit);
 
@@ -143,7 +144,7 @@ export const fetchCommentsByUserId = async (
 interface AddPostParams {
   content: string;
   media?: Media[];
-  type?: "text" | "image" | "video";
+  type?: "text" | "image" | "video" | "reel";
   userId: string;
   poll?: any;
   parentId?: string | null;
@@ -558,7 +559,7 @@ export const fetchReels = async (
   let query = supabase
     .from("unified_posts")
     .select("*")
-    .eq("type", "video")
+    .eq("type", "reel")
     .order("sort_timestamp", { ascending: false })
     .limit(limit);
 

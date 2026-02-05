@@ -39,6 +39,7 @@ const CreatePost: React.FC = () => {
   const { addToast } = useToast();
 
   const initialCommunity = location.state?.initialCommunity;
+  const isReelPage = location.state?.isReel;
 
   const [postContent, setPostContent] = useState("");
   const [hashtags, setHashtags] = useState("");
@@ -153,8 +154,9 @@ const CreatePost: React.FC = () => {
         content: finalContent,
         media: uploadedMedia,
         poll,
-        type:
-          uploadedMedia.length > 0
+        type: isReelPage
+          ? "reel"
+          : uploadedMedia.length > 0
             ? uploadedMedia[0].type === "video"
               ? "video"
               : "image"
@@ -199,7 +201,7 @@ const CreatePost: React.FC = () => {
               <ChevronLeft size={24} />
             </button>
             <h1 className="text-xl font-black tracking-tight text-[--foreground] font-english">
-              Create Post
+              {isReelPage ? "Create Reel" : "Create Post"}
             </h1>
           </div>
           <div className="flex items-center gap-3">

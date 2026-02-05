@@ -16,11 +16,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onAddStory }) => {
   const { darkMode } = useTheme();
 
   const isHomePage = location.pathname === "/" || location.pathname === "/feed";
-  const isReelsPage = location.pathname.startsWith("/reels");
+  const isReelsPage = location.pathname.startsWith("/r");
 
   // Hide bottom nav on reels and specific messages for better UX
   const isNavHidden =
-    location.pathname.startsWith("/reels") ||
+    location.pathname.startsWith("/r") ||
     (location.pathname.startsWith("/m") &&
       location.pathname.split("/").length > 2);
 

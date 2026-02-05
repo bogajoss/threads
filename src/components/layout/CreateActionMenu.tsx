@@ -70,7 +70,7 @@ const CreateActionMenu: React.FC<CreateActionMenuProps> = ({
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          onClick={() => navigate("/create")} // Reels are usually just video posts
+          onClick={() => navigate("/create", { state: { isReel: true } })}
           className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-bold text-[--foreground] transition-colors focus:bg-zinc-50 dark:focus:bg-zinc-900"
         >
           <div className="flex size-9 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
