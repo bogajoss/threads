@@ -26,7 +26,7 @@ export const uploadFile = async (
   if (file.type.startsWith("image/")) {
     try {
       fileToUpload = await compressImage(file);
-      fileExt = "webp"; // Forced conversion in compression.js
+      fileExt = "webp";
     } catch (error) {
       console.error("Image compression failed, uploading original:", error);
     }
@@ -36,11 +36,11 @@ export const uploadFile = async (
   if (file.type.startsWith("video/")) {
     try {
       if (customPoster) {
-        // Use user provided thumbnail
+        // Use user provided thumbnail - ensuring it is compressed/webp
         const thumbRes = await uploadFile(customPoster, bucket);
         posterUrl = thumbRes.url;
       } else {
-        // Generate automatic thumbnail
+        // Generate automatic thumbnail (already webp from generateVideoThumbnail)
         const thumbnailFile = await generateVideoThumbnail(file);
         const thumbRes = await uploadFile(thumbnailFile, bucket);
         posterUrl = thumbRes.url;

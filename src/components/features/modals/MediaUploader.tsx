@@ -16,7 +16,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { X, Plus, FileText } from "lucide-react";
+import { X, Plus, FileText, Crop } from "lucide-react";
 
 interface SelectedFile {
   id: string;
@@ -30,6 +30,7 @@ interface MediaUploaderProps {
   setCustomThumbnails: React.Dispatch<
     React.SetStateAction<Record<string, File>>
   >;
+  onCrop?: (id: string) => void;
 }
 
 interface SortableMediaItemProps {
@@ -39,6 +40,7 @@ interface SortableMediaItemProps {
   total: number;
   onRemove: (id: string) => void;
   onAddThumbnail: () => void;
+  onCrop?: (id: string) => void;
   customThumbnail?: File;
 }
 
@@ -49,6 +51,7 @@ const SortableMediaItem: React.FC<SortableMediaItemProps> = ({
   total,
   onRemove,
   onAddThumbnail,
+  onCrop,
   customThumbnail,
 }) => {
   const {
@@ -124,6 +127,17 @@ const SortableMediaItem: React.FC<SortableMediaItemProps> = ({
         </button>
       )}
 
+      {file.type.startsWith("image/") && onCrop && (
+        <button
+          type="button"
+          onClick={() => onCrop(id)}
+          className="absolute bottom-2 left-2 z-20 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-violet-500"
+          title="Crop Image"
+        >
+          <Crop size={14} strokeWidth={2.5} />
+        </button>
+      )}
+
       <button
         type="button"
         onClick={() => onRemove(id)}
@@ -140,6 +154,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
   setSelectedFiles,
   customThumbnails,
   setCustomThumbnails,
+  onCrop,
 }) => {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [activeThumbnailId, setActiveThumbnailId] = React.useState<
@@ -215,6 +230,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
                 index={idx}
                 total={selectedFiles.length}
                 onRemove={removeFile}
+                onCrop={onCrop}
                 customThumbnail={customThumbnails[item.id]}
                 onAddThumbnail={() => {
                   setActiveThumbnailId(item.id);

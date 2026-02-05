@@ -1,5 +1,6 @@
 import React from "react";
 import { Virtuoso } from "react-virtuoso";
+import { useNavigate } from "react-router-dom";
 // @ts-ignore
 import StoryCircle from "@/components/features/story/StoryCircle";
 // @ts-ignore
@@ -75,7 +76,8 @@ const HomeFooter: React.FC<any> = ({
   </div>
 );
 
-const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
+const Home: React.FC<any> = ({ onStoryClick }) => {
+  const navigate = useNavigate();
   const {
     currentUser,
     homePosts,
@@ -119,7 +121,7 @@ const Home: React.FC<any> = ({ onStoryClick, onAddStory }) => {
               <HomeHeader
                 currentUser={currentUser}
                 groupedStories={groupedStories}
-                onAddStory={onAddStory}
+                onAddStory={() => navigate("/create", { state: { isStory: true } })}
                 onStoryClick={onStoryClick}
               />
             ),

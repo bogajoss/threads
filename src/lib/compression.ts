@@ -16,11 +16,12 @@ export const compressImage = async (
   }
 
   const defaultOptions: Options = {
-    maxSizeMB: 1, // Max size in MB
-    maxWidthOrHeight: 1920, // Max dimension
-    useWebWorker: true, // Performance boost
-    initialQuality: 0.8, // Quality level
-    fileType: "image/webp", // Force conversion to WebP
+    maxSizeMB: 0.8, // Slightly more aggressive (800KB)
+    maxWidthOrHeight: 1920, // Keep Full HD resolution
+    useWebWorker: true,
+    initialQuality: 0.75, // Good balance for WebP
+    fileType: "image/webp",
+    alwaysKeepResolution: true, // Don't shrink dimensions unless necessary
     ...options,
   };
 

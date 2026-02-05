@@ -15,10 +15,9 @@ import { useConversations } from "@/hooks/useConversations";
 import CreateActionMenu from "./CreateActionMenu";
 
 interface SidebarLeftProps {
-  onAddStory: () => void;
 }
 
-const SidebarLeft: React.FC<SidebarLeftProps> = ({ onAddStory }) => {
+const SidebarLeft: React.FC<SidebarLeftProps> = () => {
   const { currentUser } = useAuth();
   const { unreadCount: notificationsCount } = useNotifications(currentUser);
   const { unreadCount: messagesCount } = useConversations(currentUser);
@@ -66,7 +65,6 @@ const SidebarLeft: React.FC<SidebarLeftProps> = ({ onAddStory }) => {
         {currentUser && (
           <div className="mt-2">
             <CreateActionMenu
-              onAddStory={onAddStory}
               triggerClassName="rounded-xl bg-zinc-950 p-2.5 text-white dark:bg-white dark:text-zinc-950"
             />
           </div>

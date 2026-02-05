@@ -49,7 +49,6 @@ export default function Sysm() {
 
   // Modal States
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({});
   const [viewingStory, setViewingStory] = useState(null);
 
@@ -66,7 +65,7 @@ export default function Sysm() {
           <Route path="/register" element={<Register />} />
           <Route
             element={
-              <MainLayout onAddStory={() => setIsStoryModalOpen(true)} />
+              <MainLayout />
             }
           >
             <Route path="/" element={<Navigate to="/feed" replace />} />
@@ -76,7 +75,6 @@ export default function Sysm() {
                 <PageTransition>
                   <Home
                     onStoryClick={setViewingStory}
-                    onAddStory={() => setIsStoryModalOpen(true)}
                   />
                 </PageTransition>
               }
@@ -196,8 +194,6 @@ export default function Sysm() {
       <GlobalModals
         isEditProfileOpen={isEditProfileOpen}
         setIsEditProfileOpen={setIsEditProfileOpen}
-        isStoryModalOpen={isStoryModalOpen}
-        setIsStoryModalOpen={setIsStoryModalOpen}
         editProfileData={editProfileData}
         setEditProfileData={setEditProfileData}
       />
@@ -235,7 +231,6 @@ export default function Sysm() {
       {currentUser && location.pathname === "/feed" && (
         <div className="fixed bottom-20 right-5 z-50 md:hidden">
           <CreateActionMenu
-            onAddStory={() => setIsStoryModalOpen(true)}
             side="top"
             align="end"
             triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"

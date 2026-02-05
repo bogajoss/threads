@@ -10,14 +10,12 @@ import { Plus, Image, Film, Layout } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreateActionMenuProps {
-  onAddStory: () => void;
   triggerClassName?: string;
   side?: "top" | "bottom" | "left" | "right";
   align?: "start" | "center" | "end";
 }
 
 const CreateActionMenu: React.FC<CreateActionMenuProps> = ({
-  onAddStory,
   triggerClassName,
   side = "right",
   align = "start",
@@ -57,7 +55,7 @@ const CreateActionMenu: React.FC<CreateActionMenuProps> = ({
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          onClick={onAddStory}
+          onClick={() => navigate("/create", { state: { isStory: true } })}
           className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-bold text-[--foreground] transition-colors focus:bg-zinc-50 dark:focus:bg-zinc-900"
         >
           <div className="flex size-9 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
