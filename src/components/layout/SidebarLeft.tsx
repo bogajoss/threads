@@ -1,5 +1,4 @@
 import React from "react";
-import { User } from "lucide-react";
 import {
   HomeIcon,
   ChatIcon,
@@ -12,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 import CreateActionMenu from "./CreateActionMenu";
+import { User } from "lucide-react";
 
 const SidebarLeft: React.FC<Record<string, never>> = () => {
   const { currentUser } = useAuth();

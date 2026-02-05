@@ -9,7 +9,7 @@ import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 
 // Layout & Components
-import { MainLayout, PageTransition, CreateActionMenu } from "@/components/layout";
+import { MainLayout, PageTransition, CreateActionMenu, MarketplaceLayout } from "@/components/layout";
 import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
@@ -29,6 +29,8 @@ const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
+const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
+const ShopPage = lazy(() => import("@/pages/(marketplace)/shop/page"));
 
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -185,6 +187,12 @@ export default function Sysm() {
               }
             />
             <Route path="*" element={<Navigate to="/community" />} />
+          </Route>
+
+          {/* Marketplace Routes (Separate Layout) */}
+          <Route element={<MarketplaceLayout />}>
+            <Route path="/pro" element={<ProPage />} />
+            <Route path="/shop" element={<ShopPage />} />
           </Route>
         </Routes>
       </Suspense>
