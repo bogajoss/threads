@@ -31,7 +31,7 @@ export const useProfile = () => {
     isLoading: loadingPosts,
   } = useInfiniteQuery({
     queryKey: ["posts", "user", profile?.id],
-    queryFn: ({ pageParam }) => fetchPostsByUserId(profile?.id!, pageParam, 10),
+    queryFn: ({ pageParam }) => fetchPostsByUserId(profile!.id, pageParam, 10),
     enabled: !!profile?.id,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
@@ -98,7 +98,7 @@ export const useProfile = () => {
   };
 
   // Shim for loadUserPosts to maintain interface if needed by UI
-  const loadUserPosts = (_isLoadMore = false) => {
+  const loadUserPosts = () => {
     fetchNextPosts();
   };
 

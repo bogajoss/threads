@@ -24,7 +24,9 @@ const PollDisplay: React.FC<PollDisplayProps> = ({ poll, onVote }) => {
   const handleVote = (optionId: string) => {
     if (votedOption) return;
     setVotedOption(optionId);
-    onVote && onVote(optionId);
+    if (onVote) {
+      onVote(optionId);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import { Image as ImageIcon, Paperclip, X } from "lucide-react";
+import { Paperclip, X } from "lucide-react";
+import { MediaIcon } from "@/components/ui";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { User } from "@/types";
@@ -127,7 +128,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
                 className="rounded-full p-2 text-violet-600 transition-colors hover:bg-violet-50 dark:hover:bg-zinc-800"
                 title="Attach media"
               >
-                <ImageIcon size={20} />
+                <MediaIcon size={20} />
               </button>
               <input
                 type="file"

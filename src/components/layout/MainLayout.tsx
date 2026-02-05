@@ -6,10 +6,7 @@ import BottomNav from "./BottomNav";
 import FeedHeader from "./FeedHeader";
 import { useTheme } from "@/context/ThemeContext";
 
-interface MainLayoutProps {
-}
-
-const MainLayout: React.FC<MainLayoutProps> = () => {
+const MainLayout: React.FC<Record<string, never>> = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode } = useTheme();
@@ -29,7 +26,7 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
 
   return (
     <div
-      className={`min-h-screen ${isReelsPage ? "h-screen overflow-hidden" : ""} bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
+      className={`min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
         {/* Left Sidebar - Fixed narrow icons */}

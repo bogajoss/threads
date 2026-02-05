@@ -13,10 +13,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 import CreateActionMenu from "./CreateActionMenu";
 
-interface SidebarLeftProps {
-}
-
-const SidebarLeft: React.FC<SidebarLeftProps> = () => {
+const SidebarLeft: React.FC<Record<string, never>> = () => {
   const { currentUser } = useAuth();
   const { unreadCount: notificationsCount } = useNotifications(currentUser);
   const { unreadCount: messagesCount } = useConversations(currentUser);

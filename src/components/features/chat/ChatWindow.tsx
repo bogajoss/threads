@@ -24,7 +24,6 @@ import {
 const VoiceMessage = React.lazy(
   () => import("@/components/features/chat/VoiceMessage"),
 );
-import PullToRefresh from "@/components/ui/PullToRefresh";
 import { uploadFile } from "@/lib/api";
 import {
   ContextMenu,
@@ -59,7 +58,6 @@ interface ChatWindowProps {
   onDeleteMessage?: (msgId: string) => void;
   onToggleReaction?: (msgId: string, emoji: string) => void;
   onTyping: (isTyping: boolean) => void;
-  onRefresh?: () => Promise<any>;
   isLoading: boolean;
   isTyping: boolean;
   isOnline: boolean;
@@ -75,7 +73,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onDeleteMessage,
   onToggleReaction,
   onTyping,
-  onRefresh,
   isLoading,
   isTyping,
   isOnline,
@@ -144,10 +141,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       }
     }
 
+    const messageType = uploadedAttachments.length > 0 
+      ? uploadedAttachments[0].type === "video" ? "video" : "image"
+      : "text";
+
     onSendMessage(
       conversation.id,
       text,
-      uploadedAttachments.length > 0 ? "image" : "text",
+      messageType,
       uploadedAttachments,
       replyingTo?.id,
     );
@@ -188,15 +189,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
       {/* Messages Area */}
       <div className="flex-1 min-h-0 overflow-hidden">
-        <PullToRefresh
-          onRefresh={onRefresh || (async () => {})}
-          disabled={!onRefresh}
-          className="h-full"
+        <div
+          className="h-full overflow-y-auto px-3 md:px-4 py-4"
+          ref={scrollRef}
         >
-          <div
-            className="h-full overflow-y-auto px-3 md:px-4 py-4"
-            ref={scrollRef}
-          >
             <div className="flex flex-col min-h-full justify-end">
               {/* Intro Section */}
               {messages.length < 5 && (
@@ -365,14 +361,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                     msg.type !== "voice" && (
                                       <div className="grid gap-1 mb-1 overflow-hidden rounded-lg">
                                         {msg.media.map((m: any, i: number) => (
-                                          <img
-                                            key={i}
-                                            src={m.url}
-                                            className="max-h-64 object-cover w-full rounded-md cursor-pointer hover:opacity-90 transition-opacity"
-                                            onClick={() =>
-                                              handleImageClick(msg)
-                                            }
-                                          />
+                                          <React.Fragment key={i}>
+                                            {msg.type === "video" ? (
+                                              <video
+                                                src={m.url}
+                                                controls
+                                                className="max-h-64 w-full rounded-md bg-black"
+                                                poster={m.poster}
+                                                playsInline
+                                              />
+                                            ) : (
+                                              <img
+                                                src={m.url}
+                                                className="max-h-64 object-cover w-full rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                                                onClick={() =>
+                                                  handleImageClick(msg)
+                                                }
+                                              />
+                                            )}
+                                          </React.Fragment>
                                         ))}
                                       </div>
                                     )}
@@ -408,33 +415,31 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                   )}
 
                                   {/* Time & Read Status */}
-                                  {(!sameSenderNext || true) && (
-                                    <div
-                                      className={cn(
-                                        "flex justify-end items-center gap-1 mt-0.5 select-none",
-                                        isMe
-                                          ? "text-white/70"
-                                          : "text-zinc-400",
-                                      )}
-                                    >
-                                      <span className="text-[9px] font-medium">
-                                        {msg.time}
-                                      </span>
-                                      {isMe &&
-                                        msg.id === lastMyMessageId &&
-                                        (msg.isRead ? (
-                                          <CheckCheck
-                                            size={12}
-                                            className="text-white"
-                                          />
-                                        ) : (
-                                          <Check
-                                            size={12}
-                                            className="text-white/60"
-                                          />
-                                        ))}
-                                    </div>
-                                  )}
+                                  <div
+                                    className={cn(
+                                      "flex justify-end items-center gap-1 mt-0.5 select-none",
+                                      isMe
+                                        ? "text-white/70"
+                                        : "text-zinc-400",
+                                    )}
+                                  >
+                                    <span className="text-[9px] font-medium">
+                                      {msg.time}
+                                    </span>
+                                    {isMe &&
+                                      msg.id === lastMyMessageId &&
+                                      (msg.isRead ? (
+                                        <CheckCheck
+                                          size={12}
+                                          className="text-white"
+                                        />
+                                      ) : (
+                                        <Check
+                                          size={12}
+                                          className="text-white/60"
+                                        />
+                                      ))}
+                                  </div>
                                 </div>
                               </ContextMenuTrigger>
                               <ContextMenuContent className="w-48">
@@ -518,7 +523,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               )}
             </div>
           </div>
-        </PullToRefresh>
       </div>
 
       <ChatInput
@@ -535,7 +539,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
           conversation={conversation}
-          onUpdate={(_data) => {
+          onUpdate={() => {
             setIsSettingsOpen(false);
           }}
         />

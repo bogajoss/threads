@@ -6,7 +6,6 @@ import Button from "@/components/ui/Button";
 import { FollowingIcon } from "@/components/ui/custom-icons";
 import { useNotificationsPage } from "@/hooks";
 import type { Notification } from "@/types";
-import { PullToRefresh } from "@/components/ui";
 
 const Notifications: React.FC = () => {
   const {
@@ -15,7 +14,6 @@ const Notifications: React.FC = () => {
     isFetchingMore,
     hasMore,
     loadNotifications,
-    refreshNotifications,
     handleNotificationClick,
   } = useNotificationsPage();
 
@@ -62,13 +60,12 @@ const Notifications: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white pb-20 shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-      <PullToRefresh onRefresh={async () => await refreshNotifications()}>
-        <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/80 p-4 backdrop-blur-md dark:bg-black/80 dark:border-zinc-800">
-          <h2 className="text-xl font-bold dark:text-white">Notifications</h2>
-        </div>
+    <div className="min-h-screen rounded-none border-y border-zinc-100 bg-white pb-20 shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+      <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/80 p-4 backdrop-blur-md dark:bg-black/80 dark:border-zinc-800">
+        <h2 className="text-xl font-bold dark:text-white">Notifications</h2>
+      </div>
 
-        {notifications.length > 0 ? (
+      {notifications.length > 0 ? (
           <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
             {notifications.map((notif: Notification) => (
               <div
@@ -134,7 +131,6 @@ const Notifications: React.FC = () => {
             You've caught up with everything!
           </div>
         )}
-      </PullToRefresh>
     </div>
   );
 };

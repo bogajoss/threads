@@ -94,7 +94,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
               <Button
                 variant="secondary"
                 className="w-full max-w-xs"
-                onClick={() => loadUserPosts(true)}
+                onClick={() => loadUserPosts()}
                 disabled={isFetchingMorePosts}
               >
                 {isFetchingMorePosts && (

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -6,8 +6,10 @@ import {
   Globe,
   ChevronLeft,
   Loader2,
-  ImageIcon,
+  Film,
+  Layout,
 } from "lucide-react";
+import { MediaIcon } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
@@ -25,11 +27,14 @@ import { Textarea } from "@/components/ui/textarea";
 import MediaUploader from "@/components/features/modals/MediaUploader";
 import { PageTransition } from "@/components/layout";
 import ImageCropper from "@/components/ui/image-cropper";
+import { cn } from "@/lib/utils";
 
 interface SelectedFile {
   id: string;
   file: File;
 }
+
+type PostType = "post" | "reel" | "story";
 
 const CreatePost: React.FC = () => {
   const navigate = useNavigate();
@@ -40,9 +45,9 @@ const CreatePost: React.FC = () => {
   const queryClient = useQueryClient();
 
   const initialCommunity = location.state?.initialCommunity;
-  const isReelPage = location.state?.isReel;
-  const isStoryPage = location.state?.isStory;
+  const initialType: PostType = location.state?.isStory ? "story" : location.state?.isReel ? "reel" : "post";
 
+  const [createType, setCreateType] = useState<PostType>(initialType);
   const [postContent, setPostContent] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
@@ -59,14 +64,17 @@ const CreatePost: React.FC = () => {
     initialCommunity || null,
   );
 
-  // Story specific state
+  // Story/Reel specific state
   const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [croppingFileId, setCroppingFileId] = useState<string | null>(null);
+
+  const isStory = createType === "story";
+  const isReel = createType === "reel";
 
   const { data: userCommunities = [] } = useQuery({
     queryKey: ["user-communities", currentUser?.id],
     queryFn: () => fetchUserCommunities(currentUser!.id),
-    enabled: !!currentUser?.id && !isStoryPage,
+    enabled: !!currentUser?.id && !isStory,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,7 +86,7 @@ const CreatePost: React.FC = () => {
       file,
     }));
     
-    if (isStoryPage) {
+    if (isStory || isReel) {
       setSelectedFiles([files[0]]);
     } else {
       setSelectedFiles((prev) => [...prev, ...files]);
@@ -86,7 +94,7 @@ const CreatePost: React.FC = () => {
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    if (isStoryPage) return;
+    if (isStory || isReel) return;
     const files = e.clipboardData.files;
     if (files && files.length > 0) {
       const imageFiles = Array.from(files).filter((file) =>
@@ -144,7 +152,7 @@ const CreatePost: React.FC = () => {
       type: "image/jpeg",
     });
 
-    if (isStoryPage) {
+    if (isStory || isReel) {
       setSelectedFiles([
         { id: Math.random().toString(36).substring(2, 11), file: croppedFile },
       ]);
@@ -164,7 +172,7 @@ const CreatePost: React.FC = () => {
     e.preventDefault();
     if (!currentUser) return;
 
-    if (isStoryPage) {
+    if (isStory) {
       if (selectedFiles.length === 0) return;
       setLoading(true);
       try {
@@ -195,7 +203,7 @@ const CreatePost: React.FC = () => {
       }
 
       let poll = null;
-      if (showPoll && pollData.options.some((o) => o.trim())) {
+      if (!isReel && showPoll && pollData.options.some((o) => o.trim())) {
         poll = {
           options: pollData.options
             .filter((o) => o.trim())
@@ -223,7 +231,7 @@ const CreatePost: React.FC = () => {
         content: finalContent,
         media: uploadedMedia,
         poll,
-        type: isReelPage
+        type: isReel
           ? "reel"
           : uploadedMedia.length > 0
             ? uploadedMedia[0].type === "video"
@@ -236,133 +244,169 @@ const CreatePost: React.FC = () => {
         communityId: selectedCommunity?.id || null,
       });
 
-      addToast("Post published!");
+      addToast(isReel ? "Reel published!" : "Post published!");
       navigate("/feed");
     } catch (err) {
       console.error("Failed to create post:", err);
-      addToast("Failed to publish post.", "error");
+      addToast("Failed to publish content.", "error");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // When switching types, we might want to clear files if they don't match
+    // but for now let's just keep them.
+    if ((isStory || isReel) && selectedFiles.length > 1) {
+      setSelectedFiles([selectedFiles[0]]);
+    }
+  }, [createType, isStory, isReel, selectedFiles]);
 
   if (!currentUser) {
     navigate("/login");
     return null;
   }
 
-  const pageTitle = isStoryPage ? "Add Story" : isReelPage ? "Create Reel" : "Create Post";
+  const pageTitle = isStory ? "Add Story" : isReel ? "Create Reel" : "Create Post";
 
   return (
     <PageTransition>
       <div className="flex min-h-screen flex-col bg-[--background] dark:bg-black md:rounded-3xl md:border md:border-[--border] md:shadow-sm">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[--border] bg-[--background]/80 px-4 py-3 backdrop-blur-md dark:bg-black/80">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="rounded-full p-2 text-[--foreground] hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <h1 className="text-xl font-black tracking-tight text-[--foreground] font-english">
-              {pageTitle}
-            </h1>
-          </div>
-          
-          {!isStoryPage && (
+        <div className="sticky top-0 z-10 flex flex-col border-b border-[--border] bg-[--background]/80 backdrop-blur-md dark:bg-black/80">
+          <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="group flex items-center gap-1.5 rounded-full border border-[--border] bg-[--card] px-3 py-1.5 text-xs font-bold text-[--foreground] transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
-                  >
-                    {selectedCommunity ? (
-                      <>
-                        <Avatar className="size-4 shrink-0 overflow-hidden rounded-full border border-[--border]">
-                          <AvatarImage
-                            src={selectedCommunity.avatar}
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="text-[6px]">
-                            {selectedCommunity.name?.[0]?.toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="max-w-[80px] truncate">
-                          {selectedCommunity.name}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Globe
-                          size={12}
-                          className="text-zinc-400 transition-colors group-hover:text-violet-500"
-                        />
-                        <span>Everyone</span>
-                      </>
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-64 rounded-xl border-[--border] bg-[--card] p-1.5 shadow-xl"
-                >
-                  <DropdownMenuItem
-                    onClick={() => setSelectedCommunity(null)}
-                    className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                  >
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
-                      <Globe size={18} className="text-zinc-500" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold">Everyone</span>
-                      <span className="text-xs text-zinc-500">Public feed</span>
-                    </div>
-                  </DropdownMenuItem>
-                  {userCommunities.length > 0 && (
-                    <div className="mx-2 my-1 h-px bg-[--border]" />
-                  )}
-                  <div className="max-h-[250px] overflow-y-auto">
-                    {userCommunities
-                      .filter((c: any) => !c.isPrivate || c.myRole === "admin")
-                      .map((c: any) => (
-                        <DropdownMenuItem
-                          key={c.id}
-                          onClick={() => setSelectedCommunity(c)}
-                          className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                        >
-                          <Avatar className="size-9 border border-[--border]">
-                            <AvatarImage src={c.avatar} />
-                            <AvatarFallback>{c.name[0]}</AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex flex-col">
-                            <span className="truncate text-sm font-bold">
-                              {c.name}
-                            </span>
-                            <span className="text-xs text-zinc-500">
-                              Community
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <button
+                onClick={() => navigate(-1)}
+                className="rounded-full p-2 text-[--foreground] hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <h1 className="text-xl font-black tracking-tight text-[--foreground] font-english">
+                {pageTitle}
+              </h1>
             </div>
-          )}
+            
+            {!isStory && (
+              <div className="flex items-center gap-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="group flex items-center gap-1.5 rounded-full border border-[--border] bg-[--card] px-3 py-1.5 text-xs font-bold text-[--foreground] transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                    >
+                      {selectedCommunity ? (
+                        <>
+                          <Avatar className="size-4 shrink-0 overflow-hidden rounded-full border border-[--border]">
+                            <AvatarImage
+                              src={selectedCommunity.avatar}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="text-[6px]">
+                              {selectedCommunity.name?.[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="max-w-[80px] truncate">
+                            {selectedCommunity.name}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Globe
+                            size={12}
+                            className="text-zinc-400 transition-colors group-hover:text-violet-500"
+                          />
+                          <span>Everyone</span>
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-64 rounded-xl border-[--border] bg-[--card] p-1.5 shadow-xl"
+                  >
+                    <DropdownMenuItem
+                      onClick={() => setSelectedCommunity(null)}
+                      className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
+                    >
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
+                        <Globe size={18} className="text-zinc-500" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold">Everyone</span>
+                        <span className="text-xs text-zinc-500">Public feed</span>
+                      </div>
+                    </DropdownMenuItem>
+                    {userCommunities.length > 0 && (
+                      <div className="mx-2 my-1 h-px bg-[--border]" />
+                    )}
+                    <div className="max-h-[250px] overflow-y-auto">
+                      {userCommunities
+                        .filter((c: any) => !c.isPrivate || c.myRole === "admin")
+                        .map((c: any) => (
+                          <DropdownMenuItem
+                            key={c.id}
+                            onClick={() => setSelectedCommunity(c)}
+                            className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
+                          >
+                            <Avatar className="size-9 border border-[--border]">
+                              <AvatarImage src={c.avatar} />
+                              <AvatarFallback>{c.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex flex-col">
+                              <span className="truncate text-sm font-bold">
+                                {c.name}
+                              </span>
+                              <span className="text-xs text-zinc-500">
+                                Community
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+          </div>
+
+          {/* Type Selector */}
+          <div className="flex px-4 pb-2">
+            <div className="flex w-full overflow-hidden rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+              {[
+                { id: "post", label: "Post", icon: Layout },
+                { id: "story", label: "Story", icon: MediaIcon },
+                { id: "reel", label: "Reel", icon: Film },
+              ].map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setCreateType(type.id as PostType)}
+                  className={cn(
+                    "flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-bold transition-all",
+                    createType === type.id
+                      ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-white"
+                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                  )}
+                >
+                  <type.icon size={16} />
+                  <span>{type.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handlePublish} className="flex flex-1 flex-col gap-8 p-6 max-w-5xl w-full mx-auto font-bangla">
           {/* Caption Section */}
-          {!isStoryPage && (
+          {!isStory && (
             <div className="flex flex-col gap-2.5">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
                 Caption
               </label>
               <Textarea
                 className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
-                placeholder="What's on your mind?"
+                placeholder={isReel ? "Add a caption for your reel..." : "What's on your mind?"}
                 value={postContent}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPostContent(e.target.value)}
                 onPaste={handlePaste}
@@ -374,9 +418,9 @@ const CreatePost: React.FC = () => {
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                {isStoryPage ? "Select Media" : "Add Photos"}
+                {isStory ? "Select Media" : isReel ? "Add Video" : "Add Media"}
               </label>
-              {selectedFiles.length > 0 && !isStoryPage && (
+              {selectedFiles.length > 0 && !isStory && !isReel && (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -393,23 +437,43 @@ const CreatePost: React.FC = () => {
                 className="group flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-[--border] bg-zinc-50/30 py-20 transition-all hover:border-violet-500 hover:bg-violet-50/10 dark:bg-zinc-900/20 cursor-pointer"
               >
                 <div className="rounded-2xl bg-[--background] p-5 shadow-sm ring-1 ring-[--border] transition-transform group-hover:scale-110">
-                  <ImageIcon className="text-violet-500" size={40} />
+                  {isReel ? (
+                    <Film className="text-violet-500" size={40} />
+                  ) : (
+                    <MediaIcon className="text-violet-500" size={40} />
+                  )}
                 </div>
                 <div className="text-center space-y-1">
-                  <p className="text-lg font-bold text-[--foreground] font-english">Choose a {isStoryPage ? "photo" : "media"}</p>
+                  <p className="text-lg font-bold text-[--foreground] font-english">
+                    Choose a {isStory ? "photo or video" : isReel ? "video" : "photo or video"}
+                  </p>
                   <p className="text-sm text-zinc-500 font-english">
-                    {isStoryPage ? "Stories last for 24 hours" : "SVG, PNG, JPG or GIF (max. 800x400px)"}
+                    {isStory ? "Stories last for 24 hours" : isReel ? "Reels should be in vertical format" : "Photos and videos are supported"}
                   </p>
                 </div>
               </div>
-            ) : isStoryPage ? (
+            ) : (isStory || isReel) ? (
               <div className="space-y-6">
-                <div className="relative mx-auto aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl ring-8 ring-[--border]">
-                  <img
-                    src={URL.createObjectURL(selectedFiles[0].file)}
-                    className="h-full w-full object-cover"
-                    alt="Preview"
-                  />
+                <div className={cn(
+                  "relative mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl ring-8 ring-[--border] bg-black",
+                  isStory ? "aspect-[9/16]" : "aspect-[9/16]"
+                )}>
+                  {selectedFiles[0].file.type.startsWith("video/") ? (
+                    <video
+                      src={URL.createObjectURL(selectedFiles[0].file)}
+                      className="h-full w-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={URL.createObjectURL(selectedFiles[0].file)}
+                      className="h-full w-full object-cover"
+                      alt="Preview"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                   <button
                     type="button"
@@ -421,30 +485,31 @@ const CreatePost: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={handleStartCrop}
-                    className="flex items-center gap-2 rounded-full bg-violet-100 px-6 py-2.5 text-sm font-black text-violet-600 transition-all hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400"
-                  >
-                    <ImageIcon size={18} />
-                    <span>CROP & EDIT</span>
-                  </button>
+                  {selectedFiles[0].file.type.startsWith("image/") && (
+                    <button
+                      type="button"
+                      onClick={handleStartCrop}
+                      className="flex items-center gap-2 rounded-full bg-violet-100 px-6 py-2.5 text-sm font-black text-violet-600 transition-all hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400"
+                    >
+                      <MediaIcon size={18} />
+                      <span>CROP & EDIT</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
-                          <MediaUploader
-                            selectedFiles={selectedFiles}
-                            setSelectedFiles={setSelectedFiles}
-                            customThumbnails={customThumbnails}
-                            setCustomThumbnails={setCustomThumbnails}
-                            onCrop={handleCrop}
-                          />
-              
+              <MediaUploader
+                selectedFiles={selectedFiles}
+                setSelectedFiles={setSelectedFiles}
+                customThumbnails={customThumbnails}
+                setCustomThumbnails={setCustomThumbnails}
+                onCrop={handleCrop}
+              />
             )}
           </div>
 
           {/* Hashtags Section */}
-          {!isStoryPage && (
+          {!isStory && (
             <div className="flex flex-col gap-2.5">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
                 Add Hashtags
@@ -460,7 +525,7 @@ const CreatePost: React.FC = () => {
           )}
 
           {/* Poll Section (Optional) */}
-          {!isStoryPage && (
+          {!isStory && !isReel && (
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
@@ -525,13 +590,13 @@ const CreatePost: React.FC = () => {
             </Button>
             <Button
               type="submit"
-              disabled={(!isStoryPage && !postContent.trim() && selectedFiles.length === 0) || (isStoryPage && selectedFiles.length === 0) || loading}
+              disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
               className="rounded-2xl bg-zinc-950 px-12 py-3 font-black text-white transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 shadow-xl shadow-violet-500/10 font-english"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
-                isStoryPage ? "SHARE STORY" : "PUBLISH POST"
+                isStory ? "SHARE STORY" : isReel ? "SHARE REEL" : "PUBLISH POST"
               )}
             </Button>
           </div>
@@ -540,9 +605,9 @@ const CreatePost: React.FC = () => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
-            multiple={!isStoryPage}
+            multiple={!isStory && !isReel}
             className="hidden"
-            accept="image/*"
+            accept={isReel ? "video/*" : "image/*,video/*"}
           />
         </form>
       </div>
@@ -556,7 +621,7 @@ const CreatePost: React.FC = () => {
             setCroppingFileId(null);
           }}
           onCropComplete={onCropComplete}
-          aspect={isStoryPage ? 9 / 16 : undefined}
+          aspect={isStory || isReel ? 9 / 16 : undefined}
         />
       )}
     </PageTransition>

@@ -143,7 +143,6 @@ export const fetchUnreadMessagesCount = async (
  */
 export const markMessagesAsRead = async (
   conversationId: string,
-  _userId: string,
 ): Promise<void> => {
   if (!conversationId) return;
 

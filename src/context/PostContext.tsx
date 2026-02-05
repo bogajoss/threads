@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import {
@@ -134,7 +135,7 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
 
   // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
   const setPosts: React.Dispatch<React.SetStateAction<Post[]>> = useCallback(
-    (_action) => {
+    () => {
       console.warn(
         "setPosts is deprecated in favor of React Query cache updates",
       );

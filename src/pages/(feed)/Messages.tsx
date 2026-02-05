@@ -21,8 +21,6 @@ const Messages: React.FC = () => {
     otherUserIsOnline,
     handleStartConversation,
     handleSelectConversation,
-    refetchConversations,
-    refetchMessages,
     sendMessage,
     editMessage,
     onDeleteMessage,
@@ -73,7 +71,6 @@ const Messages: React.FC = () => {
           searchQuery={msgSearchQuery}
           onSearchChange={setMsgSearchQuery}
           onlineUsers={onlineUsers}
-          onRefresh={async () => await refetchConversations()}
         />
       </div>
       {selectedConversation ? (
@@ -89,7 +86,6 @@ const Messages: React.FC = () => {
           onTyping={(isTyping) =>
             sendTypingStatus(selectedConversation.id, isTyping)
           }
-          onRefresh={async () => await refetchMessages()}
           isLoading={isMsgLoading}
           isTyping={!!currentIsTyping}
           isOnline={!!otherUserIsOnline}

@@ -7,47 +7,72 @@ export const generateVideoThumbnail = (
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
+    
+    // Timeout safety for mobile
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("Thumbnail generation timed out"));
+    }, 10000);
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      if (video.src) {
+        URL.revokeObjectURL(video.src);
+      }
+      video.remove();
+    };
+
+    video.style.display = "none";
     video.preload = "metadata";
-    video.src = URL.createObjectURL(file);
     video.muted = true;
     video.playsInline = true;
+    video.src = URL.createObjectURL(file);
 
     video.onloadedmetadata = () => {
-      video.currentTime = seekTo;
+      // Seek to the requested time
+      video.currentTime = Math.min(seekTo, video.duration || seekTo);
     };
 
     video.onseeked = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
 
-      if (!ctx) {
-        URL.revokeObjectURL(video.src);
-        reject(new Error("Could not get canvas context"));
-        return;
+        if (!ctx) {
+          cleanup();
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              cleanup();
+              reject(new Error("Could not create blob"));
+              return;
+            }
+            const thumbnailFile = new File([blob], "thumbnail.webp", {
+              type: "image/webp",
+            });
+            cleanup();
+            resolve(thumbnailFile);
+          },
+          "image/webp",
+          0.7,
+        );
+      } catch (err) {
+        cleanup();
+        reject(err);
       }
-
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            URL.revokeObjectURL(video.src);
-            reject(new Error("Could not create blob"));
-            return;
-          }
-          const thumbnailFile = new File([blob], "thumbnail.webp", {
-            type: "image/webp",
-          });
-          URL.revokeObjectURL(video.src);
-          resolve(thumbnailFile);
-        },
-        "image/webp",
-        0.7,
-      );
     };
 
-    video.onerror = (e) => reject(e);
+    video.onerror = () => {
+      cleanup();
+      reject(new Error("Video loading error"));
+    };
   });
 };

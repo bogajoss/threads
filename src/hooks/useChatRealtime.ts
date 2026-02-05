@@ -16,7 +16,7 @@ export const useChatRealtime = (
     async (convId: string) => {
       if (!currentUser?.id || !convId) return;
       try {
-        await markMessagesAsRead(convId, currentUser.id);
+        await markMessagesAsRead(convId);
         queryClient.invalidateQueries({
           queryKey: ["unread_messages_count", currentUser.id],
         });
@@ -27,7 +27,7 @@ export const useChatRealtime = (
         console.error("Failed to mark as read:", err);
       }
     },
-    [currentUser?.id, queryClient],
+    [currentUser, queryClient],
   );
 
   useEffect(() => {

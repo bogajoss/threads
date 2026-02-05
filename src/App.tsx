@@ -229,8 +229,6 @@ export default function Sysm() {
       {currentUser && location.pathname === "/feed" && (
         <div className="fixed bottom-20 right-5 z-50 md:hidden">
           <CreateActionMenu
-            side="top"
-            align="end"
             triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
           />
         </div>

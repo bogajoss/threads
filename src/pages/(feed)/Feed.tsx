@@ -11,7 +11,6 @@ import {
 } from "@/components/ui";
 import { useHome } from "@/hooks";
 import { Loader2 } from "lucide-react";
-import PullToRefresh from "@/components/ui/PullToRefresh";
 
 const HomeHeader: React.FC<any> = ({
   currentUser,
@@ -83,7 +82,6 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
     hasMore,
     isFetchingNextPage,
     fetchNextPage,
-    refreshPosts,
     handlePostClick,
     handleUserClick,
   } = useHome();
@@ -107,11 +105,10 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
   }
 
   return (
-    <div className="w-full max-w-full overflow-hidden min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-      <PullToRefresh onRefresh={async () => await refreshPosts()}>
-        <Virtuoso
-          useWindowScroll
-          data={homePosts}
+    <div className="w-full max-w-full min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+      <Virtuoso
+        useWindowScroll
+        data={homePosts}
           components={{
             Header: () => (
               <HomeHeader
@@ -140,13 +137,11 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
               {...post}
               currentUser={currentUser}
               onClick={() => handlePostClick(post.id)}
-              onUserClick={handleUserClick}
-            />
-          )}
-        />
-      </PullToRefresh>
-    </div>
-  );
-};
-
+                          onUserClick={handleUserClick}
+                        />
+                      )}
+                    />
+                  </div>
+                );
+              };
 export default Home;

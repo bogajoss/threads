@@ -102,9 +102,8 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
     // Sync mute state
     useEffect(() => {
-      const player = playerRef.current?.plyr;
-      if (player) {
-        player.muted = isMuted;
+      if (playerRef.current?.plyr) {
+        playerRef.current.plyr.muted = isMuted;
       }
     }, [isMuted]);
 

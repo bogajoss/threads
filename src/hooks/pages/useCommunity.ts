@@ -37,7 +37,7 @@ export const useCommunity = () => {
   // 2. Fetch Membership Status
   const { data: membership } = useQuery({
     queryKey: ["community", community?.id, "membership", currentUser?.id],
-    queryFn: () => checkIfMember(community?.id!, currentUser?.id!),
+    queryFn: () => checkIfMember(community!.id, currentUser!.id),
     enabled: !!community?.id && !!currentUser?.id,
     staleTime: 1000 * 60 * 5,
   });
@@ -55,7 +55,7 @@ export const useCommunity = () => {
   } = useInfiniteQuery({
     queryKey: ["posts", "community", community?.id],
     queryFn: ({ pageParam }) =>
-      fetchCommunityPosts(community?.id!, pageParam, 10),
+      fetchCommunityPosts(community!.id, pageParam, 10),
     enabled: !!community?.id,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
@@ -71,24 +71,27 @@ export const useCommunity = () => {
   // 4. Toggle Membership Mutation
   const joinMutation = useMutation({
     mutationFn: () =>
-      toggleCommunityMembership(community?.id!, currentUser?.id!),
+      toggleCommunityMembership(community!.id, currentUser!.id),
     onMutate: async () => {
+      const communityId = community!.id;
+      const currentUserId = currentUser!.id;
+      
       await queryClient.cancelQueries({
-        queryKey: ["community", community?.id, "membership", currentUser?.id],
+        queryKey: ["community", communityId, "membership", currentUserId],
       });
       await queryClient.cancelQueries({ queryKey: ["community", handle] });
 
       const previousMembership = queryClient.getQueryData([
         "community",
-        community?.id,
+        communityId,
         "membership",
-        currentUser?.id,
+        currentUserId,
       ]);
       const previousCommunity = queryClient.getQueryData(["community", handle]);
 
       // Optimistically update membership
       queryClient.setQueryData(
-        ["community", community?.id, "membership", currentUser?.id],
+        ["community", communityId, "membership", currentUserId],
         previousMembership ? null : { role: "member" },
       );
 
@@ -108,7 +111,7 @@ export const useCommunity = () => {
     onError: (_err, _variables, context) => {
       if (context?.previousMembership !== undefined) {
         queryClient.setQueryData(
-          ["community", community?.id, "membership", currentUser?.id],
+          ["community", community!.id, "membership", currentUser!.id],
           context.previousMembership,
         );
       }

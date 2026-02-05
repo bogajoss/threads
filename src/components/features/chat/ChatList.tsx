@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreateGroupModal } from "@/components/features/modals";
 import type { User } from "@/types";
 import { cn } from "@/lib/utils";
-import PullToRefresh from "@/components/ui/PullToRefresh";
 
 interface ConversationProps {
   conv: any;
@@ -118,7 +117,6 @@ interface ChatListProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onlineUsers?: Set<string>;
-  onRefresh?: () => Promise<any>;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
@@ -130,7 +128,6 @@ const ChatList: React.FC<ChatListProps> = ({
   searchQuery,
   onSearchChange,
   onlineUsers = new Set(),
-  onRefresh,
 }) => {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const activeUsers = conversations.filter((c) => onlineUsers.has(c.user?.id));
@@ -173,13 +170,8 @@ const ChatList: React.FC<ChatListProps> = ({
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden">
-        <PullToRefresh
-          onRefresh={onRefresh || (async () => {})}
-          disabled={!onRefresh}
-          className="h-full"
-        >
-          <ScrollArea className="h-full min-w-0">
-            <div className="flex flex-col pb-4 min-w-0">
+        <ScrollArea className="h-full min-w-0">
+          <div className="flex flex-col pb-4 min-w-0">
               {/* Active Now / Stories */}
               {!searchQuery && activeUsers.length > 0 && (
                 <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
@@ -304,7 +296,6 @@ const ChatList: React.FC<ChatListProps> = ({
                 )}
             </div>
           </ScrollArea>
-        </PullToRefresh>
       </div>
 
       <CreateGroupModal

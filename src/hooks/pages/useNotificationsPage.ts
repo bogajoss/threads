@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import {
   useMutation,
   useInfiniteQuery,
@@ -25,7 +25,7 @@ export const useNotificationsPage = () => {
   } = useInfiniteQuery({
     queryKey: ["notifications", currentUser?.id],
     queryFn: ({ pageParam }) =>
-      fetchNotifications(currentUser?.id!, pageParam, 10),
+      fetchNotifications(currentUser!.id, pageParam, 10),
     enabled: !!currentUser?.id,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
@@ -42,19 +42,20 @@ export const useNotificationsPage = () => {
   useEffect(() => {
     if (!currentUser?.id) return;
 
+    const currentUserId = currentUser.id;
     const channel = supabase
-      .channel(`user_notifications:${currentUser.id}`)
+      .channel(`user_notifications:${currentUserId}`)
       .on(
         "postgres_changes" as any,
         {
           event: "INSERT",
           schema: "public",
           table: "notifications",
-          filter: `recipient_id=eq.${currentUser.id}`,
+          filter: `recipient_id=eq.${currentUserId}`,
         },
         () => {
           queryClient.invalidateQueries({
-            queryKey: ["notifications", currentUser.id],
+            queryKey: ["notifications", currentUserId],
           });
         },
       )
@@ -71,17 +72,18 @@ export const useNotificationsPage = () => {
       return markNotificationsAsRead(currentUser.id);
     },
     onMutate: async () => {
+      const currentUserId = currentUser?.id;
       await queryClient.cancelQueries({
-        queryKey: ["notifications", currentUser?.id],
+        queryKey: ["notifications", currentUserId],
       });
       const previousNotifications = queryClient.getQueryData([
         "notifications",
-        currentUser?.id,
+        currentUserId,
       ]);
 
       // Optimistically mark all as read
       queryClient.setQueryData(
-        ["notifications", currentUser?.id],
+        ["notifications", currentUserId],
         (old: any) => {
           if (!old) return old;
           return {
@@ -110,20 +112,20 @@ export const useNotificationsPage = () => {
     },
   });
 
-  const handleNotificationClick = (notif: any) => {
+  const handleNotificationClick = useCallback((notif: any) => {
     if (notif.type === "follow") {
       navigate(`/u/${notif.user}`);
     } else if (notif.post_id) {
       navigate(`/p/${notif.post_id}`);
     }
-  };
+  }, [navigate]);
 
   // Mark notifications as read when the component mounts or updates
   useEffect(() => {
     if (currentUser?.id && notifications.some((n) => !n.is_read)) {
       markReadMutation.mutate();
     }
-  }, [currentUser?.id, notifications.length, markReadMutation]); // notifications.length as proxy for changes
+  }, [currentUser?.id, notifications, markReadMutation]);
 
   return {
     currentUser,

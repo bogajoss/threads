@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchReels } from "@/lib/api";
@@ -32,25 +32,55 @@ export const useReels = () => {
     return data?.pages.flatMap((page) => page) || [];
   }, [data]);
 
-  // Set initial active reel or scroll to targetId
-  useEffect(() => {
-    if (reels.length > 0) {
-      if (targetId) {
-        const targetReel = reels.find((r) => r.id === targetId);
-        if (targetReel) {
-          setActiveReelId(targetId);
-          const element = reelRefs.current.get(targetId);
-          if (element) {
-            element.scrollIntoView({ behavior: "instant" });
-          }
-        } else if (!activeReelId) {
-          setActiveReelId(reels[0].id);
-        }
-      } else if (!activeReelId) {
+  // Adjust activeReelId during render if needed
+  const [prevReelsLength, setPrevReelsLength] = useState(0);
+  if (reels.length > 0 && reels.length !== prevReelsLength && !activeReelId) {
+    setPrevReelsLength(reels.length);
+    if (targetId) {
+      const targetReel = reels.find((r) => r.id === targetId);
+      if (targetReel) {
+        setActiveReelId(targetId);
+      } else {
         setActiveReelId(reels[0].id);
       }
+    } else {
+      setActiveReelId(reels[0].id);
     }
-  }, [reels, targetId, activeReelId]);
+  }
+
+  // Scroll to targetId on mount/reels load
+  useEffect(() => {
+    if (reels.length > 0 && targetId) {
+      const element = reelRefs.current.get(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "instant" });
+      }
+    }
+  }, [reels.length, targetId]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => !prev);
+  }, []);
+
+  const scrollToNext = useCallback(() => {
+    if (reels.length === 0) return;
+    const currentIndex = reels.findIndex((r) => r.id === activeReelId);
+    if (currentIndex < reels.length - 1) {
+      const nextReel = reels[currentIndex + 1];
+      const element = reelRefs.current.get(nextReel.id);
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [reels, activeReelId]);
+
+  const scrollToPrev = useCallback(() => {
+    if (reels.length === 0) return;
+    const currentIndex = reels.findIndex((r) => r.id === activeReelId);
+    if (currentIndex > 0) {
+      const prevReel = reels[currentIndex - 1];
+      const element = reelRefs.current.get(prevReel.id);
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [reels, activeReelId]);
 
   // Intersection Observer for Active Reel
   useEffect(() => {
@@ -76,10 +106,6 @@ export const useReels = () => {
 
     return () => observer.disconnect();
   }, [reels.length]); // Only re-run if length changes
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -107,7 +133,7 @@ export const useReels = () => {
         case "M":
           toggleMute();
           break;
-        case " ":
+        case " ": {
           e.preventDefault();
           // Get the active reel's video element/plyr instance and toggle it
           const activeElement = reelRefs.current.get(activeReelId || "");
@@ -121,32 +147,13 @@ export const useReels = () => {
             }
           }
           break;
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeReelId, reels, isMuted]); // Re-bind when state changes to ensure correct index logic
-
-  const scrollToNext = () => {
-    if (reels.length === 0) return;
-    const currentIndex = reels.findIndex((r) => r.id === activeReelId);
-    if (currentIndex < reels.length - 1) {
-      const nextReel = reels[currentIndex + 1];
-      const element = reelRefs.current.get(nextReel.id);
-      element?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const scrollToPrev = () => {
-    if (reels.length === 0) return;
-    const currentIndex = reels.findIndex((r) => r.id === activeReelId);
-    if (currentIndex > 0) {
-      const prevReel = reels[currentIndex - 1];
-      const element = reelRefs.current.get(prevReel.id);
-      element?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  }, [activeReelId, scrollToNext, scrollToPrev, toggleMute]);
 
   const setReelRef = (id: string, el: HTMLDivElement | null) => {
     if (el) {

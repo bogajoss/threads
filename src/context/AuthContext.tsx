@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   useContext,
@@ -6,6 +7,9 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import {
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -32,6 +36,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -159,8 +164,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!currentUser) return;
       await updateProfileApi(currentUser.id, updatedFields as any);
       await fetchUserProfileData(currentUser);
+
+      // Invalidate React Query caches for this user
+      queryClient.invalidateQueries({
+        queryKey: ["profile", currentUser.handle],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["posts", "user", currentUser.id],
+      });
     },
-    [currentUser, fetchUserProfileData],
+    [currentUser, fetchUserProfileData, queryClient],
   );
 
   const value = useMemo(

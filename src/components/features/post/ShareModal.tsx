@@ -61,7 +61,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     } finally {
       setLoadingFriends(false);
     }
-  }, [currentUser?.id]);
+  }, [currentUser]);
 
   useEffect(() => {
     if (isOpen && currentUser) {
@@ -93,7 +93,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     } finally {
       setLoadingFriends(false);
     }
-  }, [searchTerm, currentUser?.id]);
+  }, [searchTerm, currentUser]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

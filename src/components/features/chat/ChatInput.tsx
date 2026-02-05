@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import {
   Send,
   Smile,
-  Image as ImageIcon,
   Mic,
   Paperclip,
   Square,
@@ -12,6 +11,7 @@ import {
   X,
   Trash2,
 } from "lucide-react";
+import { MediaIcon } from "@/components/ui";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Popover,
@@ -60,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       setReplyingTo(null);
       if (textAreaRef.current) textAreaRef.current.focus();
     }
-  }, [editingMessage]);
+  }, [editingMessage, setReplyingTo, textAreaRef]);
 
   const {
     isRecording,
@@ -115,6 +115,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setText("");
     setAttachments([]);
     setReplyingTo(null);
+
+    // Maintain focus so keyboard stays open on mobile
+    setTimeout(() => {
+      textAreaRef.current?.focus();
+    }, 10);
   };
 
   const togglePreviewPlay = () => {
@@ -348,7 +353,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   className="p-2 text-zinc-400 hover:text-violet-600 transition-colors rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <ImageIcon size={22} />
+                  <MediaIcon size={22} />
                 </button>
 
                 <button
@@ -409,7 +414,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={handleFileSelect}
           className="hidden"
           multiple
-          accept="image/*"
+          accept="image/*,video/*"
         />
       </div>
     </div>

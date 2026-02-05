@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleFollow, checkIfFollowing, fetchFollowStats } from "@/lib/api";
 import { isValidUUID } from "@/lib/utils";
@@ -24,15 +24,15 @@ export const useFollow = (
     following: profile?.following_count || 0,
   });
 
-  // Update local stats when profile changes (e.g. navigation)
-  useEffect(() => {
-    if (profile) {
-      setStats({
-        followers: profile.follower_count || 0,
-        following: profile.following_count || 0,
-      });
-    }
-  }, [profile?.id, profile?.follower_count, profile?.following_count]);
+  // Adjust state during render when profile changes (recommended React pattern)
+  const [prevProfileId, setPrevProfileId] = useState(profile?.id);
+  if (profile?.id !== prevProfileId) {
+    setPrevProfileId(profile?.id);
+    setStats({
+      followers: profile?.follower_count || 0,
+      following: profile?.following_count || 0,
+    });
+  }
 
   const isValidIds =
     targetId &&

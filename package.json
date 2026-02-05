@@ -11,6 +11,7 @@
     "undo": "git fetch origin && git reset --hard origin/main && git clean -fd",
     "push": "git add . && git commit -m 'update' && git push",
     "static": "pnpm build && npx cap sync",
+    "apk": "export ANDROID_HOME=/workspaces/codespaces-blank/android_apk/sdk && pnpm static && cd android && ./gradlew assembleDebug",
     "cap:sync": "npx cap sync",
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios"
