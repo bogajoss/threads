@@ -88,6 +88,7 @@ export const transformPost = (post: any): Post | null => {
             id: post.reposted_by.id,
           }
         : null,
+    commenterAvatars: post.commenter_avatars || [],
     timeAgo: formatTimeAgo(post.created_at),
   };
 };

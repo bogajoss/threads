@@ -84,6 +84,7 @@ interface PostProps {
   community?: CommunityShort | null;
   parent_id?: string | null;
   post_id?: string;
+  commenterAvatars?: string[];
 }
 
 const Post: React.FC<PostProps> = ({
@@ -109,6 +110,7 @@ const Post: React.FC<PostProps> = ({
   community,
   parent_id,
   post_id,
+  commenterAvatars = [],
 }) => {
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -692,7 +694,11 @@ const Post: React.FC<PostProps> = ({
             views={localStats.views || 0}
             likes={localStats.likes || 0}
             comments={localStats.comments || 0}
-            commenterAvatars={comments.slice(0, 3).map((c) => c.user.avatar)}
+            commenterAvatars={
+              commenterAvatars.length > 0
+                ? commenterAvatars
+                : comments.slice(0, 3).map((c) => c.user.avatar)
+            }
             isComment={isComment}
             onRepliesClick={() => {
               if (showReplies) setShowReplies(false);

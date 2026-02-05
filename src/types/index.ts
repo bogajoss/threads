@@ -70,6 +70,7 @@ export interface Post {
   repostedBy: Reposter | null;
   timeAgo: string;
   comments?: Comment[];
+  commenterAvatars?: string[];
   sort_timestamp?: string;
   sortTimestamp?: string;
 }

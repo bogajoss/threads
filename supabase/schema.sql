@@ -211,7 +211,18 @@ SELECT
         WHEN p.community_id IS NOT NULL THEN jsonb_build_object('id', c.id, 'handle', c.handle, 'name', c.name, 'avatar_url', c.avatar_url)
         ELSE NULL
     END as community_data,
-    NULL::jsonb as reposter_data
+    NULL::jsonb as reposter_data,
+    (
+      SELECT jsonb_agg(avatar_url)
+      FROM (
+        SELECT u_c.avatar_url
+        FROM public.comments cm
+        JOIN public.users u_c ON cm.user_id = u_c.id
+        WHERE cm.post_id = p.id
+        ORDER BY cm.created_at DESC
+        LIMIT 3
+      ) sub
+    ) as commenter_avatars
 FROM public.posts p
 JOIN public.users u ON p.user_id = u.id
 LEFT JOIN public.communities c ON p.community_id = c.id
@@ -231,7 +242,18 @@ SELECT
     END as community_data,
     jsonb_build_object(
         'id', ru.id, 'username', ru.username, 'display_name', ru.display_name, 'avatar_url', ru.avatar_url
-    ) as reposter_data
+    ) as reposter_data,
+    (
+      SELECT jsonb_agg(avatar_url)
+      FROM (
+        SELECT u_c.avatar_url
+        FROM public.comments cm
+        JOIN public.users u_c ON cm.user_id = u_c.id
+        WHERE cm.post_id = p.id
+        ORDER BY cm.created_at DESC
+        LIMIT 3
+      ) sub
+    ) as commenter_avatars
 FROM public.reposts r
 JOIN public.posts p ON r.post_id = p.id
 JOIN public.users u ON p.user_id = u.id
