@@ -53,13 +53,13 @@ export const useExplore = () => {
     queryKey: ["explore", "posts", searchQuery],
     queryFn: ({ pageParam }) => {
       if (searchQuery) {
-        return searchPosts(searchQuery, pageParam, 10, true);
+        return searchPosts(searchQuery, pageParam, 20, true);
       }
-      return fetchCommunityExplorePosts(pageParam, 10);
+      return fetchCommunityExplorePosts(pageParam, 20);
     },
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 10) return undefined;
+      if (!lastPage || lastPage.length < 20) return undefined;
       return lastPage[lastPage.length - 1].sort_timestamp;
     },
   });

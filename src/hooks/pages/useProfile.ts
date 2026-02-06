@@ -29,11 +29,11 @@ export const useProfile = () => {
     isLoading: loadingPosts,
   } = useInfiniteQuery({
     queryKey: ["posts", "user", profile?.id],
-    queryFn: ({ pageParam }) => fetchPostsByUserId(profile!.id, pageParam, 10),
+    queryFn: ({ pageParam }) => fetchPostsByUserId(profile!.id, pageParam, 20),
     enabled: !!profile?.id,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 10) return undefined;
+      if (!lastPage || lastPage.length < 20) return undefined;
       return (
         lastPage[lastPage.length - 1].sort_timestamp ||
         lastPage[lastPage.length - 1].created_at

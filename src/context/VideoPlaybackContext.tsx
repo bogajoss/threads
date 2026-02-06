@@ -97,6 +97,7 @@ export const VideoPlaybackProvider: React.FC<VideoPlaybackProviderProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useVideoPlayback = (): VideoPlaybackContextType => {
   const context = useContext(VideoPlaybackContext);
   if (!context) {

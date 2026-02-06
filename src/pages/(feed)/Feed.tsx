@@ -110,6 +110,8 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
       <Virtuoso
         useWindowScroll
         data={homePosts}
+        overscan={400}
+        increaseViewportBy={200}
         components={{
           Header: () => (
             <HomeHeader

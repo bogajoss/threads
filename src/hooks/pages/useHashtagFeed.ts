@@ -16,11 +16,11 @@ export const useHashtagFeed = () => {
       queryKey: ["hashtag", tag],
       queryFn: ({ pageParam }) => {
         const query = `#${tag}`;
-        return searchPosts(query, pageParam, 10);
+        return searchPosts(query, pageParam, 20);
       },
       initialPageParam: null as string | null,
       getNextPageParam: (lastPage) => {
-        if (!lastPage || lastPage.length < 10) return undefined;
+        if (!lastPage || lastPage.length < 20) return undefined;
         return (
           lastPage[lastPage.length - 1].sort_timestamp ||
           lastPage[lastPage.length - 1].created_at

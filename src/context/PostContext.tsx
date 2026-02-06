@@ -49,10 +49,10 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     refetch,
   } = useInfiniteQuery({
     queryKey: ["posts", "feed"],
-    queryFn: ({ pageParam }) => fetchPosts(pageParam, 10),
+    queryFn: ({ pageParam }) => fetchPosts(pageParam, 20),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 10) return undefined;
+      if (!lastPage || lastPage.length < 20) return undefined;
       return (
         lastPage[lastPage.length - 1].sort_timestamp ||
         lastPage[lastPage.length - 1].created_at
@@ -273,6 +273,7 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   return <PostContext.Provider value={value}>{children}</PostContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePosts = (): PostContextType => {
   const context = useContext(PostContext);
   if (!context) {

@@ -59,6 +59,7 @@ export const LightboxProvider: React.FC<LightboxProviderProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLightbox = (): LightboxContextType => {
   const context = useContext(LightboxContext);
   if (!context) {
