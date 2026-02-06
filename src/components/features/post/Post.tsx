@@ -130,6 +130,108 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
   );
 };
 
+interface PostActionsMenuProps {
+  id: string;
+  user: { handle: string };
+  isCurrentUser: boolean;
+  isComment?: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  addToast: (msg: string, type?: any) => void;
+  trigger: React.ReactNode;
+}
+
+const PostActionsMenu = ({
+  id,
+  user,
+  isCurrentUser,
+  isComment,
+  onEdit,
+  onDelete,
+  addToast,
+  trigger,
+}: PostActionsMenuProps) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+      {trigger}
+    </DropdownMenuTrigger>
+    <DropdownMenuContent
+      align="end"
+      className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <DropdownMenuGroup>
+        {!isComment && (
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 py-2.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(`${window.location.origin}/p/${id}`);
+              addToast("Link copied");
+            }}
+          >
+            <Share size={16} />
+            <span>Copy link</span>
+          </DropdownMenuItem>
+        )}
+        {!isComment && (
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 py-2.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToast("Post reported");
+            }}
+          >
+            <Flag size={16} />
+            <span>Report post</span>
+          </DropdownMenuItem>
+        )}
+        {!isCurrentUser && (
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 py-2.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToast("User blocked");
+            }}
+          >
+            <UserMinus size={16} />
+            <span>Block @{user.handle}</span>
+          </DropdownMenuItem>
+        )}
+        {isCurrentUser && (
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="cursor-pointer gap-2 py-2.5"
+          >
+            <Pencil size={16} />
+            Edit {isComment ? "Comment" : "Post"}
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuGroup>
+      {isCurrentUser && (
+        <>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer gap-2 py-2.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
+              <Trash size={16} />
+              <span>Delete {isComment ? "comment" : "post"}</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </>
+      )}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
 const Post: React.FC<PostProps> = ({
   id,
   user,
@@ -317,90 +419,6 @@ const Post: React.FC<PostProps> = ({
     }
   };
 
-  const PostActionsMenu = ({ trigger }: { trigger: React.ReactNode }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        {trigger}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-      >
-        <DropdownMenuGroup>
-          {!isComment && (
-            <DropdownMenuItem
-              className="cursor-pointer gap-2 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/p/${id}`,
-                );
-                addToast("Link copied");
-              }}
-            >
-              <Share size={16} />
-              <span>Copy link</span>
-            </DropdownMenuItem>
-          )}
-          {!isComment && (
-            <DropdownMenuItem
-              className="cursor-pointer gap-2 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                addToast("Post reported");
-              }}
-            >
-              <Flag size={16} />
-              <span>Report post</span>
-            </DropdownMenuItem>
-          )}
-          {!isCurrentUser && (
-            <DropdownMenuItem
-              className="cursor-pointer gap-2 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                addToast("User blocked");
-              }}
-            >
-              <UserMinus size={16} />
-              <span>Block @{user.handle}</span>
-            </DropdownMenuItem>
-          )}
-          {isCurrentUser && (
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }}
-              className="cursor-pointer gap-2 py-2.5"
-            >
-              <Pencil size={16} />
-              Edit Post
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
-        {isCurrentUser && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer gap-2 py-2.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsDeleteDialogOpen(true);
-                }}
-              >
-                <Trash size={16} />
-                <span>Delete post</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-
   const isCurrentUser = currentUser?.handle === user.handle;
 
   const handleReplyClick = (handle: string, commentId?: string) => {
@@ -433,6 +451,13 @@ const Post: React.FC<PostProps> = ({
             showAvatar={true}
             actionsMenu={
               <PostActionsMenu
+                id={id}
+                user={user}
+                isCurrentUser={isCurrentUser}
+                isComment={isComment}
+                onEdit={() => setIsEditing(true)}
+                onDelete={() => setIsDeleteDialogOpen(true)}
+                addToast={addToast}
                 trigger={
                   <button
                     aria-label="More options"
@@ -672,6 +697,13 @@ const Post: React.FC<PostProps> = ({
             isComment={isComment}
             actionsMenu={
               <PostActionsMenu
+                id={id}
+                user={user}
+                isCurrentUser={isCurrentUser}
+                isComment={isComment}
+                onEdit={() => setIsEditing(true)}
+                onDelete={() => setIsDeleteDialogOpen(true)}
+                addToast={addToast}
                 trigger={
                   <button
                     aria-label="More options"
