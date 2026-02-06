@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import {
-  Send,
   Smile,
   Mic,
   Paperclip,
@@ -18,6 +17,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import EmojiPicker from "@/components/ui/emoji-picker";
+import Button from "@/components/ui/Button";
+import { ShareIcon } from "@/components/ui";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
 import { cn } from "@/lib/utils";
@@ -351,12 +352,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
         </div>
 
         {text.trim() || attachments.length > 0 || audioBlob ? (
-          <button
+          <Button
+            variant="animated"
+            icon={<ShareIcon size={24} />}
             onClick={handleSend}
-            className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-[#8774e1] text-white shadow-md hover:scale-105 transition-transform"
+            className="size-[50px] shrink-0 !rounded-full p-0 flex items-center justify-center bg-[#8774e1] text-white shadow-md hover:scale-105 transition-all duration-500"
           >
-            <Send size={24} className="ml-0.5" />
-          </button>
+            <span className="sr-only">Send</span>
+          </Button>
         ) : isRecording ? (
           <button
             onClick={stopRecording}

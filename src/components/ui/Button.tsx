@@ -3,10 +3,18 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "danger" | "ghost" | "violet";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "outline"
+    | "danger"
+    | "ghost"
+    | "violet"
+    | "animated";
   size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
   className?: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -16,6 +24,7 @@ const Button: React.FC<ButtonProps> = ({
   size = "md",
   loading = false,
   className = "",
+  icon,
   disabled,
   ...props
 }) => {
@@ -35,6 +44,8 @@ const Button: React.FC<ButtonProps> = ({
       "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 border-transparent shadow-none hover:shadow-none",
     violet:
       "text-white bg-violet-600 hover:bg-violet-700 border-none shadow-violet-600/20 hover:shadow-violet-600/30",
+    animated:
+      "btn-animated bg-zinc-900 text-white dark:bg-white dark:text-black border-none rounded-2xl px-8 py-3 text-lg font-black",
   };
 
   const sizes = {
@@ -43,6 +54,41 @@ const Button: React.FC<ButtonProps> = ({
     lg: "px-8 py-3 text-base",
     icon: "p-2 aspect-square",
   };
+
+  if (variant === "animated") {
+    return (
+      <button
+        className={cn("btn-animated", className)}
+        disabled={disabled || loading}
+        {...props}
+      >
+        <div className="svg-wrapper-1">
+          <div className="svg-wrapper">
+            {icon ? (
+              <div className="icon-wrapper [&>svg]:w-4 [&>svg]:h-4">
+                {icon}
+              </div>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path
+                  fill="currentColor"
+                  d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                ></path>
+              </svg>
+            )}
+          </div>
+        </div>
+        <span className="ml-2 uppercase tracking-wider">{children}</span>
+        <div className="absolute inset-0 bg-black/0 active:bg-black/5 transition-colors pointer-events-none" />
+      </button>
+    );
+  }
 
   return (
     <button

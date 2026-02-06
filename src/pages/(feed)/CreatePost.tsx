@@ -9,7 +9,7 @@ import {
   Film,
   Layout,
 } from "lucide-react";
-import { MediaIcon } from "@/components/ui";
+import { MediaIcon, ShareIcon } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
@@ -590,13 +590,15 @@ const CreatePost: React.FC = () => {
             </Button>
             <Button
               type="submit"
+              variant={loading ? "primary" : "animated"}
+              icon={!loading && <ShareIcon size={24} />}
               disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
-              className="rounded-2xl bg-zinc-950 px-12 py-3 font-black text-white transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 shadow-xl shadow-violet-500/10 font-english"
+              className="font-english"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
-                isStory ? "SHARE STORY" : isReel ? "SHARE REEL" : "PUBLISH POST"
+                isStory ? "Post" : isReel ? "Post" : "Post"
               )}
             </Button>
           </div>

@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Paperclip, X } from "lucide-react";
-import { MediaIcon } from "@/components/ui";
+import { MediaIcon, ShareIcon } from "@/components/ui";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { User } from "@/types";
@@ -140,7 +140,9 @@ const CommentInput: React.FC<CommentInputProps> = ({
               />
             </div>
             <Button
-              className="min-w-[70px] !w-auto px-5 py-1.5 text-sm font-bold"
+              variant={loading || isUploading ? "primary" : "animated"}
+              icon={!(loading || isUploading) && <ShareIcon size={20} />}
+              className="min-w-[70px] !w-auto"
               onClick={handleSubmitComment}
               loading={loading || isUploading}
               disabled={!newComment.trim() && selectedFiles.length === 0}
