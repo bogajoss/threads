@@ -25,7 +25,11 @@ export const generateVideoThumbnail = (
     video.src = URL.createObjectURL(file);
 
     video.onloadedmetadata = () => {
-      video.currentTime = Math.min(seekTo, video.duration || seekTo);
+      let targetTime = seekTo;
+      if (seekTo === 1 && video.duration > 0) {
+        targetTime = video.duration * (0.1 + Math.random() * 0.8);
+      }
+      video.currentTime = Math.min(targetTime, video.duration || targetTime);
     };
 
     video.onseeked = () => {

@@ -143,7 +143,7 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
               onClick={() => handlePostClick(post.id)}
               onUserClick={handleUserClick}
             />
-            {index === 19 && <ReelsRow />}
+            {(index + 1) % 5 === 0 && <ReelsRow index={Math.floor((index + 1) / 5)} />}
           </>
         )}
       />
