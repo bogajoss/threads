@@ -24,32 +24,6 @@ import {
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  EditorProvider,
-  EditorFloatingMenu,
-  EditorBubbleMenu,
-  EditorSelector,
-  EditorNodeText,
-  EditorNodeHeading1,
-  EditorNodeHeading2,
-  EditorNodeHeading3,
-  EditorNodeBulletList,
-  EditorNodeOrderedList,
-  EditorNodeTaskList,
-  EditorNodeQuote,
-  EditorNodeCode,
-  EditorFormatBold,
-  EditorFormatItalic,
-  EditorFormatUnderline,
-  EditorFormatStrike,
-  EditorFormatCode,
-  EditorFormatSuperscript,
-  EditorFormatSubscript,
-  EditorLinkSelector,
-  EditorClearFormatting,
-  type Editor,
-  type JSONContent,
-} from "@/components/kibo-ui/editor";
 import MediaUploader from "@/components/features/modals/MediaUploader";
 import { PageTransition } from "@/components/layout";
 import ImageCropper from "@/components/ui/image-cropper";
@@ -79,8 +53,6 @@ const CreatePost: React.FC = () => {
 
   const [createType, setCreateType] = useState<PostType>(initialType);
   const [postContent, setPostContent] = useState("");
-  const [editorContent, setEditorContent] = useState<JSONContent | null>(null);
-  const [editorHtml, setEditorHtml] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const [customThumbnails, setCustomThumbnails] = useState<
@@ -204,8 +176,7 @@ const CreatePost: React.FC = () => {
       return;
     }
 
-    if (!isReel && !editorHtml.trim() && selectedFiles.length === 0) return;
-    if (isReel && !postContent.trim() && selectedFiles.length === 0) return;
+    if (!postContent.trim() && selectedFiles.length === 0) return;
 
     setLoading(true);
     try {
@@ -231,7 +202,7 @@ const CreatePost: React.FC = () => {
         };
       }
 
-      let finalContent = isReel ? postContent : editorHtml;
+      let finalContent = postContent;
       if (hashtags.trim()) {
         const tagList = hashtags
           .split(",")
@@ -239,10 +210,7 @@ const CreatePost: React.FC = () => {
           .filter((tag) => tag.length > 0)
           .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
           .join(" ");
-        finalContent +=
-          isReel || !finalContent.includes("</")
-            ? `\n\n${tagList}`
-            : `<p>${tagList}</p>`;
+        finalContent += `\n\n${tagList}`;
       }
 
       await addPost({
@@ -397,8 +365,8 @@ const CreatePost: React.FC = () => {
           </div>
 
           {/* Type Selector */}
-          <div className="flex px-4 pb-2">
-            <div className="flex w-full overflow-hidden rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+          <div className="flex px-4 pb-4">
+            <div className="flex w-full overflow-hidden rounded-2xl bg-zinc-100/50 p-1.5 dark:bg-zinc-900/50 ring-1 ring-zinc-200/50 dark:ring-zinc-800/50">
               {[
                 { id: "post", label: "Post", icon: Layout },
                 { id: "story", label: "Story", icon: MediaIcon },
@@ -409,13 +377,13 @@ const CreatePost: React.FC = () => {
                   type="button"
                   onClick={() => setCreateType(type.id as PostType)}
                   className={cn(
-                    "flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-bold transition-all",
+                    "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-black transition-all duration-300",
                     createType === type.id
-                      ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-white"
-                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300",
+                      ? "bg-white text-zinc-950 shadow-md shadow-zinc-200/50 dark:bg-zinc-800 dark:text-white dark:shadow-none translate-y-[-1px]"
+                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                   )}
                 >
-                  <type.icon size={16} />
+                  <type.icon size={16} strokeWidth={createType === type.id ? 3 : 2} />
                   <span>{type.label}</span>
                 </button>
               ))}
@@ -433,59 +401,12 @@ const CreatePost: React.FC = () => {
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
                 Caption
               </label>
-              {isReel ? (
-                <Textarea
-                  className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
-                  placeholder="Add a caption for your reel..."
-                  value={postContent}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setPostContent(e.target.value)
-                  }
-                />
-              ) : (
-                <div className="min-h-[250px] w-full">
-                  <EditorProvider
-                    className="min-h-[250px] w-full overflow-y-auto rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus-within:border-violet-500 focus-within:ring-4 focus-within:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground]"
-                    content={editorContent}
-                    onUpdate={({ editor }: { editor: Editor }) => {
-                      setEditorContent(editor.getJSON());
-                      setEditorHtml(editor.getHTML());
-                    }}
-                    placeholder="What's on your mind?"
-                  >
-                    <EditorFloatingMenu>
-                      <EditorNodeHeading1 hideName />
-                      <EditorNodeBulletList hideName />
-                      <EditorNodeQuote hideName />
-                      <EditorNodeCode hideName />
-                    </EditorFloatingMenu>
-                    <EditorBubbleMenu>
-                      <EditorSelector title="Text">
-                        <EditorNodeText />
-                        <EditorNodeHeading1 />
-                        <EditorNodeHeading2 />
-                        <EditorNodeHeading3 />
-                        <EditorNodeBulletList />
-                        <EditorNodeOrderedList />
-                        <EditorNodeTaskList />
-                        <EditorNodeQuote />
-                        <EditorNodeCode />
-                      </EditorSelector>
-                      <EditorSelector title="Format">
-                        <EditorFormatBold />
-                        <EditorFormatItalic />
-                        <EditorFormatUnderline />
-                        <EditorFormatStrike />
-                        <EditorFormatCode />
-                        <EditorFormatSuperscript />
-                        <EditorFormatSubscript />
-                      </EditorSelector>
-                      <EditorLinkSelector />
-                      <EditorClearFormatting />
-                    </EditorBubbleMenu>
-                  </EditorProvider>
-                </div>
-              )}
+              <Textarea
+                className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
+                placeholder={isReel ? "Add a caption for your reel..." : "What's on your mind?"}
+                value={postContent}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPostContent(e.target.value)}
+              />
             </div>
           )}
 
@@ -678,25 +599,13 @@ const CreatePost: React.FC = () => {
             </Button>
             <Button
               type="submit"
-              disabled={
-                (!isStory &&
-                  !isReel &&
-                  !editorHtml.trim() &&
-                  selectedFiles.length === 0) ||
-                (isReel && !postContent.trim() && selectedFiles.length === 0) ||
-                (isStory && selectedFiles.length === 0) ||
-                loading
-              }
+              disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
               className="rounded-2xl bg-zinc-950 px-12 py-3 font-black text-white transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 shadow-xl shadow-violet-500/10 font-english"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin" />
-              ) : isStory ? (
-                "SHARE STORY"
-              ) : isReel ? (
-                "SHARE REEL"
               ) : (
-                "PUBLISH POST"
+                isStory ? "SHARE STORY" : isReel ? "SHARE REEL" : "PUBLISH POST"
               )}
             </Button>
           </div>
