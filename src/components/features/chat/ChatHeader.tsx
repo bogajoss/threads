@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, MoreVertical } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { useTimeAgo } from "@/hooks";
@@ -83,14 +83,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-0.5 pr-1">
-        <button className="hidden sm:flex size-10 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 dark:text-[#aaaaaa] dark:hover:bg-white/5 transition-colors">
-          <Info size={20} />
-        </button>
         <button
           onClick={onOpenSettings}
           className="flex size-10 items-center justify-center rounded-full text-zinc-500 hover:bg-zinc-100 dark:text-[#aaaaaa] dark:hover:bg-white/5 transition-colors"
         >
-          <Info size={22} className="rotate-90" />
+          <MoreVertical size={22} />
         </button>
       </div>
     </div>

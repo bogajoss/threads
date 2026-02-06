@@ -149,6 +149,15 @@ export const transformMessage = (m: any): Message | null => {
     type: m.type || "text",
     media: m.media || [],
     reply_to_id: m.reply_to_id,
+    reply_to: m.reply_to ? {
+      id: m.reply_to.id,
+      content: m.reply_to.content,
+      sender: {
+        id: m.reply_to.sender?.id,
+        username: m.reply_to.sender?.username,
+        display_name: m.reply_to.sender?.display_name
+      }
+    } : null,
     is_read: m.is_read,
     created_at: m.created_at,
   };

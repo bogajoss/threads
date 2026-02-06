@@ -134,6 +134,15 @@ export interface Message {
   type: "text" | "image" | "video" | "voice" | "reel";
   media: any[] | null;
   reply_to_id: string | null;
+  reply_to?: {
+    id: string;
+    content: string;
+    sender: {
+      id: string;
+      username: string;
+      display_name: string;
+    };
+  } | null;
   is_read: boolean;
   isOptimistic?: boolean;
   created_at: string;

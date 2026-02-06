@@ -9,7 +9,7 @@ import {
   Film,
   Layout,
 } from "lucide-react";
-import { MediaIcon, ShareIcon } from "@/components/ui";
+import { MediaIcon, ShareIcon, ProButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
@@ -177,6 +177,11 @@ const CreatePost: React.FC = () => {
 
     if (!postContent.trim() && selectedFiles.length === 0) return;
 
+    if (isOverWordLimit && !isStory && !isReel) {
+      navigate("/pro");
+      return;
+    }
+
     setLoading(true);
     try {
       const uploadedMedia = [];
@@ -255,6 +260,9 @@ const CreatePost: React.FC = () => {
     : isReel
       ? "Create Reel"
       : "Create Post";
+
+  const wordCount = postContent.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const isOverWordLimit = wordCount > 120;
 
   return (
     <PageTransition>
@@ -392,9 +400,17 @@ const CreatePost: React.FC = () => {
         >
           {!isStory && (
             <div className="flex flex-col gap-2.5">
-              <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                Caption
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
+                  Caption
+                </label>
+                <span className={cn(
+                  "text-xs font-bold font-english transition-colors duration-300",
+                  isOverWordLimit ? "text-red-500 animate-pulse" : "text-zinc-400"
+                )}>
+                  {wordCount} WORDS
+                </span>
+              </div>
               <Textarea
                 className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
                 placeholder={isReel ? "Add a caption for your reel..." : "What's on your mind?"}
@@ -588,19 +604,29 @@ const CreatePost: React.FC = () => {
             >
               CANCEL
             </Button>
-            <Button
-              type="submit"
-              variant={loading ? "primary" : "animated"}
-              icon={!loading && <ShareIcon size={24} />}
-              disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
-              className="font-english"
-            >
-              {loading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                isStory ? "Post" : isReel ? "Post" : "Post"
-              )}
-            </Button>
+            
+            {isOverWordLimit && !isStory && !isReel ? (
+              <ProButton
+                type="submit"
+                label="pro"
+                hoverLabel="lagbe!"
+                disabled={loading}
+              />
+            ) : (
+              <Button
+                type="submit"
+                variant={loading ? "primary" : "animated"}
+                icon={!loading && <ShareIcon size={24} />}
+                disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
+                className="font-english"
+              >
+                {loading ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  isStory ? "Post" : isReel ? "Post" : "Post"
+                )}
+              </Button>
+            )}
           </div>
 
           <input

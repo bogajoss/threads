@@ -199,6 +199,15 @@ export const fetchMessages = async (
                 username,
                 display_name,
                 avatar_url
+            ),
+            reply_to:messages!reply_to_id (
+                id,
+                content,
+                sender:users!sender_id (
+                    id,
+                    username,
+                    display_name
+                )
             )
         `,
     )

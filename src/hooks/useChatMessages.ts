@@ -26,6 +26,12 @@ interface FormattedMessage {
   media: any[];
   isRead: boolean;
   replyToId: string | null;
+  replyTo?: {
+    id: string;
+    text: string;
+    senderName: string;
+    sender: "me" | "them";
+  } | null;
   reactions: Reaction[];
   time: string;
   updatedAt?: string;
@@ -54,6 +60,12 @@ export const useChatMessages = (
         media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
         isRead: m.is_read || false,
         replyToId: m.reply_to_id,
+        replyTo: m.reply_to ? {
+          id: m.reply_to.id,
+          text: m.reply_to.content,
+          senderName: m.reply_to.sender?.display_name || m.reply_to.sender?.username || "Unknown",
+          sender: m.reply_to.sender?.id === currentUser?.id ? "me" : "them",
+        } : null,
         reactions: reactions.filter((r) => r.message_id === m.id),
         time: m.created_at
           ? new Date(m.created_at).toLocaleTimeString([], {

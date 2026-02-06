@@ -3,6 +3,7 @@ import {
   Loader2,
   Check,
   CheckCheck,
+  Reply as ReplyIcon,
 } from "lucide-react";
 import {
   TypingIndicator,
@@ -31,7 +32,7 @@ import {
   GroupSettingsModal,
   DMSettingsModal,
 } from "@/components/features/modals";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ChatWindowProps {
@@ -54,6 +55,203 @@ interface ChatWindowProps {
   isTyping: boolean;
   isOnline: boolean;
 }
+
+const MessageBubble = ({ 
+  msg, 
+  isMe, 
+  isLastInGroup, 
+  setReplyingTo, 
+  handleImageClick,
+  handleVoiceMessage,
+  onDeleteMessage,
+  setEditingMessage,
+  onToggleReaction,
+  currentUser
+}: any) => {
+  const x = useMotionValue(0);
+  const swipeThreshold = -60;
+  const replyIconOpacity = useTransform(x, [0, swipeThreshold], [0, 1]);
+  const replyIconScale = useTransform(x, [0, swipeThreshold], [0.5, 1.1]);
+
+  const handleDragEnd = (_: any, info: any) => {
+    if (info.offset.x < swipeThreshold) {
+      setReplyingTo(msg);
+      // Play a subtle haptic-like vibration if supported
+      if (window.navigator.vibrate) window.navigator.vibrate(10);
+    }
+  };
+
+  return (
+    <motion.div
+      id={`msg-${msg.id}`}
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        "flex w-full group relative overflow-visible",
+        isMe ? "justify-end" : "justify-start",
+        isLastInGroup && "mb-3",
+      )}
+    >
+      {/* Swipe Reply Indicator */}
+      <motion.div 
+        style={{ opacity: replyIconOpacity, scale: replyIconScale, right: 10 }}
+        className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-full bg-violet-500/10 text-violet-500 z-0 pointer-events-none"
+      >
+        <ReplyIcon size={20} />
+      </motion.div>
+
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: swipeThreshold - 20, right: 0 }}
+        dragElastic={0.4}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
+        className={cn(
+          "flex max-w-[85%] md:max-w-[70%] items-end gap-1.5 z-10 touch-pan-y",
+          isMe ? "flex-row-reverse" : "flex-row",
+        )}
+      >
+        <div
+          className={cn(
+            "relative flex flex-col min-w-[60px]",
+            isMe ? "items-end" : "items-start",
+          )}
+        >
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <div
+                className={cn(
+                  "relative px-3 py-1.5 shadow-sm text-[15px] leading-[1.4] transition-all",
+                  isMe
+                    ? "bg-[#8774e1] text-white border border-[#7059d0]"
+                    : "bg-white text-zinc-900 dark:bg-[#212121] dark:text-white",
+
+                  "rounded-[15px]",
+                  msg.isOptimistic && "opacity-60 grayscale-[0.5]",
+                )}
+              >
+                {msg.replyTo && (
+                  <div 
+                    className={cn(
+                      "mb-1.5 border-l-2 pl-2 py-0.5 text-xs rounded bg-black/5 dark:bg-white/5",
+                      isMe ? "border-white/50" : "border-violet-500"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const element = document.getElementById(`msg-${msg.replyTo.id}`);
+                      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      element?.classList.add('bg-violet-500/20');
+                      setTimeout(() => element?.classList.remove('bg-violet-500/20'), 2000);
+                    }}
+                  >
+                    <span className={cn("font-bold block", isMe ? "text-white/90" : "text-violet-500")}>
+                      {msg.replyTo.sender === "me" ? "You" : msg.replyTo.senderName}
+                    </span>
+                    <span className="opacity-80 line-clamp-1">{msg.replyTo.text}</span>
+                  </div>
+                )}
+
+                {msg.media?.length > 0 && msg.type !== "voice" && (
+                  <div
+                    className={cn(
+                      "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
+                      !msg.text && "-mb-1.5",
+                      msg.text && "mb-1.5",
+                      "rounded-[15px]",
+                    )}
+                  >
+                    {msg.media.map((m: any, i: number) => (
+                      <div
+                        key={i}
+                        className="relative group/media min-w-[280px] md:min-w-[400px]"
+                      >
+                        {msg.type === "video" ? (
+                          <div className="aspect-video w-full bg-black">
+                            <VideoPlayer src={m.url} poster={m.poster} />
+                          </div>
+                        ) : (
+                          <img
+                            src={m.url}
+                            className="max-h-[400px] md:max-h-[500px] w-full object-cover cursor-pointer hover:brightness-95 transition-all"
+                            onClick={() => handleImageClick(msg)}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {msg.type === "voice" && msg.media?.[0] && (
+                  <React.Suspense
+                    fallback={
+                      <div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
+                    }
+                  >
+                    {handleVoiceMessage(msg.media[0].url, msg.media[0].duration, isMe)}
+                  </React.Suspense>
+                )}
+
+                {msg.text && msg.type !== "voice" && (
+                  <div className="whitespace-pre-wrap break-words pr-12">
+                    <Linkify options={{ ...linkifyOptions, className: "underline" }}>
+                      {msg.text}
+                    </Linkify>
+                  </div>
+                )}
+
+                {(msg.text || msg.type === "voice") && (
+                  <div
+                    className={cn(
+                      "absolute bottom-1 right-1.5 flex items-center gap-0.5 select-none",
+                      isMe ? "text-white/70" : "text-[#aaaaaa]",
+                    )}
+                  >
+                    <span className="text-[10px]">
+                      {msg.isOptimistic ? "sending..." : msg.time}
+                    </span>
+                    {isMe && !msg.isOptimistic && (
+                      msg.isRead ? <CheckCheck size={13} className="text-white" /> : <Check size={13} className="text-white/60" />
+                    )}
+                  </div>
+                )}
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem onSelect={() => setReplyingTo(msg)}>
+                Reply
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={() => navigator.clipboard.writeText(msg.text)}>
+                Copy
+              </ContextMenuItem>
+              {isMe && (
+                <ContextMenuItem onSelect={() => setEditingMessage(msg)}>
+                  Edit
+                </ContextMenuItem>
+              )}
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                onSelect={() => onDeleteMessage?.(msg.id)}
+                className="text-red-500"
+              >
+                Delete
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+
+          {msg.reactions && msg.reactions.length > 0 && (
+            <div className={cn("mt-1", isMe ? "mr-1" : "ml-1")}>
+              <MessageReactions
+                reactions={msg.reactions}
+                currentUser={currentUser}
+                onToggle={(e: any) => onToggleReaction?.(msg.id, e)}
+              />
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
   conversation,
@@ -153,6 +351,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     return messages[index + 1].sender === msg.sender;
   };
 
+  const handleVoiceMessage = (url: string, duration: number, isMe: boolean) => (
+    <VoiceMessage url={url} duration={duration} isMe={isMe} />
+  );
+
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#8774e1]/10 dark:bg-[#0f0f0f] md:border-l md:border-zinc-200/50 dark:md:border-zinc-800/50">
       <div
@@ -189,177 +391,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   const isLastInGroup = !sameSenderNext;
 
                   return (
-                    <motion.div
+                    <MessageBubble
                       key={msg.id}
-                      id={`msg-${msg.id}`}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={cn(
-                        "flex w-full group relative",
-                        isMe ? "justify-end" : "justify-start",
-                        isLastInGroup && "mb-3",
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex max-w-[85%] md:max-w-[70%] items-end gap-1.5",
-                          isMe ? "flex-row-reverse" : "flex-row",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "relative flex flex-col min-w-[60px]",
-                            isMe ? "items-end" : "items-start",
-                          )}
-                        >
-                          <ContextMenu>
-                            <ContextMenuTrigger>
-                              <div
-                                className={cn(
-                                  "relative px-3 py-1.5 shadow-sm text-[15px] leading-[1.4] transition-all",
-                                  isMe
-                                    ? "bg-[#8774e1] text-white border border-[#7059d0]"
-                                    : "bg-white text-zinc-900 dark:bg-[#212121] dark:text-white",
-
-                                  "rounded-[15px]",
-                                  msg.isOptimistic &&
-                                    "opacity-60 grayscale-[0.5]",
-                                )}
-                              >
-                                {msg.media?.length > 0 &&
-                                  msg.type !== "voice" && (
-                                    <div
-                                      className={cn(
-                                        "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
-                                        !msg.text && "-mb-1.5",
-                                        msg.text && "mb-1.5",
-                                        "rounded-[15px]",
-                                      )}
-                                    >
-                                      {msg.media.map((m: any, i: number) => (
-                                        <div
-                                          key={i}
-                                          className="relative group/media min-w-[280px] md:min-w-[400px]"
-                                        >
-                                          {msg.type === "video" ? (
-                                            <div className="aspect-video w-full bg-black">
-                                              <VideoPlayer
-                                                src={m.url}
-                                                poster={m.poster}
-                                              />
-                                            </div>
-                                          ) : (
-                                            <img
-                                              src={m.url}
-                                              className="max-h-[400px] md:max-h-[500px] w-full object-cover cursor-pointer hover:brightness-95 transition-all"
-                                              onClick={() =>
-                                                handleImageClick(msg)
-                                              }
-                                            />
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                {msg.type === "voice" && msg.media?.[0] && (
-                                  <React.Suspense
-                                    fallback={
-                                      <div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
-                                    }
-                                  >
-                                    <VoiceMessage
-                                      url={msg.media[0].url}
-                                      duration={msg.media[0].duration}
-                                      isMe={isMe}
-                                    />
-                                  </React.Suspense>
-                                )}
-
-                                {msg.text && msg.type !== "voice" && (
-                                  <div className="whitespace-pre-wrap break-words pr-12">
-                                    <Linkify
-                                      options={{
-                                        ...linkifyOptions,
-                                        className: "underline",
-                                      }}
-                                    >
-                                      {msg.text}
-                                    </Linkify>
-                                  </div>
-                                )}
-
-                                {(msg.text || msg.type === "voice") && (
-                                  <div
-                                    className={cn(
-                                      "absolute bottom-1 right-1.5 flex items-center gap-0.5 select-none",
-                                      isMe ? "text-white/70" : "text-[#aaaaaa]",
-                                    )}
-                                  >
-                                    <span className="text-[10px]">
-                                      {msg.isOptimistic
-                                        ? "sending..."
-                                        : msg.time}
-                                    </span>
-                                    {isMe &&
-                                      !msg.isOptimistic &&
-                                      (msg.isRead ? (
-                                        <CheckCheck
-                                          size={13}
-                                          className="text-white"
-                                        />
-                                      ) : (
-                                        <Check
-                                          size={13}
-                                          className="text-white/60"
-                                        />
-                                      ))}
-                                  </div>
-                                )}
-                              </div>{" "}
-                            </ContextMenuTrigger>
-                            <ContextMenuContent>
-                              <ContextMenuItem
-                                onSelect={() => setReplyingTo(msg)}
-                              >
-                                Reply
-                              </ContextMenuItem>
-                              <ContextMenuItem
-                                onSelect={() =>
-                                  navigator.clipboard.writeText(msg.text)
-                                }
-                              >
-                                Copy
-                              </ContextMenuItem>
-                              {isMe && (
-                                <ContextMenuItem
-                                  onSelect={() => setEditingMessage(msg)}
-                                >
-                                  Edit
-                                </ContextMenuItem>
-                              )}
-                              <ContextMenuSeparator />
-                              <ContextMenuItem
-                                onSelect={() => onDeleteMessage?.(msg.id)}
-                                className="text-red-500"
-                              >
-                                Delete
-                              </ContextMenuItem>
-                            </ContextMenuContent>
-                          </ContextMenu>
-
-                          {msg.reactions && msg.reactions.length > 0 && (
-                            <div className={cn("mt-1", isMe ? "mr-1" : "ml-1")}>
-                              <MessageReactions
-                                reactions={msg.reactions}
-                                currentUser={currentUser}
-                                onToggle={(e) => onToggleReaction?.(msg.id, e)}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
+                      msg={msg}
+                      isMe={isMe}
+                      isLastInGroup={isLastInGroup}
+                      setReplyingTo={setReplyingTo}
+                      handleImageClick={handleImageClick}
+                      handleVoiceMessage={handleVoiceMessage}
+                      onDeleteMessage={onDeleteMessage}
+                      setEditingMessage={setEditingMessage}
+                      onToggleReaction={onToggleReaction}
+                      currentUser={currentUser}
+                    />
                   );
                 })}
               </div>
