@@ -137,6 +137,7 @@ interface AddPostParams {
   poll?: any;
   parentId?: string | null;
   communityId?: string | null;
+  quotedPostId?: string | null;
 }
 
 export const incrementPostViews = async (postId: string): Promise<void> => {
@@ -159,6 +160,7 @@ export const addPost = async ({
   poll = null,
   parentId = null,
   communityId = null,
+  quotedPostId = null,
 }: AddPostParams): Promise<Post | null> => {
   const { data, error } = await (supabase.from("posts") as any).insert([
     {
@@ -169,6 +171,7 @@ export const addPost = async ({
       poll,
       parent_id: parentId,
       community_id: communityId,
+      quoted_post_id: quotedPostId,
     },
   ]).select(`
             *,
@@ -503,4 +506,18 @@ export const fetchReels = async (
 
   if (error) throw error;
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
+};
+
+export const votePoll = async (
+  postId: string,
+  optionId: string,
+  userId: string,
+): Promise<any> => {
+  const { data, error } = await (supabase.rpc as any)("vote_poll", {
+    p_post_id: postId,
+    p_option_id: optionId,
+    p_user_id: userId,
+  });
+  if (error) throw error;
+  return data;
 };

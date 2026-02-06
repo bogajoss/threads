@@ -24,17 +24,17 @@ const Button: React.FC<ButtonProps> = ({
 
   const variants = {
     primary:
-      "text-white bg-zinc-900 hover:bg-zinc-800 border border-zinc-900 dark:bg-white dark:text-black dark:border-white dark:hover:bg-zinc-200",
+      "text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 border-none",
     secondary:
-      "text-zinc-900 border border-zinc-200 bg-white hover:bg-zinc-50 dark:text-white dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800",
+      "text-zinc-900 bg-zinc-100 hover:bg-zinc-200 dark:text-white dark:bg-zinc-900 dark:hover:bg-zinc-800 border-none",
     outline:
       "text-zinc-900 border border-zinc-200 bg-transparent hover:bg-zinc-50 dark:text-white dark:border-zinc-800 dark:hover:bg-zinc-900",
     danger:
-      "text-white bg-rose-500 hover:bg-rose-600 border border-rose-500 shadow-rose-500/10 hover:shadow-rose-500/20",
+      "text-white bg-rose-500 hover:bg-rose-600 border-none shadow-rose-500/10 hover:shadow-rose-500/20",
     ghost:
       "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 border-transparent shadow-none hover:shadow-none",
     violet:
-      "text-white bg-violet-600 hover:bg-violet-700 border border-violet-600 shadow-violet-600/20 hover:shadow-violet-600/30",
+      "text-white bg-violet-600 hover:bg-violet-700 border-none shadow-violet-600/20 hover:shadow-violet-600/30",
   };
 
   const sizes = {

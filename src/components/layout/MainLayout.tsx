@@ -5,6 +5,7 @@ import SidebarRight from "./SidebarRight";
 import BottomNav from "./BottomNav";
 import FeedHeader from "./FeedHeader";
 import { useTheme } from "@/context/ThemeContext";
+import { cn } from "@/lib/utils";
 
 const MainLayout: React.FC<Record<string, never>> = () => {
   const location = useLocation();
@@ -26,7 +27,10 @@ const MainLayout: React.FC<Record<string, never>> = () => {
 
   return (
     <div
-      className={`min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 ${darkMode ? "dark" : ""}`}
+      className={cn(
+        "min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200",
+        darkMode && "dark"
+      )}
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
         <SidebarLeft />

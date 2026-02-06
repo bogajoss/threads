@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { AlertCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { AlertCircle, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { checkUsernameAvailability } from "@/lib/api";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -23,8 +24,34 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [usernameStatus, setUsernameStatus] = useState<{
+    loading: boolean;
+    available: boolean | null;
+  }>({ loading: false, available: null });
+
+  useEffect(() => {
+    if (type === "signup" && formData.username.length >= 5) {
+      const timer = setTimeout(async () => {
+        setUsernameStatus({ loading: true, available: null });
+        try {
+          const isAvailable = await checkUsernameAvailability(formData.username);
+          setUsernameStatus({ loading: false, available: isAvailable });
+        } catch {
+          setUsernameStatus({ loading: false, available: null });
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setUsernameStatus({ loading: false, available: null });
+    }
+  }, [formData.username, type]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (type === "signup" && (usernameStatus.available === false || formData.username.length < 5)) {
+      addToast(formData.username.length < 5 ? "Username must be at least 5 characters" : "Please choose a different username", "error");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -104,16 +131,27 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
               }
               required
             />
-            <Input
-              label="Username"
-              placeholder="johndoe"
-              value={formData.username}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const value = e.target.value.replace(/[^a-zA-Z0-9_]/g, "");
-                setFormData({ ...formData, username: value });
-              }}
-              required
-            />
+            <div className="relative">
+              <Input
+                label="Username"
+                placeholder="johndoe"
+                value={formData.username}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "");
+                  setFormData({ ...formData, username: value });
+                }}
+                required
+              />
+              <div className="absolute right-3 top-[38px]">
+                {usernameStatus.loading ? (
+                  <Loader2 className="size-4 animate-spin text-zinc-400" />
+                ) : usernameStatus.available === true ? (
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                ) : usernameStatus.available === false ? (
+                  <XCircle size={18} className="text-rose-500" />
+                ) : null}
+              </div>
+            </div>
           </>
         )}
 
@@ -132,6 +170,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           type="submit"
           className="mt-6 w-full justify-center py-3 text-lg"
           loading={loading}
+          disabled={type === "signup" && (usernameStatus.available === false || formData.username.length < 5)}
         >
           {type === "login" ? "Log in" : "Sign up"}
         </Button>

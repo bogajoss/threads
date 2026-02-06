@@ -176,6 +176,32 @@ export const useChatMessages = (
       messageId: string;
       content: string;
     }) => editMessageApi(messageId, content),
+    onMutate: async ({ messageId, content }) => {
+      await queryClient.cancelQueries({
+        queryKey: ["messages", activeConversationId],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "messages",
+        activeConversationId,
+      ]);
+
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: any[]) =>
+              page.map((m: any) =>
+                m.id === messageId ? { ...m, content } : m
+              )
+            ),
+          };
+        }
+      );
+
+      return { previousMessages };
+    },
     onSuccess: (updatedMessage) => {
       if (!updatedMessage) return;
       queryClient.invalidateQueries({
@@ -185,13 +211,47 @@ export const useChatMessages = (
         queryKey: ["conversations", currentUser?.id],
       });
     },
-    onError: () => {
+    onError: (_err, _vars, context) => {
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        context?.previousMessages
+      );
       addToast("Failed to edit message", "error");
     },
   });
 
   const onToggleReaction = async (messageId: string, emoji: string) => {
-    if (!currentUser?.id) return;
+    if (!currentUser?.id || !activeConversationId) return;
+
+    await queryClient.cancelQueries({
+      queryKey: ["reactions", activeConversationId],
+    });
+    const previousReactions = queryClient.getQueryData<Reaction[]>([
+      "reactions",
+      activeConversationId,
+    ]);
+
+    const existingReaction = previousReactions?.find(
+      (r) => r.message_id === messageId && r.user_id === currentUser.id && r.emoji === emoji
+    );
+
+    queryClient.setQueryData<Reaction[]>(
+      ["reactions", activeConversationId],
+      (old = []) => {
+        if (existingReaction) {
+          return old.filter((r) => r.id !== existingReaction.id);
+        }
+        const optimisticReaction: Reaction = {
+          id: `temp-${Date.now()}`,
+          message_id: messageId,
+          user_id: currentUser.id,
+          emoji,
+          created_at: new Date().toISOString(),
+        };
+        return [...old, optimisticReaction];
+      }
+    );
+
     try {
       await toggleMessageReaction(messageId, currentUser.id, emoji);
       queryClient.invalidateQueries({
@@ -199,24 +259,56 @@ export const useChatMessages = (
       });
     } catch (err) {
       console.error("Failed to toggle reaction:", err);
+      queryClient.setQueryData(
+        ["reactions", activeConversationId],
+        previousReactions
+      );
       addToast("Failed to update reaction", "error");
     }
   };
 
-  const onDeleteMessage = async (messageId: string) => {
-    try {
-      await deleteMessageApi(messageId);
+  const deleteMutation = useMutation({
+    mutationFn: (messageId: string) => deleteMessageApi(messageId),
+    onMutate: async (messageId) => {
+      await queryClient.cancelQueries({
+        queryKey: ["messages", activeConversationId],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "messages",
+        activeConversationId,
+      ]);
+
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: any[]) =>
+              page.filter((m: any) => m.id !== messageId)
+            ),
+          };
+        }
+      );
+
+      return { previousMessages };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["messages", activeConversationId],
       });
       queryClient.invalidateQueries({
         queryKey: ["conversations", currentUser?.id],
       });
-    } catch (err) {
-      console.error("Failed to delete message:", err);
+    },
+    onError: (_err, _messageId, context) => {
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        context?.previousMessages
+      );
       addToast("Failed to delete message", "error");
-    }
-  };
+    },
+  });
 
   const flatMessages = useMemo(() => {
     const pages = messagesData?.pages.flatMap((page) => page) || [];
@@ -242,7 +334,7 @@ export const useChatMessages = (
     isSending: sendMutation.isPending,
     isEditing: editMutation.isPending,
     onToggleReaction,
-    onDeleteMessage,
+    onDeleteMessage: (messageId: string) => deleteMutation.mutate(messageId),
     conversationReactions,
     formatMessages,
   };

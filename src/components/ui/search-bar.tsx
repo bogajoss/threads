@@ -24,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       />
       <input
         data-search-input="true"
-        className="w-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 text-zinc-900 dark:text-white px-11 py-2.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+        className="w-full rounded-full border-none bg-zinc-100 dark:bg-zinc-900/50 text-zinc-900 dark:text-white px-11 py-2.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}

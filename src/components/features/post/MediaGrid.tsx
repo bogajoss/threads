@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 const VideoPlayer = React.lazy(
   () => import("@/components/features/post/VideoPlayer"),
 );
@@ -9,6 +9,27 @@ import type { Media } from "@/types";
 interface MediaGridProps {
   items?: Media[] | Media;
 }
+
+const GridImage = ({ item, onClick }: { item: Media; onClick: (e: React.MouseEvent) => void }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="relative size-full overflow-hidden" onClick={onClick}>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-zinc-200 dark:bg-zinc-800" />
+      )}
+      <img
+        src={item.url || (item as any).src}
+        className={`size-full object-cover transition-all duration-500 hover:scale-[1.02] ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        alt=""
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+      />
+    </div>
+  );
+};
 
 const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
   const { openLightbox } = useLightbox();
@@ -53,12 +74,6 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
               key={idx}
               className={`relative cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${media.length === 3 && idx === 0 ? "row-span-2" : ""}
                                 `}
-              onClick={(e) => {
-                if (item.type === "image") {
-                  e.stopPropagation();
-                  handleImageClick(idx);
-                }
-              }}
             >
               {item.type === "video" ? (
                 <Suspense
@@ -74,11 +89,12 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
                   />
                 </Suspense>
               ) : (
-                <img
-                  src={item.url || (item as any).src}
-                  className="size-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-                  alt=""
-                  loading="lazy"
+                <GridImage 
+                  item={item} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageClick(idx);
+                  }} 
                 />
               )}
             </div>

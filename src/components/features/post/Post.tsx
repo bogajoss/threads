@@ -50,6 +50,7 @@ import {
   deleteComment,
   updateComment,
   incrementPostViews,
+  votePoll,
 } from "@/lib/api";
 import { extractUrl } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
@@ -490,7 +491,12 @@ const Post: React.FC<PostProps> = ({
             setNewFiles={setNewFiles}
           />
 
-          {poll && <PollDisplay poll={poll} />}
+          {poll && (
+            <PollDisplay 
+              poll={poll} 
+              onVote={(optionId) => votePoll(id, optionId, currentUser!.id)} 
+            />
+          )}
           {quotedPost && (
             <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-700">
               <QuotedPost {...quotedPost} />
@@ -622,7 +628,7 @@ const Post: React.FC<PostProps> = ({
       className={`px-4 transition-all ${
         isComment
           ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-          : "py-4 border-b border-zinc-100 bg-white hover:bg-zinc-50/30 dark:border-zinc-800 dark:bg-black dark:hover:bg-white/[0.02]"
+          : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
       } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (

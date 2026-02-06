@@ -106,7 +106,7 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
   }
 
   return (
-    <div className="w-full max-w-full min-h-screen rounded-none border-y border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+    <div className="w-full max-w-full min-h-screen rounded-none border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl">
       <Virtuoso
         useWindowScroll
         data={homePosts}
@@ -143,7 +143,9 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
               onClick={() => handlePostClick(post.id)}
               onUserClick={handleUserClick}
             />
-            {(index + 1) % 5 === 0 && <ReelsRow index={Math.floor((index + 1) / 5)} />}
+            {(index === 4 || (index > 4 && (index - 4) % 25 === 0)) && (
+              <ReelsRow index={Math.floor((index + 1) / 5)} />
+            )}
           </>
         )}
       />

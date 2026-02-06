@@ -12,6 +12,7 @@ import {
   deletePost as deletePostApi,
   updatePost as updatePostApi,
 } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import type { Post } from "@/types/index";
 
 interface PostContextType {
@@ -37,6 +38,7 @@ interface PostProviderProps {
 
 export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
 
   const {
     data,
@@ -64,6 +66,50 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
 
   const addPostMutation = useMutation({
     mutationFn: addPostApi,
+    onMutate: async (newPostData) => {
+      await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
+      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>(["posts", "feed"]);
+
+      if (previousPosts && currentUser) {
+        const optimisticPost: Post = {
+          id: `temp-${Date.now()}`,
+          feed_id: `temp-${Date.now()}`,
+          user_id: currentUser.id,
+          content: newPostData.content,
+          media: newPostData.media || null,
+          type: newPostData.type || "text",
+          poll: newPostData.poll || null,
+          parent_id: newPostData.parentId || null,
+          community_id: newPostData.communityId || null,
+          quoted_post_id: newPostData.quotedPostId || null,
+          created_at: new Date().toISOString(),
+          stats: { comments: 0, likes: 0, reposts: 0, views: 0 },
+          user: currentUser,
+          community: null,
+          repostedBy: null,
+          timeAgo: "just now",
+          sort_timestamp: new Date().toISOString(),
+        };
+
+        queryClient.setQueryData<InfiniteData<Post[]>>(["posts", "feed"], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: [
+              [optimisticPost, ...old.pages[0]],
+              ...old.pages.slice(1),
+            ],
+          };
+        });
+      }
+
+      return { previousPosts };
+    },
+    onError: (_err, _newPost, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts", "feed"], context.previousPosts);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
     },
@@ -104,6 +150,29 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   const updatePostMutation = useMutation({
     mutationFn: ({ postId, data }: { postId: string; data: any }) =>
       updatePostApi(postId, data),
+    onMutate: async ({ postId, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
+      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>(["posts", "feed"]);
+
+      queryClient.setQueryData<InfiniteData<Post[]>>(["posts", "feed"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) =>
+            page.map((post) =>
+              post.id === postId ? { ...post, ...data } : post
+            )
+          ),
+        };
+      });
+
+      return { previousPosts };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["posts", "feed"], context.previousPosts);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
     },

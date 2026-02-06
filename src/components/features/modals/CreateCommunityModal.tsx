@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, Camera, CheckCircle2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { createCommunity } from "@/lib/api";
+import { createCommunity, uploadFile, checkCommunityHandleAvailability } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface CreateCommunityModalProps {
   isOpen: boolean;
@@ -26,8 +27,33 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     name: "",
     handle: "",
     description: "",
+    avatar: "",
     isPrivate: false,
   });
+  const [loading, setLoading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const [handleStatus, setHandleStatus] = useState<{
+    loading: boolean;
+    available: boolean | null;
+  }>({ loading: false, available: null });
+
+  useEffect(() => {
+    if (formData.handle.length >= 5) {
+      const timer = setTimeout(async () => {
+        setHandleStatus({ loading: true, available: null });
+        try {
+          const isAvailable = await checkCommunityHandleAvailability(formData.handle);
+          setHandleStatus({ loading: false, available: isAvailable });
+        } catch {
+          setHandleStatus({ loading: false, available: null });
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setHandleStatus({ loading: false, available: null });
+    }
+  }, [formData.handle]);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => createCommunity(data),
@@ -46,14 +72,34 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     },
   });
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleUpload(file);
+  };
+
+  const handleUpload = async (file: File) => {
+    setLoading(true);
+    try {
+      const res = await uploadFile(file);
+      setFormData((prev) => ({ ...prev, avatar: res.url }));
+      addToast("Icon uploaded!");
+    } catch {
+      addToast("Failed to upload icon", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.handle || !currentUser) return;
+    if (!formData.name || !formData.handle || formData.handle.length < 5 || !currentUser || handleStatus.available === false) return;
 
     createMutation.mutate({
       name: formData.name,
       handle: formData.handle.toLowerCase().replace(/[^a-z0-9_]/g, ""),
       description: formData.description,
+      avatar_url: formData.avatar,
       is_private: formData.isPrivate,
       creator_id: currentUser.id,
     });
@@ -62,18 +108,43 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => !createMutation.isPending && onClose()}
+      onClose={() => !createMutation.isPending && !loading && onClose()}
       title="Create Community"
       className="sm:max-w-md"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-3 flex size-20 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-black">
-            <Users size={32} className="text-violet-600" />
+      <form onSubmit={handleSubmit} className="space-y-5 p-6">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div 
+            className="group relative cursor-pointer"
+            onClick={() => avatarInputRef.current?.click()}
+          >
+            <Avatar className="size-24 border-2 border-dashed border-zinc-200 dark:border-zinc-800 shadow-sm transition-all group-hover:border-violet-500">
+              {formData.avatar ? (
+                <AvatarImage src={formData.avatar} className="object-cover" />
+              ) : (
+                <AvatarFallback className="bg-zinc-50 dark:bg-zinc-900">
+                  <Users size={32} className="text-zinc-300" />
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              {loading ? (
+                <Loader2 size={24} className="animate-spin text-white" />
+              ) : (
+                <Camera size={24} className="text-white" />
+              )}
+            </div>
           </div>
-          <p className="max-w-[200px] text-center text-xs font-medium text-zinc-500">
-            Communities are where people with shared interests connect.
+          <p className="text-center text-xs font-bold text-zinc-500 uppercase tracking-widest">
+            Community Icon
           </p>
+          <input
+            type="file"
+            ref={avatarInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
         </div>
 
         <div className="space-y-4">
@@ -82,7 +153,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             <input
               type="text"
               required
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 dark:border-zinc-800 dark:bg-zinc-900"
+              className="w-full rounded-xl border-none bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
               placeholder="e.g. Photography Enthusiasts"
               value={formData.name}
               onChange={(e) =>
@@ -100,7 +171,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
               <input
                 type="text"
                 required
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 dark:border-zinc-800 dark:bg-zinc-900"
+                className="w-full rounded-xl border-none bg-zinc-50 dark:bg-zinc-900 pl-8 pr-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                 placeholder="photography"
                 value={formData.handle}
                 onChange={(e) =>
@@ -112,6 +183,15 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
                   })
                 }
               />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                {handleStatus.loading ? (
+                  <Loader2 className="size-4 animate-spin text-zinc-400" />
+                ) : handleStatus.available === true ? (
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                ) : handleStatus.available === false ? (
+                  <XCircle size={18} className="text-rose-500" />
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -120,7 +200,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
               Description (Optional)
             </label>
             <textarea
-              className="min-h-[100px] w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 dark:border-zinc-800 dark:bg-zinc-900"
+              className="min-h-[100px] w-full resize-none rounded-xl border-none bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 outline-none transition-all focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
               placeholder="What is this community about?"
               value={formData.description}
               onChange={(e) =>
@@ -129,7 +209,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex items-center justify-between rounded-xl bg-zinc-50 dark:bg-zinc-900 p-4">
             <div className="flex flex-col">
               <span className="text-sm font-bold">Private Community</span>
               <span className="text-[10px] text-zinc-500">
@@ -153,7 +233,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             variant="outline"
             className="flex-1"
             onClick={onClose}
-            disabled={createMutation.isPending}
+            disabled={createMutation.isPending || loading}
           >
             Cancel
           </Button>
@@ -161,7 +241,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             type="submit"
             className="flex-1"
             disabled={
-              createMutation.isPending || !formData.name || !formData.handle
+              createMutation.isPending || loading || !formData.name || !formData.handle || formData.handle.length < 5 || handleStatus.available === false
             }
           >
             {createMutation.isPending ? (

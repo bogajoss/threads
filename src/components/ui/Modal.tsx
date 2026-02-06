@@ -47,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({
       >
         <DialogHeader
           className={cn(
-            "shrink-0 border-b border-zinc-100 px-5 py-4 dark:border-zinc-800",
+            "shrink-0 px-5 py-4",
             !title && "sr-only",
           )}
         >
@@ -66,7 +66,7 @@ const Modal: React.FC<ModalProps> = ({
         </div>
 
         {footer && (
-          <DialogFooter className="shrink-0 border-t border-zinc-100 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <DialogFooter className="shrink-0 bg-white px-5 py-4 dark:bg-zinc-900">
             {footer}
           </DialogFooter>
         )}

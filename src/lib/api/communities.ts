@@ -247,3 +247,13 @@ export const updateMemberRole = async (
   if (error) throw error;
   return data;
 };
+
+export const checkCommunityHandleAvailability = async (handle: string): Promise<boolean> => {
+  if (!handle) return false;
+  const { count, error } = await (supabase.from("communities") as any)
+    .select("*", { count: "exact", head: true })
+    .ilike("handle", handle);
+
+  if (error) throw error;
+  return count === 0;
+};

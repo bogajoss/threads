@@ -271,3 +271,14 @@ export const fetchFollowStats = async (
     following: (data as any).following_count || 0,
   };
 };
+
+export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  if (!username) return false;
+  const { count, error } = await supabase
+    .from("users")
+    .select("*", { count: "exact", head: true })
+    .ilike("username", username);
+
+  if (error) throw error;
+  return count === 0;
+};

@@ -56,7 +56,7 @@ const SidebarRight = () => {
           {themeToggleBtn}
         </div>
 
-        <div className="rounded-2xl border border-[--border] bg-[--card] overflow-hidden">
+        <div className="rounded-2xl overflow-hidden">
           <h3 className="px-4 pt-4 pb-2 text-xl font-black text-[--foreground]">
             What's happening
           </h3>
