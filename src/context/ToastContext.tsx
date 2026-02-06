@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,11 +13,6 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  /**
-   * Adds a toast message using Sonner.
-   * @param {string} message - The message to display.
-   * @param {string} type - 'success' | 'error' | 'info'
-   */
   const addToast = (
     message: string,
     type: "success" | "error" | "info" = "success",

@@ -39,7 +39,6 @@ const ConversationItem: React.FC<ConversationProps> = ({
           : "hover:bg-zinc-100 dark:hover:bg-zinc-900/80",
       )}
     >
-      {/* Avatar Section */}
       <div className="relative shrink-0">
         <Avatar
           className={cn(
@@ -61,9 +60,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
         )}
       </div>
 
-      {/* Content Section */}
       <div className="min-w-0 flex-1 flex flex-col justify-center py-1">
-        {/* Title Row */}
         <div className="flex items-center justify-between gap-1">
           <span
             className={cn(
@@ -86,7 +83,6 @@ const ConversationItem: React.FC<ConversationProps> = ({
           </span>
         </div>
 
-        {/* Subtitle Row */}
         <div className="flex items-center justify-between gap-2 mt-0.5">
           {isTyping ? (
             <p
@@ -189,7 +185,6 @@ const ChatList: React.FC<ChatListProps> = ({
 
   return (
     <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-white dark:bg-[#0f0f0f] h-full shadow-inner">
-      {/* Header & Search */}
       <div className="px-4 md:px-4 pt-4 pb-2 shrink-0 w-full overflow-hidden">
         <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1 group min-w-0">
@@ -213,7 +208,6 @@ const ChatList: React.FC<ChatListProps> = ({
           </button>
         </div>
 
-        {/* Telegram Style Tabs (Folders) */}
         <div className="flex items-center gap-1 border-b border-zinc-100 dark:border-zinc-800 mb-1">
           {tabs.map((tab) => (
             <button
@@ -243,7 +237,6 @@ const ChatList: React.FC<ChatListProps> = ({
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full min-w-0">
           <div className="flex flex-col pb-4 min-w-0">
-            {/* Active Now / Stories - Only on All Tab */}
             {!searchQuery && activeTab === "all" && activeUsers.length > 0 && (
               <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
                 <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
@@ -292,7 +285,6 @@ const ChatList: React.FC<ChatListProps> = ({
               </div>
             )}
 
-            {/* Messages List */}
             <div className="px-2 space-y-0.5 mt-2">
               {filteredByTab.length > 0 &&
                 filteredByTab
@@ -314,7 +306,6 @@ const ChatList: React.FC<ChatListProps> = ({
                   ))}
             </div>
 
-            {/* Search Results for Users */}
             {userResults.length > 0 && (
               <>
                 <div className="px-6 py-3 mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -353,7 +344,6 @@ const ChatList: React.FC<ChatListProps> = ({
               </>
             )}
 
-            {/* Empty States */}
             {conversations.length === 0 &&
               userResults.length === 0 &&
               searchQuery && (
@@ -374,7 +364,6 @@ const ChatList: React.FC<ChatListProps> = ({
         isOpen={isCreateGroupOpen}
         onClose={() => setIsCreateGroupOpen(false)}
         onCreated={(convId) => {
-          // Force a selection of the new group
           onSelect({ id: convId, isGroup: true });
         }}
       />

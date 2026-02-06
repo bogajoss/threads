@@ -25,7 +25,6 @@ export const useAudioRecorder = (): AudioRecorderHook => {
   const timerIntervalRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timerIntervalRef.current) {
@@ -36,7 +35,6 @@ export const useAudioRecorder = (): AudioRecorderHook => {
         mediaRecorderRef.current.state !== "inactive"
       ) {
         mediaRecorderRef.current.stop();
-        // Stop all tracks in the stream
         mediaRecorderRef.current.stream
           .getTracks()
           .forEach((track) => track.stop());
@@ -122,13 +120,12 @@ export const useAudioRecorder = (): AudioRecorderHook => {
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.onstop = null; // Prevent creating blob
+      mediaRecorderRef.current.onstop = null;
       setIsRecording(false);
       setIsPaused(false);
       stopTimer();
       setRecordingTime(0);
 
-      // Stop all tracks
       if (mediaRecorderRef.current.stream) {
         mediaRecorderRef.current.stream
           .getTracks()

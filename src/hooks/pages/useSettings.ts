@@ -82,7 +82,6 @@ export const useSettings = () => {
   };
 
   const handleClearCache = () => {
-    // In a real app, this would clear temporary stored data, not necessarily session
     const keysToRemove = ["seenStories", "font-size", "data-saver", "theme"];
     keysToRemove.forEach((key) => localStorage.removeItem(key));
     addToast("Cache cleared! Reloading...");
@@ -93,7 +92,6 @@ export const useSettings = () => {
     if (!currentUser) return;
     setLoading(true);
     try {
-      // Mock data fetching for export
       const data = {
         user: {
           id: currentUser.id,

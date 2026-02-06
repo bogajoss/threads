@@ -100,12 +100,10 @@ export const useChatRealtime = (
         if (userId !== currentUser.id) {
           setTypingStatus((prev) => ({ ...prev, [conversationId]: isTyping }));
 
-          // Clear existing timeout
           if (typingTimeoutsRef.current[conversationId]) {
             window.clearTimeout(typingTimeoutsRef.current[conversationId]);
           }
 
-          // If they are typing, set a safety timeout to clear it after 5 seconds
           if (isTyping) {
             typingTimeoutsRef.current[conversationId] = window.setTimeout(
               () => {
@@ -126,7 +124,6 @@ export const useChatRealtime = (
     return () => {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(typingChannel);
-      // Clean up timeouts
       Object.values(typingTimeoutsRef.current).forEach(window.clearTimeout);
     };
   }, [currentUser?.id, queryClient, activeConversationId, markAsRead]);

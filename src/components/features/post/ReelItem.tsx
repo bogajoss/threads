@@ -21,7 +21,7 @@ import {
 } from "@/components/ui";
 
 interface ReelItemProps {
-  reel: any; // Using any for reel as it's complex, better to define Key interface later
+  reel: any;
   isActive: boolean;
   isMuted: boolean;
   onToggleMute?: () => void;
@@ -60,7 +60,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           timeoutId = setTimeout(() => {
             if (typeof player.play === "function") {
               player.play().catch(() => {
-                // Ignore play error, try muted
                 if (player) {
                   player.muted = true;
                   player.play().catch(() => {});
@@ -80,7 +79,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       };
     }, [isActive]);
 
-    // Fetch initial interaction status
     useEffect(() => {
       if (!currentUser?.id || !isActive) return;
 
@@ -100,14 +98,12 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       checkStatus();
     }, [reel.id, currentUser?.id, isActive, reel.user?.id]);
 
-    // Sync mute state
     useEffect(() => {
       if (playerRef.current?.plyr) {
         playerRef.current.plyr.muted = isMuted;
       }
     }, [isMuted]);
 
-    // Track progress
     useEffect(() => {
       const player = playerRef.current?.plyr;
       if (!player || !isActive) return;
@@ -130,7 +126,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       }
     }, [isActive]);
 
-    // Cleanup timer on unmount
     useEffect(() => {
       return () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
@@ -138,7 +133,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     }, []);
 
     const handleInteraction = (e: React.MouseEvent) => {
-      // Don't trigger if clicked on interactive elements
       const target = e.target as HTMLElement;
       if (
         target.closest("button") ||
@@ -148,16 +142,14 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         return;
 
       if (clickTimer.current) {
-        // Double Tap Detected
         clearTimeout(clickTimer.current);
         clickTimer.current = null;
         handleDoubleLike();
       } else {
-        // Snappier Single Tap detection
         clickTimer.current = setTimeout(() => {
           clickTimer.current = null;
           handleTogglePlay();
-        }, 250); // Slightly more time for double-tap recognition
+        }, 250);
       }
     };
 
@@ -171,7 +163,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           player.pause();
           setShowPlayPauseIcon("pause");
         }
-        // Auto-hide icon
         setTimeout(() => setShowPlayPauseIcon(null), 800);
       }
     };
@@ -238,7 +229,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         options: {
           controls: [],
           loop: { active: true },
-          clickToPlay: false, // Important: disable Plyr's default click to avoid conflict
+          clickToPlay: false,
           ratio: "9:16",
         },
       }),
@@ -430,7 +421,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             </div>
           </div>
 
-          {/* Video Progress Bar */}
           <div className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20">
             <div
               className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-100 ease-linear"

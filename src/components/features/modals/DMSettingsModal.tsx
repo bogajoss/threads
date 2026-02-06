@@ -19,7 +19,7 @@ import { deleteConversation } from "@/lib/api";
 interface DMSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: any; // The other user in the DM
+  user: any;
   conversationId: string;
 }
 
@@ -73,7 +73,6 @@ const DMSettingsModal: React.FC<DMSettingsModalProps> = ({
     >
       <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
         <div className="space-y-6">
-          {/* User Profile Info */}
           <div className="flex flex-col items-center gap-4 border-b border-zinc-100 pb-6 dark:border-zinc-800">
             <Avatar className="size-24 border-4 border-white shadow-xl dark:border-zinc-900">
               <AvatarImage src={user.avatar} className="object-cover" />
@@ -102,7 +101,6 @@ const DMSettingsModal: React.FC<DMSettingsModalProps> = ({
             </Button>
           </div>
 
-          {/* Bio / About Section */}
           {(user.bio || user.location || user.website) && (
             <div className="space-y-3 px-1">
               <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -141,7 +139,6 @@ const DMSettingsModal: React.FC<DMSettingsModalProps> = ({
             </div>
           )}
 
-          {/* Actions */}
           <div className="space-y-2 pt-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 px-1 mb-2">
               Privacy & Support

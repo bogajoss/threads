@@ -7,9 +7,6 @@ export interface Hashtag {
   created_at: string;
 }
 
-/**
- * Fetches the most popular hashtags.
- */
 export const fetchTrendingHashtags = async (
   limit: number = 5,
 ): Promise<Hashtag[]> => {

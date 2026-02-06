@@ -10,9 +10,6 @@ import type {
   Conversation,
 } from "@/types/index";
 
-/**
- * Transforms a Supabase user object into the application's user format.
- */
 export const transformUser = (supabaseUser: any): User | null => {
   if (!supabaseUser) return null;
 
@@ -32,19 +29,12 @@ export const transformUser = (supabaseUser: any): User | null => {
   };
 };
 
-/**
- * Transforms a Supabase post object into the application's post format.
- */
 export const transformPost = (post: any): Post | null => {
   if (!post) return null;
 
-  // Generate a unique feed_id for React keys if not provided by the view
   const reposterId =
     post.reposter_id || post.reposter_data?.id || post.reposted_by?.id;
 
-  // Use the feed_id from the view if available, otherwise construct a stable one
-  // We append a timestamp to ensure uniqueness if the same post/repost appears multiple times
-  // (e.g. in different search contexts), but we keep it stable based on the data.
   const timestamp = new Date(post.sort_timestamp || post.created_at).getTime();
   const baseKey =
     post.feed_id ||
@@ -52,11 +42,11 @@ export const transformPost = (post: any): Post | null => {
   const uniqueKey = `${baseKey}-${timestamp}`;
 
   const user = transformUser(post.author_data || post.user);
-  if (!user) return null; // Post needs a user
+  if (!user) return null;
 
   return {
     ...post,
-    feed_id: uniqueKey, // Always ensure this exists
+    feed_id: uniqueKey,
     stats: {
       comments: post.comments_count || 0,
       likes: post.likes_count || 0,
@@ -64,7 +54,6 @@ export const transformPost = (post: any): Post | null => {
       views: post.views_count || 0,
       shares: post.shares_count || 0,
     },
-    // Handle data from either direct table query or unified view
     user: user,
     community:
       post.community_data || post.communities
@@ -93,9 +82,6 @@ export const transformPost = (post: any): Post | null => {
   };
 };
 
-/**
- * Transforms a Supabase comment object.
- */
 export const transformComment = (comment: any): Comment | null => {
   if (!comment) return null;
 
@@ -114,9 +100,6 @@ export const transformComment = (comment: any): Comment | null => {
   };
 };
 
-/**
- * Transforms a Supabase notification object.
- */
 export const transformNotification = (n: any): Notification | null => {
   if (!n) return null;
   return {
@@ -126,23 +109,17 @@ export const transformNotification = (n: any): Notification | null => {
   };
 };
 
-/**
- * Transforms a Supabase story object.
- */
 export const transformStory = (s: any): Story | null => {
   if (!s) return null;
   const user = transformUser(s.user);
   if (!user) return null;
   return {
     ...s,
-    media: s.media_url, // Map media_url to media for the UI
+    media: s.media_url,
     user: user,
   };
 };
 
-/**
- * Transforms a Supabase community object.
- */
 export const transformCommunity = (c: any): Community | null => {
   if (!c) return null;
   return {
@@ -161,9 +138,6 @@ export const transformCommunity = (c: any): Community | null => {
   };
 };
 
-/**
- * Transforms a Supabase message object.
- */
 export const transformMessage = (m: any): Message | null => {
   if (!m) return null;
   return {
@@ -180,9 +154,6 @@ export const transformMessage = (m: any): Message | null => {
   };
 };
 
-/**
- * Transforms a Supabase conversation participant object into a conversation object.
- */
 export const transformConversation = (
   item: any,
   currentUserId: string,
@@ -190,7 +161,6 @@ export const transformConversation = (
   if (!item || !item.conversation) return null;
   const conv = item.conversation;
 
-  // For DMs, find the other participant.
   const otherParticipant = !conv.is_group
     ? conv.participants?.find((p: any) => p.user?.id !== currentUserId) ||
       conv.participants?.[0]
@@ -207,9 +177,7 @@ export const transformConversation = (
     );
   }).length;
 
-  // Heuristic: If it's a group, we'd ideally want the last sender's name.
-  // For now, we'll mark if the last message was from the current user.
-  const lastMessage = messages[0]; // Assuming order or we just use conv.last_message_content
+  const lastMessage = messages[0];
   const isLastMessageFromMe = lastMessage?.sender_id === currentUserId;
 
   return {
@@ -225,7 +193,7 @@ export const transformConversation = (
     user: otherParticipant ? transformUser(otherParticipant.user) : null,
     lastMessage: conv.last_message_content || "No messages yet",
     lastMessageAt: conv.last_message_at,
-    lastMessageSender: null, // Placeholder for future expansion
+    lastMessageSender: null,
     currentUserSent: isLastMessageFromMe,
     time: conv.last_message_at
       ? new Date(conv.last_message_at).toLocaleTimeString([], {
@@ -234,6 +202,6 @@ export const transformConversation = (
         })
       : "",
     unread: unreadCount,
-    isMuted: false, // Default
+    isMuted: false,
   };
 };

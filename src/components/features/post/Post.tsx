@@ -92,11 +92,6 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
 
   const displayAvatars = avatars.slice(0, 3);
 
-  // Positioning patterns for Threads-style reply avatars
-  // 1 avatar: centered
-  // 2 avatars: diagonal
-  // 3 avatars: triangle
-
   return (
     <div className="relative mt-2 h-7 w-7">
       {displayAvatars.map((avatar, i) => {
@@ -303,17 +298,16 @@ const Post: React.FC<PostProps> = ({
     refetch: refetchReplies,
   } = useComments(post_id || id, [], showReplies ? id : undefined);
 
-  // View Tracking
   const { ref: viewRef, inView } = useInView({
-    threshold: 0.5, // 50% visibility
-    triggerOnce: true, // Only count once per mount
+    threshold: 0.5,
+    triggerOnce: true,
   });
 
   useEffect(() => {
     if (inView && !isComment) {
       const timer = setTimeout(() => {
         incrementPostViews(id).catch(console.error);
-      }, 1500); // Count as view after 1.5 seconds
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [inView, id, isComment]);
@@ -339,14 +333,12 @@ const Post: React.FC<PostProps> = ({
 
     setIsUpdating(true);
     try {
-      // 1. Upload new files if any
       const uploadedNewMedia = [];
       for (const file of newFiles) {
         const res = await uploadFile(file);
         uploadedNewMedia.push(res);
       }
 
-      // 2. Combine remaining old media + new uploaded media
       const finalMedia = [...editedMedia, ...uploadedNewMedia];
 
       if (isComment) {
@@ -425,8 +417,6 @@ const Post: React.FC<PostProps> = ({
 
   const handleReplyClick = (handle: string, commentId?: string) => {
     if (commentId) {
-      // If this is already a comment (reply), its parent_id is the main thread.
-      // If it has no parent_id, it IS the main thread.
       const targetParentId = isComment ? parent_id || id : commentId;
       setReplyTo({ handle, id: targetParentId });
     } else {
@@ -435,7 +425,7 @@ const Post: React.FC<PostProps> = ({
     setNewComment((prev) => {
       const mention = `@${handle} `;
       if (prev.includes(mention)) return prev;
-      return mention + prev; // Prepend mention for clarity
+      return mention + prev;
     });
     document.getElementById("comment-input")?.focus();
   };
@@ -584,7 +574,6 @@ const Post: React.FC<PostProps> = ({
                   onReply={handleReplyClick}
                   onUserClick={onUserClick}
                   currentUser={currentUser}
-                  // Fix missing props
                   stats={{
                     likes: c.stats?.likes || 0,
                     comments: c.stats?.comments || 0,
@@ -673,7 +662,6 @@ const Post: React.FC<PostProps> = ({
               </AvatarFallback>
             </Avatar>
           </div>
-          {/* Vertical line connector (Threads style) */}
           {((!isComment && localStats.comments > 0) ||
             (isComment && !parent_id && localStats.comments > 0)) && (
             <>
@@ -734,7 +722,6 @@ const Post: React.FC<PostProps> = ({
             contentClass={contentClass}
           />
 
-          {/* Attachments */}
           {extractUrl(content) && <LinkPreview url={extractUrl(content)!} />}
           <PostMedia
             media={media}
@@ -789,10 +776,8 @@ const Post: React.FC<PostProps> = ({
             }}
           />
 
-          {/* Nested Replies */}
           {showReplies && (
             <div className="relative mt-2 space-y-0">
-              {/* Vertical connector line for the whole group */}
               <div className="absolute left-[19px] top-0 bottom-4 w-0.5 bg-zinc-100 dark:bg-zinc-800" />
 
               {loadingReplies ? (
@@ -803,7 +788,6 @@ const Post: React.FC<PostProps> = ({
                 <div className="flex flex-col">
                   {replies.map((reply) => (
                     <div key={reply.id} className="relative">
-                      {/* Horizontal small elbow connector */}
                       <div className="absolute left-[19px] top-5 h-0.5 w-4 bg-zinc-100 dark:bg-zinc-800" />
                       <div className="pl-6">
                         <Post

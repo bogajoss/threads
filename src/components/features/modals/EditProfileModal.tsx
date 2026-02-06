@@ -25,7 +25,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  // Final files to upload
   const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null);
   const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
 
@@ -107,7 +106,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             }
           />
 
-          {/* Cover Preview */}
           <div
             className="group relative h-32 cursor-pointer overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800"
             onClick={() => coverInputRef.current?.click()}
@@ -130,7 +128,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </div>
           </div>
 
-          {/* Avatar Preview */}
           <div className="relative -mt-16 ml-4">
             <div
               className="group relative size-24 cursor-pointer overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-black dark:bg-black"

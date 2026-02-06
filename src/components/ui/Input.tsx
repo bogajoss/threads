@@ -12,7 +12,6 @@ const Input = React.forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   InputProps
 >(({ className, label, type, textarea, ...props }, ref) => {
-  // Cast to any to handle the dynamic component rendering
   const InputComponent = (textarea ? "textarea" : "input") as React.ElementType;
 
   return (

@@ -28,10 +28,6 @@ interface ShareModalProps {
   title?: string;
 }
 
-/**
- * ShareModal: A premium, polished sharing interface.
- * Features: Social sharing, Link copying, and functional DM sharing.
- */
 const ShareModal: React.FC<ShareModalProps> = ({
   isOpen,
   onClose,
@@ -42,11 +38,10 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [friends, setFriends] = useState<User[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(false);
-  const [sendingTo, setSendingTo] = useState<string | null>(null); // ID of user being sent to
+  const [sendingTo, setSendingTo] = useState<string | null>(null);
   const { addToast } = useToast();
   const { currentUser } = useAuth();
 
-  // Fetch initial friends (people you have conversations with)
   const loadInitialFriends = useCallback(async () => {
     if (!currentUser) return;
     setLoadingFriends(true);
@@ -72,12 +67,10 @@ const ShareModal: React.FC<ShareModalProps> = ({
     }
   }, [isOpen, currentUser, loadInitialFriends]);
 
-  // Search logic: Limit to searching within people you already message
   const handleSearch = useCallback(async () => {
     if (!currentUser) return;
     setLoadingFriends(true);
     try {
-      // First get all conversations to have the current list
       const conversations = await fetchConversations(currentUser.id);
       const users = conversations
         .map((c) => c.user)
@@ -200,7 +193,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
       className="max-w-[420px] !p-0 overflow-hidden"
     >
       <div className="flex h-full flex-col bg-white dark:bg-zinc-900">
-        {/* Search for Friends */}
         <div className="px-5 pb-2 pt-4">
           <div className="group relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-violet-500" />
@@ -214,7 +206,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
           </div>
         </div>
 
-        {/* Real Friends List */}
         <div className="no-scrollbar flex min-h-[100px] items-center gap-4 overflow-x-auto px-5 py-4">
           {loadingFriends ? (
             <div className="flex flex-1 justify-center">
@@ -259,7 +250,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
 
         <div className="mx-5 h-px bg-zinc-100 dark:bg-zinc-800" />
 
-        {/* Social Share Options */}
         <div className="grid grid-cols-5 gap-2 px-5 py-6">
           {shareOptions.map((option) => (
             <a
@@ -292,7 +282,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
           </button>
         </div>
 
-        {/* Copy Link Section */}
         <div className="px-5 pb-6">
           <div className="group relative">
             <input
@@ -324,7 +313,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
           </div>
         </div>
 
-        {/* Bottom Action */}
         <div className="px-5 pb-5">
           <button
             onClick={onClose}

@@ -53,13 +53,13 @@ export interface Attachment {
 }
 
 export interface Post {
-  id: string; // The database ID
-  feed_id: string; // The unique ID for the feed (handling multiple occurences)
+  id: string;
+  feed_id: string;
   user_id: string;
   content: string;
   media: Media[] | null;
   type: "text" | "image" | "video" | "reel";
-  poll: any | null; // Define Poll interface if needed
+  poll: any | null;
   parent_id: string | null;
   community_id: string | null;
   quoted_post_id: string | null;
@@ -97,15 +97,14 @@ export interface Notification {
   created_at: string;
   read: boolean;
   is_read: boolean;
-  user: string; // Username of actor
-  avatar: string; // Avatar of actor
-  // Add other specific fields if necessary
+  user: string;
+  avatar: string;
 }
 
 export interface Story {
   id: string;
   user_id: string;
-  media: string; // transformed from media_url
+  media: string;
   created_at: string;
   expires_at: string;
   user: User;
@@ -143,10 +142,10 @@ export interface Message {
 
 export interface Conversation {
   id: string;
-  user: User | null; // For DMs, this is the other user
+  user: User | null;
   isGroup: boolean;
-  name: string | null; // For groups
-  avatar: string | null; // For groups
+  name: string | null;
+  avatar: string | null;
   creatorId: string | null;
   lastMessage: string;
   lastMessageAt: string;

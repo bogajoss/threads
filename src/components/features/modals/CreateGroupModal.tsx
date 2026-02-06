@@ -86,7 +86,6 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
       addToast("Group created successfully!");
       onCreated(convId);
       onClose();
-      // Reset state
       setGroupName("");
       setSelectedUsers([]);
       setAvatarFile(null);
@@ -167,7 +166,6 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             </div>
           </div>
 
-          {/* Selected Users Chips */}
           {selectedUsers.length > 0 && (
             <div className="flex flex-wrap gap-2 py-1">
               {selectedUsers.map((user) => (
@@ -191,7 +189,6 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             </div>
           )}
 
-          {/* Search Results */}
           <div className="max-h-[240px] space-y-1 overflow-y-auto pr-1">
             {searching ? (
               <div className="py-4 text-center text-xs text-zinc-500">

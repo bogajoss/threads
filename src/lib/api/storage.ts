@@ -10,15 +10,11 @@ export interface UploadResult {
   size: number;
 }
 
-/**
- * Uploads a file to Supabase Storage.
- */
 export const uploadFile = async (
   file: File,
   bucket: string = "media",
   customPoster: File | null = null,
 ): Promise<UploadResult> => {
-  // Compress if it's an image
   let fileToUpload = file;
   let fileExt = file.name.split(".").pop();
   let posterUrl: string | null = null;
@@ -32,15 +28,12 @@ export const uploadFile = async (
     }
   }
 
-  // Handle video poster
   if (file.type.startsWith("video/")) {
     try {
       if (customPoster) {
-        // Use user provided thumbnail - ensuring it is compressed/webp
         const thumbRes = await uploadFile(customPoster, bucket);
         posterUrl = thumbRes.url;
       } else {
-        // Generate automatic thumbnail (already webp from generateVideoThumbnail)
         const thumbnailFile = await generateVideoThumbnail(file);
         const thumbRes = await uploadFile(thumbnailFile, bucket);
         posterUrl = thumbRes.url;
@@ -78,9 +71,6 @@ export const uploadFile = async (
   };
 };
 
-/**
- * Extracts the storage path from a Supabase public URL and deletes the file.
- */
 export const deleteFileFromUrl = async (
   url: string,
   bucket: string = "media",
@@ -88,8 +78,6 @@ export const deleteFileFromUrl = async (
   try {
     if (!url) return;
 
-    // Example URL: https://dbkcedktqhueqnulnosq.supabase.co/storage/v1/object/public/media/filename.webp
-    // We need to extract 'filename.webp'
     const urlParts = url.split(`/public/${bucket}/`);
     if (urlParts.length < 2) return;
 
@@ -104,9 +92,6 @@ export const deleteFileFromUrl = async (
   }
 };
 
-/**
- * Deletes multiple files from their URLs.
- */
 export const deleteMultipleFiles = async (
   urls: (string | undefined | null)[],
   bucket: string = "media",
@@ -114,6 +99,5 @@ export const deleteMultipleFiles = async (
   const validUrls = urls.filter((url): url is string => !!url);
   if (validUrls.length === 0) return;
 
-  // Process in parallel
   await Promise.all(validUrls.map((url) => deleteFileFromUrl(url, bucket)));
 };

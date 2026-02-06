@@ -26,7 +26,6 @@ const PostMedia: React.FC<PostMediaProps> = ({
     return (
       <div className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {/* Existing Media */}
           {editedMedia.map((item, idx) => (
             <div
               key={`old-${idx}`}
@@ -55,7 +54,6 @@ const PostMedia: React.FC<PostMediaProps> = ({
             </div>
           ))}
 
-          {/* Newly Selected Files */}
           {newFiles.map((file, idx) => (
             <div
               key={`new-${idx}`}
@@ -87,7 +85,6 @@ const PostMedia: React.FC<PostMediaProps> = ({
             </div>
           ))}
 
-          {/* Add More Button */}
           {editedMedia.length + newFiles.length < 4 && (
             <button
               onClick={(e) => {

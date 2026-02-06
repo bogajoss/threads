@@ -181,7 +181,6 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         </Tabs>
       </div>
 
-      {/* Followers/Following Modal */}
       <Modal
         isOpen={isFollowModalOpen}
         onClose={() => setIsFollowModalOpen(false)}

@@ -2,9 +2,6 @@ import { supabase } from "@/lib/supabase";
 import { transformNotification } from "@/lib/transformers";
 import type { Notification } from "@/types/index";
 
-/**
- * Fetches notifications for the recipient_id with pagination.
- */
 export const fetchNotifications = async (
   userId: string,
   lastTimestamp: string | null = null,
@@ -39,9 +36,6 @@ export const fetchNotifications = async (
     .filter((n): n is Notification => n !== null);
 };
 
-/**
- * Marks all notifications as read for a user.
- */
 export const markNotificationsAsRead = async (
   userId: string,
 ): Promise<void> => {
@@ -53,9 +47,6 @@ export const markNotificationsAsRead = async (
   if (error) throw error;
 };
 
-/**
- * Fetches the count of unread notifications for a user.
- */
 export const fetchUnreadNotificationsCount = async (
   userId: string,
 ): Promise<number> => {

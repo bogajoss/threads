@@ -41,7 +41,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           name: formData.name,
         });
         addToast("Confirm Your Email", "info");
-        onSwitch(); // Switch to login page
+        onSwitch();
       }
     } catch (err: any) {
       console.error("Auth error:", err);

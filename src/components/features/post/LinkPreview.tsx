@@ -11,7 +11,7 @@ const LinkPreview: React.FC<LinkPreviewProps> = ({ url }) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["link-preview", url],
     queryFn: () => getCachedLinkPreview(url),
-    staleTime: 1000 * 60 * 60 * 24, // Cache for 24 hours in memory too
+    staleTime: 1000 * 60 * 60 * 24,
     enabled: !!url,
   });
 

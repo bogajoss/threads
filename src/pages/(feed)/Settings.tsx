@@ -61,7 +61,6 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="mx-auto mt-4 w-full max-w-2xl space-y-6 p-4 pb-20">
-        {/* Account Section */}
         <section className="space-y-4" aria-label="Account Security Settings">
           <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
             Account Security
@@ -147,7 +146,6 @@ const Settings: React.FC = () => {
           </div>
         </section>
 
-        {/* Appearance & Font Section */}
         <section
           className="space-y-4"
           aria-label="Display and Typography Settings"
@@ -222,7 +220,6 @@ const Settings: React.FC = () => {
           </div>
         </section>
 
-        {/* Usage & Data Saver Section */}
         <section className="space-y-4" aria-label="Data and Storage Settings">
           <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
             Data & Storage
@@ -273,7 +270,6 @@ const Settings: React.FC = () => {
           </div>
         </section>
 
-        {/* Support Section */}
         <section className="space-y-4" aria-label="Support Settings">
           <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
             Support
@@ -304,7 +300,6 @@ const Settings: React.FC = () => {
           </div>
         </section>
 
-        {/* Danger Zone */}
         <section className="space-y-4 pt-4" aria-label="Danger Zone">
           <div className="flex flex-col gap-3">
             <button

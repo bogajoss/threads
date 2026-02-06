@@ -9,12 +9,10 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-// Context
 import { useAuth } from "@/context/AuthContext";
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 
-// Layout & Components
 import {
   MainLayout,
   PageTransition,
@@ -25,7 +23,6 @@ import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
 
-// Pages (Lazy Loaded)
 const Home = lazy(() => import("@/pages/(feed)/Feed"));
 const Explore = lazy(() => import("@/pages/(feed)/Explore"));
 const Reels = lazy(() => import("@/pages/(feed)/Reels"));
@@ -55,12 +52,10 @@ export default function Sysm() {
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
 
-  // Modal States
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [editProfileData, setEditProfileData] = useState({});
   const [viewingStory, setViewingStory] = useState(null);
 
-  // Initialize Keyboard Shortcuts
   useKeyboardShortcuts();
 
   return (
@@ -190,7 +185,6 @@ export default function Sysm() {
             <Route path="*" element={<Navigate to="/community" />} />
           </Route>
 
-          {/* Marketplace Routes (Separate Layout) */}
           <Route element={<MarketplaceLayout />}>
             <Route path="/pro" element={<ProPage />} />
             <Route path="/shop" element={<ShopPage />} />
@@ -200,7 +194,6 @@ export default function Sysm() {
         </Routes>
       </Suspense>
 
-      {/* Global Overlays */}
       <GlobalModals
         isEditProfileOpen={isEditProfileOpen}
         setIsEditProfileOpen={setIsEditProfileOpen}

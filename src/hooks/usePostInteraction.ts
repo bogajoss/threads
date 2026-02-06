@@ -18,12 +18,10 @@ export const usePostInteraction = (
   const queryClient = useQueryClient();
   const { addToast } = useToast();
 
-  // Local state for immediate UI feedback, synced with React Query data
   const [localStats, setLocalStats] = useState<PostStats>(
     initialStats || { comments: 0, likes: 0, mirrors: 0, reposts: 0 },
   );
 
-  // Adjust state during render when initialStats changes
   const [prevInitialStats, setPrevInitialStats] = useState(initialStats);
   if (initialStats !== prevInitialStats) {
     setPrevInitialStats(initialStats);
@@ -35,7 +33,7 @@ export const usePostInteraction = (
     queryFn: () => checkIfLiked(postId, currentUser!.id),
     enabled:
       !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
   });
 
   const { data: isReposted = false } = useQuery({
@@ -43,7 +41,7 @@ export const usePostInteraction = (
     queryFn: () => checkIfReposted(postId, currentUser!.id),
     enabled:
       !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
   });
 
   const likeMutation = useMutation({
@@ -60,7 +58,6 @@ export const usePostInteraction = (
         currentUserId,
       ]);
 
-      // Optimistically update
       queryClient.setQueryData(
         ["post", postId, "liked", currentUserId],
         !previousLiked,
@@ -78,7 +75,6 @@ export const usePostInteraction = (
           ["post", postId, "liked", currentUser!.id],
           context.previousLiked,
         );
-        // Rollback stats
         setLocalStats((prev) => ({
           ...prev,
           likes: context.previousLiked
@@ -109,7 +105,6 @@ export const usePostInteraction = (
         currentUserId,
       ]);
 
-      // Optimistically update
       queryClient.setQueryData(
         ["post", postId, "reposted", currentUserId],
         !previousReposted,
@@ -132,7 +127,6 @@ export const usePostInteraction = (
           ["post", postId, "reposted", currentUser!.id],
           context.previousReposted,
         );
-        // Rollback stats
         setLocalStats((prev) => ({
           ...prev,
           reposts: context.previousReposted
@@ -158,7 +152,7 @@ export const usePostInteraction = (
   const handleLike = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!currentUser) return addToast("Please login to like!", "error");
-    if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return; // Or handle local-only state if needed
+    if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return;
     likeMutation.mutate();
   };
 

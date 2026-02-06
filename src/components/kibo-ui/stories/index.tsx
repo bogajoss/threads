@@ -65,7 +65,6 @@ export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const initialTimeRef = useRef<number>(0);
 
-  // Parse the initial time from the src attribute (e.g., #t=20)
   useEffect(() => {
     const src = (props.src ?? "") as string;
     let initialTime = 0;
@@ -73,7 +72,6 @@ export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
       const hashIndex = src.indexOf("#");
       if (hashIndex !== -1) {
         const hash = src.slice(hashIndex + 1);
-        // Look for t=number or t=start,end
         const tMatch = hash.match(tRegex);
         if (tMatch) {
           initialTime = Number.parseFloat(tMatch[1]);
@@ -132,7 +130,6 @@ export type StoryImageProps = ComponentProps<"img"> & {
 };
 
 export const StoryImage = ({ className, alt, ...props }: StoryImageProps) => (
-  // biome-ignore lint/performance/noImgElement: "Kibo UI is framework agnostic"
   <img
     alt={alt}
     className={cn(

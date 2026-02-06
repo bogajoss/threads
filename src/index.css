@@ -99,7 +99,6 @@
   }
 }
 
-/* Ensure Tailwind v4 knows about our dark class */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {

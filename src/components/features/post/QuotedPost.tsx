@@ -33,7 +33,6 @@ const QuotedPost: React.FC<QuotedPostProps> = ({ user, time, content }) => {
             const { href, ...props } = attributes;
             const origin = window.location.origin;
 
-            // Check if link is internal
             let internalPath = null;
             if (href.startsWith("/")) {
               internalPath = href;

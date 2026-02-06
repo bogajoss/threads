@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import {
@@ -66,7 +65,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   const addPostMutation = useMutation({
     mutationFn: addPostApi,
     onSuccess: () => {
-      // Invalidate to refetch the feed and show the new post
       queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
     },
   });
@@ -111,7 +109,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     },
   });
 
-  // Wrapper functions to match the original context interface
   const addPost = useCallback(
     async (postData: any): Promise<Post | null> => {
       return await addPostMutation.mutateAsync(postData);
@@ -133,7 +130,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     [updatePostMutation],
   );
 
-  // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
   const setPosts: React.Dispatch<React.SetStateAction<Post[]>> =
     useCallback(() => {
       console.warn(

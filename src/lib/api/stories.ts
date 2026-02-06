@@ -2,9 +2,6 @@ import { supabase } from "@/lib/supabase";
 import { transformStory } from "@/lib/transformers";
 import type { Story } from "@/types/index";
 
-/**
- * Fetches recent stories.
- */
 export const fetchStories = async (
   lastTimestamp: string | null = null,
   limit: number = 10,
@@ -37,9 +34,6 @@ export const fetchStories = async (
   return (data || []).map(transformStory).filter((s): s is Story => s !== null);
 };
 
-/**
- * Adds a new story.
- */
 export const addStory = async (
   userId: string,
   mediaUrl: string,

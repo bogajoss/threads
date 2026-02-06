@@ -3,14 +3,10 @@ import { transformConversation, transformMessage } from "@/lib/transformers";
 import type { Conversation, Message } from "@/types/index";
 import { deleteMultipleFiles } from "./storage";
 
-/**
- * Finds an existing DM (non-group) conversation between two users or creates a new one.
- */
 export const getOrCreateConversation = async (
   userId: string,
   targetUserId: string,
 ): Promise<string> => {
-  // 1. Get all DM conversation IDs where I am a participant
   const { data: myParticipants } = await (
     supabase.from("conversation_participants") as any
   )
@@ -20,7 +16,6 @@ export const getOrCreateConversation = async (
 
   const myDMConvIds = (myParticipants || []).map((p: any) => p.conversation_id);
 
-  // 2. Check if target user is in any of those same DM conversations
   const { data: existing } = await (
     supabase.from("conversation_participants") as any
   )
@@ -31,7 +26,6 @@ export const getOrCreateConversation = async (
 
   if (existing) return existing.conversation_id;
 
-  // 3. Create new DM conversation if none exists
   const { data: newConv, error: convError } = await (
     supabase.from("conversations") as any
   )
@@ -49,16 +43,12 @@ export const getOrCreateConversation = async (
   return (newConv as any).id;
 };
 
-/**
- * Creates a new Group Conversation.
- */
 export const createGroupConversation = async (
   creatorId: string,
   name: string,
   participantIds: string[],
   avatarUrl: string | null = null,
 ): Promise<string> => {
-  // 1. Create conversation record
   const { data: newConv, error: convError } = await (
     supabase.from("conversations") as any
   )
@@ -75,7 +65,6 @@ export const createGroupConversation = async (
 
   const convId = (newConv as any).id;
 
-  // 2. Add participants (including creator)
   const participants = Array.from(new Set([creatorId, ...participantIds])).map(
     (uid) => ({
       conversation_id: convId,
@@ -92,9 +81,6 @@ export const createGroupConversation = async (
   return convId;
 };
 
-/**
- * Adds new members to an existing conversation.
- */
 export const addParticipantsToConversation = async (
   conversationId: string,
   userIds: string[],
@@ -111,9 +97,6 @@ export const addParticipantsToConversation = async (
   if (error) throw error;
 };
 
-/**
- * Fetches the count of unread messages for a user across all conversations.
- */
 export const fetchUnreadMessagesCount = async (
   userId: string,
 ): Promise<number> => {
@@ -138,9 +121,6 @@ export const fetchUnreadMessagesCount = async (
   return count || 0;
 };
 
-/**
- * Marks all messages in a conversation as read for the current user.
- */
 export const markMessagesAsRead = async (
   conversationId: string,
 ): Promise<void> => {
@@ -153,9 +133,6 @@ export const markMessagesAsRead = async (
   if (error) throw error;
 };
 
-/**
- * Fetches conversations for the current user.
- */
 export const fetchConversations = async (
   userId: string,
 ): Promise<Conversation[]> => {
@@ -207,11 +184,6 @@ export const fetchConversations = async (
     });
 };
 
-/**
- * Fetches messages for a specific conversation with pagination.
- * We fetch in descending order (newest first) to easily get the "last page",
- * then the UI can reverse them or we reverse them here.
- */
 export const fetchMessages = async (
   conversationId: string,
   lastTimestamp: string | null = null,
@@ -231,7 +203,7 @@ export const fetchMessages = async (
         `,
     )
     .eq("conversation_id", conversationId)
-    .order("created_at", { ascending: false }) // Fetch newest first for pagination
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
@@ -241,8 +213,6 @@ export const fetchMessages = async (
   const { data, error } = await query;
 
   if (error) throw error;
-  // Reverse to return oldest-first for display, or let UI handle it.
-  // Usually standardized on returning newest-first (desc) from API if it's paged by time.
   return (data || [])
     .map(transformMessage)
     .filter((m): m is Message => m !== null);
@@ -256,15 +226,9 @@ export interface Reaction {
   created_at: string;
 }
 
-/**
- * Fetches all reactions for a specific conversation.
- * Optimized to only fetch relevant data.
- */
 export const fetchReactionsByConversation = async (
   conversationId: string,
 ): Promise<Reaction[]> => {
-  // We need to join with messages to filter by conversation_id if reactions table doesn't have it.
-  // Assuming message_reactions has message_id.
   const { data, error } = await supabase
     .from("message_reactions")
     .select("*, message:messages!inner(conversation_id)")
@@ -280,17 +244,11 @@ export const fetchReactionsByConversation = async (
   }));
 };
 
-/**
- * Deprecated: Use fetchReactionsByConversation
- */
 export const fetchAllReactions = async (): Promise<Reaction[]> => {
   console.warn("fetchAllReactions is deprecated for performance reasons.");
   return [];
 };
 
-/**
- * Toggles a reaction on a message.
- */
 export const toggleMessageReaction = async (
   messageId: string,
   userId: string,
@@ -322,9 +280,6 @@ export const toggleMessageReaction = async (
   }
 };
 
-/**
- * Sends a new message.
- */
 export const sendMessage = async (
   conversationId: string,
   senderId: string,
@@ -348,7 +303,6 @@ export const sendMessage = async (
 
   if (error) throw error;
 
-  // Update conversation last_message details manually since we don't have a DB trigger
   await (supabase.from("conversations") as any)
     .update({
       last_message_at: new Date().toISOString(),
@@ -366,9 +320,6 @@ export const sendMessage = async (
   return transformMessage(data?.[0]);
 };
 
-/**
- * Updates an existing message content.
- */
 export const editMessage = async (
   messageId: string,
   content: string,
@@ -383,13 +334,9 @@ export const editMessage = async (
   return transformMessage(data);
 };
 
-/**
- * Deletes an entire conversation and all its messages.
- */
 export const deleteConversation = async (
   conversationId: string,
 ): Promise<void> => {
-  // 1. Fetch all messages to clean up media
   const { data: msgs } = await (supabase
     .from("messages")
     .select("media")
@@ -406,7 +353,6 @@ export const deleteConversation = async (
     if (allUrls.length > 0) await deleteMultipleFiles(allUrls);
   }
 
-  // 2. Delete conversation (cascades to participants and messages)
   const { error } = await supabase
     .from("conversations")
     .delete()
@@ -415,9 +361,6 @@ export const deleteConversation = async (
   if (error) throw error;
 };
 
-/**
- * Removes a user from a conversation (Leave Group).
- */
 export const leaveConversation = async (
   conversationId: string,
   userId: string,
@@ -430,11 +373,7 @@ export const leaveConversation = async (
   if (error) throw error;
 };
 
-/**
- * Deletes a message by ID and cleans up its media from storage.
- */
 export const deleteMessage = async (messageId: string): Promise<void> => {
-  // 1. Fetch message to get media URLs
   const { data: message } = await (supabase
     .from("messages")
     .select("media")
@@ -442,14 +381,11 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
     .single() as any);
 
   if (message?.media && Array.isArray(message.media)) {
-    // 2. Delete files from storage
     await deleteMultipleFiles(message.media);
   } else if (message?.media && typeof message.media === "string") {
-    // Handle case where media might be a single string URL
     await deleteMultipleFiles([message.media]);
   }
 
-  // 3. Delete from database
   const { error } = await supabase
     .from("messages")
     .delete()
@@ -457,9 +393,6 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
   if (error) throw error;
 };
 
-/**
- * Fetches participants of a conversation.
- */
 export const fetchConversationParticipants = async (
   conversationId: string,
 ): Promise<any[]> => {
@@ -481,9 +414,6 @@ export const fetchConversationParticipants = async (
   return (data || []).map((p: any) => p.user);
 };
 
-/**
- * Updates conversation details.
- */
 export const updateConversation = async (
   conversationId: string,
   updates: any,

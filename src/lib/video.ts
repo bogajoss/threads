@@ -1,6 +1,3 @@
-/**
- * Generates a thumbnail from a video file at a specific second.
- */
 export const generateVideoThumbnail = (
   file: File,
   seekTo: number = 1,
@@ -8,7 +5,6 @@ export const generateVideoThumbnail = (
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
 
-    // Timeout safety for mobile
     const timeout = setTimeout(() => {
       cleanup();
       reject(new Error("Thumbnail generation timed out"));
@@ -29,7 +25,6 @@ export const generateVideoThumbnail = (
     video.src = URL.createObjectURL(file);
 
     video.onloadedmetadata = () => {
-      // Seek to the requested time
       video.currentTime = Math.min(seekTo, video.duration || seekTo);
     };
 

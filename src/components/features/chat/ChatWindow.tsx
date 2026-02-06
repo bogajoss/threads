@@ -155,7 +155,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-[#8774e1]/10 dark:bg-[#0f0f0f] md:border-l md:border-zinc-200/50 dark:md:border-zinc-800/50">
-      {/* Background Pattern */}
       <div
         className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
         style={{
@@ -172,7 +171,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      {/* Messages Area */}
       <div className="flex-1 min-h-0 overflow-hidden relative z-10">
         <div
           className="h-full overflow-y-auto px-2 md:px-12 py-4 no-scrollbar"
@@ -208,7 +206,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                           isMe ? "flex-row-reverse" : "flex-row",
                         )}
                       >
-                        {/* Message Bubble */}
                         <div
                           className={cn(
                             "relative flex flex-col min-w-[60px]",
@@ -292,7 +289,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                   </div>
                                 )}
 
-                                {/* Compact Time & Status - Only show if there is text or it's a voice message */}
                                 {(msg.text || msg.type === "voice") && (
                                   <div
                                     className={cn(

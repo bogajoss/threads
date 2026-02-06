@@ -22,7 +22,6 @@ export const useCommunity = () => {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
-  // 1. Fetch Community Metadata
   const {
     data: community,
     isLoading: loadingCommunity,
@@ -31,10 +30,9 @@ export const useCommunity = () => {
     queryKey: ["community", handle],
     queryFn: () => fetchCommunityByHandle(handle!),
     enabled: !!handle,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
   });
 
-  // 2. Fetch Membership Status
   const { data: membership } = useQuery({
     queryKey: ["community", community?.id, "membership", currentUser?.id],
     queryFn: () => checkIfMember(community!.id, currentUser!.id),
@@ -45,7 +43,6 @@ export const useCommunity = () => {
   const isMember = !!membership;
   const userRole = membership?.role || null;
 
-  // 3. Fetch Community Posts using useInfiniteQuery
   const {
     data: postsData,
     fetchNextPage,
@@ -68,7 +65,6 @@ export const useCommunity = () => {
     return postsData?.pages.flatMap((page) => page) || [];
   }, [postsData]);
 
-  // 4. Toggle Membership Mutation
   const joinMutation = useMutation({
     mutationFn: () => toggleCommunityMembership(community!.id, currentUser!.id),
     onMutate: async () => {
@@ -88,13 +84,11 @@ export const useCommunity = () => {
       ]);
       const previousCommunity = queryClient.getQueryData(["community", handle]);
 
-      // Optimistically update membership
       queryClient.setQueryData(
         ["community", communityId, "membership", currentUserId],
         previousMembership ? null : { role: "member" },
       );
 
-      // Optimistically update community member count
       queryClient.setQueryData(["community", handle], (old: any) => {
         if (!old) return old;
         return {

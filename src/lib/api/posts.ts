@@ -8,9 +8,6 @@ import {
 } from "@/lib/constants";
 import { deleteMultipleFiles } from "./storage";
 
-/**
- * Fetches posts with user details and pagination support.
- */
 export const fetchPosts = async (
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,
@@ -32,9 +29,6 @@ export const fetchPosts = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
-/**
- * Fetches a single post by ID.
- */
 export const fetchPostById = async (id: string): Promise<Post | null> => {
   const { data, error } = await supabase
     .from("posts")
@@ -78,9 +72,6 @@ export const fetchPostById = async (id: string): Promise<Post | null> => {
   return transformPost(data);
 };
 
-/**
- * Fetches posts by a specific user ID with pagination support.
- */
 export const fetchPostsByUserId = async (
   userId: string,
   lastTimestamp: string | null = null,
@@ -103,9 +94,6 @@ export const fetchPostsByUserId = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
-/**
- * Fetches comments made by a specific user.
- */
 export const fetchCommentsByUserId = async (
   userId: string,
   lastTimestamp: string | null = null,
@@ -151,16 +139,11 @@ interface AddPostParams {
   communityId?: string | null;
 }
 
-/**
- * Increments the view count for a post.
- */
 export const incrementPostViews = async (postId: string): Promise<void> => {
-  // We use a custom RPC to avoid race conditions and ensure atomicity
   const { error } = await (supabase.rpc as any)("increment_post_views", {
     post_id: postId,
   });
   if (error) {
-    // Fallback to update if RPC doesn't exist yet (though we should create it)
     console.error(
       "RPC increment_post_views failed, make sure to run the SQL migration:",
       error,
@@ -168,9 +151,6 @@ export const incrementPostViews = async (postId: string): Promise<void> => {
   }
 };
 
-/**
- * Adds a new post with media and optional poll.
- */
 export const addPost = async ({
   content,
   media = [],
@@ -211,11 +191,7 @@ export const addPost = async ({
   return transformPost(data?.[0]);
 };
 
-/**
- * Deletes a post by ID and cleans up its media from storage.
- */
 export const deletePost = async (postId: string): Promise<void> => {
-  // 1. Fetch post to get media URLs
   const { data: post } = await (supabase
     .from("posts")
     .select("media")
@@ -229,22 +205,16 @@ export const deletePost = async (postId: string): Promise<void> => {
       if (m.poster) urlsToDelete.push(m.poster);
     });
 
-    // 2. Delete files from storage
     if (urlsToDelete.length > 0) {
       await deleteMultipleFiles(urlsToDelete);
     }
   }
 
-  // 3. Delete from database
   const { error } = await supabase.from("posts").delete().eq("id", postId);
   if (error) throw error;
 };
 
-/**
- * Deletes a comment by ID and cleans up its media from storage.
- */
 export const deleteComment = async (commentId: string): Promise<void> => {
-  // 1. Fetch comment to get media URLs
   const { data: comment } = await (supabase
     .from("comments")
     .select("media")
@@ -258,13 +228,11 @@ export const deleteComment = async (commentId: string): Promise<void> => {
       if (m.poster) urlsToDelete.push(m.poster);
     });
 
-    // 2. Delete files from storage
     if (urlsToDelete.length > 0) {
       await deleteMultipleFiles(urlsToDelete);
     }
   }
 
-  // 3. Delete from database
   const { error } = await supabase
     .from("comments")
     .delete()
@@ -272,9 +240,6 @@ export const deleteComment = async (commentId: string): Promise<void> => {
   if (error) throw error;
 };
 
-/**
- * Updates a post's content or media by ID.
- */
 export const updatePost = async (postId: string, data: any): Promise<void> => {
   const { error } = await (supabase.from("posts") as any)
     .update(data)
@@ -282,9 +247,6 @@ export const updatePost = async (postId: string, data: any): Promise<void> => {
   if (error) throw error;
 };
 
-/**
- * Updates a comment's content or media by ID.
- */
 export const updateComment = async (
   commentId: string,
   data: any,
@@ -295,9 +257,6 @@ export const updateComment = async (
   if (error) throw error;
 };
 
-/**
- * Fetches comments for a post with pagination.
- */
 export const fetchCommentsByPostId = async (
   postId: string,
   lastTimestamp: string | null = null,
@@ -340,9 +299,6 @@ export const fetchCommentsByPostId = async (
     .filter((c): c is Comment => c !== null);
 };
 
-/**
- * Adds a comment to a post.
- */
 export const addComment = async (
   postId: string,
   userId: string,
@@ -377,16 +333,12 @@ export const addComment = async (
   return transformComment(data?.[0]);
 };
 
-/**
- * Toggles a like on a post.
- */
 export const toggleLike = async (
   postId: string,
   userId: string,
 ): Promise<boolean> => {
   if (!postId || !userId) return false;
 
-  // Check for existing like(s) - use select().limit(1) instead of maybeSingle to avoid errors if duplicates exist
   const { data: existingLikes } = await supabase
     .from("likes")
     .select("post_id")
@@ -397,7 +349,6 @@ export const toggleLike = async (
   const hasLiked = existingLikes && existingLikes.length > 0;
 
   if (hasLiked) {
-    // Delete ALL likes for this user/post combo to be clean
     await supabase
       .from("likes")
       .delete()
@@ -405,7 +356,6 @@ export const toggleLike = async (
       .eq("user_id", userId);
     return false;
   } else {
-    // Insert new like
     await (supabase.from("likes") as any).insert([
       { post_id: postId, user_id: userId },
     ]);
@@ -413,9 +363,6 @@ export const toggleLike = async (
   }
 };
 
-/**
- * Checks if a user has liked a post.
- */
 export const checkIfLiked = async (
   postId: string,
   userId: string,
@@ -435,9 +382,6 @@ export const checkIfLiked = async (
   return data && data.length > 0;
 };
 
-/**
- * Toggles a repost on a post.
- */
 export const toggleRepost = async (
   postId: string,
   userId: string,
@@ -468,9 +412,6 @@ export const toggleRepost = async (
   }
 };
 
-/**
- * Checks if a user has reposted a post.
- */
 export const checkIfReposted = async (
   postId: string,
   userId: string,
@@ -490,9 +431,6 @@ export const checkIfReposted = async (
   return data && data.length > 0;
 };
 
-/**
- * Searches posts by content (keywords or hashtags).
- */
 export const searchPosts = async (
   queryText: string,
   lastTimestamp: string | null = null,
@@ -524,9 +462,6 @@ export const searchPosts = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
-/**
- * Fetches only posts that belong to a community.
- */
 export const fetchCommunityExplorePosts = async (
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,
@@ -549,9 +484,6 @@ export const fetchCommunityExplorePosts = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
-/**
- * Fetches only video posts for Reels with pagination.
- */
 export const fetchReels = async (
   lastTimestamp: string | null = null,
   limit: number = REELS_PER_PAGE,

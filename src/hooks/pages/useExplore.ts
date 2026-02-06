@@ -20,7 +20,6 @@ export const useExplore = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // 1. Communities Data using useInfiniteQuery
   const {
     data: communitiesInfiniteData,
     fetchNextPage: fetchNextCommunities,
@@ -44,7 +43,6 @@ export const useExplore = () => {
     );
   }, [communitiesInfiniteData]);
 
-  // 2. Posts Data using useInfiniteQuery
   const {
     data: postsInfiniteData,
     fetchNextPage: fetchNextPosts,
@@ -70,8 +68,6 @@ export const useExplore = () => {
     return postsInfiniteData?.pages.flatMap((page) => page) || [];
   }, [postsInfiniteData]);
 
-  // Note: Ideally, community search should also be server-side.
-  // For now, keeping client-side filtering as per original logic but can be moved to API.
   const filteredCommunities = useMemo(() => {
     let list = communitiesData;
     if (searchQuery) {

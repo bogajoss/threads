@@ -49,7 +49,6 @@ const Reels = () => {
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-black md:rounded-xl">
-      {/* Fixed Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="absolute left-6 top-6 z-50 rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
@@ -70,7 +69,6 @@ const Reels = () => {
         )}
       </button>
 
-      {/* Navigation Buttons (Up/Down) */}
       <div className="absolute right-6 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-4 md:flex">
         <button
           onClick={scrollToPrev}

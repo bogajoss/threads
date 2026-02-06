@@ -52,7 +52,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const textAreaRef = useAutoResizeTextArea(text);
 
-  // Handle editing pre-fill
   React.useEffect(() => {
     if (editingMessage) {
       setText(editingMessage.text);
@@ -89,7 +88,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     if (onTyping) {
       const now = Date.now();
-      // Only send "typing: true" every 3 seconds to avoid spamming
       if (now - lastTypingSentRef.current > 3000) {
         onTyping(true);
         lastTypingSentRef.current = now;
@@ -98,7 +96,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
         onTyping(false);
-        lastTypingSentRef.current = 0; // Reset so next keystroke sends true immediately
+        lastTypingSentRef.current = 0;
       }, 2000);
     }
   };
@@ -124,7 +122,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setAttachments([]);
     setReplyingTo(null);
 
-    // Maintain focus so keyboard stays open on mobile
     setTimeout(() => {
       textAreaRef.current?.focus();
     }, 10);
@@ -145,7 +142,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setIsPreviewPlaying(!isPreviewPlaying);
   };
 
-  // Clean up audio preview when cleared
   React.useEffect(() => {
     if (!audioBlob && audioRef.current) {
       audioRef.current.pause();

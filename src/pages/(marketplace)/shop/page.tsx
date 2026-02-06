@@ -18,7 +18,7 @@ import {
   type AuctionItem,
   GIFT_COLLECTIONS,
   TOP_GIFTS,
-} from "@/data/marketplace"; // Assuming you just created this
+} from "@/data/marketplace";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
@@ -42,7 +42,6 @@ const ShopPage: React.FC = () => {
   return (
     <PageTransition>
       <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
-        {/* Navigation / Categories */}
         <div className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 overflow-x-auto">
             <div className="flex items-center space-x-1 md:space-x-2 py-2">
@@ -74,7 +73,6 @@ const ShopPage: React.FC = () => {
         </div>
 
         <main className="max-w-6xl mx-auto px-4 py-12 md:py-20">
-          {/* Hero Section */}
           <div className="text-center mb-16 space-y-6">
             <div className="inline-flex items-center justify-center p-3 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 mb-4 ring-1 ring-white/10">
               {activeTab === "Gifts" ? (
@@ -96,7 +94,6 @@ const ShopPage: React.FC = () => {
                 : "Secure your name with blockchain in an ecosystem of 1+ billion users and assign it as a link for your personal account, channel or group."}
             </p>
 
-            {/* Search Bar */}
             <div className="relative max-w-2xl mx-auto mt-10 group">
               <div
                 className={cn(
@@ -128,7 +125,6 @@ const ShopPage: React.FC = () => {
 
           {activeTab === "Gifts" ? (
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* Sidebar Filter */}
               <div className="w-full lg:w-64 flex-shrink-0 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-lg flex items-center gap-2">
@@ -168,7 +164,6 @@ const ShopPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Gifts Grid */}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold flex items-center gap-2">
@@ -215,7 +210,6 @@ const ShopPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Auctions List (Usernames) */
             <div className="space-y-6">
               <div className="flex items-center justify-between px-2 mb-4">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -226,7 +220,6 @@ const ShopPage: React.FC = () => {
               </div>
 
               <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 text-xs uppercase tracking-wider text-neutral-500 font-medium">
                   <div className="col-span-5 md:col-span-4">Username</div>
                   <div className="col-span-4 md:col-span-3">Top Bid</div>
@@ -238,7 +231,6 @@ const ShopPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Table Body */}
                 <div className="divide-y divide-white/5">
                   {filteredData.map((item, index) => (
                     <AuctionRow key={index} item={item} />
@@ -265,7 +257,6 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
       to={`/shop/product/${item.username}`}
       className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-white/[0.02] transition-colors group cursor-pointer block text-inherit no-underline"
     >
-      {/* Username Column */}
       <div className="col-span-5 md:col-span-4 flex items-center gap-4">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center border border-white/5 group-hover:border-blue-500/30 transition-colors">
           <Gem className="w-5 h-5 text-blue-400" />
@@ -287,7 +278,6 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
         </div>
       </div>
 
-      {/* Bid Column */}
       <div className="col-span-4 md:col-span-3">
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 text-white font-bold text-lg">
@@ -300,7 +290,6 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
         </div>
       </div>
 
-      {/* Time Column */}
       <div className="col-span-3 md:col-span-3 hidden md:flex flex-col justify-center">
         <div className="text-white font-medium flex items-center gap-2">
           <Clock className="w-4 h-4 text-neutral-500" />
@@ -309,7 +298,6 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
         <div className="text-sm text-neutral-500 pl-6">{item.dateTime}</div>
       </div>
 
-      {/* Action/Status Column */}
       <div className="col-span-3 md:col-span-2 flex justify-end">
         <button className="px-4 py-2 rounded-full bg-white/5 hover:bg-white text-white hover:text-black font-medium text-sm transition-all text-center">
           Bid

@@ -57,7 +57,6 @@ const Button: React.FC<ButtonProps> = ({
         {children}
       </div>
 
-      {/* Subtle overlay for click effect */}
       <div className="absolute inset-0 bg-black/0 active:bg-black/5 transition-colors pointer-events-none" />
     </button>
   );

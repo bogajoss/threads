@@ -87,7 +87,6 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
           </div>
         </div>
 
-        {/* Community Header */}
         <div className="relative">
           <div className="relative h-32 overflow-hidden bg-zinc-100 dark:bg-zinc-900 sm:h-52">
             {community.cover ? (
@@ -192,7 +191,6 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
         </div>
 
         <div className="border-t border-zinc-100 dark:border-zinc-800">
-          {/* Create Post Entry Box */}
           {canPost && (
             <div className="border-b border-zinc-100 p-4 dark:border-zinc-800">
               <div className="flex items-center gap-3">

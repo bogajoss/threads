@@ -70,7 +70,6 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
 
   return (
     <div className="flex items-center gap-3 py-1 min-w-[220px] md:min-w-[280px]">
-      {/* Telegram Style Play Button */}
       <button
         type="button"
         onClick={togglePlay}
@@ -90,12 +89,10 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
       </button>
 
       <div className="flex-1 flex flex-col justify-center min-w-0">
-        {/* Waveform */}
         <div className="h-7 w-full overflow-hidden">
           <div ref={containerRef} className="w-full cursor-pointer" />
         </div>
 
-        {/* Time Info */}
         <div
           className={cn(
             "text-[11px] font-medium mt-0.5 select-none tabular-nums",

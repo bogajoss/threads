@@ -16,8 +16,8 @@ const SidebarRight = () => {
   const { data: trendingHashtags = [] } = useQuery({
     queryKey: ["trending-hashtags"],
     queryFn: () => fetchTrendingHashtags(5),
-    staleTime: 300000, // Keep data fresh for 5 minutes
-    refetchInterval: 60000, // Still refresh in background every minute if desired, or remove if strictly 5 mins
+    staleTime: 300000,
+    refetchInterval: 60000,
   });
 
   const footerLinks = [
@@ -56,7 +56,6 @@ const SidebarRight = () => {
           {themeToggleBtn}
         </div>
 
-        {/* Trending Section */}
         <div className="rounded-2xl border border-[--border] bg-[--card] overflow-hidden">
           <h3 className="px-4 pt-4 pb-2 text-xl font-black text-[--foreground]">
             What's happening
@@ -105,7 +104,6 @@ const SidebarRight = () => {
 
   return (
     <aside className="sticky top-0 hidden max-h-screen w-[400px] shrink-0 self-start flex-col gap-y-6 overflow-y-auto pt-5 pr-4 lg:flex">
-      {/* Top Auth Buttons + Theme Toggle */}
       <div className="flex gap-3">
         <button
           onClick={() => navigate("/register")}
@@ -123,17 +121,14 @@ const SidebarRight = () => {
         {themeToggleBtn}
       </div>
 
-      {/* Search */}
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
         onClear={() => setSearchQuery("")}
       />
 
-      {/* Account Card */}
       <SignupCard />
 
-      {/* Footer Links */}
       <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
         {footerLinks.map((link) => (
           <a key={link} href="#" className="hover:underline">

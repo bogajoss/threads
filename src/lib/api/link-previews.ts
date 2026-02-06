@@ -9,23 +9,18 @@ export interface LinkPreviewData {
   url: string;
 }
 
-/**
- * Fetches link preview data from database cache or scrapes it if missing.
- */
 export const getCachedLinkPreview = async (
   url: string | null,
 ): Promise<LinkPreviewData | null> => {
   if (!url) return null;
 
   try {
-    // 1. Try to get from database cache
     const { data: cachedData } = await (supabase.from("link_previews") as any)
       .select("*")
       .eq("url", url)
       .maybeSingle();
 
     if (cachedData) {
-      // Background update of last_used_at
       (supabase.from("link_previews") as any)
         .update({ last_used_at: new Date().toISOString() })
         .eq("url", url)
@@ -40,12 +35,9 @@ export const getCachedLinkPreview = async (
       };
     }
 
-    // 2. If not in cache, scrape it
     const scrapedData = await scrapePreview(url);
     if (!scrapedData) return null;
 
-    // 3. Save to database cache for next time
-    // We do this asynchronously (don't wait for it) to keep the UI snappy
     (supabase.from("link_previews") as any)
       .insert([
         {

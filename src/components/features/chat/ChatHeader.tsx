@@ -30,7 +30,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className="sticky top-0 z-40 flex shrink-0 items-center justify-between bg-white/95 px-2 py-1.5 backdrop-blur-md dark:bg-[#212121]/95 transition-all h-[56px]">
       <div className="flex items-center gap-1 w-full max-w-full">
-        {/* Back Button with Unread Badge */}
         <button
           onClick={onBack}
           className="relative flex items-center justify-center size-11 rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-white/5 md:hidden"

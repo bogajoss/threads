@@ -28,7 +28,6 @@ export default function EditCommunityModal({
   });
   const [loading, setLoading] = useState(false);
 
-  // Image Upload State
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,7 +101,6 @@ export default function EditCommunityModal({
         className="sm:max-w-xl"
       >
         <div className="max-h-[85vh] space-y-6 overflow-y-auto px-1">
-          {/* Cover & Avatar Upload Section */}
           <div className="relative">
             <div className="group relative h-32 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900 sm:h-40">
               {formData.cover && (
@@ -238,7 +236,6 @@ export default function EditCommunityModal({
           </div>
         </div>
 
-        {/* Hidden File Inputs */}
         <input
           type="file"
           ref={avatarInputRef}

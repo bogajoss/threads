@@ -18,13 +18,11 @@ export const useFollow = (
   const queryClient = useQueryClient();
   const { addToast } = useToast();
 
-  // Local stats state for optimistic UI, initialized from profile prop
   const [stats, setStats] = useState<FollowStats>({
     followers: profile?.follower_count || 0,
     following: profile?.following_count || 0,
   });
 
-  // Adjust state during render when profile changes (recommended React pattern)
   const [prevProfileId, setPrevProfileId] = useState(profile?.id);
   if (profile?.id !== prevProfileId) {
     setPrevProfileId(profile?.id);
@@ -40,15 +38,13 @@ export const useFollow = (
     currentUserId &&
     isValidUUID(currentUserId);
 
-  // 1. Fetch Follow Status
   const { data: isFollowing = false } = useQuery({
     queryKey: ["isFollowing", currentUserId, targetId],
     queryFn: () => checkIfFollowing(currentUserId!, targetId!),
     enabled: !!isValidIds,
-    staleTime: Infinity, // Doesn't change unless action taken
+    staleTime: Infinity,
   });
 
-  // 2. Fetch Latest Stats (Background Refresh)
   useQuery({
     queryKey: ["followStats", targetId],
     queryFn: async () => {
@@ -60,7 +56,6 @@ export const useFollow = (
     staleTime: 1000 * 60,
   });
 
-  // 3. Mutation
   const followMutation = useMutation({
     mutationFn: () => toggleFollow(currentUserId!, targetId!),
     onMutate: async () => {
@@ -73,13 +68,11 @@ export const useFollow = (
         targetId,
       ]);
 
-      // Optimistically update status
       queryClient.setQueryData(
         ["isFollowing", currentUserId, targetId],
         !isFollowing,
       );
 
-      // Optimistically update stats
       setStats((prev) => ({
         ...prev,
         followers: !isFollowing
@@ -95,7 +88,6 @@ export const useFollow = (
           ["isFollowing", currentUserId, targetId],
           context.previousFollowing,
         );
-        // Rollback stats
         setStats((prev) => ({
           ...prev,
           followers: context.previousFollowing

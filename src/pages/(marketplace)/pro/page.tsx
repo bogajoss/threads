@@ -47,7 +47,6 @@ const ProPage: React.FC = () => {
             </defs>
 
             <g id="traces">
-              {/* Left Traces */}
               <path
                 d="M100 100 H200 V210 H326"
                 fill="none"
@@ -120,7 +119,6 @@ const ProPage: React.FC = () => {
                 }}
               />
 
-              {/* Right Traces */}
               <path
                 d="M700 90 H560 V210 H474"
                 fill="none"
@@ -255,7 +253,6 @@ const ProPage: React.FC = () => {
               Sysm Pro
             </text>
 
-            {/* Terminal Points */}
             <circle cx="100" cy="100" r="5" fill="black" />
             <circle cx="80" cy="180" r="5" fill="black" />
             <circle cx="60" cy="260" r="5" fill="black" />
@@ -268,7 +265,6 @@ const ProPage: React.FC = () => {
           </svg>
         </div>
 
-        {/* Pricing Section */}
         <div className="flex flex-col items-center gap-8 -mt-10 z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="text-center space-y-3">
             <h2 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-500 tracking-tight">

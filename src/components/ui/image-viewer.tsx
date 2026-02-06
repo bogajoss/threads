@@ -37,7 +37,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Handle Zoom
   const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.5, 4));
   const handleZoomOut = () => {
     setScale((prev) => {
@@ -65,7 +64,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     }
   }, [currentIndex, media?.length, onNavigate]);
 
-  // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -85,7 +83,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     typeof currentItem === "string" ? currentItem : currentItem.url;
   const hasMultiple = media.length > 1;
 
-  // Mouse Dragging (only when zoomed)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale > 1 && !isVideo) {
       setIsDragging(true);
@@ -104,7 +101,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
   const handleMouseUp = () => setIsDragging(false);
 
-  // Touch Events for Swipe & Pinch
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       setTouchStart({
@@ -193,7 +189,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       onTouchEnd={handleTouchEnd}
       onClick={onClose}
     >
-      {/* Header Toolbar */}
       <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent p-4">
         <div className="flex flex-col">
           <span className="text-lg font-bold text-white drop-shadow-md">
@@ -247,7 +242,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="relative flex h-full w-full items-center justify-center">
         {hasMultiple && currentIndex > 0 && scale === 1 && (
           <button
@@ -305,7 +299,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         )}
       </div>
 
-      {/* Footer Info / Thumbnails */}
       {hasMultiple && (
         <div
           className="hide-scrollbar absolute bottom-8 flex max-w-[90%] gap-3 overflow-x-auto rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-xl"
@@ -335,7 +328,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         </div>
       )}
 
-      {/* Mobile Swipe Indicator (Only at scale 1) */}
       {scale === 1 && hasMultiple && (
         <div className="absolute bottom-4 text-[10px] font-bold uppercase tracking-widest text-white/30 md:hidden">
           Swipe to navigate

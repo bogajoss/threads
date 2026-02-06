@@ -35,7 +35,6 @@ const HashtagFeed = () => {
           </div>
         </div>
 
-        {/* Hashtag Header */}
         <div className="relative">
           <div className="relative h-32 overflow-hidden bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 sm:h-40">
             <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />

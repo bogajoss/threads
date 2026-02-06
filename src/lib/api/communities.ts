@@ -3,9 +3,6 @@ import { transformPost, transformCommunity } from "@/lib/transformers";
 import type { Community, Post } from "@/types/index";
 import { deleteFileFromUrl } from "./storage";
 
-/**
- * Fetches all communities.
- */
 export const fetchCommunities = async (
   lastTimestamp: string | null = null,
   limit: number = 10,
@@ -26,9 +23,6 @@ export const fetchCommunities = async (
     .filter((c: Community | null): c is Community => c !== null);
 };
 
-/**
- * Fetches a single community by handle.
- */
 export const fetchCommunityByHandle = async (
   handle: string,
 ): Promise<Community | null> => {
@@ -41,9 +35,6 @@ export const fetchCommunityByHandle = async (
   return transformCommunity(data);
 };
 
-/**
- * Fetches posts for a specific community.
- */
 export const fetchCommunityPosts = async (
   communityId: string,
   lastTimestamp: string | null = null,
@@ -66,9 +57,6 @@ export const fetchCommunityPosts = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
-/**
- * Joins or leaves a community.
- */
 export const toggleCommunityMembership = async (
   communityId: string,
   userId: string,
@@ -95,9 +83,6 @@ export const toggleCommunityMembership = async (
   }
 };
 
-/**
- * Checks if a user is a member of a community and returns their membership data.
- */
 export const checkIfMember = async (
   communityId: string,
   userId: string,
@@ -108,16 +93,13 @@ export const checkIfMember = async (
     .eq("community_id", communityId)
     .eq("user_id", userId)
     .maybeSingle();
-  return data; // Returns { community_id, user_id, role, created_at } or null
+  return data;
 };
 
 interface CommunityWithRole extends Community {
   myRole: string;
 }
 
-/**
- * Fetches all communities a user is a member of, including their role.
- */
 export const fetchUserCommunities = async (
   userId: string,
 ): Promise<CommunityWithRole[]> => {
@@ -138,9 +120,6 @@ export const fetchUserCommunities = async (
   }));
 };
 
-/**
- * Creates a new community.
- */
 export const createCommunity = async (
   communityData: any,
 ): Promise<Community | null> => {
@@ -151,7 +130,6 @@ export const createCommunity = async (
 
   if (error) throw error;
 
-  // Automatically make creator an ADMIN
   const { error: memberError } = await (
     supabase.from("community_members") as any
   ).insert([
@@ -167,14 +145,10 @@ export const createCommunity = async (
   return transformCommunity(community);
 };
 
-/**
- * Updates an existing community.
- */
 export const updateCommunity = async (
   id: string,
   communityData: any,
 ): Promise<Community | null> => {
-  // 1. If updating avatar or cover, fetch old ones to delete
   if (communityData.avatar_url || communityData.cover_url) {
     const { data: oldCommunity } = (await (supabase.from("communities") as any)
       .select("avatar_url, cover_url")
@@ -182,7 +156,6 @@ export const updateCommunity = async (
       .single()) as any;
 
     if (oldCommunity) {
-      // Delete old avatar if it's a Supabase URL and different from new one
       if (
         communityData.avatar_url &&
         oldCommunity.avatar_url &&
@@ -196,7 +169,6 @@ export const updateCommunity = async (
           await deleteFileFromUrl(oldCommunity.avatar_url);
         }
       }
-      // Delete old cover if it's a Supabase URL and different from new one
       if (
         communityData.cover_url &&
         oldCommunity.cover_url &&
@@ -223,9 +195,6 @@ export const updateCommunity = async (
   return transformCommunity(data);
 };
 
-/**
- * Fetches members of a community with user details.
- */
 export const fetchCommunityMembers = async (
   communityId: string,
   searchQuery: string = "",
@@ -263,9 +232,6 @@ export const fetchCommunityMembers = async (
   }));
 };
 
-/**
- * Updates a member's role in a community.
- */
 export const updateMemberRole = async (
   communityId: string,
   userId: string,

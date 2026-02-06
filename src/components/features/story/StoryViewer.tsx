@@ -66,14 +66,13 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         }
         return prev + 1;
       });
-    }, 50); // 5 seconds per story
+    }, 50);
     return () => clearInterval(timer);
   }, [handleNext, currentIndex, isPaused]);
 
   return (
     <div className="fixed inset-0 z-[100] flex animate-in fade-in flex-col items-center justify-center bg-black duration-300">
       <div className="absolute left-0 right-0 top-0 z-20 flex flex-col gap-4 p-4">
-        {/* Progress Bars */}
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
           {stories.map((_, idx) => (
             <div
@@ -171,7 +170,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
           <ChevronRight size={32} />
         </button>
 
-        {/* Click zones for navigation */}
         <div className="absolute inset-0 z-20 flex">
           <div className="w-[30%] cursor-w-resize" onClick={handlePrev}></div>
           <div

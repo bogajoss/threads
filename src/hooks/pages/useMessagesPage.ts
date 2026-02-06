@@ -29,32 +29,28 @@ export const useMessagesPage = () => {
     onDeleteMessage,
     onToggleReaction,
     conversationReactions,
-    messages, // Flat list of messages from infinite query
+    messages,
     isMsgLoading,
     fetchNextMessages,
     hasMoreMessages,
     isFetchingMoreMessages,
-  } = useMessages(currentUser, id); // Pass 'id' as activeConversationId
+  } = useMessages(currentUser, id);
 
-  // Derive selected conversation from URL ID
   const selectedConversation = useMemo(() => {
     if (!id || conversations.length === 0) return null;
     return conversations.find((c: any) => c.id === id) || null;
   }, [id, conversations]);
 
-  // Mark messages as read when a conversation is viewed
   useEffect(() => {
     if (id) {
       markAsRead(id);
     }
   }, [id, markAsRead]);
 
-  // Search for new users when query changes
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (msgSearchQuery.length > 1) {
         const results = await searchUsers(msgSearchQuery);
-        // Filter out users we already have a conversation with
         const existingUserIds = conversations.map((c: any) => c.user?.id);
         setUserSearchResults(
           results.filter(
@@ -132,7 +128,6 @@ export const useMessagesPage = () => {
     typingStatus,
     onToggleReaction,
     navigate,
-    // Expose infinite scroll props for ChatWindow
     fetchNextMessages,
     hasMoreMessages,
     isFetchingMoreMessages,

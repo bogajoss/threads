@@ -54,7 +54,6 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isCreator = currentUser?.id === conversation.creatorId;
 
-  // 1. Fetch Participants
   const { data: participants = [], isLoading: loadingParts } = useQuery({
     queryKey: ["conversation-participants", conversation.id],
     queryFn: () => fetchConversationParticipants(conversation.id),
@@ -191,7 +190,6 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
     >
       <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
         <div className="space-y-6">
-          {/* Header Section */}
           <div className="flex flex-col items-center gap-4 border-b border-zinc-100 pb-6 dark:border-zinc-800">
             <div className="group relative">
               <Avatar className="size-24 border-4 border-white shadow-xl dark:border-zinc-900">
@@ -246,7 +244,6 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Members List */}
           <div className="space-y-4">
             <div className="flex items-center justify-between px-1">
               <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-500">
@@ -375,7 +372,6 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Footer Actions */}
           <div className="flex flex-col gap-2 pt-2 pb-2">
             <Button
               variant="outline"
@@ -396,7 +392,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                 <Trash2 size={18} className="mr-2" />
                 Delete Group
               </Button>
-            )}{" "}
+            )}
           </div>
         </div>
       </div>

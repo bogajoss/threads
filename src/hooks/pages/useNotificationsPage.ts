@@ -14,7 +14,6 @@ export const useNotificationsPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // 1. Fetch Notifications using useInfiniteQuery
   const {
     data: notificationsData,
     fetchNextPage,
@@ -38,7 +37,6 @@ export const useNotificationsPage = () => {
     return notificationsData?.pages.flatMap((page) => page) || [];
   }, [notificationsData]);
 
-  // Realtime subscription for notifications
   useEffect(() => {
     if (!currentUser?.id) return;
 
@@ -81,7 +79,6 @@ export const useNotificationsPage = () => {
         currentUserId,
       ]);
 
-      // Optimistically mark all as read
       queryClient.setQueryData(["notifications", currentUserId], (old: any) => {
         if (!old) return old;
         return {
@@ -120,7 +117,6 @@ export const useNotificationsPage = () => {
     [navigate],
   );
 
-  // Mark notifications as read when the component mounts or updates
   useEffect(() => {
     if (currentUser?.id && notifications.some((n) => !n.is_read)) {
       markReadMutation.mutate();
@@ -133,7 +129,7 @@ export const useNotificationsPage = () => {
     isLoading,
     isFetchingMore,
     hasMore,
-    loadNotifications: fetchNextPage, // Maintain interface name
+    loadNotifications: fetchNextPage,
     refreshNotifications: refetch,
     handleNotificationClick,
     navigate,

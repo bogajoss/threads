@@ -9,7 +9,6 @@ const FeedHeader = () => {
         decoding="async"
         className="h-full w-full object-cover duration-700 group-hover:scale-105"
       />
-      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
       <div className="absolute bottom-6 left-8 text-white">
@@ -29,7 +28,6 @@ const FeedHeader = () => {
         </p>
       </div>
 
-      {/* Floating Icons/Sparkles to match image feel */}
       <div className="absolute bottom-4 right-8">
         <img
           src="/logo.webp"

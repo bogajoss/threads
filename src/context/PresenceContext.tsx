@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   useContext,
@@ -52,13 +51,11 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
             userId: currentUser.id,
             online_at: new Date().toISOString(),
           });
-          // Update DB that user is online now
           updateLastSeen(currentUser.id);
         }
       });
 
     return () => {
-      // Update DB one last time before unmounting (logout/tab switch)
       if (currentUser?.id) {
         updateLastSeen(currentUser.id);
       }

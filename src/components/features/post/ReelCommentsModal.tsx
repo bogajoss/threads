@@ -123,7 +123,6 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
       className="max-sm:h-[95dvh] h-[85vh] overflow-hidden !p-0 sm:max-w-xl"
     >
       <div className="flex h-full flex-col overflow-hidden bg-white dark:bg-zinc-900">
-        {/* Mobile handle indicator */}
         <div className="mx-auto my-3 h-1.5 w-12 shrink-0 rounded-full bg-zinc-200 dark:bg-zinc-800 sm:hidden" />
 
         <div className="flex-1 overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
@@ -190,7 +189,6 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
           )}
         </div>
 
-        {/* Fixed Footer for Comment Input */}
         <div className="shrink-0 border-t border-zinc-100 bg-white pb-safe dark:border-zinc-800 dark:bg-zinc-900">
           {replyTo && (
             <div className="flex items-center justify-between border-b border-zinc-50 bg-zinc-50/50 px-4 py-2 dark:border-zinc-800/50 dark:bg-zinc-900/50">

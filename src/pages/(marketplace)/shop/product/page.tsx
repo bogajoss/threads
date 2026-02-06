@@ -29,7 +29,6 @@ const ProductPage: React.FC = () => {
   return (
     <PageTransition>
       <div className="min-h-screen bg-black text-white selection:bg-blue-500/30 pb-20">
-        {/* Header */}
         <div className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center gap-4">
             <Link
@@ -53,7 +52,6 @@ const ProductPage: React.FC = () => {
         </div>
 
         <main className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-          {/* Title Section */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -87,9 +85,7 @@ const ProductPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column: Stats & Info */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Bid Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-[#111] border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -139,11 +135,10 @@ const ProductPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Links Section */}
               <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
                 <div className="p-5 border-b border-white/5 flex items-center justify-between">
                   <h3 className="font-semibold text-lg">Detailed Info</h3>
-                  <Info className="w-5 h-5 text-neutral-600" />
+                  <div className="w-5 h-5 text-neutral-600" />
                 </div>
                 <div className="divide-y divide-white/5">
                   <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -180,7 +175,6 @@ const ProductPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Bid History */}
               {product.bidHistory && (
                 <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
                   <div className="p-5 border-b border-white/5 flex items-center justify-between">
@@ -219,7 +213,6 @@ const ProductPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Ownership History */}
               {product.ownershipHistory && (
                 <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
                   <div className="p-5 border-b border-white/5 flex items-center justify-between">
@@ -288,7 +281,6 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column: Sticky Sidebar */}
             <div className="space-y-6">
               <div className="bg-[#111] border border-white/5 rounded-2xl p-6 sticky top-24">
                 <div className="flex justify-center mb-6">

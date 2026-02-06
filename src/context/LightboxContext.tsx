@@ -1,9 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import type { Media } from "@/types/index";
 
-// Accept Media object or just a string URL, normalize to array
 type ImageInput = string | Media | (string | Media)[];
 
 interface LightboxState {

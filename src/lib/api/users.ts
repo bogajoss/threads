@@ -3,9 +3,6 @@ import { transformUser } from "@/lib/transformers";
 import type { User } from "@/types/index";
 import { deleteFileFromUrl } from "./storage";
 
-/**
- * Searches for users by username or display name.
- */
 export const searchUsers = async (
   query: string,
   limit: number = 10,
@@ -20,9 +17,6 @@ export const searchUsers = async (
   return (data || []).map(transformUser).filter((u): u is User => u !== null);
 };
 
-/**
- * Fetches all user profiles with pagination.
- */
 export const fetchProfiles = async (
   lastTimestamp: string | null = null,
   limit: number = 10,
@@ -44,9 +38,6 @@ export const fetchProfiles = async (
   return (data || []).map(transformUser).filter((u): u is User => u !== null);
 };
 
-/**
- * Fetches a user profile by ID or handle.
- */
 export const fetchUserProfile = async (
   identifier: string,
   type: "id" | "username" = "id",
@@ -65,15 +56,9 @@ export const fetchUserProfile = async (
   return data ? transformUser(data) : null;
 };
 
-/**
- * Fetches a single profile by handle.
- */
 export const fetchProfileByHandle = (handle: string): Promise<User | null> =>
   fetchUserProfile(handle, "username");
 
-/**
- * Updates the user's last seen timestamp.
- */
 export const updateLastSeen = async (userId: string): Promise<void> => {
   if (!userId) return;
   const { error } = await (supabase.from("users") as any)
@@ -92,14 +77,10 @@ interface ProfileUpdateFields {
   location?: string;
 }
 
-/**
- * Updates a user profile.
- */
 export const updateProfile = async (
   userId: string,
   fields: ProfileUpdateFields,
 ): Promise<void> => {
-  // 1. If updating avatar or cover, fetch old ones to delete
   if (fields.avatar || fields.cover) {
     const { data: oldProfile } = await (supabase
       .from("users")
@@ -108,7 +89,6 @@ export const updateProfile = async (
       .single() as any);
 
     if (oldProfile) {
-      // Delete old avatar if it's a Supabase URL and different from new one
       if (
         fields.avatar &&
         oldProfile.avatar_url &&
@@ -122,7 +102,6 @@ export const updateProfile = async (
           await deleteFileFromUrl(oldProfile.avatar_url);
         }
       }
-      // Delete old cover if it's a Supabase URL and different from new one
       if (
         fields.cover &&
         oldProfile.cover_url &&
@@ -149,7 +128,6 @@ export const updateProfile = async (
     location: fields.location,
   };
 
-  // Remove undefined fields
   Object.keys(dbFields).forEach(
     (key) => dbFields[key] === undefined && delete dbFields[key],
   );
@@ -161,9 +139,6 @@ export const updateProfile = async (
   if (error) throw error;
 };
 
-/**
- * Toggles a follow on a user.
- */
 export const toggleFollow = async (
   followerId: string,
   followingId: string,
@@ -190,9 +165,6 @@ export const toggleFollow = async (
   }
 };
 
-/**
- * Checks if a user is following another user.
- */
 export const checkIfFollowing = async (
   followerId: string,
   followingId: string,
@@ -211,9 +183,6 @@ interface UserWithFollowDate extends User {
   followed_at: string;
 }
 
-/**
- * Fetches followers of a user with pagination.
- */
 export const fetchFollowers = async (
   userId: string,
   lastTimestamp: string | null = null,
@@ -251,9 +220,6 @@ export const fetchFollowers = async (
   }));
 };
 
-/**
- * Fetches users followed by a user with pagination.
- */
 export const fetchFollowing = async (
   userId: string,
   lastTimestamp: string | null = null,
@@ -291,9 +257,6 @@ export const fetchFollowing = async (
   }));
 };
 
-/**
- * Fetches follow stats.
- */
 export const fetchFollowStats = async (
   userId: string,
 ): Promise<{ followers: number; following: number }> => {

@@ -13,7 +13,6 @@ export const useReels = () => {
   const [activeReelId, setActiveReelId] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(true);
 
-  // 1. Fetch Reels using useInfiniteQuery
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["reels"],
@@ -32,7 +31,6 @@ export const useReels = () => {
     return data?.pages.flatMap((page) => page) || [];
   }, [data]);
 
-  // Adjust activeReelId during render if needed
   const [prevReelsLength, setPrevReelsLength] = useState(0);
   if (reels.length > 0 && reels.length !== prevReelsLength && !activeReelId) {
     setPrevReelsLength(reels.length);
@@ -48,7 +46,6 @@ export const useReels = () => {
     }
   }
 
-  // Scroll to targetId on mount/reels load
   useEffect(() => {
     if (reels.length > 0 && targetId) {
       const element = reelRefs.current.get(targetId);
@@ -82,7 +79,6 @@ export const useReels = () => {
     }
   }, [reels, activeReelId]);
 
-  // Intersection Observer for Active Reel
   useEffect(() => {
     if (reels.length === 0) return;
 
@@ -105,7 +101,7 @@ export const useReels = () => {
     reelRefs.current.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [reels.length]); // Only re-run if length changes
+  }, [reels.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -117,7 +113,6 @@ export const useReels = () => {
 
       if (isTyping) return;
 
-      // Ignore if modifier keys are pressed
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
       switch (e.key) {
@@ -135,14 +130,12 @@ export const useReels = () => {
           break;
         case " ": {
           e.preventDefault();
-          // Get the active reel's video element/plyr instance and toggle it
           const activeElement = reelRefs.current.get(activeReelId || "");
           if (activeElement) {
             const playButton = activeElement.querySelector(
               ".reel-item",
             ) as HTMLElement;
             if (playButton) {
-              // We trigger the click interaction which already handles play/pause logic
               playButton.click();
             }
           }

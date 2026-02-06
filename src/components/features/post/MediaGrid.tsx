@@ -15,7 +15,6 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
 
   if (!items || (Array.isArray(items) && items.length === 0)) return null;
 
-  // items can be a single object from old schema or array from new
   const normalizedItems = Array.isArray(items) ? items : [items];
   const media = normalizedItems.filter(
     (i) => i.type === "image" || i.type === "video",
@@ -25,9 +24,8 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
   const handleImageClick = (idx: number) => {
     const imageUrls = media
       .filter((item) => item.type === "image")
-      .map((item) => item.url || (item as any).src); // Support legacy src if needed
+      .map((item) => item.url || (item as any).src);
 
-    // Find the index of the clicked image in the imageUrls array
     const clickedItem = media[idx];
     const imageIndex = imageUrls.indexOf(
       clickedItem.url || (clickedItem as any).src,

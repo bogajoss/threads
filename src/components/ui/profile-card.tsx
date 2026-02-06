@@ -33,11 +33,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   const { addToast } = useToast();
   const isOnline = onlineUsers.has(profile.id);
 
-  // Community Membership State
   const [isJoined, setIsJoined] = useState(false);
   const [loadingMember, setLoadingMember] = useState(isCommunity);
 
-  // Follow Logic (only for users)
   const {
     isFollowing,
     loading: loadingFollow,

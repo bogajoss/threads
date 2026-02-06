@@ -50,14 +50,9 @@ const DialogContent = React.forwardRef<
 
     const handleDragEnd = async (_: any, info: any) => {
       if (info.offset.y > 150 || info.velocity.y > 500) {
-        // Trigger close via the primitive's close button if possible,
-        // but usually we want to notify the parent to close the state.
-        // Since Radix Dialog is controlled/uncontrolled, the best way
-        // is to simulate a click on the close button or use the prop.
         if (onDragClose) {
           onDragClose();
         } else {
-          // Fallback: find and click the close button
           const closeBtn = document.querySelector(
             "[data-dialog-close]",
           ) as HTMLButtonElement;
@@ -92,7 +87,6 @@ const DialogContent = React.forwardRef<
               className,
             )}
           >
-            {/* Drag Handle Container */}
             <div className="flex w-full items-center justify-center pt-2 pb-1 shrink-0">
               <div className="h-1.5 w-12 rounded-full bg-zinc-200 dark:bg-zinc-800" />
             </div>

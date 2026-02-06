@@ -64,7 +64,6 @@ export default function ManageMembersModal({
     }
   }, [isOpen, community?.id, loadMembers]);
 
-  // Simple debounce for search
   useEffect(() => {
     if (memberSearch.length >= 2) {
       const timer = setTimeout(() => {

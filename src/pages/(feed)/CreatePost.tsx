@@ -68,7 +68,6 @@ const CreatePost: React.FC = () => {
     initialCommunity || null,
   );
 
-  // Story/Reel specific state
   const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [croppingFileId, setCroppingFileId] = useState<string | null>(null);
 
@@ -241,8 +240,6 @@ const CreatePost: React.FC = () => {
   };
 
   useEffect(() => {
-    // When switching types, we might want to clear files if they don't match
-    // but for now let's just keep them.
     if ((isStory || isReel) && selectedFiles.length > 1) {
       setSelectedFiles([selectedFiles[0]]);
     }
@@ -262,7 +259,6 @@ const CreatePost: React.FC = () => {
   return (
     <PageTransition>
       <div className="flex min-h-screen flex-col bg-[--background] dark:bg-black md:rounded-3xl md:border md:border-[--border] md:shadow-sm">
-        {/* Header */}
         <div className="sticky top-0 z-10 flex flex-col border-b border-[--border] bg-[--background]/80 backdrop-blur-md dark:bg-black/80">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
@@ -364,7 +360,6 @@ const CreatePost: React.FC = () => {
             )}
           </div>
 
-          {/* Type Selector */}
           <div className="flex px-4 pb-4">
             <div className="flex w-full overflow-hidden rounded-2xl bg-zinc-100/50 p-1.5 dark:bg-zinc-900/50 ring-1 ring-zinc-200/50 dark:ring-zinc-800/50">
               {[
@@ -395,7 +390,6 @@ const CreatePost: React.FC = () => {
           onSubmit={handlePublish}
           className="flex flex-1 flex-col gap-8 p-6 max-w-5xl w-full mx-auto font-bangla"
         >
-          {/* Caption Section */}
           {!isStory && (
             <div className="flex flex-col gap-2.5">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
@@ -410,7 +404,6 @@ const CreatePost: React.FC = () => {
             </div>
           )}
 
-          {/* Media Section */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
@@ -515,7 +508,6 @@ const CreatePost: React.FC = () => {
             )}
           </div>
 
-          {/* Hashtags Section */}
           {!isStory && (
             <div className="flex flex-col gap-2.5">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
@@ -533,7 +525,6 @@ const CreatePost: React.FC = () => {
             </div>
           )}
 
-          {/* Poll Section (Optional) */}
           {!isStory && !isReel && (
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center justify-between">

@@ -111,7 +111,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <div className="flex flex-col space-y-4 p-4 pt-16 sm:p-6 sm:pt-20">
         <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1 pr-4">
-            {/* Name moved below avatar in mobile for more space */}
           </div>
           <div className="flex shrink-0 gap-2">
             {isCurrentUser ? (

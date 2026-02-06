@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   useContext,
@@ -17,7 +16,6 @@ import {
 } from "@/lib/api";
 import type { User } from "@/types/index";
 
-// Define the shape of the auth context
 interface AuthContextType {
   currentUser: User | null;
   login: (credentials: any) => Promise<any>;
@@ -45,7 +43,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data) {
         setCurrentUser(data);
       } else {
-        // Fallback for new users or demo
         const demoUser: User = {
           id: user.id,
           name: user.email?.split("@")[0] || "User",
@@ -72,13 +69,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    // Update immediately on mount/login
     updateLastSeen(currentUser.id);
 
-    // Update every 30 seconds for higher accuracy
     const interval = setInterval(() => updateLastSeen(currentUser.id), 30000);
 
-    // Update when user returns to the tab
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         updateLastSeen(currentUser.id);
@@ -163,7 +157,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await updateProfileApi(currentUser.id, updatedFields as any);
       await fetchUserProfileData(currentUser);
 
-      // Invalidate React Query caches for this user
       queryClient.invalidateQueries({
         queryKey: ["profile", currentUser.handle],
       });

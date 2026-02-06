@@ -32,10 +32,6 @@ export interface PixelCrop {
   unit?: "px" | "%";
 }
 
-/**
- * @param {HTMLImageElement} image - Image File Object
- * @param {Object} crop - pixelCrop Object
- */
 export const getCroppedImg = (
   image: HTMLImageElement,
   crop: PixelCrop,
@@ -53,7 +49,6 @@ export const getCroppedImg = (
     return Promise.reject(new Error("No 2d context"));
   }
 
-  // High quality settings
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
@@ -79,7 +74,7 @@ export const getCroppedImg = (
         resolve(blob);
       },
       "image/jpeg",
-      0.95, // High quality JPEG
+      0.95,
     );
   });
 };

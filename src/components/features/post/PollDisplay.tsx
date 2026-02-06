@@ -48,7 +48,6 @@ const PollDisplay: React.FC<PollDisplayProps> = ({ poll, onVote }) => {
             onClick={() => handleVote(option.id)}
             className={`relative h-10 w-full overflow-hidden rounded-xl border cursor-pointer ${isSelected ? "border-violet-500 dark:border-violet-500" : "border-zinc-200 dark:border-zinc-700"}`}
           >
-            {/* Background Bar */}
             {votedOption && (
               <div
                 className="absolute left-0 top-0 h-full bg-zinc-200 transition-all duration-500 dark:bg-zinc-800"
@@ -56,7 +55,6 @@ const PollDisplay: React.FC<PollDisplayProps> = ({ poll, onVote }) => {
               ></div>
             )}
 
-            {/* Content */}
             <div className="absolute inset-0 z-10 flex items-center justify-between px-4">
               <span
                 className={`text-sm font-medium ${isSelected ? "font-bold text-violet-600" : "text-zinc-700 dark:text-zinc-200"}`}

@@ -68,7 +68,6 @@ export const useChatMessages = (
     [currentUser?.id],
   );
 
-  // 1. Fetch Messages (Infinite Scroll)
   const {
     data: messagesData,
     fetchNextPage,
@@ -89,7 +88,6 @@ export const useChatMessages = (
     refetchOnWindowFocus: false,
   });
 
-  // 2. Fetch Reactions
   const { data: conversationReactions = [] } = useQuery({
     queryKey: ["reactions", activeConversationId],
     queryFn: () => fetchReactionsByConversation(activeConversationId!),
@@ -97,7 +95,6 @@ export const useChatMessages = (
     staleTime: 1000 * 60 * 5,
   });
 
-  // 3. Mutation to send message with Optimistic UI
   const sendMutation = useMutation({
     mutationFn: ({
       convId,
@@ -171,7 +168,6 @@ export const useChatMessages = (
     },
   });
 
-  // 4. Mutation to edit message
   const editMutation = useMutation({
     mutationFn: ({
       messageId,
@@ -185,7 +181,6 @@ export const useChatMessages = (
       queryClient.invalidateQueries({
         queryKey: ["messages", activeConversationId],
       });
-      // Also update last message in conversation list if needed
       queryClient.invalidateQueries({
         queryKey: ["conversations", currentUser?.id],
       });

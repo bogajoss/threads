@@ -12,17 +12,15 @@ export const useProfile = () => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
 
-  // 1. Fetch Profile Data using useQuery
   const { data: profile, isLoading: loadingProfile } = useQuery({
     queryKey: ["profile", handle],
     queryFn: () => fetchProfileByHandle(handle!),
     enabled: !!handle,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   const [activeProfileTab, setActiveProfileTab] = useState("feed");
 
-  // 2. Fetch User Posts using useInfiniteQuery
   const {
     data: postsData,
     fetchNextPage: fetchNextPosts,
@@ -47,7 +45,6 @@ export const useProfile = () => {
     return postsData?.pages.flatMap((page) => page) || [];
   }, [postsData]);
 
-  // Followers/Following Modal State
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
   const [followModalType, setFollowModalType] = useState<
     "Followers" | "Following"
@@ -97,7 +94,6 @@ export const useProfile = () => {
     navigate(`/u/${targetHandle}`);
   };
 
-  // Shim for loadUserPosts to maintain interface if needed by UI
   const loadUserPosts = () => {
     fetchNextPosts();
   };
@@ -105,9 +101,9 @@ export const useProfile = () => {
   return {
     handle,
     profile,
-    loading: loadingProfile, // Mapped to new loading state
+    loading: loadingProfile,
     userPosts,
-    setUserPosts: () => console.warn("setUserPosts is deprecated"), // Read-only from RQ
+    setUserPosts: () => console.warn("setUserPosts is deprecated"),
     activeProfileTab,
     setActiveProfileTab,
     loadingPosts,
