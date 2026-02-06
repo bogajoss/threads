@@ -12,15 +12,19 @@ const MarketplaceLayout: React.FC = () => {
       <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
-            <Link 
-              to="/feed" 
+            <Link
+              to="/feed"
               className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
-              <span className="hidden sm:inline text-sm font-medium">Back to Feed</span>
+              <span className="hidden sm:inline text-sm font-medium">
+                Back to Feed
+              </span>
             </Link>
             <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800 mx-2" />
-            <span className="text-lg font-bold tracking-tight">Marketplace</span>
+            <span className="text-lg font-bold tracking-tight">
+              Marketplace
+            </span>
           </div>
 
           <nav className="flex items-center gap-1 sm:gap-4">
@@ -50,12 +54,17 @@ const MarketplaceLayout: React.FC = () => {
         </div>
       </header>
 
-      <main className="container mx-auto py-8 px-4">
-        <Suspense fallback={
-          <div className="flex h-[60vh] items-center justify-center">
-            <Loader2 className="animate-spin text-zinc-500" size={32} />
-          </div>
-        }>
+            <main className="container mx-auto py-8 px-4">
+
+              <Suspense fallback={
+
+                <div className="flex h-[60vh] items-center justify-center">
+
+                  <Loader2 className="animate-spin text-zinc-500" size={32} />
+
+                </div>
+
+              }>
           <PageTransition>
             <Outlet />
           </PageTransition>

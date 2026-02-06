@@ -134,14 +134,12 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   );
 
   // Kept for backward compatibility, but strictly it shouldn't be used to *set* posts in RQ
-  const setPosts: React.Dispatch<React.SetStateAction<Post[]>> = useCallback(
-    () => {
+  const setPosts: React.Dispatch<React.SetStateAction<Post[]>> =
+    useCallback(() => {
       console.warn(
         "setPosts is deprecated in favor of React Query cache updates",
       );
-    },
-    [],
-  );
+    }, []);
 
   const getPostById = useCallback(
     (id: string): Post | undefined => posts.find((p) => p.id === id),

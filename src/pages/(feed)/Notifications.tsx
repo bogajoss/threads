@@ -66,71 +66,70 @@ const Notifications: React.FC = () => {
       </div>
 
       {notifications.length > 0 ? (
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {notifications.map((notif: Notification) => (
-              <div
-                key={notif.id}
-                onClick={() => handleNotificationClick(notif)}
-                className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${
-                  !notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
-                }`}
-              >
-                <div className="relative">
-                  <Avatar className="h-12 w-12 border border-zinc-100 dark:border-zinc-800">
-                    <AvatarImage src={notif.avatar} />
-                    <AvatarFallback>
-                      {notif.user?.[0]?.toUpperCase() || "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-1 shadow-sm dark:bg-zinc-900">
-                    {renderNotificationIcon(notif.type)}
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col gap-1">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm dark:text-zinc-100">
-                      <span className="font-bold">@{notif.user}</span>{" "}
-                      {renderNotificationContent(notif)}
-                    </div>
-                    <span className="text-xs text-zinc-500">
-                      {formatTimeAgo(notif.created_at)}
-                    </span>
-                  </div>
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          {notifications.map((notif: Notification) => (
+            <div
+              key={notif.id}
+              onClick={() => handleNotificationClick(notif)}
+              className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${
+                !notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
+              }`}
+            >
+              <div className="relative">
+                <Avatar className="h-12 w-12 border border-zinc-100 dark:border-zinc-800">
+                  <AvatarImage src={notif.avatar} />
+                  <AvatarFallback>
+                    {notif.user?.[0]?.toUpperCase() || "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-1 shadow-sm dark:bg-zinc-900">
+                  {renderNotificationIcon(notif.type)}
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-16 text-center text-zinc-500">
-            <p className="font-medium">No notifications yet.</p>
-          </div>
-        )}
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm dark:text-zinc-100">
+                    <span className="font-bold">@{notif.user}</span>{" "}
+                    {renderNotificationContent(notif)}
+                  </div>
+                  <span className="text-xs text-zinc-500">
+                    {formatTimeAgo(notif.created_at)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-16 text-center text-zinc-500">
+          <p className="font-medium">No notifications yet.</p>
+        </div>
+      )}
 
-        {notifications.length > 0 && hasMore && (
-          <div className="flex justify-center p-4">
-            <Button
-              variant="ghost"
-              onClick={() => loadNotifications()}
-              disabled={isFetchingMore}
-              className="text-sm"
-            >
-              {isFetchingMore ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Load more"
-              )}
-            </Button>
-          </div>
-        )}
+      {notifications.length > 0 && hasMore && (
+        <div className="flex justify-center p-4">
+          <Button
+            variant="ghost"
+            onClick={() => loadNotifications()}
+            disabled={isFetchingMore}
+            className="text-sm"
+          >
+                          {isFetchingMore ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (              "Load more"
+            )}
+          </Button>
+        </div>
+      )}
 
-        {notifications.length > 0 && !hasMore && (
-          <div className="p-8 text-center text-sm text-zinc-500">
-            You've caught up with everything!
-          </div>
-        )}
+      {notifications.length > 0 && !hasMore && (
+        <div className="p-8 text-center text-sm text-zinc-500">
+          You've caught up with everything!
+        </div>
+      )}
     </div>
   );
 };

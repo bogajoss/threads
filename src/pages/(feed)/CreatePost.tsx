@@ -24,6 +24,32 @@ import {
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  EditorProvider,
+  EditorFloatingMenu,
+  EditorBubbleMenu,
+  EditorSelector,
+  EditorNodeText,
+  EditorNodeHeading1,
+  EditorNodeHeading2,
+  EditorNodeHeading3,
+  EditorNodeBulletList,
+  EditorNodeOrderedList,
+  EditorNodeTaskList,
+  EditorNodeQuote,
+  EditorNodeCode,
+  EditorFormatBold,
+  EditorFormatItalic,
+  EditorFormatUnderline,
+  EditorFormatStrike,
+  EditorFormatCode,
+  EditorFormatSuperscript,
+  EditorFormatSubscript,
+  EditorLinkSelector,
+  EditorClearFormatting,
+  type Editor,
+  type JSONContent,
+} from "@/components/kibo-ui/editor";
 import MediaUploader from "@/components/features/modals/MediaUploader";
 import { PageTransition } from "@/components/layout";
 import ImageCropper from "@/components/ui/image-cropper";
@@ -45,10 +71,16 @@ const CreatePost: React.FC = () => {
   const queryClient = useQueryClient();
 
   const initialCommunity = location.state?.initialCommunity;
-  const initialType: PostType = location.state?.isStory ? "story" : location.state?.isReel ? "reel" : "post";
+  const initialType: PostType = location.state?.isStory
+    ? "story"
+    : location.state?.isReel
+      ? "reel"
+      : "post";
 
   const [createType, setCreateType] = useState<PostType>(initialType);
   const [postContent, setPostContent] = useState("");
+  const [editorContent, setEditorContent] = useState<JSONContent | null>(null);
+  const [editorHtml, setEditorHtml] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const [customThumbnails, setCustomThumbnails] = useState<
@@ -85,29 +117,11 @@ const CreatePost: React.FC = () => {
       id: Math.random().toString(36).substring(2, 11),
       file,
     }));
-    
+
     if (isStory || isReel) {
       setSelectedFiles([files[0]]);
     } else {
       setSelectedFiles((prev) => [...prev, ...files]);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    if (isStory || isReel) return;
-    const files = e.clipboardData.files;
-    if (files && files.length > 0) {
-      const imageFiles = Array.from(files).filter((file) =>
-        file.type.startsWith("image/"),
-      );
-      if (imageFiles.length > 0) {
-        e.preventDefault();
-        const newFiles: SelectedFile[] = imageFiles.map((file) => ({
-          id: Math.random().toString(36).substring(2, 11),
-          file,
-        }));
-        setSelectedFiles((prev) => [...prev, ...newFiles]);
-      }
     }
   };
 
@@ -159,8 +173,8 @@ const CreatePost: React.FC = () => {
     } else if (croppingFileId) {
       setSelectedFiles((prev) =>
         prev.map((f) =>
-          f.id === croppingFileId ? { ...f, file: croppedFile } : f
-        )
+          f.id === croppingFileId ? { ...f, file: croppedFile } : f,
+        ),
       );
     }
 
@@ -190,7 +204,8 @@ const CreatePost: React.FC = () => {
       return;
     }
 
-    if (!postContent.trim() && selectedFiles.length === 0) return;
+    if (!isReel && !editorHtml.trim() && selectedFiles.length === 0) return;
+    if (isReel && !postContent.trim() && selectedFiles.length === 0) return;
 
     setLoading(true);
     try {
@@ -216,7 +231,7 @@ const CreatePost: React.FC = () => {
         };
       }
 
-      let finalContent = postContent;
+      let finalContent = isReel ? postContent : editorHtml;
       if (hashtags.trim()) {
         const tagList = hashtags
           .split(",")
@@ -224,7 +239,10 @@ const CreatePost: React.FC = () => {
           .filter((tag) => tag.length > 0)
           .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
           .join(" ");
-        finalContent += `\n\n${tagList}`;
+        finalContent +=
+          isReel || !finalContent.includes("</")
+            ? `\n\n${tagList}`
+            : `<p>${tagList}</p>`;
       }
 
       await addPost({
@@ -267,7 +285,11 @@ const CreatePost: React.FC = () => {
     return null;
   }
 
-  const pageTitle = isStory ? "Add Story" : isReel ? "Create Reel" : "Create Post";
+  const pageTitle = isStory
+    ? "Add Story"
+    : isReel
+      ? "Create Reel"
+      : "Create Post";
 
   return (
     <PageTransition>
@@ -286,7 +308,7 @@ const CreatePost: React.FC = () => {
                 {pageTitle}
               </h1>
             </div>
-            
+
             {!isStory && (
               <div className="flex items-center gap-3">
                 <DropdownMenu>
@@ -334,7 +356,9 @@ const CreatePost: React.FC = () => {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-sm font-bold">Everyone</span>
-                        <span className="text-xs text-zinc-500">Public feed</span>
+                        <span className="text-xs text-zinc-500">
+                          Public feed
+                        </span>
                       </div>
                     </DropdownMenuItem>
                     {userCommunities.length > 0 && (
@@ -342,7 +366,9 @@ const CreatePost: React.FC = () => {
                     )}
                     <div className="max-h-[250px] overflow-y-auto">
                       {userCommunities
-                        .filter((c: any) => !c.isPrivate || c.myRole === "admin")
+                        .filter(
+                          (c: any) => !c.isPrivate || c.myRole === "admin",
+                        )
                         .map((c: any) => (
                           <DropdownMenuItem
                             key={c.id}
@@ -386,7 +412,7 @@ const CreatePost: React.FC = () => {
                     "flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-bold transition-all",
                     createType === type.id
                       ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-white"
-                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300",
                   )}
                 >
                   <type.icon size={16} />
@@ -397,20 +423,69 @@ const CreatePost: React.FC = () => {
           </div>
         </div>
 
-        <form onSubmit={handlePublish} className="flex flex-1 flex-col gap-8 p-6 max-w-5xl w-full mx-auto font-bangla">
+        <form
+          onSubmit={handlePublish}
+          className="flex flex-1 flex-col gap-8 p-6 max-w-5xl w-full mx-auto font-bangla"
+        >
           {/* Caption Section */}
           {!isStory && (
             <div className="flex flex-col gap-2.5">
               <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
                 Caption
               </label>
-              <Textarea
-                className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
-                placeholder={isReel ? "Add a caption for your reel..." : "What's on your mind?"}
-                value={postContent}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPostContent(e.target.value)}
-                onPaste={handlePaste}
-              />
+              {isReel ? (
+                <Textarea
+                  className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
+                  placeholder="Add a caption for your reel..."
+                  value={postContent}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setPostContent(e.target.value)
+                  }
+                />
+              ) : (
+                <div className="min-h-[250px] w-full">
+                  <EditorProvider
+                    className="min-h-[250px] w-full overflow-y-auto rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus-within:border-violet-500 focus-within:ring-4 focus-within:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground]"
+                    content={editorContent}
+                    onUpdate={({ editor }: { editor: Editor }) => {
+                      setEditorContent(editor.getJSON());
+                      setEditorHtml(editor.getHTML());
+                    }}
+                    placeholder="What's on your mind?"
+                  >
+                    <EditorFloatingMenu>
+                      <EditorNodeHeading1 hideName />
+                      <EditorNodeBulletList hideName />
+                      <EditorNodeQuote hideName />
+                      <EditorNodeCode hideName />
+                    </EditorFloatingMenu>
+                    <EditorBubbleMenu>
+                      <EditorSelector title="Text">
+                        <EditorNodeText />
+                        <EditorNodeHeading1 />
+                        <EditorNodeHeading2 />
+                        <EditorNodeHeading3 />
+                        <EditorNodeBulletList />
+                        <EditorNodeOrderedList />
+                        <EditorNodeTaskList />
+                        <EditorNodeQuote />
+                        <EditorNodeCode />
+                      </EditorSelector>
+                      <EditorSelector title="Format">
+                        <EditorFormatBold />
+                        <EditorFormatItalic />
+                        <EditorFormatUnderline />
+                        <EditorFormatStrike />
+                        <EditorFormatCode />
+                        <EditorFormatSuperscript />
+                        <EditorFormatSubscript />
+                      </EditorSelector>
+                      <EditorLinkSelector />
+                      <EditorClearFormatting />
+                    </EditorBubbleMenu>
+                  </EditorProvider>
+                </div>
+              )}
             </div>
           )}
 
@@ -430,9 +505,9 @@ const CreatePost: React.FC = () => {
                 </button>
               )}
             </div>
-            
+
             {selectedFiles.length === 0 ? (
-              <div 
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 className="group flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-[--border] bg-zinc-50/30 py-20 transition-all hover:border-violet-500 hover:bg-violet-50/10 dark:bg-zinc-900/20 cursor-pointer"
               >
@@ -445,19 +520,30 @@ const CreatePost: React.FC = () => {
                 </div>
                 <div className="text-center space-y-1">
                   <p className="text-lg font-bold text-[--foreground] font-english">
-                    Choose a {isStory ? "photo or video" : isReel ? "video" : "photo or video"}
+                    Choose a{" "}
+                    {isStory
+                      ? "photo or video"
+                      : isReel
+                        ? "video"
+                        : "photo or video"}
                   </p>
                   <p className="text-sm text-zinc-500 font-english">
-                    {isStory ? "Stories last for 24 hours" : isReel ? "Reels should be in vertical format" : "Photos and videos are supported"}
+                    {isStory
+                      ? "Stories last for 24 hours"
+                      : isReel
+                        ? "Reels should be in vertical format"
+                        : "Photos and videos are supported"}
                   </p>
                 </div>
               </div>
-            ) : (isStory || isReel) ? (
+            ) : isStory || isReel ? (
               <div className="space-y-6">
-                <div className={cn(
-                  "relative mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl ring-8 ring-[--border] bg-black",
-                  isStory ? "aspect-[9/16]" : "aspect-[9/16]"
-                )}>
+                <div
+                  className={cn(
+                    "relative mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl ring-8 ring-[--border] bg-black",
+                    isStory ? "aspect-[9/16]" : "aspect-[9/16]",
+                  )}
+                >
                   {selectedFiles[0].file.type.startsWith("video/") ? (
                     <video
                       src={URL.createObjectURL(selectedFiles[0].file)}
@@ -483,7 +569,7 @@ const CreatePost: React.FC = () => {
                     <Trash2 size={20} />
                   </button>
                 </div>
-                
+
                 <div className="flex justify-center">
                   {selectedFiles[0].file.type.startsWith("image/") && (
                     <button
@@ -519,7 +605,9 @@ const CreatePost: React.FC = () => {
                 type="text"
                 className="w-full rounded-2xl border-[--border] bg-zinc-50/30 px-5 py-4 text-base font-medium transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 h-14"
                 value={hashtags}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHashtags(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setHashtags(e.target.value)
+                }
               />
             </div>
           )}
@@ -539,7 +627,7 @@ const CreatePost: React.FC = () => {
                   {showPoll ? "REMOVE POLL" : "ADD POLL"}
                 </button>
               </div>
-              
+
               {showPoll && (
                 <div className="space-y-4 rounded-2xl border border-violet-100 bg-violet-50/10 p-6 dark:border-violet-900/20 dark:bg-violet-900/5 animate-in fade-in slide-in-from-top-2 duration-300">
                   <div className="space-y-3">
@@ -590,13 +678,25 @@ const CreatePost: React.FC = () => {
             </Button>
             <Button
               type="submit"
-              disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
+              disabled={
+                (!isStory &&
+                  !isReel &&
+                  !editorHtml.trim() &&
+                  selectedFiles.length === 0) ||
+                (isReel && !postContent.trim() && selectedFiles.length === 0) ||
+                (isStory && selectedFiles.length === 0) ||
+                loading
+              }
               className="rounded-2xl bg-zinc-950 px-12 py-3 font-black text-white transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950 shadow-xl shadow-violet-500/10 font-english"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin" />
+              ) : isStory ? (
+                "SHARE STORY"
+              ) : isReel ? (
+                "SHARE REEL"
               ) : (
-                isStory ? "SHARE STORY" : isReel ? "SHARE REEL" : "PUBLISH POST"
+                "PUBLISH POST"
               )}
             </Button>
           </div>

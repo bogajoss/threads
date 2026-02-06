@@ -215,8 +215,12 @@ export const transformConversation = (
   return {
     id: conv.id,
     isGroup: conv.is_group || false,
-    name: conv.name || (otherParticipant ? otherParticipant.user?.display_name : "Unknown"),
-    avatar: conv.avatar_url || (otherParticipant ? otherParticipant.user?.avatar_url : null),
+    name:
+      conv.name ||
+      (otherParticipant ? otherParticipant.user?.display_name : "Unknown"),
+    avatar:
+      conv.avatar_url ||
+      (otherParticipant ? otherParticipant.user?.avatar_url : null),
     creatorId: conv.creator_id || null,
     user: otherParticipant ? transformUser(otherParticipant.user) : null,
     lastMessage: conv.last_message_content || "No messages yet",

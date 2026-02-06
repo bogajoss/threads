@@ -43,8 +43,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           )}
         </button>
 
-        <div className="flex items-center gap-3 px-2 flex-1 min-w-0 cursor-pointer" 
-          onClick={() => !conversation.isGroup && conversation.user && navigate(`/u/${conversation.user.handle}`)}
+        <div
+          className="flex items-center gap-3 px-2 flex-1 min-w-0 cursor-pointer"
+          onClick={() =>
+            !conversation.isGroup &&
+            conversation.user &&
+            navigate(`/u/${conversation.user.handle}`)
+          }
         >
           <Avatar className="size-[42px] shrink-0">
             <AvatarImage
@@ -56,7 +61,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               {displayName?.[0]?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex flex-col min-w-0">
             <h3 className="text-[16px] font-bold text-zinc-900 dark:text-white truncate leading-tight">
               {displayName}
@@ -65,7 +70,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
               {conversation.isGroup ? (
                 "Group Chat"
               ) : isOnline ? (
-                <span className="text-violet-500 dark:text-[#8774e1]">Active now</span>
+                <span className="text-violet-500 dark:text-[#8774e1]">
+                  Active now
+                </span>
               ) : conversation.user?.lastSeen ? (
                 `last seen ${lastSeenTime}`
               ) : (

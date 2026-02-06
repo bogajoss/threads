@@ -5,7 +5,14 @@ import {
   useQueryClient,
   useInfiniteQuery,
 } from "@tanstack/react-query";
-import { sendMessage, fetchMessages, toggleMessageReaction, deleteMessage as deleteMessageApi, fetchReactionsByConversation, editMessage as editMessageApi } from "@/lib/api";
+import {
+  sendMessage,
+  fetchMessages,
+  toggleMessageReaction,
+  deleteMessage as deleteMessageApi,
+  fetchReactionsByConversation,
+  editMessage as editMessageApi,
+} from "@/lib/api";
 import type { User, Message, Reaction } from "@/types/index";
 import { useToast } from "@/context/ToastContext";
 
@@ -48,10 +55,12 @@ export const useChatMessages = (
         isRead: m.is_read || false,
         replyToId: m.reply_to_id,
         reactions: reactions.filter((r) => r.message_id === m.id),
-        time: m.created_at ? new Date(m.created_at).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }) : "Just now",
+        time: m.created_at
+          ? new Date(m.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "Just now",
         updatedAt: m.updated_at,
         isOptimistic: m.isOptimistic,
       }));
@@ -102,11 +111,17 @@ export const useChatMessages = (
       type?: string;
       media?: any[];
       replyToId?: string | null;
-    }) => sendMessage(convId, currentUser!.id, text, type, media as any, replyToId),
-    
+    }) =>
+      sendMessage(convId, currentUser!.id, text, type, media as any, replyToId),
+
     onMutate: async (newMessage) => {
-      await queryClient.cancelQueries({ queryKey: ["messages", activeConversationId] });
-      const previousMessages = queryClient.getQueryData(["messages", activeConversationId]);
+      await queryClient.cancelQueries({
+        queryKey: ["messages", activeConversationId],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "messages",
+        activeConversationId,
+      ]);
 
       const optimisticMsg = {
         id: `temp-${Date.now()}`,
@@ -123,26 +138,36 @@ export const useChatMessages = (
           id: currentUser!.id,
           username: currentUser!.handle,
           display_name: currentUser!.name,
-          avatar_url: currentUser!.avatar
-        } as any
+          avatar_url: currentUser!.avatar,
+        } as any,
       };
 
-      queryClient.setQueryData(["messages", activeConversationId], (old: any) => {
-        if (!old) return { pages: [[optimisticMsg]], pageParams: [null] };
-        const newPages = [...old.pages];
-        newPages[0] = [optimisticMsg, ...newPages[0]];
-        return { ...old, pages: newPages };
-      });
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        (old: any) => {
+          if (!old) return { pages: [[optimisticMsg]], pageParams: [null] };
+          const newPages = [...old.pages];
+          newPages[0] = [optimisticMsg, ...newPages[0]];
+          return { ...old, pages: newPages };
+        },
+      );
 
       return { previousMessages };
     },
     onError: (_err, _newMessage, context) => {
-      queryClient.setQueryData(["messages", activeConversationId], context?.previousMessages);
+      queryClient.setQueryData(
+        ["messages", activeConversationId],
+        context?.previousMessages,
+      );
       addToast("Failed to send message", "error");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages", activeConversationId] });
-      queryClient.invalidateQueries({ queryKey: ["conversations", currentUser!.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["messages", activeConversationId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["conversations", currentUser!.id],
+      });
     },
   });
 

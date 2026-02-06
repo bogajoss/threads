@@ -3,6 +3,7 @@ import { Virtuoso } from "react-virtuoso";
 import { useNavigate } from "react-router-dom";
 import StoryCircle from "@/components/features/story/StoryCircle";
 import { Post } from "@/components/features/post";
+import ReelsRow from "@/components/features/reels/ReelsRow";
 import {
   SkeletonPost,
   SignupCard,
@@ -109,39 +110,44 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
       <Virtuoso
         useWindowScroll
         data={homePosts}
-          components={{
-            Header: () => (
-              <HomeHeader
-                currentUser={currentUser}
-                groupedStories={groupedStories}
-                onAddStory={() => navigate("/create", { state: { isStory: true } })}
-                onStoryClick={onStoryClick}
-              />
-            ),
-            Footer: () => (
-              <HomeFooter
-                isFetchingNextPage={isFetchingNextPage}
-                hasMore={hasMore}
-                hasPosts={homePosts.length > 0}
-              />
-            ),
-          }}
-          endReached={() => {
-            if (hasMore && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          itemContent={(_index, post) => (
+        components={{
+          Header: () => (
+            <HomeHeader
+              currentUser={currentUser}
+              groupedStories={groupedStories}
+              onAddStory={() =>
+                navigate("/create", { state: { isStory: true } })
+              }
+              onStoryClick={onStoryClick}
+            />
+          ),
+          Footer: () => (
+            <HomeFooter
+              isFetchingNextPage={isFetchingNextPage}
+              hasMore={hasMore}
+              hasPosts={homePosts.length > 0}
+            />
+          ),
+        }}
+        endReached={() => {
+          if (hasMore && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        itemContent={(index, post) => (
+          <>
             <Post
               key={post.feed_id || post.id}
               {...post}
               currentUser={currentUser}
               onClick={() => handlePostClick(post.id)}
-                          onUserClick={handleUserClick}
-                        />
-                      )}
-                    />
-                  </div>
-                );
-              };
+              onUserClick={handleUserClick}
+            />
+            {index === 19 && <ReelsRow />}
+          </>
+        )}
+      />
+    </div>
+  );
+};
 export default Home;

@@ -81,7 +81,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   const currentItem = media[currentIndex];
   const isVideo =
     typeof currentItem !== "string" && currentItem.type === "video";
-  const currentUrl = typeof currentItem === "string" ? currentItem : currentItem.url;
+  const currentUrl =
+    typeof currentItem === "string" ? currentItem : currentItem.url;
   const hasMultiple = media.length > 1;
 
   // Mouse Dragging (only when zoomed)
@@ -198,7 +199,9 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           <span className="text-lg font-bold text-white drop-shadow-md">
             {hasMultiple
               ? `${currentIndex + 1} / ${media.length}`
-              : isVideo ? "Video View" : "Image View"}
+              : isVideo
+                ? "Video View"
+                : "Image View"}
           </span>
         </div>
 
@@ -259,7 +262,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         )}
 
         <div
-          className={`relative ${!isVideo ? "cursor-grab active:cursor-grabbing" : "" } transition-transform duration-200 ease-out`}
+          className={`relative ${!isVideo ? "cursor-grab active:cursor-grabbing" : ""} transition-transform duration-200 ease-out`}
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           }}
@@ -272,7 +275,11 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               controls
               autoPlay
               className="max-h-[85vh] max-w-[95vw] rounded-sm shadow-2xl"
-              poster={typeof currentItem !== "string" ? currentItem.poster || undefined : undefined}
+              poster={
+                typeof currentItem !== "string"
+                  ? currentItem.poster || undefined
+                  : undefined
+              }
             />
           ) : (
             <img
@@ -306,7 +313,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         >
           {media.map((item, idx) => {
             const url = typeof item === "string" ? item : item.url;
-            const thumb = typeof item !== "string" && item.poster ? item.poster : url;
+            const thumb =
+              typeof item !== "string" && item.poster ? item.poster : url;
             return (
               <button
                 key={idx}

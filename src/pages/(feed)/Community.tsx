@@ -243,7 +243,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                       <Loader2 size={18} className="mr-2 animate-spin" />
                     )}
                     Load more
-                  </Button>
+                  </Button>{" "}
                 </div>
               )}
             </>

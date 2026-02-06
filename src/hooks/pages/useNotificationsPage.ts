@@ -82,18 +82,15 @@ export const useNotificationsPage = () => {
       ]);
 
       // Optimistically mark all as read
-      queryClient.setQueryData(
-        ["notifications", currentUserId],
-        (old: any) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: old.pages.map((page: any[]) =>
-              page.map((n) => ({ ...n, is_read: true })),
-            ),
-          };
-        },
-      );
+      queryClient.setQueryData(["notifications", currentUserId], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page: any[]) =>
+            page.map((n) => ({ ...n, is_read: true })),
+          ),
+        };
+      });
 
       return { previousNotifications };
     },
@@ -112,13 +109,16 @@ export const useNotificationsPage = () => {
     },
   });
 
-  const handleNotificationClick = useCallback((notif: any) => {
-    if (notif.type === "follow") {
-      navigate(`/u/${notif.user}`);
-    } else if (notif.post_id) {
-      navigate(`/p/${notif.post_id}`);
-    }
-  }, [navigate]);
+  const handleNotificationClick = useCallback(
+    (notif: any) => {
+      if (notif.type === "follow") {
+        navigate(`/u/${notif.user}`);
+      } else if (notif.post_id) {
+        navigate(`/p/${notif.post_id}`);
+      }
+    },
+    [navigate],
+  );
 
   // Mark notifications as read when the component mounts or updates
   useEffect(() => {

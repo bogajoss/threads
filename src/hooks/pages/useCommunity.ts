@@ -70,12 +70,11 @@ export const useCommunity = () => {
 
   // 4. Toggle Membership Mutation
   const joinMutation = useMutation({
-    mutationFn: () =>
-      toggleCommunityMembership(community!.id, currentUser!.id),
+    mutationFn: () => toggleCommunityMembership(community!.id, currentUser!.id),
     onMutate: async () => {
       const communityId = community!.id;
       const currentUserId = currentUser!.id;
-      
+
       await queryClient.cancelQueries({
         queryKey: ["community", communityId, "membership", currentUserId],
       });

@@ -31,6 +31,7 @@ const PostContent: React.FC<PostContentProps> = ({
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const isTxtBangla = typeof content === "string" && isBangla(content);
+  const isHtml = typeof content === "string" && content.includes("</");
 
   if (isEditing && setEditedContent) {
     return (
@@ -84,85 +85,92 @@ const PostContent: React.FC<PostContentProps> = ({
         contentClass,
       )}
     >
-      <Linkify
-        options={{
-          ...linkifyOptions,
-          render: ({ attributes, content: linkContent }) => {
-            const { href, ...props } = attributes;
-            const origin = window.location.origin;
+      {isHtml ? (
+        <div
+          className="rich-text"
+          dangerouslySetInnerHTML={{ __html: textToProcess }}
+        />
+      ) : (
+        <Linkify
+          options={{
+            ...linkifyOptions,
+            render: ({ attributes, content: linkContent }) => {
+              const { href, ...props } = attributes;
+              const origin = window.location.origin;
 
-            if (href.includes("internal.tag/")) {
-              const tag = decodeURIComponent(href.split("internal.tag/")[1]);
+              if (href.includes("internal.tag/")) {
+                const tag = decodeURIComponent(href.split("internal.tag/")[1]);
+                return (
+                  <span
+                    key={linkContent as string}
+                    {...props}
+                    className={cn(
+                      "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400 font-bangla",
+                      props.className,
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/tags/${tag}`);
+                    }}
+                  >
+                    #{tag}
+                  </span>
+                );
+              }
+
+              let internalPath = null;
+              if (href.startsWith("/")) {
+                internalPath = href;
+              } else if (href.startsWith(origin)) {
+                internalPath = href.replace(origin, "");
+              }
+
+              if (internalPath) {
+                return (
+                  <span
+                    key={linkContent as string}
+                    {...props}
+                    className={cn(
+                      "cursor-pointer font-medium text-violet-600 hover:underline dark:text-violet-400",
+                      props.className,
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(internalPath!);
+                    }}
+                  >
+                    {linkContent}
+                  </span>
+                );
+              }
+
               return (
-                <span
+                <a
                   key={linkContent as string}
+                  href={href}
                   {...props}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={cn(
-                    "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400 font-bangla",
+                    "text-violet-600 hover:underline dark:text-violet-400",
                     props.className,
                   )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/tags/${tag}`);
-                  }}
-                >
-                  #{tag}
-                </span>
-              );
-            }
-
-            let internalPath = null;
-            if (href.startsWith("/")) {
-              internalPath = href;
-            } else if (href.startsWith(origin)) {
-              internalPath = href.replace(origin, "");
-            }
-
-            if (internalPath) {
-              return (
-                <span
-                  key={linkContent as string}
-                  {...props}
-                  className={cn(
-                    "cursor-pointer font-medium text-violet-600 hover:underline dark:text-violet-400",
-                    props.className,
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(internalPath!);
-                  }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {linkContent}
-                </span>
+                </a>
               );
-            }
-
-            return (
-              <a
-                key={linkContent as string}
-                href={href}
-                {...props}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "text-violet-600 hover:underline dark:text-violet-400",
-                  props.className,
-                )}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {linkContent}
-              </a>
-            );
-          },
-        }}
-      >
-        {typeof textToProcess === "string"
-          ? textToProcess.replace(
-              /#([\u0980-\u09FF\w]+)/g,
-              "https://internal.tag/$1",
-            )
-          : textToProcess}
-      </Linkify>
+            },
+          }}
+        >
+          {typeof textToProcess === "string"
+            ? textToProcess.replace(
+                /#([\u0980-\u09FF\w]+)/g,
+                "https://internal.tag/$1",
+              )
+            : textToProcess}
+        </Linkify>
+      )}
       {shouldTruncate && !isExpanded && "..."}
       {shouldTruncate && (
         <button

@@ -1,7 +1,24 @@
 import React, { useState } from "react";
 import { PageTransition } from "@/components/layout";
-import { Search, Gem, Hash, Gift, Star, Zap, Monitor, ArrowRight, Clock, Filter, Layers } from "lucide-react";
-import { AUCTION_DATA, type AuctionItem, GIFT_COLLECTIONS, TOP_GIFTS } from "@/data/marketplace"; // Assuming you just created this
+import {
+  Search,
+  Gem,
+  Hash,
+  Gift,
+  Star,
+  Zap,
+  Monitor,
+  ArrowRight,
+  Clock,
+  Filter,
+  Layers,
+} from "lucide-react";
+import {
+  AUCTION_DATA,
+  type AuctionItem,
+  GIFT_COLLECTIONS,
+  TOP_GIFTS,
+} from "@/data/marketplace"; // Assuming you just created this
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
@@ -19,7 +36,7 @@ const ShopPage: React.FC = () => {
   ];
 
   const filteredData = AUCTION_DATA.filter((item) =>
-    item.username.toLowerCase().includes(searchQuery.toLowerCase())
+    item.username.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -40,7 +57,7 @@ const ShopPage: React.FC = () => {
                       ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                       : cat.disabled
                         ? "opacity-50 cursor-not-allowed text-neutral-600"
-                        : "text-neutral-400 hover:text-white hover:bg-white/5"
+                        : "text-neutral-400 hover:text-white hover:bg-white/5",
                   )}
                 >
                   <cat.icon className="w-4 h-4" />
@@ -68,26 +85,36 @@ const ShopPage: React.FC = () => {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-              {activeTab === "Gifts" ? "Collect Unique Gifts" : `Buy and Sell ${activeTab}`}
+              {activeTab === "Gifts"
+                ? "Collect Unique Gifts"
+                : `Buy and Sell ${activeTab}`}
             </h1>
 
             <p className="text-lg md:text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
               {activeTab === "Gifts"
                 ? "Unique digital collectibles on the TON blockchain. Gift them to friends or trade them on the marketplace."
-                : "Secure your name with blockchain in an ecosystem of 1+ billion users and assign it as a link for your personal account, channel or group."
-              }
+                : "Secure your name with blockchain in an ecosystem of 1+ billion users and assign it as a link for your personal account, channel or group."}
             </p>
 
             {/* Search Bar */}
             <div className="relative max-w-2xl mx-auto mt-10 group">
-              <div className={cn("absolute inset-0 rounded-full opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-500",
-                activeTab === "Gifts" ? "bg-gradient-to-r from-amber-500 to-orange-500" : "bg-gradient-to-r from-blue-500 to-purple-500"
-              )} />
+              <div
+                className={cn(
+                  "absolute inset-0 rounded-full opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-500",
+                  activeTab === "Gifts"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500"
+                    : "bg-gradient-to-r from-blue-500 to-purple-500",
+                )}
+              />
               <div className="relative flex items-center bg-[#111] border border-white/10 rounded-full hover:border-white/20 transition-colors shadow-2xl">
                 <Search className="w-5 h-5 text-neutral-500 ml-6" />
                 <input
                   type="text"
-                  placeholder={activeTab === "Gifts" ? "Search items and attributes..." : `Enter a ${activeTab.slice(0, -1)}...`}
+                  placeholder={
+                    activeTab === "Gifts"
+                      ? "Search items and attributes..."
+                      : `Enter a ${activeTab.slice(0, -1)}...`
+                  }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent border-none text-white px-4 py-5 text-lg placeholder:text-neutral-600 focus:outline-none focus:ring-0 rounded-full"
@@ -108,7 +135,9 @@ const ShopPage: React.FC = () => {
                     <Layers className="w-4 h-4 text-neutral-400" />
                     Collections
                   </h3>
-                  <span className="text-xs font-mono text-neutral-500 bg-white/5 px-2 py-1 rounded">107</span>
+                  <span className="text-xs font-mono text-neutral-500 bg-white/5 px-2 py-1 rounded">
+                    107
+                  </span>
                 </div>
 
                 <div className="relative">
@@ -126,9 +155,14 @@ const ShopPage: React.FC = () => {
                     <span className="text-neutral-400 text-xs">887k</span>
                   </button>
                   {GIFT_COLLECTIONS.map((col) => (
-                    <button key={col.name} className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-neutral-300 hover:text-white transition-colors text-sm group">
+                    <button
+                      key={col.name}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-neutral-300 hover:text-white transition-colors text-sm group"
+                    >
                       <span>{col.name}</span>
-                      <span className="text-neutral-600 group-hover:text-neutral-500 text-xs">{col.count}</span>
+                      <span className="text-neutral-600 group-hover:text-neutral-500 text-xs">
+                        {col.count}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -149,7 +183,10 @@ const ShopPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                   {TOP_GIFTS.map((gift, i) => (
-                    <div key={i} className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden group hover:border-amber-500/30 transition-all hover:translate-y-[-2px] hover:shadow-xl cursor-pointer">
+                    <div
+                      key={i}
+                      className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden group hover:border-amber-500/30 transition-all hover:translate-y-[-2px] hover:shadow-xl cursor-pointer"
+                    >
                       <div className="aspect-square bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-6xl relative">
                         {gift.image}
                         <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded text-white border border-white/10">
@@ -157,8 +194,12 @@ const ShopPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="p-4">
-                        <div className="text-neutral-400 text-xs mb-1">{gift.date}</div>
-                        <div className="font-bold text-white mb-2">{gift.name}</div>
+                        <div className="text-neutral-400 text-xs mb-1">
+                          {gift.date}
+                        </div>
+                        <div className="font-bold text-white mb-2">
+                          {gift.name}
+                        </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1 font-bold text-amber-400">
                             💎 {gift.price.toLocaleString()}
@@ -189,8 +230,12 @@ const ShopPage: React.FC = () => {
                 <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 text-xs uppercase tracking-wider text-neutral-500 font-medium">
                   <div className="col-span-5 md:col-span-4">Username</div>
                   <div className="col-span-4 md:col-span-3">Top Bid</div>
-                  <div className="col-span-3 md:col-span-3 hidden md:block">Auction Ends In</div>
-                  <div className="col-span-3 md:col-span-2 text-right">Status</div>
+                  <div className="col-span-3 md:col-span-3 hidden md:block">
+                    Auction Ends In
+                  </div>
+                  <div className="col-span-3 md:col-span-2 text-right">
+                    Status
+                  </div>
                 </div>
 
                 {/* Table Body */}
@@ -216,7 +261,10 @@ const ShopPage: React.FC = () => {
 
 const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
   return (
-    <Link to={`/shop/product/${item.username}`} className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-white/[0.02] transition-colors group cursor-pointer block text-inherit no-underline">
+    <Link
+      to={`/shop/product/${item.username}`}
+      className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-white/[0.02] transition-colors group cursor-pointer block text-inherit no-underline"
+    >
       {/* Username Column */}
       <div className="col-span-5 md:col-span-4 flex items-center gap-4">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center border border-white/5 group-hover:border-blue-500/30 transition-colors">
@@ -243,7 +291,8 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
       <div className="col-span-4 md:col-span-3">
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 text-white font-bold text-lg">
-            <span className="text-blue-400">💎</span> {item.price.toLocaleString()}
+            <span className="text-blue-400">💎</span>{" "}
+            {item.price.toLocaleString()}
           </div>
           <div className="text-sm text-neutral-500">
             ≈ ${item.priceUsd.toLocaleString()}
@@ -257,9 +306,7 @@ const AuctionRow: React.FC<{ item: AuctionItem }> = ({ item }) => {
           <Clock className="w-4 h-4 text-neutral-500" />
           {item.timeLeft}
         </div>
-        <div className="text-sm text-neutral-500 pl-6">
-          {item.dateTime}
-        </div>
+        <div className="text-sm text-neutral-500 pl-6">{item.dateTime}</div>
       </div>
 
       {/* Action/Status Column */}

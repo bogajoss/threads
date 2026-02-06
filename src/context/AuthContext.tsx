@@ -7,9 +7,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import {
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -185,14 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       updateProfile: handleUpdateProfile,
       loading,
     }),
-    [
-      currentUser,
-      login,
-      signup,
-      logout,
-      handleUpdateProfile,
-      loading,
-    ],
+    [currentUser, login, signup, logout, handleUpdateProfile, loading],
   );
 
   return (

@@ -18,7 +18,7 @@ const CreateActionMenu: React.FC<CreateActionMenuProps> = ({
       onClick={() => navigate("/create")}
       className={cn(
         "flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-lg",
-        triggerClassName
+        triggerClassName,
       )}
     >
       <Plus size={26} strokeWidth={2.5} />

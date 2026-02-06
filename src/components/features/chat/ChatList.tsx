@@ -68,9 +68,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
           <span
             className={cn(
               "truncate text-[16px] font-bold tracking-tight leading-tight",
-              isSelected
-                ? "text-white"
-                : "text-zinc-900 dark:text-zinc-100",
+              isSelected ? "text-white" : "text-zinc-900 dark:text-zinc-100",
             )}
           >
             {displayName}
@@ -81,9 +79,7 @@ const ConversationItem: React.FC<ConversationProps> = ({
           <span
             className={cn(
               "shrink-0 text-[12px] font-medium ml-2",
-              isSelected
-                ? "text-white/80"
-                : "text-zinc-400 dark:text-zinc-500",
+              isSelected ? "text-white/80" : "text-zinc-400 dark:text-zinc-500",
             )}
           >
             {conv.time}
@@ -93,10 +89,14 @@ const ConversationItem: React.FC<ConversationProps> = ({
         {/* Subtitle Row */}
         <div className="flex items-center justify-between gap-2 mt-0.5">
           {isTyping ? (
-            <p className={cn(
-              "truncate text-[14px] leading-relaxed flex-1 italic animate-pulse",
-              isSelected ? "text-white/90" : "text-violet-500 dark:text-violet-400 font-medium"
-            )}>
+            <p
+              className={cn(
+                "truncate text-[14px] leading-relaxed flex-1 italic animate-pulse",
+                isSelected
+                  ? "text-white/90"
+                  : "text-violet-500 dark:text-violet-400 font-medium",
+              )}
+            >
               typing...
             </p>
           ) : (
@@ -111,10 +111,14 @@ const ConversationItem: React.FC<ConversationProps> = ({
               )}
             >
               {conv.isGroup && conv.lastMessageSender && (
-                <span className={cn(
-                  "font-semibold mr-1",
-                  isSelected ? "text-white" : "text-violet-500 dark:text-violet-400"
-                )}>
+                <span
+                  className={cn(
+                    "font-semibold mr-1",
+                    isSelected
+                      ? "text-white"
+                      : "text-violet-500 dark:text-violet-400",
+                  )}
+                >
                   {conv.lastMessageSender}:
                 </span>
               )}
@@ -123,12 +127,14 @@ const ConversationItem: React.FC<ConversationProps> = ({
             </p>
           )}
           {hasUnread && (
-            <span className={cn(
-              "flex min-w-[20px] h-[20px] px-1.5 items-center justify-center rounded-full text-[11px] font-bold shadow-sm",
-              isSelected
-                ? "bg-white text-violet-600"
-                : "bg-violet-600 text-white dark:bg-violet-500"
-            )}>
+            <span
+              className={cn(
+                "flex min-w-[20px] h-[20px] px-1.5 items-center justify-center rounded-full text-[11px] font-bold shadow-sm",
+                isSelected
+                  ? "bg-white text-violet-600"
+                  : "bg-violet-600 text-white dark:bg-violet-500",
+              )}
+            >
               {conv.unread}
             </span>
           )}
@@ -173,7 +179,11 @@ const ChatList: React.FC<ChatListProps> = ({
 
   const tabs = [
     { id: "all", label: "All" },
-    { id: "unread", label: "Unread", count: conversations.filter(c => c.unread > 0).length },
+    {
+      id: "unread",
+      label: "Unread",
+      count: conversations.filter((c) => c.unread > 0).length,
+    },
     { id: "groups", label: "Groups" },
   ];
 
@@ -213,7 +223,7 @@ const ChatList: React.FC<ChatListProps> = ({
                 "relative flex items-center px-4 py-2.5 text-[13px] font-bold transition-all",
                 activeTab === tab.id
                   ? "text-violet-600 dark:text-violet-400"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200",
               )}
             >
               {tab.label}
@@ -233,131 +243,131 @@ const ChatList: React.FC<ChatListProps> = ({
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full min-w-0">
           <div className="flex flex-col pb-4 min-w-0">
-              {/* Active Now / Stories - Only on All Tab */}
-              {!searchQuery && activeTab === "all" && activeUsers.length > 0 && (
-                <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
-                  <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
-                    <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
-                      <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
-                        <UserPlus size={24} className="text-zinc-400" />
-                        <div className="absolute bottom-0 right-0 size-5 bg-white dark:bg-black rounded-full flex items-center justify-center">
-                          <div className="size-4 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
-                            <span className="text-[10px] text-zinc-500 font-bold">
-                              +
-                            </span>
-                          </div>
+            {/* Active Now / Stories - Only on All Tab */}
+            {!searchQuery && activeTab === "all" && activeUsers.length > 0 && (
+              <div className="mb-4 mt-2 min-w-0 w-full overflow-hidden">
+                <div className="flex gap-4 overflow-x-auto px-4 md:px-5 pb-4 pt-2 no-scrollbar w-full">
+                  <div className="flex flex-col items-center gap-2 min-w-[64px] cursor-pointer group">
+                    <div className="relative flex size-[60px] items-center justify-center rounded-full bg-zinc-50 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
+                      <UserPlus size={24} className="text-zinc-400" />
+                      <div className="absolute bottom-0 right-0 size-5 bg-white dark:bg-black rounded-full flex items-center justify-center">
+                        <div className="size-4 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
+                          <span className="text-[10px] text-zinc-500 font-bold">
+                            +
+                          </span>
                         </div>
                       </div>
-                      <span className="text-[11px] font-medium text-zinc-500">
-                        Your Story
+                    </div>
+                    <span className="text-[11px] font-medium text-zinc-500">
+                      Your Story
+                    </span>
+                  </div>
+                  {activeUsers.map((conv) => (
+                    <div
+                      key={conv.id}
+                      onClick={() => onSelect(conv)}
+                      className="flex flex-col items-center gap-2 cursor-pointer group min-w-[64px] transition-transform active:scale-95"
+                    >
+                      <div className="relative">
+                        <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-orange-500 opacity-90 p-[2px]"></div>
+                        <div className="relative rounded-full border-[3px] border-white dark:border-black p-[2px] bg-white dark:bg-black">
+                          <Avatar className="size-[50px]">
+                            <AvatarImage
+                              src={conv.user?.avatar}
+                              className="object-cover"
+                            />
+                            <AvatarFallback>
+                              {conv.user?.name?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <span className="absolute bottom-1 right-1 size-3.5 rounded-full border-[2.5px] border-white bg-emerald-500 dark:border-black"></span>
+                      </div>
+                      <span className="w-full truncate text-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                        {conv.user?.name.split(" ")[0]}
                       </span>
                     </div>
-                    {activeUsers.map((conv) => (
-                      <div
-                        key={conv.id}
-                        onClick={() => onSelect(conv)}
-                        className="flex flex-col items-center gap-2 cursor-pointer group min-w-[64px] transition-transform active:scale-95"
-                      >
-                        <div className="relative">
-                          <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-orange-500 opacity-90 p-[2px]"></div>
-                          <div className="relative rounded-full border-[3px] border-white dark:border-black p-[2px] bg-white dark:bg-black">
-                            <Avatar className="size-[50px]">
-                              <AvatarImage
-                                src={conv.user?.avatar}
-                                className="object-cover"
-                              />
-                              <AvatarFallback>
-                                {conv.user?.name?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <span className="absolute bottom-1 right-1 size-3.5 rounded-full border-[2.5px] border-white bg-emerald-500 dark:border-black"></span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Messages List */}
+            <div className="px-2 space-y-0.5 mt-2">
+              {filteredByTab.length > 0 &&
+                filteredByTab
+                  .filter(
+                    (conv) =>
+                      conv.lastMessage !== "No messages yet" ||
+                      conv.id === selectedId ||
+                      searchQuery,
+                  )
+                  .map((conv) => (
+                    <ConversationItem
+                      key={conv.id}
+                      conv={conv}
+                      selectedId={selectedId}
+                      onSelect={onSelect}
+                      onlineUsers={onlineUsers}
+                      isTyping={typingStatus[conv.id]}
+                    />
+                  ))}
+            </div>
+
+            {/* Search Results for Users */}
+            {userResults.length > 0 && (
+              <>
+                <div className="px-6 py-3 mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                  More People
+                </div>
+                <div className="px-2 space-y-1">
+                  {userResults.map((user) => (
+                    <div
+                      key={user.id}
+                      onClick={() => onStartNew(user)}
+                      className="flex cursor-pointer items-center gap-4 px-3 py-2 rounded-2xl transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                    >
+                      <Avatar className="size-10">
+                        <AvatarImage
+                          src={user.avatar}
+                          className="object-cover"
+                        />
+                        <AvatarFallback>
+                          {user.name?.[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-bold text-zinc-900 dark:text-white">
+                          {user.name}
                         </div>
-                        <span className="w-full truncate text-center text-[11px] font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
-                          {conv.user?.name.split(" ")[0]}
-                        </span>
+                        <div className="truncate text-xs text-zinc-500">
+                          @{user.handle}
+                        </div>
                       </div>
-                    ))}
+                      <button className="flex size-8 items-center justify-center rounded-full bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400">
+                        <UserPlus size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Empty States */}
+            {conversations.length === 0 &&
+              userResults.length === 0 &&
+              searchQuery && (
+                <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+                  <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-900">
+                    <Search className="text-zinc-400" size={24} />
                   </div>
+                  <p className="text-zinc-500">
+                    No results found for "{searchQuery}"
+                  </p>
                 </div>
               )}
-
-              {/* Messages List */}
-              <div className="px-2 space-y-0.5 mt-2">
-                {filteredByTab.length > 0 &&
-                  filteredByTab
-                    .filter(
-                      (conv) =>
-                        conv.lastMessage !== "No messages yet" ||
-                        conv.id === selectedId ||
-                        searchQuery,
-                    )
-                    .map((conv) => (
-                      <ConversationItem
-                        key={conv.id}
-                        conv={conv}
-                        selectedId={selectedId}
-                        onSelect={onSelect}
-                        onlineUsers={onlineUsers}
-                        isTyping={typingStatus[conv.id]}
-                      />
-                    ))}
-              </div>
-
-              {/* Search Results for Users */}
-              {userResults.length > 0 && (
-                <>
-                  <div className="px-6 py-3 mt-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    More People
-                  </div>
-                  <div className="px-2 space-y-1">
-                    {userResults.map((user) => (
-                      <div
-                        key={user.id}
-                        onClick={() => onStartNew(user)}
-                        className="flex cursor-pointer items-center gap-4 px-3 py-2 rounded-2xl transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
-                      >
-                        <Avatar className="size-10">
-                          <AvatarImage
-                            src={user.avatar}
-                            className="object-cover"
-                          />
-                          <AvatarFallback>
-                            {user.name?.[0]?.toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-bold text-zinc-900 dark:text-white">
-                            {user.name}
-                          </div>
-                          <div className="truncate text-xs text-zinc-500">
-                            @{user.handle}
-                          </div>
-                        </div>
-                        <button className="flex size-8 items-center justify-center rounded-full bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400">
-                          <UserPlus size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* Empty States */}
-              {conversations.length === 0 &&
-                userResults.length === 0 &&
-                searchQuery && (
-                  <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                    <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-900">
-                      <Search className="text-zinc-400" size={24} />
-                    </div>
-                    <p className="text-zinc-500">
-                      No results found for "{searchQuery}"
-                    </p>
-                  </div>
-                )}
-            </div>
-          </ScrollArea>
+          </div>
+        </ScrollArea>
       </div>
 
       <CreateGroupModal

@@ -91,18 +91,18 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
   if (!avatars || avatars.length === 0) return null;
 
   const displayAvatars = avatars.slice(0, 3);
-  
+
   // Positioning patterns for Threads-style reply avatars
   // 1 avatar: centered
   // 2 avatars: diagonal
   // 3 avatars: triangle
-  
+
   return (
     <div className="relative mt-2 h-7 w-7">
       {displayAvatars.map((avatar, i) => {
         let positionClass = "";
         let sizeClass = "";
-        
+
         if (displayAvatars.length === 1) {
           positionClass = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
           sizeClass = "size-5";
@@ -165,7 +165,9 @@ const PostActionsMenu = ({
             className="cursor-pointer gap-2 py-2.5"
             onClick={(e) => {
               e.stopPropagation();
-              navigator.clipboard.writeText(`${window.location.origin}/p/${id}`);
+              navigator.clipboard.writeText(
+                `${window.location.origin}/p/${id}`,
+              );
               addToast("Link copied");
             }}
           >
@@ -677,12 +679,12 @@ const Post: React.FC<PostProps> = ({
             <>
               <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
               {!isComment && (
-                <ReplyAvatars 
+                <ReplyAvatars
                   avatars={
-                    commenterAvatars.length > 0 
-                      ? commenterAvatars 
-                      : (comments || []).slice(0, 3).map(c => c.user.avatar)
-                  } 
+                    commenterAvatars.length > 0
+                      ? commenterAvatars
+                      : (comments || []).slice(0, 3).map((c) => c.user.avatar)
+                  }
                 />
               )}
             </>

@@ -212,14 +212,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
               </div>
               <div className="min-w-0">
                 <span className="text-[13px] font-bold text-violet-500 block leading-tight">
-                  {editingMessage ? "Edit Message" : `Reply to ${replyingTo.sender === "me" ? "yourself" : replyingTo.senderName}`}
+                  {editingMessage
+                    ? "Edit Message"
+                    : `Reply to ${replyingTo.sender === "me" ? "yourself" : replyingTo.senderName}`}
                 </span>
                 <p className="truncate text-xs text-zinc-500 dark:text-[#aaaaaa]">
                   {editingMessage ? editingMessage.text : replyingTo.text}
                 </p>
               </div>
             </div>
-            <button onClick={() => { setReplyingTo(null); setEditingMessage(null); if(editingMessage) setText(""); }} className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10">
+            <button
+              onClick={() => {
+                setReplyingTo(null);
+                setEditingMessage(null);
+                if (editingMessage) setText("");
+              }}
+              className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10"
+            >
               <X size={18} className="text-zinc-400" />
             </button>
           </motion.div>
@@ -230,19 +239,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <div
           className={cn(
             "flex-1 flex items-center gap-1 rounded-[24px] px-1.5 py-1.5 transition-all bg-white dark:bg-[#212121] shadow-md border-0 ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-violet-500/30",
-            (isRecording || audioBlob) && "bg-zinc-900 ring-red-500/50"
+            (isRecording || audioBlob) && "bg-zinc-900 ring-red-500/50",
           )}
         >
           {isRecording ? (
             <div className="flex-1 flex items-center gap-4 px-3 py-1">
               <div className="flex items-center gap-2">
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity }} className="size-2 rounded-full bg-red-500" />
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity }}
+                  className="size-2 rounded-full bg-red-500"
+                />
                 <span className="text-[15px] font-medium tabular-nums text-red-500">
                   {formatTime(recordingTime)}
                 </span>
               </div>
-              <div className="flex-1 text-center text-sm text-zinc-500">Recording...</div>
-              <button type="button" onClick={cancelRecording} className="p-2 text-zinc-400 hover:text-red-500">
+              <div className="flex-1 text-center text-sm text-zinc-500">
+                Recording...
+              </div>
+              <button
+                type="button"
+                onClick={cancelRecording}
+                className="p-2 text-zinc-400 hover:text-red-500"
+              >
                 <Trash2 size={20} />
               </button>
             </div>
@@ -253,11 +272,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onClick={togglePreviewPlay}
                 className="size-10 flex items-center justify-center rounded-full bg-[#8774e1] text-white"
               >
-                {isPreviewPlaying ? <Square size={16} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
+                {isPreviewPlaying ? (
+                  <Square size={16} fill="currentColor" />
+                ) : (
+                  <Play size={20} fill="currentColor" className="ml-0.5" />
+                )}
               </button>
               <div className="flex-1">
                 <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: isPreviewPlaying ? "100%" : "0%" }}
                     transition={{ duration: recordingTime, ease: "linear" }}
@@ -265,11 +288,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   />
                 </div>
                 <div className="flex justify-between mt-1">
-                  <span className="text-[10px] text-zinc-500">Voice message</span>
-                  <span className="text-[10px] text-zinc-500 tabular-nums">{formatTime(recordingTime)}</span>
+                  <span className="text-[10px] text-zinc-500">
+                    Voice message
+                  </span>
+                  <span className="text-[10px] text-zinc-500 tabular-nums">
+                    {formatTime(recordingTime)}
+                  </span>
                 </div>
               </div>
-              <button type="button" onClick={clearAudio} className="p-2 text-zinc-400 hover:text-red-500">
+              <button
+                type="button"
+                onClick={clearAudio}
+                className="p-2 text-zinc-400 hover:text-red-500"
+              >
                 <Trash2 size={20} />
               </button>
             </div>
@@ -277,12 +308,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <>
               <Popover open={isEmojiOpen} onOpenChange={setIsEmojiOpen}>
                 <PopoverTrigger asChild>
-                  <button type="button" className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors">
+                  <button
+                    type="button"
+                    className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors"
+                  >
                     <Smile size={24} />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 border-none bg-transparent" side="top" align="start">
-                  <EmojiPicker onEmojiSelect={(emoji: any) => setText((p) => p + emoji.emoji)} />
+                <PopoverContent
+                  className="p-0 border-none bg-transparent"
+                  side="top"
+                  align="start"
+                >
+                  <EmojiPicker
+                    onEmojiSelect={(emoji: any) =>
+                      setText((p) => p + emoji.emoji)
+                    }
+                  />
                 </PopoverContent>
               </Popover>
 
@@ -290,7 +332,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ref={textAreaRef}
                 value={text}
                 onChange={handleTextChange}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
                 placeholder="Message"
                 className="flex-1 bg-transparent border-none outline-none text-[16px] resize-none py-2 px-1 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-[#aaaaaa] min-h-[40px] max-h-[200px]"
                 rows={1}
@@ -331,7 +378,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
         )}
       </div>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*,video/*" />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileSelect}
+        className="hidden"
+        multiple
+        accept="image/*,video/*"
+      />
     </div>
   );
 };

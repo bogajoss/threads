@@ -107,9 +107,15 @@ export const useChatRealtime = (
 
           // If they are typing, set a safety timeout to clear it after 5 seconds
           if (isTyping) {
-            typingTimeoutsRef.current[conversationId] = window.setTimeout(() => {
-              setTypingStatus((prev) => ({ ...prev, [conversationId]: false }));
-            }, 5000);
+            typingTimeoutsRef.current[conversationId] = window.setTimeout(
+              () => {
+                setTypingStatus((prev) => ({
+                  ...prev,
+                  [conversationId]: false,
+                }));
+              },
+              5000,
+            );
           }
         }
       })

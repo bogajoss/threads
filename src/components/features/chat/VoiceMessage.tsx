@@ -22,7 +22,9 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
 
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: isMe ? "rgba(255, 255, 255, 0.35)" : "rgba(135, 116, 225, 0.25)",
+      waveColor: isMe
+        ? "rgba(255, 255, 255, 0.35)"
+        : "rgba(135, 116, 225, 0.25)",
       progressColor: isMe ? "#ffffff" : "#8774e1",
       cursorColor: "transparent",
       barWidth: 2,
@@ -75,9 +77,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
         disabled={!isReady}
         className={cn(
           "size-10 flex shrink-0 items-center justify-center rounded-full transition-all active:scale-90",
-          isMe
-            ? "bg-white/20 text-white"
-            : "bg-[#8774e1] text-white"
+          isMe ? "bg-white/20 text-white" : "bg-[#8774e1] text-white",
         )}
       >
         {!isReady ? (
@@ -96,11 +96,15 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
         </div>
 
         {/* Time Info */}
-        <div className={cn(
-          "text-[11px] font-medium mt-0.5 select-none tabular-nums",
-          isMe ? "text-white/80" : "text-[#8774e1]"
-        )}>
-          {isPlaying || currentTime > 0 ? formatTime(currentTime) : formatTime(totalDuration)}
+        <div
+          className={cn(
+            "text-[11px] font-medium mt-0.5 select-none tabular-nums",
+            isMe ? "text-white/80" : "text-[#8774e1]",
+          )}
+        >
+          {isPlaying || currentTime > 0
+            ? formatTime(currentTime)
+            : formatTime(totalDuration)}
         </div>
       </div>
     </div>

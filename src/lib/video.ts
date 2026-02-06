@@ -7,7 +7,7 @@ export const generateVideoThumbnail = (
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    
+
     // Timeout safety for mobile
     const timeout = setTimeout(() => {
       cleanup();

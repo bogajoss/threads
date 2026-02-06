@@ -59,9 +59,7 @@ const SidebarLeft: React.FC<Record<string, never>> = () => {
 
         {currentUser && (
           <div className="mt-2">
-            <CreateActionMenu
-              triggerClassName="rounded-xl bg-zinc-950 p-2.5 text-white dark:bg-white dark:text-zinc-950"
-            />
+            <CreateActionMenu triggerClassName="rounded-xl bg-zinc-950 p-2.5 text-white dark:bg-white dark:text-zinc-950" />
           </div>
         )}
       </nav>

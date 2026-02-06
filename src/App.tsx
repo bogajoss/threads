@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, Suspense, lazy } from "react";
-import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 
 // Context
 import { useAuth } from "@/context/AuthContext";
@@ -9,11 +15,15 @@ import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 
 // Layout & Components
-import { MainLayout, PageTransition, CreateActionMenu, MarketplaceLayout } from "@/components/layout";
+import {
+  MainLayout,
+  PageTransition,
+  CreateActionMenu,
+  MarketplaceLayout,
+} from "@/components/layout";
 import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
-import { Loader2 } from "lucide-react";
 
 // Pages (Lazy Loaded)
 const Home = lazy(() => import("@/pages/(feed)/Feed"));
@@ -31,16 +41,12 @@ const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 const ShopPage = lazy(() => import("@/pages/(marketplace)/shop/page"));
-const ProductPage = lazy(() => import("@/pages/(marketplace)/shop/product/page"));
+const ProductPage = lazy(
+  () => import("@/pages/(marketplace)/shop/product/page"),
+);
 
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-
-const PageLoader = () => (
-  <div className="flex h-screen w-full items-center justify-center">
-    <Loader2 size={40} className="animate-spin text-violet-500" />
-  </div>
-);
 
 export default function Sysm() {
   const location = useLocation();
@@ -61,23 +67,17 @@ export default function Sysm() {
     <VideoPlaybackProvider>
       <ScrollToTop />
 
-      <Suspense fallback={<PageLoader />}>
+      <Suspense fallback={null}>
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            element={
-              <MainLayout />
-            }
-          >
+          <Route element={<MainLayout />}>
             <Route path="/" element={<Navigate to="/feed" replace />} />
             <Route
               path="/feed"
               element={
                 <PageTransition>
-                  <Home
-                    onStoryClick={setViewingStory}
-                  />
+                  <Home onStoryClick={setViewingStory} />
                 </PageTransition>
               }
             />
@@ -239,9 +239,7 @@ export default function Sysm() {
 
       {currentUser && location.pathname === "/feed" && (
         <div className="fixed bottom-20 right-5 z-50 md:hidden">
-          <CreateActionMenu
-            triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
-          />
+          <CreateActionMenu triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950" />
         </div>
       )}
     </VideoPlaybackProvider>
