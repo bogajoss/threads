@@ -89,9 +89,9 @@ export const useChatMessages = (
           reactions: reactions.filter((r) => r.message_id === m.id),
           time: m.created_at
             ? new Date(m.created_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              hour: "2-digit",
+              minute: "2-digit",
+            })
             : "Just now",
           updatedAt: m.updated_at,
           isOptimistic: m.isOptimistic,
@@ -161,6 +161,7 @@ export const useChatMessages = (
         type: newMessage.type || "text",
         media: newMessage.media || [],
         reply_to_id: newMessage.replyToId,
+        reply_to: null, // We can't easily construct the full reply object without more data, but null is safe
         is_read: false,
         created_at: new Date().toISOString(),
         isOptimistic: true,
@@ -169,7 +170,8 @@ export const useChatMessages = (
           handle: currentUser!.handle,
           name: currentUser!.name,
           avatar: currentUser!.avatar,
-        } as any,
+          verified: currentUser!.verified,
+        },
       };
 
       queryClient.setQueryData(
@@ -177,6 +179,7 @@ export const useChatMessages = (
         (old: any) => {
           if (!old) return { pages: [[optimisticMsg]], pageParams: [null] };
           const newPages = [...old.pages];
+          // Add to the beginning of the first page (newest message first)
           newPages[0] = [optimisticMsg, ...newPages[0]];
           return { ...old, pages: newPages };
         },

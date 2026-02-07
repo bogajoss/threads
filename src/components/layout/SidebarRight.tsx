@@ -7,6 +7,40 @@ import { useTheme } from "@/context/ThemeContext";
 import { SearchBar, SignupCard } from "@/components/ui";
 import { fetchTrendingHashtags } from "@/lib/api";
 
+const footerLinks = [
+  { name: "© 2026 Sysm", path: "/terms" },
+  { name: "Terms", path: "/terms" },
+  { name: "Privacy", path: "/privacy" },
+  { name: "Guidelines", path: "/guidelines" },
+  { name: "Discord", path: "https://discord.gg/sysm", isExternal: true },
+  { name: "Sysm", path: "/feed" },
+  { name: "GitHub", path: "https://github.com/sysm", isExternal: true },
+  { name: "Support", path: "/support" },
+  { name: "Status", path: "/status" },
+];
+
+const FooterLinks = () => (
+  <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
+    {footerLinks.map((link) =>
+      link.isExternal ? (
+        <a
+          key={link.name}
+          href={link.path}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          {link.name}
+        </a>
+      ) : (
+        <Link key={link.name} to={link.path} className="hover:underline">
+          {link.name}
+        </Link>
+      )
+    )}
+  </div>
+);
+
 const SidebarRight = () => {
   const { currentUser } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
@@ -19,18 +53,6 @@ const SidebarRight = () => {
     staleTime: 300000,
     refetchInterval: 60000,
   });
-
-  const footerLinks = [
-    { name: "© 2026 Sysm", path: "/terms" },
-    { name: "Terms", path: "/terms" },
-    { name: "Privacy", path: "/privacy" },
-    { name: "Guidelines", path: "/guidelines" },
-    { name: "Discord", path: "https://discord.gg/sysm", isExternal: true },
-    { name: "Sysm", path: "/feed" },
-    { name: "GitHub", path: "https://github.com/sysm", isExternal: true },
-    { name: "Support", path: "/support" },
-    { name: "Status", path: "/status" },
-  ];
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -47,28 +69,6 @@ const SidebarRight = () => {
     >
       {darkMode ? <Sun size={20} /> : <Moon size={20} />}
     </button>
-  );
-
-  const FooterLinks = () => (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
-      {footerLinks.map((link) =>
-        link.isExternal ? (
-          <a
-            key={link.name}
-            href={link.path}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-          >
-            {link.name}
-          </a>
-        ) : (
-          <Link key={link.name} to={link.path} className="hover:underline">
-            {link.name}
-          </Link>
-        )
-      )}
-    </div>
   );
 
   if (currentUser) {

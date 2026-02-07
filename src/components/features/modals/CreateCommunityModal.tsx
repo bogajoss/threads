@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import { Loader2, Users, Camera, CheckCircle2, XCircle } from "lucide-react";
+import { Users, Camera, CheckCircle2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { createCommunity, uploadFile, checkCommunityHandleAvailability } from "@/lib/api";
@@ -114,7 +114,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-5 p-6">
         <div className="flex flex-col items-center justify-center gap-4">
-          <div 
+          <div
             className="group relative cursor-pointer"
             onClick={() => avatarInputRef.current?.click()}
           >
@@ -129,7 +129,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             </Avatar>
             <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
               {loading ? (
-                <Loader2 size={24} className="animate-spin text-white" />
+                <span className="animate-pulse text-white font-bold">...</span>
               ) : (
                 <Camera size={24} className="text-white" />
               )}
@@ -185,7 +185,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {handleStatus.loading ? (
-                  <Loader2 className="size-4 animate-spin text-zinc-400" />
+                  <span className="animate-pulse text-zinc-400">...</span>
                 ) : handleStatus.available === true ? (
                   <CheckCircle2 size={18} className="text-emerald-500" />
                 ) : handleStatus.available === false ? (
@@ -245,7 +245,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             }
           >
             {createMutation.isPending ? (
-              <Loader2 size={18} className="animate-spin" />
+              <span className="animate-pulse">...</span>
             ) : (
               "Create"
             )}

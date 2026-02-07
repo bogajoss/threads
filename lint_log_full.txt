@@ -1,0 +1,77 @@
+
+> sysm@0.0.0 lint D:\`Mahadi\`AntiGravity\threads
+> eslint .
+
+
+D:\`Mahadi\`AntiGravity\threads\src\components\features\post\Post.tsx
+  275:16  error  'loadingComments' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  297:16  error  'loadingReplies' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+D:\`Mahadi\`AntiGravity\threads\src\components\features\profile\ProfileHeader.tsx
+  73:57  error  React Hook "useFollow" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+
+D:\`Mahadi\`AntiGravity\threads\src\components\layout\SidebarRight.tsx
+  124:10  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\`Mahadi\`AntiGravity\threads\src\components\layout\SidebarRight.tsx:124:10
+  122 |         </div>
+  123 |
+> 124 |         <FooterLinks />
+      |          ^^^^^^^^^^^ This component is created during render
+  125 |       </aside>
+  126 |     );
+  127 |   }
+
+D:\`Mahadi\`AntiGravity\threads\src\components\layout\SidebarRight.tsx:52:23
+  50 |   );
+  51 |
+> 52 |   const FooterLinks = () => (
+     |                       ^^^^^^^
+> 53 |     <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 54 |       {footerLinks.map((link) =>
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 71 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |   );
+     | ^^^^ The component is created during render here
+  73 |
+  74 |   if (currentUser) {
+  75 |     return (  react-hooks/static-components
+  157:8   error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\`Mahadi\`AntiGravity\threads\src\components\layout\SidebarRight.tsx:157:8
+  155 |       <SignupCard />
+  156 |
+> 157 |       <FooterLinks />
+      |        ^^^^^^^^^^^ This component is created during render
+  158 |     </aside>
+  159 |   );
+  160 | };
+
+D:\`Mahadi\`AntiGravity\threads\src\components\layout\SidebarRight.tsx:52:23
+  50 |   );
+  51 |
+> 52 |   const FooterLinks = () => (
+     |                       ^^^^^^^
+> 53 |     <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 54 |       {footerLinks.map((link) =>
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 71 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |   );
+     | ^^^^ The component is created during render here
+  73 |
+  74 |   if (currentUser) {
+  75 |     return (      react-hooks/static-components
+
+✖ 5 problems (5 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

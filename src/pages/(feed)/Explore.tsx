@@ -7,8 +7,9 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
+  SkeletonUser,
 } from "@/components/ui";
-import { Loader2, Plus, Users, Hash, UserCircle } from "lucide-react";
+import { Plus, Users, Hash, UserCircle } from "lucide-react";
 import CreateCommunityModal from "@/components/features/modals/CreateCommunityModal";
 import { useExplore } from "@/hooks/pages/useExplore";
 import { Post } from "@/components/features/post";
@@ -140,7 +141,7 @@ const Explore: React.FC = () => {
                   disabled={isFetchingMoreCommunities}
                 >
                   {isFetchingMoreCommunities && (
-                    <Loader2 size={18} className="mr-2 animate-spin" />
+                    <span className="mr-2 animate-pulse">...</span>
                   )}
                   Load more
                 </Button>
@@ -172,7 +173,7 @@ const Explore: React.FC = () => {
                     >
                       {" "}
                       {isFetchingMorePosts && (
-                        <Loader2 size={18} className="mr-2 animate-spin" />
+                        <span className="mr-2 animate-pulse">...</span>
                       )}
                       Load more
                     </Button>
@@ -180,8 +181,10 @@ const Explore: React.FC = () => {
                 )}
               </>
             ) : isPostsLoading ? (
-              <div className="flex justify-center p-20">
-                <Loader2 className="animate-spin text-violet-500" size={32} />
+              <div className="flex flex-col">
+                {[1, 2, 3].map((i) => (
+                  <SkeletonPost key={i} />
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3 p-20 text-center text-zinc-500">
@@ -218,7 +221,7 @@ const Explore: React.FC = () => {
                       disabled={isFetchingMoreUsers}
                     >
                       {isFetchingMoreUsers && (
-                        <Loader2 size={18} className="mr-2 animate-spin" />
+                        <span className="mr-2 animate-pulse">...</span>
                       )}
                       Load more
                     </Button>
@@ -226,8 +229,10 @@ const Explore: React.FC = () => {
                 )}
               </>
             ) : isUsersLoading ? (
-              <div className="flex justify-center p-20">
-                <Loader2 className="animate-spin text-violet-500" size={32} />
+              <div className="flex flex-col">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <SkeletonUser key={i} />
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3 p-20 text-center text-zinc-500">

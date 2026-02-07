@@ -1,7 +1,8 @@
 import React, { Suspense } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import PageTransition from "./PageTransition";
-import { Loader2, ArrowLeft, ShoppingBag, Crown } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Crown } from "lucide-react";
+import { SkeletonPost } from "@/components/ui";
 
 const MarketplaceLayout: React.FC = () => {
   const location = useLocation();
@@ -29,22 +30,20 @@ const MarketplaceLayout: React.FC = () => {
           <nav className="flex items-center gap-1 sm:gap-4">
             <Link
               to="/pro"
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                location.pathname === "/pro"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                  : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
-              }`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/pro"
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
+                }`}
             >
               <Crown size={18} />
               <span className="hidden xs:inline">Pro</span>
             </Link>
             <Link
               to="/shop"
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                location.pathname === "/shop"
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                  : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
-              }`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/shop"
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
+                }`}
             >
               <ShoppingBag size={18} />
               <span className="hidden xs:inline">Shop</span>
@@ -53,17 +52,15 @@ const MarketplaceLayout: React.FC = () => {
         </div>
       </header>
 
-            <main className="container mx-auto py-8 px-4">
+      <main className="container mx-auto py-8 px-4">
 
-              <Suspense fallback={
+        <Suspense fallback={
 
-                <div className="flex h-[60vh] items-center justify-center">
+          <div className="flex flex-col">
+            <SkeletonPost />
+          </div>
 
-                  <Loader2 className="animate-spin text-zinc-500" size={32} />
-
-                </div>
-
-              }>
+        }>
           <PageTransition>
             <Outlet />
           </PageTransition>

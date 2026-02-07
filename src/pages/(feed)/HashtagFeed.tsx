@@ -1,6 +1,6 @@
-import { ArrowLeft, Hash, Loader2 } from "lucide-react";
-import Post from "@/components/features/post/Post";
-import { Button } from "@/components/ui";
+import { ArrowLeft, Hash } from "lucide-react";
+import { Post } from "@/components/features/post";
+import { Button, SkeletonPost } from "@/components/ui";
 import { useHashtagFeed } from "@/hooks/pages/useHashtagFeed";
 
 const HashtagFeed = () => {
@@ -60,8 +60,10 @@ const HashtagFeed = () => {
 
         <div className="border-t border-zinc-100 dark:border-zinc-800">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="animate-spin text-violet-500" size={32} />
+            <div className="flex flex-col">
+              {[1, 2, 3].map((i) => (
+                <SkeletonPost key={i} />
+              ))}
             </div>
           ) : posts.length > 0 ? (
             <>
@@ -83,7 +85,7 @@ const HashtagFeed = () => {
                     disabled={fetchingMore}
                   >
                     {fetchingMore && (
-                      <Loader2 size={18} className="mr-2 animate-spin" />
+                      <span className="mr-2 animate-pulse">...</span>
                     )}
                     Load more
                   </Button>

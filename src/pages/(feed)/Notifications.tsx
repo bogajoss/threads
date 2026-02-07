@@ -1,10 +1,11 @@
 import React from "react";
-import { Heart, AtSign, Layers, Loader2, MessageSquare } from "lucide-react";
+import { Heart, AtSign, Layers, MessageSquare } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import { FollowingIcon } from "@/components/ui/custom-icons";
 import { useNotificationsPage } from "@/hooks";
+import { SkeletonNotification } from "@/components/ui";
 import type { Notification } from "@/types";
 
 const Notifications: React.FC = () => {
@@ -53,8 +54,10 @@ const Notifications: React.FC = () => {
 
   if (isLoading && notifications.length === 0) {
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+      <div className="flex flex-col">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <SkeletonNotification key={i} />
+        ))}
       </div>
     );
   }
@@ -71,9 +74,8 @@ const Notifications: React.FC = () => {
             <div
               key={notif.id}
               onClick={() => handleNotificationClick(notif)}
-              className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${
-                !notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
-              }`}
+              className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${!notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
+                }`}
             >
               <div className="relative">
                 <Avatar className="h-12 w-12 border border-zinc-100 dark:border-zinc-800">
@@ -114,12 +116,12 @@ const Notifications: React.FC = () => {
             disabled={isFetchingMore}
             className="text-sm"
           >
-                          {isFetchingMore ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Loading...
-                            </>
-                          ) : (              "Load more"
+            {isFetchingMore ? (
+              <>
+                <span className="mr-2 animate-pulse">...</span>
+                Loading...
+              </>
+            ) : ("Load more"
             )}
           </Button>
         </div>

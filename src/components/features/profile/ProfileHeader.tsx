@@ -3,7 +3,6 @@ import {
   MoreHorizontal,
   Mail,
   Bell,
-  Loader2,
   Share,
   Flag,
   Ban,
@@ -47,6 +46,8 @@ interface ProfileHeaderProps {
   onShowFollowing: () => void;
 }
 
+import ProfileSkeleton from "./skeleton-profile";
+
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   profile,
   currentUser,
@@ -57,12 +58,28 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onShowFollowing,
 }) => {
   const { addToast } = useToast();
-  const { isFollowing, stats, loading, handleFollow } = useFollow(
-    profile,
-    currentUser?.id,
-  );
   const navigate = useNavigate();
   const [isStartingChat, setIsStartingChat] = useState(false);
+
+  // Use hook even if profile is null to avoid hook conditional rules, 
+  // but we need to be careful. usage of hooks must be consistent.
+  // Actually, better to return early ONLY if we can verify hooks aren't compromised.
+  // But wait, useFollow expects a profile. 
+  // It is safer to render Skeleton in the parent or handle it here gracefully.
+  // The prompt asks to return ProfileSkeleton if profile is null.
+
+  // Move hook to top level
+  // Pass empty object or safe fallback if profile is null to avoid hook errors inside useFollow if it doesn't handle nulls
+  // However, useFollow implementation likely expects a valid profile object.
+  // We can pass null and ensure useFollow handles it, or pass a dummy object.
+  // Looking at useFollow usage: useFollow(profile, currentUser?.id)
+
+  const { isFollowing, stats, loading, handleFollow } = useFollow(
+    profile || {},
+    currentUser?.id,
+  );
+
+  if (!profile) return <ProfileSkeleton />;
 
   const handleMessageClick = async () => {
     if (!currentUser) {
@@ -138,7 +155,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
                 >
                   {isStartingChat ? (
-                    <Loader2 size={20} className="animate-spin" />
+                    <span className="animate-pulse">...</span>
                   ) : (
                     <Mail size={20} />
                   )}
@@ -153,7 +170,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   disabled={loading}
                 >
                   {loading ? (
-                    <Loader2 size={16} className="mx-auto animate-spin" />
+                    <span className="mx-auto animate-pulse">...</span>
                   ) : isFollowing ? (
                     <>
                       <FollowingIcon size={18} />

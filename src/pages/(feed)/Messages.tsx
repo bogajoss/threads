@@ -1,7 +1,8 @@
 import React from "react";
 import ChatList from "@/components/features/chat/ChatList";
 import ChatWindow from "@/components/features/chat/ChatWindow";
-import { Loader2, Zap, MessageSquareDashed } from "lucide-react";
+import { Zap, MessageSquareDashed } from "lucide-react";
+import SkeletonChatList from "@/components/features/chat/skeleton-chat-list";
 import { useMessagesPage } from "@/hooks";
 
 const Messages: React.FC = () => {
@@ -50,8 +51,10 @@ const Messages: React.FC = () => {
 
   if (isConvLoading) {
     return (
-      <div className="flex h-[100dvh] items-center justify-center border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:h-[calc(100vh-1.5rem)] md:rounded-2xl md:border">
-        <Loader2 className="animate-spin text-violet-500" size={32} />
+      <div className="flex h-[100dvh] pt-4 md:h-[calc(100vh-1.5rem)] md:rounded-2xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:border">
+        <div className="w-full md:w-[420px]">
+          <SkeletonChatList />
+        </div>
       </div>
     );
   }

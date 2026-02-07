@@ -41,44 +41,30 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        advancedChunks: {
-          groups: [
-            {
-              name: "framework",
-              test: /node_modules\/(react|react-dom|react-router-dom|scheduler)/,
-              priority: 40,
-            },
-            {
-              name: "database",
-              test: /node_modules\/(@supabase|supabase-js)/,
-              priority: 30,
-            },
-            {
-              name: "query",
-              test: /node_modules\/@tanstack/,
-              priority: 30,
-            },
-            {
-              name: "ui-libs",
-              test: /node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/,
-              priority: 20,
-            },
-            {
-              name: "animations",
-              test: /node_modules\/(framer-motion|motion-dom|motion-utils)/,
-              priority: 25,
-            },
-            {
-              name: "media-libs",
-              test: /node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/,
-              priority: 15,
-            },
-            {
-              name: "text-processing",
-              test: /node_modules\/(linkifyjs|linkify-react)/,
-              priority: 10,
-            },
-          ],
+        manualChunks: (id) => {
+          if (id.includes("node_modules")) {
+            if (/node_modules\/(react|react-dom|react-router-dom|scheduler)/.test(id)) {
+              return "framework";
+            }
+            if (/node_modules\/(@supabase|supabase-js)/.test(id)) {
+              return "database";
+            }
+            if (/node_modules\/@tanstack/.test(id)) {
+              return "query";
+            }
+            if (/node_modules\/(framer-motion|motion-dom|motion-utils)/.test(id)) {
+              return "animations";
+            }
+            if (/node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/.test(id)) {
+              return "ui-libs";
+            }
+            if (/node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/.test(id)) {
+              return "media-libs";
+            }
+            if (/node_modules\/(linkifyjs|linkify-react)/.test(id)) {
+              return "text-processing";
+            }
+          }
         },
       },
     },

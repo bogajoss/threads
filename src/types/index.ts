@@ -86,6 +86,7 @@ export interface Comment {
   stats: {
     likes: number;
     comments?: number;
+    reposts?: number;
   };
   user: User;
   timeAgo: string;

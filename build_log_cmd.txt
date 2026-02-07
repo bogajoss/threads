@@ -1,0 +1,15 @@
+
+> sysm@0.0.0 build D:\`Mahadi\`AntiGravity\threads
+> tsc -b && vite build
+
+src/components/features/post/Post.tsx(429,8): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/features/post/Post.tsx(611,3): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/features/post/Post.tsx(614,10): error TS17008: JSX element 'article' has no corresponding closing tag.
+src/components/features/post/Post.tsx(637,12): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/components/features/post/Post.tsx(834,15): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/components/features/post/Post.tsx(836,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/features/post/Post.tsx(839,3): error TS1109: Expression expected.
+src/components/features/post/Post.tsx(842,38): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/features/post/Post.tsx(860,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/components/features/post/Post.tsx(862,60): error TS1005: '</' expected.
+ ELIFECYCLE  Command failed with exit code 2.

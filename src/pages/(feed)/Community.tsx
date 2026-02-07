@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Loader2, ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { Post } from "@/components/features/post";
 import {
   NotFound,
@@ -17,6 +17,8 @@ import {
   ManageMembersModal,
 } from "@/components/features/modals";
 import { useCommunity } from "@/hooks/pages/useCommunity";
+import { SkeletonPost } from "@/components/ui";
+import ProfileSkeleton from "@/components/features/profile/skeleton-profile";
 
 interface CommunityProps {
   onPostInCommunity: (community: any) => void;
@@ -47,8 +49,8 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-violet-500" />
+      <div className="flex min-h-screen flex-col">
+        <ProfileSkeleton />
       </div>
     );
   }
@@ -138,7 +140,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                   className={`flex h-10 items-center justify-center gap-2 rounded-full px-4 font-bold transition-all ${isMember ? "border-zinc-200 hover:border-rose-100 hover:bg-rose-50 hover:text-rose-500 dark:border-zinc-800 dark:hover:bg-rose-900/20" : "bg-zinc-950 text-white hover:scale-105 dark:bg-white dark:text-zinc-950"}`}
                 >
                   {isJoining ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <span className="animate-pulse">...</span>
                   ) : isMember ? (
                     <>
                       <FollowingIcon size={18} />
@@ -215,8 +217,10 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
           )}
 
           {loadingPosts ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="animate-spin text-violet-500" size={32} />
+            <div className="flex flex-col">
+              {[1, 2, 3].map((i) => (
+                <SkeletonPost key={i} />
+              ))}
             </div>
           ) : communityPosts.length > 0 ? (
             <>
@@ -238,7 +242,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                     disabled={isFetchingMorePosts}
                   >
                     {isFetchingMorePosts && (
-                      <Loader2 size={18} className="mr-2 animate-spin" />
+                      <span className="mr-2 animate-pulse">...</span>
                     )}
                     Load more
                   </Button>{" "}

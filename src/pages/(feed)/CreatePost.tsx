@@ -5,7 +5,6 @@ import {
   Trash2,
   Globe,
   ChevronLeft,
-  Loader2,
   Film,
   Layout,
 } from "lucide-react";
@@ -604,7 +603,7 @@ const CreatePost: React.FC = () => {
             >
               CANCEL
             </Button>
-            
+
             {isOverWordLimit && !isStory && !isReel ? (
               <ProButton
                 type="submit"
@@ -621,7 +620,7 @@ const CreatePost: React.FC = () => {
                 className="font-english"
               >
                 {loading ? (
-                  <Loader2 size={20} className="animate-spin" />
+                  <span className="animate-pulse">...</span>
                 ) : (
                   isStory ? "Post" : isReel ? "Post" : "Post"
                 )}

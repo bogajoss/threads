@@ -10,7 +10,7 @@ import { usePresence } from "@/context/PresenceContext";
 import { useFollow } from "@/hooks/useFollow";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { Loader2 } from "lucide-react";
+
 import {
   checkIfMember,
   toggleCommunityMembership,
@@ -152,7 +152,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           disabled={loading}
         >
           {loading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <span className="size-4 animate-pulse">...</span>
           ) : isCommunity ? (
             isJoined ? (
               <>

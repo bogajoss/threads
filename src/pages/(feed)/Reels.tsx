@@ -1,11 +1,12 @@
 import {
-  Loader2,
   ArrowLeft,
   Volume2,
   VolumeX,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
+
+import SkeletonReel from "@/components/features/reels/skeleton-reel";
 
 import ReelItem from "@/components/features/post/ReelItem";
 import { useReels } from "@/hooks/pages/useReels";
@@ -28,7 +29,7 @@ const Reels = () => {
   if (loading) {
     return (
       <div className="flex h-[100dvh] w-full items-center justify-center bg-black">
-        <Loader2 size={40} className="animate-spin text-white" />
+        <SkeletonReel />
       </div>
     );
   }
@@ -115,7 +116,7 @@ const Reels = () => {
         ))}
         {loadingMore && (
           <div className="flex h-[100dvh] w-full snap-start items-center justify-center bg-black">
-            <Loader2 size={40} className="animate-spin text-white" />
+            <SkeletonReel />
           </div>
         )}
       </div>

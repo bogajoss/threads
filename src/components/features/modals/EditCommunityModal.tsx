@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button } from "@/components/ui";
-import { Loader2, Camera } from "lucide-react";
+import { Camera } from "lucide-react";
 import { updateCommunity, uploadFile } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 
@@ -226,7 +226,7 @@ export default function EditCommunityModal({
                   disabled={loading || !formData.name}
                 >
                   {loading ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <span className="animate-pulse">...</span>
                   ) : (
                     "Save Changes"
                   )}

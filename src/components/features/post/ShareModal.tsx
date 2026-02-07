@@ -12,7 +12,6 @@ import {
   Mail,
   Search,
   MoreHorizontal,
-  Loader2,
 } from "lucide-react";
 import {
   getOrCreateConversation,
@@ -209,7 +208,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
         <div className="no-scrollbar flex min-h-[100px] items-center gap-4 overflow-x-auto px-5 py-4">
           {loadingFriends ? (
             <div className="flex flex-1 justify-center">
-              <Loader2 size={24} className="animate-spin text-zinc-400" />
+              <span className="animate-pulse font-bold text-zinc-400">Loading...</span>
             </div>
           ) : friends.length > 0 ? (
             friends.map((friend) => (
@@ -232,7 +231,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
                   </div>
                   {sendingTo === friend.id && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                      <Loader2 size={16} className="animate-spin text-white" />
+                      <span className="animate-pulse text-white font-bold">...</span>
                     </div>
                   )}
                 </div>
@@ -292,11 +291,10 @@ const ShareModal: React.FC<ShareModalProps> = ({
             />
             <button
               onClick={handleCopy}
-              className={`absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold shadow-sm transition-all active:scale-95 ${
-                copied
+              className={`absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold shadow-sm transition-all active:scale-95 ${copied
                   ? "bg-emerald-500 text-white"
                   : "bg-zinc-900 text-white hover:opacity-90 dark:bg-white dark:text-zinc-900"
-              }`}
+                }`}
             >
               {copied ? (
                 <>

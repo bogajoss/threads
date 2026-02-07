@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AlertCircle, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
@@ -144,7 +144,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
               />
               <div className="absolute right-3 top-[38px]">
                 {usernameStatus.loading ? (
-                  <Loader2 className="size-4 animate-spin text-zinc-400" />
+                  <span className="animate-pulse text-zinc-400 font-bold">...</span>
                 ) : usernameStatus.available === true ? (
                   <CheckCircle2 size={18} className="text-emerald-500" />
                 ) : usernameStatus.available === false ? (

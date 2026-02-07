@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Modal } from "@/components/ui";
-import { Loader2, MessageCircle, X } from "lucide-react";
+import { Modal, SkeletonComment } from "@/components/ui";
+import { MessageCircle, X } from "lucide-react";
 import { fetchCommentsByPostId, addComment, uploadFile } from "@/lib/api";
 import { Post, CommentInput } from "@/components/features/post";
 import type { User } from "@/types";
@@ -127,8 +127,10 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
 
         <div className="flex-1 overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="animate-spin text-violet-500" size={32} />
+            <div className="flex flex-col">
+              {[1, 2, 3].map((i) => (
+                <SkeletonComment key={i} />
+              ))}
             </div>
           ) : comments.length > 0 ? (
             <div className="flex flex-col">
@@ -168,7 +170,7 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
                   className="flex w-full items-center justify-center gap-2 py-6 text-sm font-bold text-violet-600 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
                 >
                   {isFetchingMore && (
-                    <Loader2 size={16} className="animate-spin" />
+                    <span className="mr-2 animate-pulse">...</span>
                   )}
                   View more replies
                 </button>

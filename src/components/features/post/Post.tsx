@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  MoreHorizontal,
-  Loader2,
-  Flag,
-  UserMinus,
-  X,
-  Pencil,
-  Share,
   Trash,
   Repeat2,
+  MoreHorizontal,
+  Share,
+  Flag,
+  UserMinus,
+  Pencil,
+  X,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -273,7 +272,7 @@ const Post: React.FC<PostProps> = ({
     fetchNextPage: loadMoreComments,
     hasNextPage: hasMoreComments,
     isFetchingNextPage: isFetchingMoreComments,
-    isLoading: loadingComments,
+    // isLoading: loadingComments,
     addComment: submitComment,
     isSubmitting: submittingComment,
   } = useComments(id, initialComments);
@@ -295,7 +294,7 @@ const Post: React.FC<PostProps> = ({
 
   const {
     comments: replies,
-    isLoading: loadingReplies,
+    // isLoading: loadingReplies,
     refetch: refetchReplies,
   } = useComments(post_id || id, [], showReplies ? id : undefined);
 
@@ -492,9 +491,9 @@ const Post: React.FC<PostProps> = ({
           />
 
           {poll && (
-            <PollDisplay 
-              poll={poll} 
-              onVote={(optionId) => votePoll(id, optionId, currentUser!.id)} 
+            <PollDisplay
+              poll={poll}
+              onVote={(optionId) => votePoll(id, optionId, currentUser!.id)}
             />
           )}
           {quotedPost && (
@@ -553,11 +552,7 @@ const Post: React.FC<PostProps> = ({
         />
 
         <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-          {loadingComments ? (
-            <div className="flex justify-center p-8">
-              <Loader2 className="animate-spin text-violet-500" />
-            </div>
-          ) : (
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
             <>
               {hasMoreComments && comments.length > 0 && (
                 <button
@@ -566,7 +561,7 @@ const Post: React.FC<PostProps> = ({
                   className="flex w-full items-center justify-center gap-2 py-3 text-sm font-bold text-violet-600 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
                 >
                   {isFetchingMoreComments && (
-                    <Loader2 size={14} className="animate-spin" />
+                    <span className="animate-spin">⌛</span>
                   )}
                   View more replies
                 </button>
@@ -589,34 +584,35 @@ const Post: React.FC<PostProps> = ({
                 />
               ))}
             </>
-          )}
-        </div>
+          </div>
 
-        <AlertDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-        >
-          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                post and all its comments.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-rose-500 hover:bg-rose-600"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+
+          <AlertDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your
+                  post and all its comments.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-rose-500 hover:bg-rose-600"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     );
   }
@@ -625,11 +621,10 @@ const Post: React.FC<PostProps> = ({
     <article
       ref={viewRef}
       onClick={onClick}
-      className={`px-4 transition-all ${
-        isComment
-          ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-          : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
-      } ${onClick ? "cursor-pointer" : ""}`}
+      className={`px-4 transition-all ${isComment
+        ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
+        : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
+        } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2 ml-1 flex items-center space-x-1.5 text-[13px] font-semibold text-zinc-600">
@@ -670,19 +665,19 @@ const Post: React.FC<PostProps> = ({
           </div>
           {((!isComment && localStats.comments > 0) ||
             (isComment && !parent_id && localStats.comments > 0)) && (
-            <>
-              <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
-              {!isComment && (
-                <ReplyAvatars
-                  avatars={
-                    commenterAvatars.length > 0
-                      ? commenterAvatars
-                      : (comments || []).slice(0, 3).map((c) => c.user.avatar)
-                  }
-                />
-              )}
-            </>
-          )}
+              <>
+                <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+                {!isComment && (
+                  <ReplyAvatars
+                    avatars={
+                      commenterAvatars.length > 0
+                        ? commenterAvatars
+                        : (comments || []).slice(0, 3).map((c) => c.user.avatar)
+                    }
+                  />
+                )}
+              </>
+            )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <PostHeader
@@ -785,73 +780,66 @@ const Post: React.FC<PostProps> = ({
           {showReplies && (
             <div className="relative mt-2 space-y-0">
               <div className="absolute left-[19px] top-0 bottom-4 w-0.5 bg-zinc-100 dark:bg-zinc-800" />
-
-              {loadingReplies ? (
-                <div className="flex py-4 pl-12">
-                  <Loader2 size={18} className="animate-spin text-violet-500" />
-                </div>
-              ) : (
-                <div className="flex flex-col">
-                  {replies.map((reply) => (
-                    <div key={reply.id} className="relative">
-                      <div className="absolute left-[19px] top-5 h-0.5 w-4 bg-zinc-100 dark:bg-zinc-800" />
-                      <div className="pl-6">
-                        <Post
-                          {...reply}
-                          isComment={true}
-                          post_id={post_id || id}
-                          onReply={onReply}
-                          onUserClick={onUserClick}
-                          currentUser={currentUser}
-                          stats={{
-                            likes: reply.stats?.likes || 0,
-                            comments: reply.stats?.comments || 0,
-                            reposts: reply.stats?.reposts || 0,
-                          }}
-                          timeAgo={reply.timeAgo || reply.created_at}
-                        />
-                      </div>
+              <div className="flex flex-col">
+                {replies.map((reply) => (
+                  <div key={reply.id} className="relative">
+                    <div className="absolute left-[19px] top-5 h-0.5 w-4 bg-zinc-100 dark:bg-zinc-800" />
+                    <div className="pl-6">
+                      <Post
+                        {...reply}
+                        isComment={true}
+                        post_id={post_id || id}
+                        onReply={onReply}
+                        onUserClick={onUserClick}
+                        currentUser={currentUser}
+                        stats={{
+                          likes: reply.stats?.likes || 0,
+                          comments: reply.stats?.comments || 0,
+                          reposts: reply.stats?.reposts || 0,
+                        }}
+                        timeAgo={reply.timeAgo || reply.created_at}
+                      />
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          <ShareModal
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            url={`${window.location.origin}/p/${id}`}
+            title="Share Post"
+          />
+
+          <AlertDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your
+                  post and all its comments.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-rose-500 hover:bg-rose-600"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
-
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        url={`${window.location.origin}/p/${id}`}
-        title="Share Post"
-      />
-
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              post and all its comments.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-rose-500 hover:bg-rose-600"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </article>
   );
 };

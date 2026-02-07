@@ -1,16 +1,16 @@
 import React, { type ButtonHTMLAttributes } from "react";
-import { Loader2 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
-    | "primary"
-    | "secondary"
-    | "outline"
-    | "danger"
-    | "ghost"
-    | "violet"
-    | "animated";
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "danger"
+  | "ghost"
+  | "violet"
+  | "animated";
   size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
   className?: string;
@@ -96,7 +96,7 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       {...props}
     >
-      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />}
+      {loading && <span className="mr-2 animate-pulse">...</span>}
       <div
         className={cn("flex items-center gap-x-1.5", loading && "opacity-80")}
       >

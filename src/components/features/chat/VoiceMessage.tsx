@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Play, Pause, Loader2 } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VoiceMessageProps {
@@ -80,7 +80,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({ url, duration, isMe }) => {
         )}
       >
         {!isReady ? (
-          <Loader2 size={18} className="animate-spin" />
+          <span className="animate-pulse font-bold">...</span>
         ) : isPlaying ? (
           <Pause size={20} fill="currentColor" />
         ) : (

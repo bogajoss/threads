@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Loader2,
   Check,
   CheckCheck,
   Reply as ReplyIcon,
 } from "lucide-react";
+import MessageSkeleton from "./skeleton-message";
 import {
   TypingIndicator,
 } from "@/components/ui";
@@ -56,11 +56,11 @@ interface ChatWindowProps {
   isOnline: boolean;
 }
 
-const MessageBubble = ({ 
-  msg, 
-  isMe, 
-  isLastInGroup, 
-  setReplyingTo, 
+const MessageBubble = ({
+  msg,
+  isMe,
+  isLastInGroup,
+  setReplyingTo,
   handleImageClick,
   handleVoiceMessage,
   onDeleteMessage,
@@ -93,7 +93,7 @@ const MessageBubble = ({
       )}
     >
       {/* Swipe Reply Indicator */}
-      <motion.div 
+      <motion.div
         style={{ opacity: replyIconOpacity, scale: replyIconScale, right: 10 }}
         className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center size-10 rounded-full bg-violet-500/10 text-violet-500 z-0 pointer-events-none"
       >
@@ -387,9 +387,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           ref={scrollRef}
         >
           <div className="flex flex-col min-h-full justify-end max-w-3xl mx-auto">
+            {/* ... existing imports */}
+
             {isLoading && messages.length === 0 ? (
               <div className="flex justify-center p-8">
-                <Loader2 className="animate-spin text-violet-500" size={32} />
+                <MessageSkeleton />
               </div>
             ) : (
               <div className="flex flex-col gap-[2px]">

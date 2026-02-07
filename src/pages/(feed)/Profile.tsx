@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Search, Loader2, UserX } from "lucide-react";
+import { ArrowLeft, Search, UserX } from "lucide-react";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import { Post } from "@/components/features/post";
 import {
@@ -11,7 +11,10 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  SkeletonPost,
+  SkeletonUser,
 } from "@/components/ui";
+import ProfileSkeleton from "@/components/features/profile/skeleton-profile";
 import { useProfile } from "@/hooks/pages/useProfile";
 import type { Post as PostType } from "@/types";
 
@@ -47,11 +50,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
   } = useProfile();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-violet-500" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!profile) {
@@ -71,8 +70,10 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
   const renderPosts = (hideEmpty = false) => {
     if (loadingPosts) {
       return (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-violet-500" size={32} />
+        <div className="flex flex-col">
+          {[1, 2, 3].map((i) => (
+            <SkeletonPost key={i} />
+          ))}
         </div>
       );
     }
@@ -98,7 +99,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                 disabled={isFetchingMorePosts}
               >
                 {isFetchingMorePosts && (
-                  <Loader2 size={18} className="mr-2 animate-spin" />
+                  <span className="mr-2 animate-pulse">...</span>
                 )}
                 Load more posts
               </Button>
@@ -195,8 +196,10 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         <div className="flex max-h-[75vh] flex-col overflow-y-auto">
           <div className="min-h-[300px]">
             {isListLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="animate-spin text-violet-500" size={32} />
+              <div className="flex flex-col">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <SkeletonUser key={i} />
+                ))}
               </div>
             ) : followListData.length > 0 ? (
               <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -220,7 +223,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                       disabled={isFetchingMoreFollows}
                     >
                       {isFetchingMoreFollows ? (
-                        <Loader2 size={14} className="mr-2 animate-spin" />
+                        <span className="mr-2 animate-pulse">...</span>
                       ) : null}
                       Load more
                     </Button>

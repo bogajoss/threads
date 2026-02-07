@@ -11,7 +11,6 @@ import {
   ScrollBar,
 } from "@/components/ui";
 import { useHome } from "@/hooks";
-import { Loader2 } from "lucide-react";
 
 const HomeHeader: React.FC<any> = ({
   currentUser,
@@ -56,7 +55,7 @@ const HomeFooter: React.FC<any> = ({
 }) => (
   <div className="flex justify-center py-8">
     {isFetchingNextPage ? (
-      <Loader2 className="animate-spin text-violet-500" size={24} />
+      <p className="text-sm text-zinc-400 animate-pulse">Loading more...</p>
     ) : hasMore ? (
       <div className="h-4" />
     ) : hasPosts ? (

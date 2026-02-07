@@ -1,22 +1,27 @@
-import React from "react";
+import { Skeleton } from "./skeleton";
 
-const SkeletonPost: React.FC = () => (
-  <div className="px-5 pt-4 pb-3 border-b border-zinc-100 dark:border-zinc-800 animate-pulse">
-    <div className="flex items-start gap-x-3">
-      <div className="size-11 rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0" />
-      <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-start mb-3">
-          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
-          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16" />
+export default function SkeletonPost() {
+  return (
+    <div className="flex items-start gap-x-3 border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
+      <Skeleton className="size-10 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <div className="flex items-center gap-x-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-16" />
         </div>
-        <div className="space-y-2">
-          <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-full" />
-          <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-[90%]" />
+
+        {/* Optional media skeleton */}
+        <Skeleton className="mt-2 h-64 w-full rounded-xl" />
+
+        <div className="mt-3 flex items-center justify-between">
+          <Skeleton className="h-5 w-8 rounded-full" />
+          <Skeleton className="h-5 w-8 rounded-full" />
+          <Skeleton className="h-5 w-8 rounded-full" />
+          <Skeleton className="h-5 w-8 rounded-full" />
         </div>
-        <div className="h-48 bg-zinc-200 dark:bg-zinc-800 rounded-xl w-full mt-3" />
       </div>
     </div>
-  </div>
-);
-
-export default SkeletonPost;
+  );
+}

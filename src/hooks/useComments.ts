@@ -44,7 +44,7 @@ export const useComments = (
   }, [data]);
 
   const addCommentMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       userId,
       content,
       media,
@@ -54,37 +54,45 @@ export const useComments = (
       content: string;
       media: Media[];
       replyToId?: string;
-    }) => addComment(postId, userId, content, media, replyToId),
+    }) => {
+      if (!currentUser) throw new Error("User not authenticated");
+      return addComment(postId, userId, content, media, replyToId);
+    },
     onMutate: async (newCommentData) => {
+      if (!currentUser) return;
+
       const queryKey = ["comments", postId, parentId];
       await queryClient.cancelQueries({ queryKey });
+
       const previousComments = queryClient.getQueryData<InfiniteData<Comment[]>>(queryKey);
 
-      if (previousComments && currentUser) {
-        const optimisticComment: Comment = {
-          id: `temp-${Date.now()}`,
-          post_id: postId,
-          user_id: currentUser.id,
-          content: newCommentData.content,
-          media: newCommentData.media || null,
-          created_at: new Date().toISOString(),
-          parent_id: newCommentData.replyToId || parentId || null,
-          stats: { likes: 0, comments: 0 },
-          user: currentUser,
-          timeAgo: "just now",
+      const optimisticComment: Comment = {
+        id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        post_id: postId,
+        user_id: currentUser.id,
+        content: newCommentData.content,
+        media: newCommentData.media || null,
+        created_at: new Date().toISOString(),
+        parent_id: newCommentData.replyToId || parentId || null,
+        stats: { likes: 0, comments: 0, reposts: 0 },
+        user: currentUser,
+        timeAgo: "Just now",
+      };
+
+      queryClient.setQueryData<InfiniteData<Comment[]>>(queryKey, (old) => {
+        if (!old) return {
+          pages: [[optimisticComment]],
+          pageParams: [null],
         };
 
-        queryClient.setQueryData<InfiniteData<Comment[]>>(queryKey, (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: [
-              [optimisticComment, ...old.pages[0]],
-              ...old.pages.slice(1),
-            ],
-          };
-        });
-      }
+        return {
+          ...old,
+          pages: [
+            [optimisticComment, ...old.pages[0]],
+            ...old.pages.slice(1),
+          ],
+        };
+      });
 
       return { previousComments };
     },
@@ -94,18 +102,16 @@ export const useComments = (
         queryClient.setQueryData(queryKey, context.previousComments);
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-      if (parentId) {
-        queryClient.invalidateQueries({
-          queryKey: ["comments", postId, parentId],
-        });
-      }
+    onSettled: () => {
+      const queryKey = ["comments", postId, parentId];
+      queryClient.invalidateQueries({ queryKey });
+      // Also invalidate the post stats to update comment count
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
     },
   });
 
   return {
-    comments,
+    comments: comments || [],
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,

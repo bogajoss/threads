@@ -9,8 +9,9 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  SkeletonUser,
 } from "@/components/ui";
-import { Loader2, ShieldCheck, User as UserIcon, Search } from "lucide-react";
+import { ShieldCheck, User as UserIcon, Search } from "lucide-react";
 import { fetchCommunityMembers, updateMemberRole } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
@@ -112,8 +113,10 @@ export default function ManageMembersModal({
   const renderMemberList = (list: any[]) => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-violet-500" size={32} />
+        <div className="flex flex-col">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <SkeletonUser key={i} />
+          ))}
         </div>
       );
     }
@@ -157,11 +160,10 @@ export default function ManageMembersModal({
                   isOwner && (
                     <button
                       onClick={() => handleToggleAdmin(m.userId, m.role)}
-                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${
-                        m.role === "admin"
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${m.role === "admin"
                           ? "bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400"
                           : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                      }`}
+                        }`}
                     >
                       {m.role === "admin" ? (
                         <>
