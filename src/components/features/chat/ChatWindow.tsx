@@ -131,30 +131,38 @@ const MessageBubble = ({
                 )}
               >
                 {msg.replyTo && (
-                  <div 
+                  <div
                     className={cn(
-                      "mb-1.5 border-l-2 pl-2 py-0.5 text-xs rounded bg-black/5 dark:bg-white/5",
-                      isMe ? "border-white/50" : "border-violet-500"
+                      "mb-1.5 -mx-1 px-2.5 py-1.5 rounded-xl text-xs border-l-2 cursor-pointer transition-all hover:opacity-80",
+                      isMe
+                        ? "bg-black/10 border-white/40 text-white/90"
+                        : "bg-zinc-100 border-zinc-300 text-zinc-600 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-300",
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      const element = document.getElementById(`msg-${msg.replyTo.id}`);
-                      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      element?.classList.add('bg-violet-500/20');
-                      setTimeout(() => element?.classList.remove('bg-violet-500/20'), 2000);
+                      const el = document.getElementById(`msg-${msg.replyTo.id}`);
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "center" });
+                      }
                     }}
                   >
-                    <span className={cn("font-bold block", isMe ? "text-white/90" : "text-violet-500")}>
-                      {msg.replyTo.sender === "me" ? "You" : msg.replyTo.senderName}
-                    </span>
-                    <span className="opacity-80 line-clamp-1">{msg.replyTo.text}</span>
+                    <div className="flex items-center gap-1.5 mb-0.5 opacity-75">
+                      <ReplyIcon size={12} />
+                      <span className="font-bold truncate">
+                        {msg.replyTo.senderName === currentUser?.name ? "You" : msg.replyTo.senderName}
+                      </span>
+                    </div>
+                    <div className="truncate opacity-90 text-[11px]">
+                      {msg.replyTo.text}
+                    </div>
                   </div>
                 )}
 
                 {msg.media?.length > 0 && msg.type !== "voice" && (
                   <div
                     className={cn(
-                      "relative -mx-3 -mt-1.5 overflow-hidden shadow-sm",
+                      "relative -mx-3 overflow-hidden shadow-sm",
+                      !msg.replyTo && "-mt-1.5",
                       !msg.text && "-mb-1.5",
                       msg.text && "mb-1.5",
                       "rounded-[15px]",

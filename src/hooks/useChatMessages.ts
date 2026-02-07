@@ -28,9 +28,8 @@ interface FormattedMessage {
   replyToId: string | null;
   replyTo?: {
     id: string;
-    text: string;
     senderName: string;
-    sender: "me" | "them";
+    text: string;
   } | null;
   reactions: Reaction[];
   time: string;
@@ -50,32 +49,54 @@ export const useChatMessages = (
       messages: Message[] = [],
       reactions: Reaction[] = [],
     ): FormattedMessage[] => {
-      return messages.map((m) => ({
-        id: m.id,
-        sender: m.sender_id === currentUser?.id ? "me" : "them",
-        senderAvatar: m.sender?.avatar,
-        senderName: m.sender?.name,
-        text: m.content || "",
-        type: m.type || "text",
-        media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
-        isRead: m.is_read || false,
-        replyToId: m.reply_to_id,
-        replyTo: m.reply_to ? {
-          id: m.reply_to.id,
-          text: m.reply_to.content,
-          senderName: m.reply_to.sender?.display_name || m.reply_to.sender?.username || "Unknown",
-          sender: m.reply_to.sender?.id === currentUser?.id ? "me" : "them",
-        } : null,
-        reactions: reactions.filter((r) => r.message_id === m.id),
-        time: m.created_at
-          ? new Date(m.created_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "Just now",
-        updatedAt: m.updated_at,
-        isOptimistic: m.isOptimistic,
-      }));
+      return messages.map((m) => {
+        const replyToId = m.reply_to_id;
+        let replyTo = null;
+
+        if (replyToId) {
+          const repliedMsg = messages.find((rm) => rm.id === replyToId);
+          if (repliedMsg) {
+            replyTo = {
+              id: repliedMsg.id,
+              senderName:
+                repliedMsg.sender?.name ||
+                (repliedMsg.sender as any)?.display_name ||
+                "Unknown",
+              text:
+                repliedMsg.content ||
+                (repliedMsg.type === "image"
+                  ? "Photo"
+                  : repliedMsg.type === "video"
+                    ? "Video"
+                    : repliedMsg.type === "voice"
+                      ? "Voice message"
+                      : ""),
+            };
+          }
+        }
+
+        return {
+          id: m.id,
+          sender: m.sender_id === currentUser?.id ? "me" : "them",
+          senderAvatar: m.sender?.avatar,
+          senderName: m.sender?.name,
+          text: m.content || "",
+          type: m.type || "text",
+          media: m.media ? (Array.isArray(m.media) ? m.media : [m.media]) : [],
+          isRead: m.is_read || false,
+          replyToId,
+          replyTo,
+          reactions: reactions.filter((r) => r.message_id === m.id),
+          time: m.created_at
+            ? new Date(m.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "Just now",
+          updatedAt: m.updated_at,
+          isOptimistic: m.isOptimistic,
+        };
+      });
     },
     [currentUser?.id],
   );
@@ -145,9 +166,9 @@ export const useChatMessages = (
         isOptimistic: true,
         sender: {
           id: currentUser!.id,
-          username: currentUser!.handle,
-          display_name: currentUser!.name,
-          avatar_url: currentUser!.avatar,
+          handle: currentUser!.handle,
+          name: currentUser!.name,
+          avatar: currentUser!.avatar,
         } as any,
       };
 
