@@ -5,6 +5,7 @@ import { searchUsers, getOrCreateConversation } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { usePresence } from "@/context/PresenceContext";
 import { useMessages } from "@/hooks/useMessages";
+import Fuse from "fuse.js";
 
 export const useMessagesPage = () => {
   const { id } = useParams();
@@ -88,12 +89,17 @@ export const useMessagesPage = () => {
     [messages, conversationReactions, formatMessages],
   );
 
-  const filteredConversations = conversations.filter(
-    (c: any) =>
-      c.user?.name?.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
-      c.user?.handle?.toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
-      c.lastMessage?.toLowerCase().includes(msgSearchQuery.toLowerCase()),
-  );
+  const filteredConversations = useMemo(() => {
+    if (!msgSearchQuery.trim()) return conversations;
+
+    const fuse = new Fuse(conversations, {
+      keys: ["user.name", "user.handle", "lastMessage"],
+      threshold: 0.3, // Lower is stricter, 0.3 is good for fuzzy matching
+      ignoreLocation: true,
+    });
+
+    return fuse.search(msgSearchQuery).map((result) => result.item);
+  }, [msgSearchQuery, conversations]);
 
   const currentIsTyping =
     selectedConversation && typingStatus[selectedConversation.id];

@@ -49,6 +49,7 @@ const Privacy = lazy(() => import("@/pages/(info)/Privacy"));
 const Guidelines = lazy(() => import("@/pages/(info)/Guidelines"));
 const Support = lazy(() => import("@/pages/(info)/Support"));
 const Status = lazy(() => import("@/pages/(info)/Status"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -86,7 +87,7 @@ export default function Sysm() {
             />
             <Route path="/home" element={<Navigate to="/feed" replace />} />
             <Route
-              path="/community"
+              path="/explore"
               element={
                 <PageTransition>
                   <Explore />
@@ -190,7 +191,6 @@ export default function Sysm() {
                 </PageTransition>
               }
             />
-            <Route path="*" element={<Navigate to="/community" />} />
           </Route>
 
           <Route element={<MarketplaceLayout />}>
@@ -206,6 +206,7 @@ export default function Sysm() {
             <Route path="/guidelines" element={<Guidelines />} />
             <Route path="/support" element={<Support />} />
             <Route path="/status" element={<Status />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </Suspense>

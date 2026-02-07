@@ -8,7 +8,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui";
-import { Loader2, Plus, Users, Hash } from "lucide-react";
+import { Loader2, Plus, Users, Hash, UserCircle } from "lucide-react";
 import CreateCommunityModal from "@/components/features/modals/CreateCommunityModal";
 import { useExplore } from "@/hooks/pages/useExplore";
 import { Post } from "@/components/features/post";
@@ -32,19 +32,25 @@ const Explore: React.FC = () => {
     isFetchingMorePosts,
     hasMorePosts,
     filteredCommunities,
+    usersData,
+    isUsersLoading,
+    isFetchingMoreUsers,
+    hasMoreUsers,
     handleCommunityClick,
     loadCommunities,
     loadPosts,
+    loadUsers,
     navigate,
   } = useExplore();
 
   if (
-    (isCommunitiesLoading || isPostsLoading) &&
+    (isCommunitiesLoading || isPostsLoading || isUsersLoading) &&
     !communitiesData.length &&
-    !postsData.length
+    !postsData.length &&
+    !usersData.length
   ) {
     return (
-      <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+      <div className="min-h-screen bg-white dark:bg-black md:rounded-xl">
         {[1, 2, 3].map((i) => (
           <SkeletonPost key={i} />
         ))}
@@ -53,8 +59,8 @@ const Explore: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white pb-20 shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
-      <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/90 backdrop-blur-md dark:bg-black/90 dark:border-zinc-800">
+    <div className="min-h-screen bg-white pb-20 dark:bg-black md:rounded-xl">
+      <div className="sticky top-0 z-10 border-b border-zinc-50 bg-white/90 backdrop-blur-md dark:bg-black/90 dark:border-zinc-900/50">
         <div className="flex gap-2 p-4">
           <SearchBar
             value={searchQuery}
@@ -74,7 +80,7 @@ const Explore: React.FC = () => {
           )}
         </div>
 
-        <div className="border-t border-zinc-100 px-1 dark:border-zinc-800">
+        <div className="border-t border-zinc-50 px-1 dark:border-zinc-900/50">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -95,6 +101,13 @@ const Explore: React.FC = () => {
                 <Hash size={18} />
                 Posts
               </TabsTrigger>
+              <TabsTrigger
+                value="users"
+                className="flex h-full gap-2 rounded-none border-b-2 border-transparent px-2 font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+              >
+                <UserCircle size={18} />
+                Users
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -102,7 +115,7 @@ const Explore: React.FC = () => {
 
       <div className="min-h-screen">
         {activeTab === "communities" && (
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <div className="divide-y divide-zinc-50 dark:divide-zinc-900/50">
             {filteredCommunities.length > 0 ? (
               filteredCommunities.map((community: Community) => (
                 <ProfileCard
@@ -119,7 +132,7 @@ const Explore: React.FC = () => {
             )}
 
             {hasMoreCommunities && filteredCommunities.length > 0 && (
-              <div className="flex justify-center border-t border-zinc-100 p-6 dark:border-zinc-800">
+              <div className="flex justify-center border-t border-zinc-50 p-6 dark:border-zinc-900/50">
                 <Button
                   variant="secondary"
                   className="w-full"
@@ -137,7 +150,7 @@ const Explore: React.FC = () => {
         )}
 
         {activeTab === "posts" && (
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <div className="divide-y divide-zinc-50 dark:divide-zinc-900/50">
             {postsData.length > 0 ? (
               <>
                 {postsData.map((post: PostType & { feed_id?: string }) => (
@@ -150,7 +163,7 @@ const Explore: React.FC = () => {
                   />
                 ))}
                 {hasMorePosts && (
-                  <div className="flex justify-center border-t border-zinc-100 p-6 dark:border-zinc-800">
+                  <div className="flex justify-center border-t border-zinc-50 p-6 dark:border-zinc-900/50">
                     <Button
                       variant="secondary"
                       className="w-full max-w-xs"
@@ -179,6 +192,52 @@ const Explore: React.FC = () => {
                   {searchQuery
                     ? `No posts found matching "${searchQuery}"`
                     : "No posts found"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "users" && (
+          <div className="divide-y divide-zinc-50 dark:divide-zinc-900/50">
+            {usersData.length > 0 ? (
+              <>
+                {usersData.map((user: any) => (
+                  <ProfileCard
+                    key={user.id}
+                    profile={user}
+                    onUserClick={(h: string) => navigate(`/u/${h}`)}
+                  />
+                ))}
+                {hasMoreUsers && (
+                  <div className="flex justify-center border-t border-zinc-50 p-6 dark:border-zinc-900/50">
+                    <Button
+                      variant="secondary"
+                      className="w-full max-w-xs"
+                      onClick={() => loadUsers()}
+                      disabled={isFetchingMoreUsers}
+                    >
+                      {isFetchingMoreUsers && (
+                        <Loader2 size={18} className="mr-2 animate-spin" />
+                      )}
+                      Load more
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : isUsersLoading ? (
+              <div className="flex justify-center p-20">
+                <Loader2 className="animate-spin text-violet-500" size={32} />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 p-20 text-center text-zinc-500">
+                <div className="rounded-full bg-zinc-50 p-4 dark:bg-zinc-900">
+                  <UserCircle size={32} className="text-zinc-300" />
+                </div>
+                <p className="font-bold">
+                  {searchQuery
+                    ? `No users found matching "${searchQuery}"`
+                    : "No users found"}
                 </p>
               </div>
             )}

@@ -6,8 +6,10 @@ import {
   fetchCommunities,
   searchPosts,
   fetchCommunityExplorePosts,
+  searchUsers,
 } from "@/lib/api";
 import type { Community } from "@/types";
+import Fuse from "fuse.js";
 
 export const useExplore = () => {
   const { currentUser } = useAuth();
@@ -19,6 +21,32 @@ export const useExplore = () => {
     searchParams.get("tab") || (searchQuery ? "posts" : "communities");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Users Query
+  const {
+    data: usersInfiniteData,
+    fetchNextPage: fetchNextUsers,
+    hasNextPage: hasMoreUsers,
+    isFetchingNextPage: isFetchingMoreUsers,
+    isLoading: isUsersLoading,
+  } = useInfiniteQuery({
+    queryKey: ["explore", "users", searchQuery],
+    queryFn: () => {
+      if (searchQuery) {
+        return searchUsers(searchQuery);
+      }
+      return searchUsers(""); 
+    },
+    enabled: activeTab === "users",
+    initialPageParam: null as string | null,
+    getNextPageParam: () => {
+      return undefined;
+    },
+  });
+
+  const usersData = useMemo(() => {
+    return (usersInfiniteData?.pages.flatMap((page) => page) as any[]) || [];
+  }, [usersInfiniteData]);
 
   const {
     data: communitiesInfiniteData,
@@ -53,7 +81,7 @@ export const useExplore = () => {
     queryKey: ["explore", "posts", searchQuery],
     queryFn: ({ pageParam }) => {
       if (searchQuery) {
-        return searchPosts(searchQuery, pageParam, 20, true);
+        return searchPosts(searchQuery, pageParam, 20, false);
       }
       return fetchCommunityExplorePosts(pageParam, 20);
     },
@@ -69,15 +97,15 @@ export const useExplore = () => {
   }, [postsInfiniteData]);
 
   const filteredCommunities = useMemo(() => {
-    let list = communitiesData;
-    if (searchQuery) {
-      list = list.filter(
-        (c) =>
-          c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.handle?.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-    return list;
+    if (!searchQuery.trim()) return communitiesData;
+
+    const fuse = new Fuse(communitiesData, {
+      keys: ["name", "handle", "description"],
+      threshold: 0.3,
+      ignoreLocation: true,
+    });
+
+    return fuse.search(searchQuery).map((result) => result.item);
   }, [communitiesData, searchQuery]);
 
   const handleCommunityClick = (handle: string) => {
@@ -122,9 +150,14 @@ export const useExplore = () => {
     isFetchingMorePosts,
     hasMorePosts,
     filteredCommunities,
+    usersData,
+    isUsersLoading,
+    hasMoreUsers,
+    isFetchingMoreUsers,
     handleCommunityClick,
     loadCommunities: fetchNextCommunities,
     loadPosts: fetchNextPosts,
+    loadUsers: fetchNextUsers,
     navigate,
   };
 };

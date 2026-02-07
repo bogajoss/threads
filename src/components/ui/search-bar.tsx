@@ -5,6 +5,7 @@ interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   onClear: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
 }
@@ -13,6 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
   onClear,
+  onKeyDown,
   placeholder = "Search...",
   className = "",
 }) => {
@@ -28,6 +30,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
       />
       {value && (
         <button

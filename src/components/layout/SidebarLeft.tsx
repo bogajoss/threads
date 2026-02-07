@@ -20,7 +20,7 @@ const SidebarLeft: React.FC<Record<string, never>> = () => {
 
   const navItems = [
     { id: "home", icon: HomeIcon, path: "/feed" },
-    { id: "community", icon: CommunityIcon, path: "/community" },
+    { id: "explore", icon: CommunityIcon, path: "/explore" },
     { id: "reels", icon: ReelsIcon, path: "/r" },
     { id: "messages", icon: ChatIcon, path: "/m" },
     { id: "notifications", icon: NotificationsIcon, path: "/notifications" },

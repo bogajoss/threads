@@ -32,6 +32,13 @@ const SidebarRight = () => {
     { name: "Status", path: "/status" },
   ];
 
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}&tab=posts`);
+      setSearchQuery("");
+    }
+  };
+
   const themeToggleBtn = (
     <button
       onClick={toggleDarkMode}
@@ -73,6 +80,7 @@ const SidebarRight = () => {
               value={searchQuery}
               onChange={setSearchQuery}
               onClear={() => setSearchQuery("")}
+              onKeyDown={handleSearch}
             />
           </div>
           {themeToggleBtn}
@@ -141,6 +149,7 @@ const SidebarRight = () => {
         value={searchQuery}
         onChange={setSearchQuery}
         onClear={() => setSearchQuery("")}
+        onKeyDown={handleSearch}
       />
 
       <SignupCard />

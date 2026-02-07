@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
-import { visualizer } from "rollup-plugin-visualizer";
 import { compression } from "vite-plugin-compression2";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,12 +15,6 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-    visualizer({
-      open: false,
-      filename: "dist/stats.html",
-      gzipSize: true,
-      brotliSize: true,
-    }),
     compression({
       algorithms: ["brotliCompress"],
       exclude: [/\.(br)$/, /\.(gz)$/],
