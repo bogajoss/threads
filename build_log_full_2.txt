@@ -1,7 +1,0 @@
-
-> sysm@0.0.0 build D:\`Mahadi\`AntiGravity\threads
-> tsc -b && vite build
-
-src/components/features/post/Post.tsx(275,16): error TS6133: 'loadingComments' is declared but its value is never read.
-src/components/features/post/Post.tsx(297,16): error TS6133: 'loadingReplies' is declared but its value is never read.
- ELIFECYCLE  Command failed with exit code 2.
