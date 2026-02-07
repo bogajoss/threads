@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { SearchBar, SignupCard } from "@/components/ui";
@@ -21,15 +21,15 @@ const SidebarRight = () => {
   });
 
   const footerLinks = [
-    "© 2026 Sysm",
-    "Terms",
-    "Privacy",
-    "Guidelines",
-    "Discord",
-    "Sysm",
-    "GitHub",
-    "Support",
-    "Status",
+    { name: "© 2026 Sysm", path: "/terms" },
+    { name: "Terms", path: "/terms" },
+    { name: "Privacy", path: "/privacy" },
+    { name: "Guidelines", path: "/guidelines" },
+    { name: "Discord", path: "https://discord.gg/sysm", isExternal: true },
+    { name: "Sysm", path: "/feed" },
+    { name: "GitHub", path: "https://github.com/sysm", isExternal: true },
+    { name: "Support", path: "/support" },
+    { name: "Status", path: "/status" },
   ];
 
   const themeToggleBtn = (
@@ -40,6 +40,28 @@ const SidebarRight = () => {
     >
       {darkMode ? <Sun size={20} /> : <Moon size={20} />}
     </button>
+  );
+
+  const FooterLinks = () => (
+    <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
+      {footerLinks.map((link) =>
+        link.isExternal ? (
+          <a
+            key={link.name}
+            href={link.path}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            {link.name}
+          </a>
+        ) : (
+          <Link key={link.name} to={link.path} className="hover:underline">
+            {link.name}
+          </Link>
+        )
+      )}
+    </div>
   );
 
   if (currentUser) {
@@ -91,13 +113,7 @@ const SidebarRight = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
-          {footerLinks.map((link) => (
-            <a key={link} href="#" className="hover:underline">
-              {link}
-            </a>
-          ))}
-        </div>
+        <FooterLinks />
       </aside>
     );
   }
@@ -129,13 +145,7 @@ const SidebarRight = () => {
 
       <SignupCard />
 
-      <div className="flex flex-wrap gap-x-4 gap-y-2 px-2 pb-5 text-[13px] font-medium text-zinc-500">
-        {footerLinks.map((link) => (
-          <a key={link} href="#" className="hover:underline">
-            {link}
-          </a>
-        ))}
-      </div>
+      <FooterLinks />
     </aside>
   );
 };

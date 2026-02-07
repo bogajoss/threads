@@ -7,3 +7,4 @@ export { default as SidebarRight } from "./SidebarRight";
 export { default as ThemeToggle } from "./ThemeToggle";
 export { default as MarketplaceLayout } from "./MarketplaceLayout";
 export { default as CreateActionMenu } from "./CreateActionMenu";
+export { default as InfoLayout } from "./InfoLayout";
