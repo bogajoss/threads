@@ -56,16 +56,24 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     useEffect(() => {
       setIsVideoLoaded(false);
       const player = playerRef.current?.plyr;
-      if (player) {
+      
+      if (player && typeof player.on === "function") {
         const handleLoaded = () => setIsVideoLoaded(true);
         player.on("ready", handleLoaded);
         player.on("canplay", handleLoaded);
         player.on("loadeddata", handleLoaded);
+        
         return () => {
-          player.off("ready", handleLoaded);
-          player.off("canplay", handleLoaded);
-          player.off("loadeddata", handleLoaded);
+          if (typeof player.off === "function") {
+            player.off("ready", handleLoaded);
+            player.off("canplay", handleLoaded);
+            player.off("loadeddata", handleLoaded);
+          }
         };
+      } else {
+        // Fallback if player API is not available (e.g. during initialization)
+        const timer = setTimeout(() => setIsVideoLoaded(true), 1000);
+        return () => clearTimeout(timer);
       }
     }, [videoUrl]);
 
