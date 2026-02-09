@@ -81,16 +81,19 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       let timeoutId: ReturnType<typeof setTimeout>;
       const player = playerRef.current?.plyr;
 
-      if (player) {
+      if (player && isVideoLoaded) {
         if (isActive) {
           timeoutId = setTimeout(() => {
             if (typeof player.play === "function") {
-              player.play().catch(() => {
-                if (player) {
-                  player.muted = true;
-                  player.play().catch(() => {});
-                }
-              });
+              const playPromise = player.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                  if (player) {
+                    player.muted = true;
+                    player.play().catch(() => {});
+                  }
+                });
+              }
             }
           }, 100);
         } else {
@@ -103,7 +106,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       return () => {
         if (timeoutId) clearTimeout(timeoutId);
       };
-    }, [isActive]);
+    }, [isActive, isVideoLoaded]);
 
     useEffect(() => {
       if (!currentUser?.id || !isActive) return;
@@ -257,6 +260,9 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           loop: { active: true },
           clickToPlay: false,
           ratio: "9:16",
+          autoplay: true,
+          muted: true,
+          playsinline: true,
         },
       }),
       [videoUrl],
