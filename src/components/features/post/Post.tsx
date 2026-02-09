@@ -42,6 +42,7 @@ import {
   PostStats,
 } from "@/components/features/post";
 import { usePostInteraction, useComments } from "@/hooks";
+import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
 import { usePosts } from "@/context/PostContext";
 import {
@@ -127,7 +128,7 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
 
 interface PostActionsMenuProps {
   id: string;
-  user: { handle: string };
+  user: { handle: string; id: string };
   isCurrentUser: boolean;
   isComment?: boolean;
   onEdit: () => void;
@@ -145,89 +146,91 @@ const PostActionsMenu = ({
   onDelete,
   addToast,
   trigger,
-}: PostActionsMenuProps) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-      {trigger}
-    </DropdownMenuTrigger>
-    <DropdownMenuContent
-      align="end"
-      className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-    >
-      <DropdownMenuGroup>
-        {!isComment && (
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 py-2.5"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(
-                `${window.location.origin}/p/${id}`,
-              );
-              addToast("Link copied");
-            }}
-          >
-            <Share size={16} />
-            <span>Copy link</span>
-          </DropdownMenuItem>
-        )}
-        {!isComment && (
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 py-2.5"
-            onClick={(e) => {
-              e.stopPropagation();
-              addToast("Post reported");
-            }}
-          >
-            <Flag size={16} />
-            <span>Report post</span>
-          </DropdownMenuItem>
-        )}
-        {!isCurrentUser && (
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 py-2.5"
-            onClick={(e) => {
-              e.stopPropagation();
-              addToast("User blocked");
-            }}
-          >
-            <UserMinus size={16} />
-            <span>Block @{user.handle}</span>
-          </DropdownMenuItem>
-        )}
-        {isCurrentUser && (
-          <DropdownMenuItem
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="cursor-pointer gap-2 py-2.5"
-          >
-            <Pencil size={16} />
-            Edit {isComment ? "Comment" : "Post"}
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuGroup>
-      {isCurrentUser && (
-        <>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
+}: PostActionsMenuProps) => {
+  const { openReport } = useReportModal();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+        {trigger}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+      >
+        <DropdownMenuGroup>
+          {!isComment && (
             <DropdownMenuItem
-              variant="destructive"
               className="cursor-pointer gap-2 py-2.5"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete();
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/p/${id}`,
+                );
+                addToast("Link copied");
               }}
             >
-              <Trash size={16} />
-              <span>Delete {isComment ? "comment" : "post"}</span>
+              <Share size={16} />
+              <span>Copy link</span>
             </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </>
-      )}
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+          )}
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 py-2.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              openReport("post", id);
+            }}
+          >
+            <Flag size={16} />
+            <span>Report {isComment ? "comment" : "post"}</span>
+          </DropdownMenuItem>
+          {!isCurrentUser && (
+            <DropdownMenuItem
+              className="cursor-pointer gap-2 py-2.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                openReport("user", user.id);
+              }}
+            >
+              <UserMinus size={16} />
+              <span>Report @{user.handle}</span>
+            </DropdownMenuItem>
+          )}
+          {isCurrentUser && (
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="cursor-pointer gap-2 py-2.5"
+            >
+              <Pencil size={16} />
+              Edit {isComment ? "Comment" : "Post"}
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+        {isCurrentUser && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer gap-2 py-2.5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash size={16} />
+                <span>Delete {isComment ? "comment" : "post"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const Post: React.FC<PostProps> = ({
   id,

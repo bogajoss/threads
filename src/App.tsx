@@ -19,7 +19,9 @@ import {
   CreateActionMenu,
   MarketplaceLayout,
   InfoLayout,
+  AdminLayout,
 } from "@/components/layout";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
@@ -42,6 +44,14 @@ const ShopPage = lazy(() => import("@/pages/(marketplace)/shop/page"));
 const ProductPage = lazy(
   () => import("@/pages/(marketplace)/shop/product/page"),
 );
+
+// Admin Pages
+const SysPanel = lazy(() => import("@/pages/(admin)/syspanel/SysPanelPage"));
+const UserManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/users/UserManagement"));
+const ContentModeration = lazy(() => import("@/pages/(admin)/syspanel/sections/content/ContentModeration"));
+const ReportsManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/reports/ReportsManagement"));
+const AnalyticsDashboard = lazy(() => import("@/pages/(admin)/syspanel/sections/analytics/AnalyticsDashboard"));
+const SystemSettings = lazy(() => import("@/pages/(admin)/syspanel/sections/settings/SystemSettings"));
 
 // Info Pages
 const Terms = lazy(() => import("@/pages/(info)/Terms"));
@@ -207,6 +217,22 @@ export default function Sysm() {
             <Route path="/support" element={<Support />} />
             <Route path="/status" element={<Status />} />
             <Route path="*" element={<NotFoundPage />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/syspanel" element={<SysPanel />} />
+            <Route path="/syspanel/users" element={<UserManagement />} />
+            <Route path="/syspanel/reports" element={<ReportsManagement />} />
+            <Route path="/syspanel/content" element={<ContentModeration />} />
+            <Route path="/syspanel/security" element={<SysPanel />} />
+            <Route path="/syspanel/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/syspanel/settings" element={<SystemSettings />} />
           </Route>
         </Routes>
       </Suspense>

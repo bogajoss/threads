@@ -6,6 +6,7 @@ export interface User {
   avatar: string;
   cover: string;
   verified: boolean;
+  role: 'user' | 'admin' | 'moderator';
   bio: string | null;
   location: string | null;
   website: string | null;

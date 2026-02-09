@@ -34,6 +34,7 @@ import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
 
 import { useFollow } from "@/hooks/useFollow";
+import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
 
 interface ProfileHeaderProps {
@@ -59,6 +60,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 }) => {
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const { openReport } = useReportModal();
   const [isStartingChat, setIsStartingChat] = useState(false);
 
   // Use hook even if profile is null to avoid hook conditional rules, 
@@ -203,10 +205,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer gap-2"
-                        onClick={() => addToast("User reported", "info")}
+                        onClick={() => openReport(isCommunity ? "community" : "user", profile.id)}
                       >
                         <Flag size={16} />
-                        Report user
+                        Report {isCommunity ? "community" : "user"}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />

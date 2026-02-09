@@ -20,6 +20,7 @@ export const transformUser = (supabaseUser: any): User | null => {
     avatar: supabaseUser.avatar_url || "/default-avatar.webp",
     cover: supabaseUser.cover_url || "/welcome-banner.webp",
     verified: supabaseUser.is_verified,
+    role: supabaseUser.role || 'user',
     bio: supabaseUser.bio,
     location: supabaseUser.location,
     website: supabaseUser.website,

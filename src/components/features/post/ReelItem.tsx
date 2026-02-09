@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
+import { useReportModal } from "@/context/ReportContext";
 import SkeletonReel from "@/components/features/reels/skeleton-reel";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
@@ -20,6 +21,7 @@ import {
   FollowingIcon,
   ChatIcon,
 } from "@/components/ui";
+import { Flag } from "lucide-react";
 
 interface ReelItemProps {
   reel: any;
@@ -34,6 +36,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { addToast } = useToast();
+    const { openReport } = useReportModal();
     const playerRef = useRef<any>(null);
     const [showHeart, setShowHeart] = useState(false);
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
@@ -480,6 +483,17 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               <span className="text-xs font-bold text-white">
                 {reel.stats?.shares || 0}
               </span>
+            </div>
+            <div className="pointer-events-auto flex flex-col items-center gap-1">
+              <button
+                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-rose-500/20 hover:text-rose-500 active:scale-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openReport("reel", reel.id);
+                }}
+              >
+                <Flag size={28} />
+              </button>
             </div>
           </div>
 

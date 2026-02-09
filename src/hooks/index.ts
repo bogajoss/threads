@@ -9,6 +9,7 @@ export * from "./usePostInteraction";
 export * from "./useTimeAgo";
 export * from "./useAudioRecorder";
 export * from "./useComments";
+export * from "./useAdmin";
 export * from "./pages/useProfile";
 export * from "./pages/useCommunity";
 export * from "./pages/useExplore";

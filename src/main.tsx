@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { PostProvider } from "@/context/PostContext";
 import { LightboxProvider } from "@/context/LightboxContext";
+import { ReportProvider } from "@/context/ReportContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "plyr/dist/plyr.css";
 import "@/index.css";
@@ -36,9 +37,11 @@ if (rootElement) {
                 <PresenceProvider>
                   <PostProvider>
                     <ToastProvider>
-                      <LightboxProvider>
-                        <App />
-                      </LightboxProvider>
+                      <ReportProvider>
+                        <LightboxProvider>
+                          <App />
+                        </LightboxProvider>
+                      </ReportProvider>
                     </ToastProvider>
                   </PostProvider>
                 </PresenceProvider>

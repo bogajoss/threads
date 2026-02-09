@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 import CreateActionMenu from "./CreateActionMenu";
-import { User } from "lucide-react";
+import { User, ShieldCheck } from "lucide-react";
 
 const SidebarLeft: React.FC<Record<string, never>> = () => {
   const { currentUser } = useAuth();
@@ -30,6 +30,14 @@ const SidebarLeft: React.FC<Record<string, never>> = () => {
       path: currentUser ? `/u/${currentUser.handle}` : "/login",
     },
   ];
+
+  if (currentUser?.role === "admin") {
+    navItems.push({
+      id: "admin",
+      icon: ShieldCheck as any,
+      path: "/syspanel",
+    });
+  }
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[68px] shrink-0 self-start flex-col items-center bg-white py-5 transition-colors duration-200 dark:bg-black md:flex">
