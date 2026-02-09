@@ -41,8 +41,8 @@ const ShopPage: React.FC = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
-        <div className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div className="min-h-screen bg-background text-foreground font-sans selection:bg-blue-500/30">
+        <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="max-w-6xl mx-auto px-4 overflow-x-auto">
             <div className="flex items-center space-x-1 md:space-x-2 py-2">
               {categories.map((cat) => (
@@ -53,10 +53,10 @@ const ShopPage: React.FC = () => {
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap",
                     activeTab === cat.name
-                      ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                      ? "bg-foreground text-background shadow-lg"
                       : cat.disabled
-                        ? "opacity-50 cursor-not-allowed text-neutral-600"
-                        : "text-neutral-400 hover:text-white hover:bg-white/5",
+                        ? "opacity-50 cursor-not-allowed text-muted-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent",
                   )}
                 >
                   <cat.icon className="w-4 h-4" />
@@ -74,21 +74,21 @@ const ShopPage: React.FC = () => {
 
         <main className="max-w-6xl mx-auto px-4 py-12 md:py-20">
           <div className="text-center mb-16 space-y-6">
-            <div className="inline-flex items-center justify-center p-3 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 mb-4 ring-1 ring-white/10">
+            <div className="inline-flex items-center justify-center p-3 rounded-full bg-blue-500/10 mb-4 ring-1 ring-blue-500/20">
               {activeTab === "Gifts" ? (
-                <Gift className="w-8 h-8 text-amber-400" />
+                <Gift className="w-8 h-8 text-amber-500" />
               ) : (
-                <Gem className="w-8 h-8 text-blue-400" />
+                <Gem className="w-8 h-8 text-blue-500" />
               )}
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               {activeTab === "Gifts"
                 ? "Collect Unique Gifts"
                 : `Buy and Sell ${activeTab}`}
             </h1>
 
-            <p className="text-lg md:text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {activeTab === "Gifts"
                 ? "Unique digital collectibles on the TON blockchain. Gift them to friends or trade them on the marketplace."
                 : "Secure your name with blockchain in an ecosystem of 1+ billion users and assign it as a link for your personal account, channel or group."}
@@ -103,8 +103,8 @@ const ShopPage: React.FC = () => {
                     : "bg-gradient-to-r from-blue-500 to-purple-500",
                 )}
               />
-              <div className="relative flex items-center bg-[#111] border border-white/10 rounded-full hover:border-white/20 transition-colors shadow-2xl">
-                <Search className="w-5 h-5 text-neutral-500 ml-6" />
+              <div className="relative flex items-center bg-card border border-border rounded-full hover:border-accent transition-colors shadow-2xl">
+                <Search className="w-5 h-5 text-muted-foreground ml-6" />
                 <input
                   type="text"
                   placeholder={
@@ -114,9 +114,9 @@ const ShopPage: React.FC = () => {
                   }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent border-none text-white px-4 py-5 text-lg placeholder:text-neutral-600 focus:outline-none focus:ring-0 rounded-full"
+                  className="w-full bg-transparent border-none text-foreground px-4 py-5 text-lg placeholder:text-muted-foreground focus:outline-none focus:ring-0 rounded-full"
                 />
-                <button className="mr-2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                <button className="mr-2 p-2 rounded-full bg-accent hover:bg-accent/80 text-foreground transition-colors">
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -128,35 +128,35 @@ const ShopPage: React.FC = () => {
               <div className="w-full lg:w-64 flex-shrink-0 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-lg flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-neutral-400" />
+                    <Layers className="w-4 h-4 text-muted-foreground" />
                     Collections
                   </h3>
-                  <span className="text-xs font-mono text-neutral-500 bg-white/5 px-2 py-1 rounded">
+                  <span className="text-xs font-mono text-muted-foreground bg-accent px-2 py-1 rounded">
                     107
                   </span>
                 </div>
 
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <input
                     type="text"
                     placeholder="Search collections..."
-                    className="w-full bg-[#111] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm focus:border-white/20 transition-colors"
+                    className="w-full bg-card border border-border rounded-lg pl-9 pr-3 py-2 text-sm focus:border-accent transition-colors"
                   />
                 </div>
 
-                <div className="space-y-1 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                  <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/10 text-white font-medium text-sm">
+                <div className="space-y-1 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                  <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-accent text-foreground font-medium text-sm">
                     <span>All Collections</span>
-                    <span className="text-neutral-400 text-xs">887k</span>
+                    <span className="text-muted-foreground text-xs">887k</span>
                   </button>
                   {GIFT_COLLECTIONS.map((col) => (
                     <button
                       key={col.name}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-neutral-300 hover:text-white transition-colors text-sm group"
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors text-sm group"
                     >
                       <span>{col.name}</span>
-                      <span className="text-neutral-600 group-hover:text-neutral-500 text-xs">
+                      <span className="text-muted-foreground group-hover:text-foreground text-xs">
                         {col.count}
                       </span>
                     </button>
@@ -170,7 +170,7 @@ const ShopPage: React.FC = () => {
                     <Gift className="w-5 h-5 text-amber-500" />
                     Top Gifts
                   </h2>
-                  <button className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors">
+                  <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                     <Filter className="w-4 h-4" />
                     Recently Sold
                   </button>
@@ -180,26 +180,26 @@ const ShopPage: React.FC = () => {
                   {TOP_GIFTS.map((gift, i) => (
                     <div
                       key={i}
-                      className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden group hover:border-amber-500/30 transition-all hover:translate-y-[-2px] hover:shadow-xl cursor-pointer"
+                      className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-amber-500/30 transition-all hover:translate-y-[-2px] hover:shadow-xl cursor-pointer"
                     >
-                      <div className="aspect-square bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-6xl relative">
+                      <div className="aspect-square bg-accent/30 flex items-center justify-center text-6xl relative">
                         {gift.image}
-                        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded text-white border border-white/10">
+                        <div className="absolute top-3 right-3 bg-background/60 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded text-foreground border border-border">
                           {gift.id}
                         </div>
                       </div>
                       <div className="p-4">
-                        <div className="text-neutral-400 text-xs mb-1">
+                        <div className="text-muted-foreground text-xs mb-1">
                           {gift.date}
                         </div>
-                        <div className="font-bold text-white mb-2">
+                        <div className="font-bold text-foreground mb-2">
                           {gift.name}
                         </div>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 font-bold text-amber-400">
+                          <div className="flex items-center gap-1 font-bold text-amber-500">
                             💎 {gift.price.toLocaleString()}
                           </div>
-                          <div className="text-[10px] font-bold bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                          <div className="text-[10px] font-bold bg-accent text-muted-foreground px-1.5 py-0.5 rounded uppercase tracking-wide">
                             {gift.status}
                           </div>
                         </div>
@@ -216,11 +216,11 @@ const ShopPage: React.FC = () => {
                   <span className="w-2 h-8 bg-blue-500 rounded-full" />
                   Top Auctions
                 </h2>
-                <span className="text-neutral-500 text-sm">Live Updates</span>
+                <span className="text-muted-foreground text-sm">Live Updates</span>
               </div>
 
-              <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/5 text-xs uppercase tracking-wider text-neutral-500 font-medium">
+              <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-border text-xs uppercase tracking-wider text-muted-foreground font-medium">
                   <div className="col-span-5 md:col-span-4">Username</div>
                   <div className="col-span-4 md:col-span-3">Top Bid</div>
                   <div className="col-span-3 md:col-span-3 hidden md:block">
@@ -231,13 +231,13 @@ const ShopPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-border">
                   {filteredData.map((item, index) => (
                     <AuctionRow key={index} item={item} />
                   ))}
 
                   {filteredData.length === 0 && (
-                    <div className="py-20 text-center text-neutral-500">
+                    <div className="py-20 text-center text-muted-foreground">
                       No auctions found matching "{searchQuery}"
                     </div>
                   )}

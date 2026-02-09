@@ -8,7 +8,7 @@ const MarketplaceLayout: React.FC = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
@@ -52,14 +52,12 @@ const MarketplaceLayout: React.FC = () => {
         </div>
       </header>
 
-      <main className="container mx-auto py-8 px-4">
+      <main className="w-full">
 
         <Suspense fallback={
-
-          <div className="flex flex-col">
+          <div className="container mx-auto py-8 px-4 flex flex-col">
             <SkeletonPost />
           </div>
-
         }>
           <PageTransition>
             <Outlet />

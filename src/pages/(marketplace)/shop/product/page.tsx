@@ -28,21 +28,21 @@ const ProductPage: React.FC = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-black text-white selection:bg-blue-500/30 pb-20">
-        <div className="sticky top-0 z-30 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div className="min-h-screen bg-background text-foreground selection:bg-blue-500/30 pb-20">
+        <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="max-w-6xl mx-auto px-4 h-16 flex items-center gap-4">
             <Link
               to="/shop"
-              className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors text-neutral-400 hover:text-white"
+              className="p-2 -ml-2 hover:bg-accent rounded-full transition-colors text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div className="flex-1 relative max-w-md hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search usernames..."
-                className="w-full bg-[#111] border border-white/10 rounded-full pl-9 pr-4 py-1.5 text-sm focus:border-blue-500/50 transition-colors"
+                className="w-full bg-card border border-border rounded-full pl-9 pr-4 py-1.5 text-sm focus:border-blue-500/50 transition-colors"
               />
             </div>
             <div className="flex-1 md:hidden text-center font-bold text-lg">
@@ -58,19 +58,19 @@ const ProductPage: React.FC = () => {
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
                   {product.username}
                 </h1>
-                <span className="text-2xl md:text-3xl text-neutral-500 font-light">
+                <span className="text-2xl md:text-3xl text-muted-foreground font-light">
                   {product.link}
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm font-medium">
-                <span className="text-green-400 flex items-center gap-1.5">
+                <span className="text-green-500 flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                   </span>
                   On auction
                 </span>
-                <button className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors">
+                <button className="flex items-center gap-1.5 text-blue-500 hover:text-blue-400 transition-colors">
                   <Bell className="w-4 h-4" />
                   Subscribe to updates
                 </button>
@@ -78,7 +78,7 @@ const ProductPage: React.FC = () => {
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 border-border">
                 <ExternalLink className="w-4 h-4" /> Open
               </Button>
             </div>
@@ -87,43 +87,43 @@ const ProductPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-[#111] border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
+                <div className="bg-card border border-border rounded-2xl p-5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Gem className="w-12 h-12 text-blue-500" />
                   </div>
-                  <div className="text-neutral-500 text-xs uppercase tracking-wider font-semibold mb-1">
+                  <div className="text-muted-foreground text-xs uppercase tracking-wider font-semibold mb-1">
                     Highest Bid
                   </div>
                   <div className="text-2xl font-bold flex items-center gap-1">
-                    <span className="text-blue-400">💎</span>{" "}
+                    <span className="text-blue-500">💎</span>{" "}
                     {product.price.toLocaleString()}
                   </div>
-                  <div className="text-sm text-neutral-500 mt-1">
+                  <div className="text-sm text-muted-foreground mt-1">
                     ~ ${product.priceUsd.toLocaleString()}
                   </div>
                 </div>
 
-                <div className="bg-[#111] border border-white/5 rounded-2xl p-5">
-                  <div className="text-neutral-500 text-xs uppercase tracking-wider font-semibold mb-1">
+                <div className="bg-card border border-border rounded-2xl p-5">
+                  <div className="text-muted-foreground text-xs uppercase tracking-wider font-semibold mb-1">
                     Bid Step
                   </div>
                   <div className="text-2xl font-bold">
                     {product.bidStep || "5%"}
                   </div>
-                  <div className="text-sm text-neutral-500 mt-1">
+                  <div className="text-sm text-muted-foreground mt-1">
                     Minimum increment
                   </div>
                 </div>
 
-                <div className="bg-[#111] border border-white/5 rounded-2xl p-5">
-                  <div className="text-neutral-500 text-xs uppercase tracking-wider font-semibold mb-1">
+                <div className="bg-card border border-border rounded-2xl p-5">
+                  <div className="text-muted-foreground text-xs uppercase tracking-wider font-semibold mb-1">
                     Minimum Bid
                   </div>
                   <div className="text-2xl font-bold">
-                    <span className="text-blue-400">💎</span>{" "}
+                    <span className="text-blue-500">💎</span>{" "}
                     {(product.minBid || product.price * 1.05).toLocaleString()}
                   </div>
-                  <div className="text-sm text-neutral-500 mt-1">
+                  <div className="text-sm text-muted-foreground mt-1">
                     ~ $
                     {(
                       (product.priceUsd / product.price) *
@@ -135,73 +135,73 @@ const ProductPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
-                <div className="p-5 border-b border-white/5 flex items-center justify-between">
+              <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                <div className="p-5 border-b border-border flex items-center justify-between">
                   <h3 className="font-semibold text-lg">Detailed Info</h3>
-                  <div className="w-5 h-5 text-neutral-600" />
+                  <div className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-border">
                   <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <span className="text-neutral-400">Telegram Username</span>
+                    <span className="text-muted-foreground">Telegram Username</span>
                     <a
                       href={`https://t.me/${product.username}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-400 hover:underline font-medium"
+                      className="text-blue-500 hover:underline font-medium"
                     >
                       @{product.username}
                     </a>
                   </div>
                   <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <span className="text-neutral-400">Web Address</span>
+                    <span className="text-muted-foreground">Web Address</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-400 hover:underline font-medium cursor-pointer">
+                      <span className="text-blue-500 hover:underline font-medium cursor-pointer">
                         t.me/{product.username}
                       </span>
-                      <Copy className="w-4 h-4 text-neutral-600 cursor-pointer hover:text-white" />
+                      <Copy className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground" />
                     </div>
                   </div>
                   <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <span className="text-neutral-400">
+                    <span className="text-muted-foreground">
                       TON Web 3.0 Address
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-400 hover:underline font-medium cursor-pointer">
+                      <span className="text-blue-500 hover:underline font-medium cursor-pointer">
                         {product.username}.t.me
                       </span>
-                      <Copy className="w-4 h-4 text-neutral-600 cursor-pointer hover:text-white" />
+                      <Copy className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground" />
                     </div>
                   </div>
                 </div>
               </div>
 
               {product.bidHistory && (
-                <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="p-5 border-b border-white/5 flex items-center justify-between">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-5 border-b border-border flex items-center justify-between">
                     <h3 className="font-semibold text-lg">Bid History</h3>
-                    <History className="w-5 h-5 text-neutral-600" />
+                    <History className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                      <thead className="text-neutral-500 font-medium border-b border-white/5 bg-white/[0.02]">
+                      <thead className="text-muted-foreground font-medium border-b border-border bg-accent/30">
                         <tr>
                           <th className="px-6 py-3">Price</th>
                           <th className="px-6 py-3">Date</th>
                           <th className="px-6 py-3 text-right">From</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className="divide-y divide-border">
                         {product.bidHistory.map((bid, i) => (
-                          <tr key={i} className="hover:bg-white/[0.02]">
+                          <tr key={i} className="hover:bg-accent/30 transition-colors">
                             <td className="px-6 py-4 font-bold">
-                              <span className="text-blue-400">💎</span>{" "}
+                              <span className="text-blue-500">💎</span>{" "}
                               {bid.price.toLocaleString()}
                             </td>
-                            <td className="px-6 py-4 text-neutral-400">
+                            <td className="px-6 py-4 text-muted-foreground">
                               {bid.date}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              <span className="font-mono text-blue-400 hover:underline cursor-pointer truncate max-w-[150px] inline-block align-bottom">
+                              <span className="font-mono text-blue-500 hover:underline cursor-pointer truncate max-w-[150px] inline-block align-bottom">
                                 {bid.from}
                               </span>
                             </td>
@@ -214,40 +214,40 @@ const ProductPage: React.FC = () => {
               )}
 
               {product.ownershipHistory && (
-                <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
-                  <div className="p-5 border-b border-white/5 flex items-center justify-between">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-5 border-b border-border flex items-center justify-between">
                     <h3 className="font-semibold text-lg">Ownership History</h3>
-                    <ShieldCheck className="w-5 h-5 text-neutral-600" />
+                    <ShieldCheck className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                      <thead className="text-neutral-500 font-medium border-b border-white/5 bg-white/[0.02]">
+                      <thead className="text-muted-foreground font-medium border-b border-border bg-accent/30">
                         <tr>
                           <th className="px-6 py-3">Sale Price</th>
                           <th className="px-6 py-3">Date</th>
                           <th className="px-6 py-3 text-right">Buyer</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className="divide-y divide-border">
                         {product.ownershipHistory.map((record, i) => (
-                          <tr key={i} className="hover:bg-white/[0.02]">
+                          <tr key={i} className="hover:bg-accent/30 transition-colors">
                             <td className="px-6 py-4 font-bold">
                               {record.price === "Transferred" ? (
-                                <span className="text-neutral-500 font-medium">
+                                <span className="text-muted-foreground font-medium">
                                   {record.price}
                                 </span>
                               ) : (
                                 <span>
-                                  <span className="text-blue-400">💎</span>{" "}
+                                  <span className="text-blue-500">💎</span>{" "}
                                   {record.price}
                                 </span>
                               )}
                             </td>
-                            <td className="px-6 py-4 text-neutral-400">
+                            <td className="px-6 py-4 text-muted-foreground">
                               {record.date}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              <span className="font-mono text-blue-400 hover:underline cursor-pointer truncate max-w-[150px] inline-block align-bottom">
+                              <span className="font-mono text-blue-500 hover:underline cursor-pointer truncate max-w-[150px] inline-block align-bottom">
                                 {record.buyer}
                               </span>
                             </td>
@@ -259,12 +259,12 @@ const ProductPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/20">
+              <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20">
                 <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
-                  <Info className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-500">💡</span>
                   How does this work?
                 </h3>
-                <p className="text-neutral-300 leading-relaxed max-w-2xl">
+                <p className="text-muted-foreground leading-relaxed max-w-2xl">
                   You can buy this collectible username and use it for your
                   personal profile, group or channel. Usernames are stored on
                   the TON blockchain as NFTs.
@@ -273,7 +273,7 @@ const ProductPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-black/20 border-white/10 hover:bg-white/10"
+                    className="border-border hover:bg-accent"
                   >
                     Learn More
                   </Button>
@@ -282,7 +282,7 @@ const ProductPage: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-[#111] border border-white/5 rounded-2xl p-6 sticky top-24">
+              <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
                 <div className="flex justify-center mb-6">
                   <div className="p-4 bg-white rounded-xl">
                     <QRCodeSVG
@@ -295,18 +295,18 @@ const ProductPage: React.FC = () => {
                 <h3 className="text-center text-xl font-bold mb-1">
                   Scan to bid
                 </h3>
-                <p className="text-center text-neutral-500 text-sm mb-6">
+                <p className="text-center text-muted-foreground text-sm mb-6">
                   Open Tonkeeper to place a bid
                 </p>
 
-                <div className="bg-neutral-900 rounded-xl p-4 mb-4">
+                <div className="bg-accent/30 rounded-xl p-4 mb-4">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-neutral-400 text-sm">Ends in</span>
+                    <span className="text-muted-foreground text-sm">Ends in</span>
                     <span className="font-mono font-medium">
                       {product.timeLeft}
                     </span>
                   </div>
-                  <div className="w-full bg-neutral-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-accent h-1.5 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 w-[70%]" />
                   </div>
                 </div>
@@ -317,21 +317,21 @@ const ProductPage: React.FC = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border-white/10 hover:bg-white/5 text-neutral-300"
+                  className="w-full border-border hover:bg-accent text-muted-foreground"
                 >
                   Make an offer
                 </Button>
               </div>
 
-              <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
+              <div className="bg-card border border-border rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Bot Usernames</h3>
-                <p className="text-sm text-neutral-400 leading-relaxed mb-4">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   This username has been upgraded and it can now be assigned not
                   just to channels, groups or users, but also to bots.
                 </p>
                 <Link
                   to="#"
-                  className="text-blue-400 text-sm hover:underline flex items-center gap-1"
+                  className="text-blue-500 text-sm hover:underline flex items-center gap-1"
                 >
                   Read more <ChevronRight className="w-3 h-3" />
                 </Link>

@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 const ProPage: React.FC = () => {
   return (
     <PageTransition>
-      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-black gap-10 py-10">
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background gap-10 py-10">
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -30,13 +30,13 @@ const ProPage: React.FC = () => {
           >
             <defs>
               <linearGradient id="chipGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2d2d2d" />
-                <stop offset="100%" stopColor="#0f0f0f" />
+                <stop offset="0%" stopColor="var(--card)" />
+                <stop offset="100%" stopColor="var(--background)" />
               </linearGradient>
 
               <linearGradient id="textGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#eeeeee" />
-                <stop offset="100%" stopColor="#888888" />
+                <stop offset="0%" stopColor="var(--foreground)" />
+                <stop offset="100%" stopColor="var(--muted-foreground)" />
               </linearGradient>
 
               <linearGradient id="pinGradient" x1="1" y1="0" x2="0" y2="0">
@@ -50,7 +50,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M100 100 H200 V210 H326"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -68,7 +68,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M80 180 H180 V230 H326"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -86,7 +86,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M60 260 H150 V250 H326"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -104,7 +104,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M100 350 H200 V270 H326"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -122,7 +122,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M700 90 H560 V210 H474"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -140,7 +140,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M740 160 H580 V230 H474"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -158,7 +158,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M720 250 H590 V250 H474"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -176,7 +176,7 @@ const ProPage: React.FC = () => {
               <path
                 d="M680 340 H570 V270 H474"
                 fill="none"
-                stroke="#333"
+                stroke="var(--border)"
                 strokeWidth="1.8"
               />
               <path
@@ -200,9 +200,9 @@ const ProPage: React.FC = () => {
               rx="20"
               ry="20"
               fill="url(#chipGradient)"
-              stroke="#222"
+              stroke="var(--border)"
               strokeWidth="3"
-              style={{ filter: "drop-shadow(0 0 6px rgba(0,0,0,0.8))" }}
+              style={{ filter: "drop-shadow(0 0 6px rgba(0,0,0,0.2))" }}
             />
 
             <g>
@@ -253,24 +253,24 @@ const ProPage: React.FC = () => {
               Sysm Pro
             </text>
 
-            <circle cx="100" cy="100" r="5" fill="black" />
-            <circle cx="80" cy="180" r="5" fill="black" />
-            <circle cx="60" cy="260" r="5" fill="black" />
-            <circle cx="100" cy="350" r="5" fill="black" />
+            <circle cx="100" cy="100" r="5" fill="var(--foreground)" />
+            <circle cx="80" cy="180" r="5" fill="var(--foreground)" />
+            <circle cx="60" cy="260" r="5" fill="var(--foreground)" />
+            <circle cx="100" cy="350" r="5" fill="var(--foreground)" />
 
-            <circle cx="700" cy="90" r="5" fill="black" />
-            <circle cx="740" cy="160" r="5" fill="black" />
-            <circle cx="720" cy="250" r="5" fill="black" />
-            <circle cx="680" cy="340" r="5" fill="black" />
+            <circle cx="700" cy="90" r="5" fill="var(--foreground)" />
+            <circle cx="740" cy="160" r="5" fill="var(--foreground)" />
+            <circle cx="720" cy="250" r="5" fill="var(--foreground)" />
+            <circle cx="680" cy="340" r="5" fill="var(--foreground)" />
           </svg>
         </div>
 
         <div className="flex flex-col items-center gap-8 -mt-10 z-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="text-center space-y-3">
-            <h2 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-500 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
               Upgrade to Sysm Pro
             </h2>
-            <p className="text-neutral-400 max-w-lg mx-auto text-lg">
+            <p className="text-muted-foreground max-w-lg mx-auto text-lg">
               Unlock advanced neural processing, unlimited trace routes, and
               real-time system diagnostics.
             </p>
@@ -278,21 +278,21 @@ const ProPage: React.FC = () => {
 
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-6xl font-black text-white tracking-tighter drop-shadow-lg">
+              <span className="text-6xl font-black text-foreground tracking-tighter drop-shadow-lg">
                 $29
               </span>
-              <span className="text-2xl text-neutral-500 font-medium">/mo</span>
+              <span className="text-2xl text-muted-foreground font-medium">/mo</span>
             </div>
-            <p className="text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20">
+            <p className="text-sm font-medium text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
               Save 20% with annual billing
             </p>
           </div>
 
-          <Button className="h-14 px-10 text-lg rounded-full bg-white text-black hover:bg-neutral-200 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_-15px_rgba(255,255,255,0.5)] hover:scale-105 active:scale-95">
+          <Button className="h-14 px-10 text-lg rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all shadow-xl hover:scale-105 active:scale-95">
             Get Early Access
           </Button>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center text-sm text-neutral-500 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center text-sm text-muted-foreground mt-4">
             {[
               "priority support",
               "unlimited access",
@@ -300,7 +300,7 @@ const ProPage: React.FC = () => {
               "cancel anytime",
             ].map((feature) => (
               <div key={feature} className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
+                <div className="w-1.5 h-1.5 rounded-full bg-border" />
                 <span className="uppercase tracking-widest text-[10px]">
                   {feature}
                 </span>
