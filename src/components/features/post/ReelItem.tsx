@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
+import SkeletonReel from "@/components/features/reels/skeleton-reel";
 import { toggleLike, checkIfLiked } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
 import {
@@ -36,6 +37,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     const [showHeart, setShowHeart] = useState(false);
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [showPlayPauseIcon, setShowPlayPauseIcon] = useState<
       "play" | "pause" | null
     >(null);
@@ -50,6 +52,22 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         ? reel.media[0]?.src || reel.media[0]?.url
         : reel.media?.src || reel.media?.url || reel.url;
     }, [reel.media, reel.url]);
+
+    useEffect(() => {
+      setIsVideoLoaded(false);
+      const player = playerRef.current?.plyr;
+      if (player) {
+        const handleLoaded = () => setIsVideoLoaded(true);
+        player.on("ready", handleLoaded);
+        player.on("canplay", handleLoaded);
+        player.on("loadeddata", handleLoaded);
+        return () => {
+          player.off("ready", handleLoaded);
+          player.off("canplay", handleLoaded);
+          player.off("loadeddata", handleLoaded);
+        };
+      }
+    }, [videoUrl]);
 
     useEffect(() => {
       let timeoutId: ReturnType<typeof setTimeout>;
@@ -252,6 +270,12 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               <Plyr ref={playerRef} {...plyrProps} />
             </React.Suspense>
           </div>
+
+          {!isVideoLoaded && (
+            <div className="absolute inset-0 z-[60] flex items-center justify-center bg-zinc-900">
+              <SkeletonReel />
+            </div>
+          )}
 
           {showHeart && (
             <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">

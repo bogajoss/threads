@@ -265,7 +265,7 @@ const ProPage: React.FC = () => {
           </svg>
         </div>
 
-        <div className="flex flex-col items-center gap-8 -mt-10 z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="flex flex-col items-center gap-8 -mt-10 z-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="text-center space-y-3">
             <h2 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-500 tracking-tight">
               Upgrade to Sysm Pro
