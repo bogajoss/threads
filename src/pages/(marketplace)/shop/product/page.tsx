@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Search,
   Bell,
-  Info,
   ExternalLink,
   Copy,
   Gem,
