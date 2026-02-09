@@ -111,6 +111,13 @@ const Reels = () => {
               isActive={activeReelId === reel.id}
               isMuted={isMuted}
               onToggleMute={toggleMute}
+              shouldLoad={
+                // Load current, previous, and next videos
+                Math.abs(
+                  reels.findIndex((r) => r.id === activeReelId) -
+                  reels.findIndex((r) => r.id === reel.id),
+                ) <= 1
+              }
             />
           </div>
         ))}

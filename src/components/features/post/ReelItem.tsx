@@ -26,10 +26,11 @@ interface ReelItemProps {
   isActive: boolean;
   isMuted: boolean;
   onToggleMute?: () => void;
+  shouldLoad?: boolean;
 }
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
-  ({ reel, isActive, isMuted }) => {
+  ({ reel, isActive, isMuted, shouldLoad = true }) => {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { addToast } = useToast();
@@ -56,13 +57,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     useEffect(() => {
       setIsVideoLoaded(false);
       const player = playerRef.current?.plyr;
-      
+
       if (player && typeof player.on === "function") {
         const handleLoaded = () => setIsVideoLoaded(true);
         player.on("ready", handleLoaded);
         player.on("canplay", handleLoaded);
         player.on("loadeddata", handleLoaded);
-        
+
         return () => {
           if (typeof player.off === "function") {
             player.off("ready", handleLoaded);
@@ -90,7 +91,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 playPromise.catch(() => {
                   if (player) {
                     player.muted = true;
-                    player.play().catch(() => {});
+                    player.play().catch(() => { });
                   }
                 });
               }
@@ -155,6 +156,21 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       }
     }, [isActive]);
 
+    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      const progressBar = e.currentTarget;
+      const rect = progressBar.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = Math.min(Math.max(0, x / rect.width), 1);
+      const player = playerRef.current?.plyr;
+
+      if (player && player.duration) {
+        const newTime = percentage * player.duration;
+        player.currentTime = newTime;
+        setProgress(percentage * 100);
+      }
+    };
+
     useEffect(() => {
       return () => {
         if (clickTimer.current) clearTimeout(clickTimer.current);
@@ -186,7 +202,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       const player = playerRef.current?.plyr;
       if (player) {
         if (player.paused) {
-          player.play().catch(() => {});
+          player.play().catch(() => { });
           setShowPlayPauseIcon("play");
         } else {
           player.pause();
@@ -276,13 +292,23 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       >
         <div className="relative flex h-full w-full max-w-[450px] items-center justify-center">
           <div className="w-full">
-            <React.Suspense
-              fallback={
-                <div className="aspect-[9/16] w-full bg-zinc-900 animate-pulse" />
-              }
-            >
-              <Plyr ref={playerRef} {...plyrProps} />
-            </React.Suspense>
+            {shouldLoad ? (
+              <React.Suspense
+                fallback={
+                  <div className="aspect-[9/16] w-full bg-zinc-900 animate-pulse" />
+                }
+              >
+                <Plyr ref={playerRef} {...plyrProps} />
+              </React.Suspense>
+            ) : (
+              <div className="aspect-[9/16] w-full bg-zinc-900">
+                <img
+                  src={reel.media?.[0]?.preview || reel.media?.[0]?.thumbnail || videoUrl}
+                  className="h-full w-full object-cover opacity-50 blur-xl"
+                  alt="Reel preview"
+                />
+              </div>
+            )}
           </div>
 
           {!isVideoLoaded && (
@@ -344,11 +370,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               </Link>
               {currentUser?.id !== reel.user?.id && (
                 <button
-                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
-                    isFollowing
+                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${isFollowing
                       ? "border border-white/50 bg-transparent text-white"
                       : "bg-white text-black hover:bg-zinc-200"
-                  }`}
+                    }`}
                   onClick={handleToggleFollow}
                 >
                   {isFollowing ? (
@@ -421,11 +446,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           <div className="absolute bottom-6 right-2 z-10 flex flex-col items-center gap-6">
             <div className="pointer-events-auto flex flex-col items-center gap-1">
               <button
-                className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${
-                  isLiked
+                className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${isLiked
                     ? "bg-rose-500/20 text-rose-500"
                     : "bg-zinc-800/50 text-white hover:bg-zinc-700"
-                }`}
+                  }`}
                 onClick={handleToggleLike}
               >
                 <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
@@ -459,11 +483,16 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20">
+          <div
+            className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20 hover:h-[8px] transition-all cursor-pointer group"
+            onClick={handleSeek}
+          >
             <div
-              className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-100 ease-linear"
+              className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-100 ease-linear relative"
               style={{ width: `${progress}%` }}
-            />
+            >
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 size-3 bg-white rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform" />
+            </div>
           </div>
         </div>
         <ReelCommentsModal
