@@ -14,6 +14,7 @@ export interface User {
   following_count: number;
   lastSeen: string;
   isBanned?: boolean;
+  onboarding_completed?: boolean;
 }
 
 export interface Media {

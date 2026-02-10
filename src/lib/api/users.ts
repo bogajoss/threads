@@ -75,6 +75,7 @@ interface ProfileUpdateFields {
   cover?: string;
   website?: string;
   location?: string;
+  onboarding_completed?: boolean;
 }
 
 export const updateProfile = async (
@@ -126,6 +127,7 @@ export const updateProfile = async (
     cover_url: fields.cover,
     website: fields.website,
     location: fields.location,
+    onboarding_completed: fields.onboarding_completed,
   };
 
   Object.keys(dbFields).forEach(

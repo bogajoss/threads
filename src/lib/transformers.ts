@@ -28,6 +28,7 @@ export const transformUser = (supabaseUser: any): User | null => {
     following_count: supabaseUser.following_count || 0,
     lastSeen: supabaseUser.last_seen_at,
     isBanned: supabaseUser.is_banned || false,
+    onboarding_completed: supabaseUser.onboarding_completed || false,
   };
 };
 

@@ -39,6 +39,7 @@ const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
+const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 
 // Admin Pages
@@ -77,6 +78,7 @@ export default function Sysm() {
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<Navigate to="/feed" replace />} />
             <Route
