@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu, Bell, ShieldAlert } from "lucide-react";
+import { Menu, Bell, ShieldAlert, X } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
@@ -12,40 +12,41 @@ const AdminLayout: React.FC = () => {
   return (
     <div
       className={cn(
-        "min-h-screen bg-zinc-50 text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-300 dark:bg-zinc-950",
+        "min-h-screen flex flex-col bg-white text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-200 dark:bg-black",
         darkMode && "dark"
       )}
     >
-      {/* Simple Mobile Header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-white px-4 py-3 dark:bg-black lg:hidden">
+      {/* Mobile Header */}
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-black lg:hidden md:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white">
             <ShieldAlert className="h-5 w-5" />
           </div>
-          <span className="text-base font-bold tracking-tight">SYSPANEL</span>
+          <span className="text-lg font-bold tracking-tight">Admin</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 text-foreground dark:bg-zinc-900">
-            <Bell className="h-4 w-4" />
+          <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-foreground hover:bg-zinc-200 transition-colors dark:bg-zinc-900 dark:hover:bg-zinc-800">
+            <Bell className="h-5 w-5" />
           </button>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm"
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </header>
 
-      <AdminSidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-      />
+      {/* Main Layout */}
+      <div className="flex flex-1 gap-0">
+        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <div className="lg:ml-72 transition-all duration-500">
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          <Outlet />
-        </main>
+        {/* Content Area */}
+        <div className="flex-1 lg:ml-72 transition-all duration-300">
+          <main className="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

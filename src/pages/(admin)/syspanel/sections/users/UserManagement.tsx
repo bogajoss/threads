@@ -1,156 +1,303 @@
 import React, { useState } from "react";
-import { 
-  Search, 
+import {
+  Search,
   Filter,
   Loader2,
-  MoreHorizontal,
+  Users,
+  ChevronDown,
   ShieldCheck,
-  Zap,
-  Gavel,
-  UserCheck
+  ShieldX,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 
+interface FilterState {
+  role: string;
+  status: string;
+}
+
 const UserManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<FilterState>({
+    role: "all",
+    status: "all",
+  });
   const { users, actions } = useAdmin();
 
-  const filteredUsers = (users.data || []).filter(user => 
-    user && (
+  const filteredUsers = (users.data || []).filter((user) => {
+    if (!user) return false;
+
+    const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.handle.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+      user.handle.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole =
+      filters.role === "all" || user.role === filters.role;
+
+    const matchesStatus =
+      filters.status === "all" ||
+      (filters.status === "verified" && user.verified) ||
+      (filters.status === "unverified" && !user.verified) ||
+      (filters.status === "banned" && user.isBanned);
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   if (users.isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
+      <div className="flex min-h-[600px] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
-          <p className="text-xs font-bold text-muted-foreground">Loading directory...</p>
+          <p className="text-sm font-semibold text-zinc-500">Loading users...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight">User Directory</h1>
-          <p className="text-sm text-muted-foreground">Manage user accounts and platform permissions.</p>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-10 rounded-xl font-bold">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button size="sm" className="h-10 rounded-xl font-bold bg-violet-600">
-            <Zap className="mr-2 h-4 w-4" />
-            Provision
-          </Button>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">User Directory</h1>
+            <p className="text-sm text-zinc-500">
+              Manage platform users and permissions
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Simplified Search */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <Input 
-          className="h-12 rounded-xl border-border bg-card pl-12 text-sm font-medium focus:ring-violet-500/10" 
-          placeholder="Search by name or handle..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Search and Filters */}
+      <div className="space-y-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
+          <Input
+            placeholder="Search by name or handle..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-11 rounded-xl border-zinc-200 bg-white pl-10 text-sm font-medium dark:border-zinc-800 dark:bg-black"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Select value={filters.role} onValueChange={(value) => setFilters({ ...filters, role: value })}>
+            <SelectTrigger className="w-[180px] rounded-xl border-zinc-200 dark:border-zinc-800">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl dark:bg-zinc-900">
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">Users</SelectItem>
+              <SelectItem value="moderator">Moderators</SelectItem>
+              <SelectItem value="admin">Admins</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.status}
+            onValueChange={(value) => setFilters({ ...filters, status: value })}
+          >
+            <SelectTrigger className="w-[180px] rounded-xl border-zinc-200 dark:border-zinc-800">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl dark:bg-zinc-900">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="verified">Verified</SelectItem>
+              <SelectItem value="unverified">Unverified</SelectItem>
+              <SelectItem value="banned">Banned</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {(filters.role !== "all" || filters.status !== "all") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFilters({ role: "all", status: "all" })}
+              className="rounded-xl"
+            >
+              Clear Filters
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filteredUsers.map((user) => {
-          if (!user) return null;
-          return (
-            <div key={user.id} className="rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <Avatar className="h-12 w-12 rounded-xl ring-2 ring-zinc-50 dark:ring-zinc-900">
-                      <AvatarImage src={user.avatar} className="rounded-xl object-cover" />
-                      <AvatarFallback className="rounded-xl bg-violet-50 text-violet-600 font-bold">
-                        {user.name[0]}
-                      </AvatarFallback>
-                    </Avatar>
+      {/* Users List */}
+      <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
+        {filteredUsers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center bg-white py-12 text-center dark:bg-black">
+            <Users className="h-12 w-12 text-zinc-300 dark:text-zinc-700" />
+            <p className="mt-4 font-semibold text-zinc-600 dark:text-zinc-400">
+              No users found
+            </p>
+            <p className="text-sm text-zinc-500">
+              Try adjusting your search or filters
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-black">
+            {filteredUsers.map((user) => {
+              if (!user) return null;
+
+              return (
+                <div
+                  key={user.id}
+                  className="flex flex-col gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  {/* User Info */}
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="relative shrink-0">
+                      <Avatar className="h-12 w-12 rounded-2xl ring-2 ring-zinc-200 dark:ring-zinc-800">
+                        <AvatarImage src={user.avatar} className="rounded-2xl" />
+                        <AvatarFallback className="rounded-2xl bg-violet-500/10 text-sm font-bold text-violet-600">
+                          {user.name[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {user.verified && (
+                        <ShieldCheck className="absolute -bottom-2 -right-2 h-5 w-5 rounded-full bg-blue-500 p-0.5 text-white" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-semibold text-foreground">
+                        {user.name}
+                      </h3>
+                      <p className="truncate text-sm text-zinc-500">
+                        @{user.handle}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Status Badges */}
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    {/* Role Badge */}
+                    <div className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-1.5 dark:bg-zinc-900">
+                      <Lock className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-400" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                        {user.role}
+                      </span>
+                    </div>
+
+                    {/* Verification Status */}
                     {user.verified && (
-                      <div className="absolute -bottom-1 -right-1 rounded-full bg-blue-500 p-0.5 ring-2 ring-card">
-                        <ShieldCheck className="h-2.5 w-2.5 text-white" />
+                      <div className="flex items-center gap-1.5 rounded-xl bg-blue-500/10 px-3 py-1.5">
+                        <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">
+                          Verified
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Ban Status */}
+                    {user.isBanned && (
+                      <div className="flex items-center gap-1.5 rounded-xl bg-rose-500/10 px-3 py-1.5">
+                        <ShieldX className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                        <span className="text-xs font-semibold text-rose-700 dark:text-rose-400">
+                          Banned
+                        </span>
                       </div>
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="truncate text-sm font-bold text-foreground">{user.name}</h3>
-                    <p className="truncate text-[11px] text-muted-foreground font-medium">@{user.handle}</p>
-                  </div>
-                </div>
-                <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-900">
-                  <MoreHorizontal className="h-4 w-4" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-zinc-50 p-3 dark:bg-zinc-900/50">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Role</p>
-                    <select 
-                      value={user.role}
-                      onChange={(e) => actions.updateRole({ userId: user.id, role: e.target.value as any })}
-                      className="w-full bg-transparent text-[10px] font-bold uppercase tracking-widest text-violet-600 focus:outline-none"
-                    >
-                      <option value="user">USER</option>
-                      <option value="moderator">MODERATOR</option>
-                      <option value="admin">ADMIN</option>
-                    </select>
-                  </div>
-                  <div 
-                    onClick={() => actions.toggleVerification({ userId: user.id, verified: !user.verified })}
-                    className="rounded-xl bg-zinc-50 p-3 cursor-pointer dark:bg-zinc-900/50"
-                  >
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status</p>
-                    <div className="flex items-center gap-1.5">
-                      <div className={cn("h-1.5 w-1.5 rounded-full", user.verified ? "bg-blue-500" : "bg-zinc-300")} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        {user.verified ? "Verified" : "Basic"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <button className="flex-1 rounded-xl bg-zinc-100 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-all">
-                    Activity
-                  </button>
-                  <button 
-                    onClick={() => {
-                      const action = user.isBanned ? 'unban' : 'ban';
-                      if (confirm(`Are you sure you want to ${action} @${user.handle}?`)) {
-                        actions.toggleBan({ userId: user.id, banned: !user.isBanned });
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 sm:justify-end">
+                    <Select
+                      value={user.role}
+                      onValueChange={(value) =>
+                        actions.updateRole({
+                          userId: user.id,
+                          role: value as any,
+                        })
                       }
-                    }}
-                    title={user.isBanned ? "Unban User" : "Ban User"}
-                    className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-xl transition-all",
-                      user.isBanned 
-                        ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white dark:bg-emerald-500/10" 
-                        : "bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10"
-                    )}
-                  >
-                    {user.isBanned ? <UserCheck className="h-4 w-4" /> : <Gavel className="h-4 w-4" />}
-                  </button>
+                    >
+                      <SelectTrigger className="w-[130px] rounded-lg border-zinc-200 text-xs font-semibold dark:border-zinc-800">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl dark:bg-zinc-900">
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        actions.toggleVerification({
+                          userId: user.id,
+                          verified: !user.verified,
+                        })
+                      }
+                      title={
+                        user.verified ? "Remove verification" : "Verify user"
+                      }
+                      className="h-9 rounded-lg px-3"
+                    >
+                      {user.verified ? (
+                        <Unlock className="h-4 w-4" />
+                      ) : (
+                        <ShieldCheck className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const action = user.isBanned ? "unban" : "ban";
+                        if (
+                          confirm(
+                            `Are you sure you want to ${action} @${user.handle}?`
+                          )
+                        ) {
+                          actions.toggleBan({
+                            userId: user.id,
+                            banned: !user.isBanned,
+                          });
+                        }
+                      }}
+                      title={user.isBanned ? "Unban user" : "Ban user"}
+                      className={cn(
+                        "h-9 rounded-lg px-3",
+                        user.isBanned
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-400"
+                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-400"
+                      )}
+                    >
+                      {user.isBanned ? (
+                        <Unlock className="h-4 w-4" />
+                      ) : (
+                        <ShieldX className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Summary */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-black">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Showing <span className="font-semibold text-foreground">{filteredUsers.length}</span> of{" "}
+          <span className="font-semibold text-foreground">{users.data?.length || 0}</span> users
+        </p>
       </div>
     </div>
   );

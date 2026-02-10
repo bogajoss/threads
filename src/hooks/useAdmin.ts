@@ -43,37 +43,49 @@ export const useAdmin = () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
       toast.success("Settings updated");
     },
-    onError: () => toast.error("Failed to update settings")
+    onError: (error: any) => {
+      console.error("Settings update error:", error);
+      toast.error("Failed to update settings");
+    },
   });
 
   const updateRole = useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: any }) => 
+    mutationFn: ({ userId, role }: { userId: string; role: any }) =>
       adminApi.updateUserRole(userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast.success("User role updated");
     },
-    onError: () => toast.error("Failed to update role")
+    onError: (error: any) => {
+      console.error("Role update error:", error);
+      toast.error("Failed to update role");
+    },
   });
 
   const toggleVerification = useMutation({
-    mutationFn: ({ userId, verified }: { userId: string; verified: boolean }) => 
+    mutationFn: ({ userId, verified }: { userId: string; verified: boolean }) =>
       adminApi.toggleUserVerification(userId, verified),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast.success("Verification status updated");
     },
-    onError: () => toast.error("Failed to update verification")
+    onError: (error: any) => {
+      console.error("Verification toggle error:", error);
+      toast.error("Failed to update verification");
+    },
   });
 
   const toggleBan = useMutation({
-    mutationFn: ({ userId, banned }: { userId: string; banned: boolean }) => 
+    mutationFn: ({ userId, banned }: { userId: string; banned: boolean }) =>
       adminApi.toggleUserBan(userId, banned),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast.success("User ban status updated");
     },
-    onError: () => toast.error("Failed to update ban status")
+    onError: (error: any) => {
+      console.error("Ban toggle error:", error);
+      toast.error("Failed to update ban status");
+    },
   });
 
   const deletePost = useMutation({
@@ -82,61 +94,78 @@ export const useAdmin = () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "posts"] });
       toast.success("Post deleted permanently");
     },
-    onError: () => toast.error("Failed to delete post")
+    onError: (error: any) => {
+      console.error("Delete post error:", error);
+      toast.error("Failed to delete post");
+    },
   });
 
   const updateReportStatus = useMutation({
-    mutationFn: ({ reportId, status }: { reportId: string, status: any }) => 
+    mutationFn: ({ reportId, status }: { reportId: string; status: any }) =>
       adminApi.updateReportStatus(reportId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "reports"] });
       toast.success("Report status updated");
     },
-    onError: () => toast.error("Failed to update report")
+    onError: (error: any) => {
+      console.error("Report status update error:", error);
+      toast.error("Failed to update report");
+    },
   });
 
   const deleteTarget = useMutation({
-    mutationFn: ({ type, id }: { type: string, id: string }) => 
+    mutationFn: ({ type, id }: { type: string; id: string }) =>
       adminApi.deleteReportTarget(type, id),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "reports"] });
       toast.success("Content removed successfully");
     },
-    onError: () => toast.error("Failed to remove content")
+    onError: (error: any) => {
+      console.error("Delete target error:", error);
+      toast.error("Failed to remove content");
+    },
   });
 
   return {
     stats: {
       data: stats.data,
-      isLoading: stats.isLoading
+      isLoading: stats.isLoading,
     },
     users: {
       data: users.data,
-      isLoading: users.isLoading
+      isLoading: users.isLoading,
     },
     posts: {
       data: posts.data,
-      isLoading: posts.isLoading
+      isLoading: posts.isLoading,
     },
     reports: {
       data: reports.data,
-      isLoading: reports.isLoading
+      isLoading: reports.isLoading,
     },
     analytics: {
       data: analytics.data,
-      isLoading: analytics.isLoading
+      isLoading: analytics.isLoading,
     },
     settings: {
       data: settings.data,
-      isLoading: settings.isLoading
+      isLoading: settings.isLoading,
     },
     actions: {
       updateRole: updateRole.mutate,
+      updateRoleAsync: updateRole.mutateAsync,
       toggleVerification: toggleVerification.mutate,
+      toggleVerificationAsync: toggleVerification.mutateAsync,
       toggleBan: toggleBan.mutate,
+      toggleBanAsync: toggleBan.mutateAsync,
       deletePost: deletePost.mutate,
+      deletePostAsync: deletePost.mutateAsync,
       updateSettings: updateSettings.mutate,
+      updateSettingsAsync: updateSettings.mutateAsync,
       updateReportStatus: updateReportStatus.mutate,
-      deleteTarget: deleteTarget.mutate
-    }
+      updateReportStatusAsync: updateReportStatus.mutateAsync,
+      deleteTarget: deleteTarget.mutate,
+      deleteTargetAsync: deleteTarget.mutateAsync,
+    },
   };
 };

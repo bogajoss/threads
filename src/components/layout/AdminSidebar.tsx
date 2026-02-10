@@ -1,13 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Users, 
-  ShieldAlert, 
+import {
+  Users,
+  ShieldAlert,
   ArrowLeft,
   Flag,
   X,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -29,104 +30,107 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Ultra-smooth Backdrop */}
+      {/* Mobile Backdrop */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-md transition-all duration-500 lg:hidden"
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-all duration-300 lg:hidden"
           onClick={onClose}
         />
       )}
 
-      <aside className={cn(
-        "fixed left-0 top-0 z-50 h-screen w-72 border-r border-border/50 bg-card/80 backdrop-blur-2xl transition-all duration-500 lg:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="flex h-full flex-col p-6">
-          {/* Brand Identity */}
-          <div className="mb-10 flex items-center justify-between px-2">
-            <Link to="/" className="group flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-xl shadow-violet-600/20 transition-transform group-hover:scale-105">
-                <ShieldAlert className="h-6 w-6" />
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-screen w-72 border-r border-zinc-200 bg-white transition-all duration-300 dark:border-zinc-800 dark:bg-black lg:translate-x-0 hidden lg:flex lg:flex-col",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex h-full flex-col overflow-y-auto">
+          {/* Brand */}
+          <div className="flex items-center justify-between border-b border-zinc-200 p-6 dark:border-zinc-800">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600 text-white group-hover:bg-violet-700 transition-colors">
+                <ShieldAlert className="h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-xl font-black tracking-tighter text-foreground">SYSPANEL</h1>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-500/80">Sysm v1</p>
-                </div>
+                <p className="text-sm font-black tracking-tight">Admin Panel</p>
+                <p className="text-xs font-semibold text-zinc-500">System v1</p>
               </div>
             </Link>
-            <button 
+            <button
               onClick={onClose}
-              className="rounded-xl p-2 text-muted-foreground hover:bg-secondary lg:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 lg:hidden"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Quick Back Link */}
-          <Link to="/" className="mb-8 group flex items-center gap-3 rounded-2xl border border-border/50 bg-secondary/30 px-4 py-3 text-sm font-bold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground">
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span>App Dashboard</span>
+          {/* Back to App */}
+          <Link
+            to="/"
+            className="mx-4 mt-4 flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to App
           </Link>
-          
-          <div className="mb-4 px-4">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
-              Navigation
-            </h2>
-          </div>
 
-          {/* Navigation with modern pills */}
-          <nav className="flex-1 space-y-1.5 overflow-y-auto no-scrollbar">
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => {
-                    if (window.innerWidth < 1024) onClose();
-                  }}
-                  className={cn(
-                    "group flex items-center justify-between rounded-2xl px-4 py-3.5 text-sm font-bold transition-all duration-300",
-                    isActive
-                      ? "bg-violet-600 text-white shadow-2xl shadow-violet-600/30"
-                      : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <item.icon className={cn(
-                      "h-5 w-5 transition-colors duration-300",
-                      isActive ? "text-white" : "text-muted-foreground group-hover:text-violet-500"
-                    )} />
-                    {item.label}
-                  </div>
-                  {isActive && <ChevronRight className="h-4 w-4 opacity-50" />}
-                </Link>
-              );
-            })}
+          {/* Navigation */}
+          <nav className="flex-1 space-y-1 p-4">
+            <p className="px-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+              Navigation
+            </p>
+            <div className="space-y-1.5 mt-3">
+              {menuItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => {
+                      if (window.innerWidth < 1024) onClose();
+                    }}
+                    className={cn(
+                      "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all",
+                      isActive
+                        ? "bg-violet-600 text-white shadow-lg shadow-violet-600/30"
+                        : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </div>
+                    {isActive && <ChevronRight className="h-4 w-4" />}
+                  </Link>
+                );
+              })}
+            </div>
           </nav>
 
-          {/* Elevated User Section */}
-          <div className="mt-auto pt-6">
-            <div className="rounded-3xl border border-border/50 bg-secondary/20 p-4">
+          {/* User Section */}
+          <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 rounded-2xl ring-2 ring-violet-500/20">
-                  <AvatarImage src={currentUser?.avatar} className="rounded-2xl" />
-                  <AvatarFallback className="rounded-2xl bg-violet-500/10 text-violet-600 font-black">
-                    {currentUser?.name?.[0] || 'A'}
+                <Avatar className="h-10 w-10 rounded-lg ring-2 ring-violet-600/20">
+                  <AvatarImage src={currentUser?.avatar} className="rounded-lg" />
+                  <AvatarFallback className="rounded-lg bg-violet-500/10 font-bold text-violet-600">
+                    {currentUser?.name?.[0] || "A"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-black text-foreground">{currentUser?.name}</p>
-                  <p className="truncate text-[10px] font-bold uppercase tracking-widest text-violet-500">Super Admin</p>
+                  <p className="truncate text-xs font-bold text-foreground">
+                    {currentUser?.name}
+                  </p>
+                  <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-violet-600">
+                    Admin
+                  </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => logout()}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-rose-500/10 py-2.5 text-xs font-black text-rose-500 transition-all hover:bg-rose-500 hover:text-white"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-rose-600 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-700"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5" />
                 Sign Out
               </button>
             </div>
