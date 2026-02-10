@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Search, UserX } from "lucide-react";
+import { ArrowLeft, Search, UserX, Ban } from "lucide-react";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import { Post } from "@/components/features/post";
 import {
@@ -60,6 +60,18 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
           title="Account doesn't exist"
           message={`Try searching for another. The user @${handle} could not be found.`}
           icon={UserX}
+        />
+      </div>
+    );
+  }
+
+  if (profile.isBanned) {
+    return (
+      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none border-zinc-100 bg-white dark:bg-black md:rounded-xl">
+        <NotFound
+          title="This account is banned"
+          message={`The user @${handle} has been suspended for violating our community guidelines.`}
+          icon={Ban}
         />
       </div>
     );

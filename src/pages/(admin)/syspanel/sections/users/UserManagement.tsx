@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { 
   Search, 
-  UserX, 
   Filter,
   Loader2,
   MoreHorizontal,
   ShieldCheck,
-  Zap
+  Zap,
+  Gavel,
+  UserCheck
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Button from "@/components/ui/Button";
@@ -128,8 +129,22 @@ const UserManagement: React.FC = () => {
                   <button className="flex-1 rounded-xl bg-zinc-100 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-all">
                     Activity
                   </button>
-                  <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all dark:bg-rose-500/10">
-                    <UserX className="h-4 w-4" />
+                  <button 
+                    onClick={() => {
+                      const action = user.isBanned ? 'unban' : 'ban';
+                      if (confirm(`Are you sure you want to ${action} @${user.handle}?`)) {
+                        actions.toggleBan({ userId: user.id, banned: !user.isBanned });
+                      }
+                    }}
+                    title={user.isBanned ? "Unban User" : "Ban User"}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-xl transition-all",
+                      user.isBanned 
+                        ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white dark:bg-emerald-500/10" 
+                        : "bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10"
+                    )}
+                  >
+                    {user.isBanned ? <UserCheck className="h-4 w-4" /> : <Gavel className="h-4 w-4" />}
                   </button>
                 </div>
               </div>

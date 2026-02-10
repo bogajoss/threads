@@ -6,6 +6,7 @@ import {
   Share,
   Flag,
   Ban,
+  Gavel,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -236,6 +237,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </h1>
             {profile.verified && (
               <VerifiedIcon size={20} className="text-blue-500" />
+            )}
+            {profile.isBanned && (
+              <span className="flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-600 dark:bg-rose-500/10 dark:text-rose-500">
+                <Gavel size={10} />
+                Banned
+              </span>
             )}
           </div>
           {!isCommunity && (

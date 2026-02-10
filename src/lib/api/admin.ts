@@ -27,6 +27,14 @@ export const adminApi = {
     if (error) throw error;
   },
 
+  async toggleUserBan(userId: string, isBanned: boolean) {
+    const { error } = await (supabase as any).rpc("toggle_user_ban", { 
+      target_user_id: userId, 
+      ban_status: isBanned 
+    });
+    if (error) throw error;
+  },
+
   // Content Moderation
   async getLatestPosts(limit = 50) {
     const { data, error } = await supabase
@@ -84,8 +92,11 @@ export const adminApi = {
   },
 
   async deleteReportTarget(targetType: string, targetId: string) {
+    if (targetType === "user") {
+      return this.toggleUserBan(targetId, true);
+    }
+
     let table = "posts";
-    if (targetType === "user") table = "users";
     if (targetType === "community") table = "communities";
     
     const { error } = await (supabase.from(table) as any).delete().eq("id", targetId);

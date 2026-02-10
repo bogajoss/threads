@@ -27,6 +27,7 @@ export const transformUser = (supabaseUser: any): User | null => {
     follower_count: supabaseUser.follower_count || 0,
     following_count: supabaseUser.following_count || 0,
     lastSeen: supabaseUser.last_seen_at,
+    isBanned: supabaseUser.is_banned || false,
   };
 };
 

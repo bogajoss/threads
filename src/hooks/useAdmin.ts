@@ -66,6 +66,16 @@ export const useAdmin = () => {
     onError: () => toast.error("Failed to update verification")
   });
 
+  const toggleBan = useMutation({
+    mutationFn: ({ userId, banned }: { userId: string; banned: boolean }) => 
+      adminApi.toggleUserBan(userId, banned),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast.success("User ban status updated");
+    },
+    onError: () => toast.error("Failed to update ban status")
+  });
+
   const deletePost = useMutation({
     mutationFn: (postId: string) => adminApi.deletePost(postId),
     onSuccess: () => {
@@ -122,6 +132,7 @@ export const useAdmin = () => {
     actions: {
       updateRole: updateRole.mutate,
       toggleVerification: toggleVerification.mutate,
+      toggleBan: toggleBan.mutate,
       deletePost: deletePost.mutate,
       updateSettings: updateSettings.mutate,
       updateReportStatus: updateReportStatus.mutate,

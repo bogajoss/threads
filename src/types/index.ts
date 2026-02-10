@@ -13,6 +13,7 @@ export interface User {
   follower_count: number;
   following_count: number;
   lastSeen: string;
+  isBanned?: boolean;
 }
 
 export interface Media {
