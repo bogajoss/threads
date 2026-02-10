@@ -18,6 +18,8 @@ const MainLayout: React.FC<Record<string, never>> = () => {
   const isNavHidden =
     location.pathname.startsWith("/r") ||
     location.pathname.startsWith("/create") ||
+    location.pathname === "/settings" ||
+    location.pathname === "/edit-profile" ||
     (location.pathname.startsWith("/m") &&
       location.pathname.split("/").length > 2);
 

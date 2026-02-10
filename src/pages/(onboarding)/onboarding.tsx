@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, Users, Lock, Check, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -76,7 +76,7 @@ export default function OnboardingPage() {
 // STEP 1: FOLLOW ACCOUNTS
 // -----------------------------------------------------------------------------
 
-function FollowStep({ onNext, onBack, currentUser }: { onNext: () => void; onBack: () => void; currentUser: User }) {
+function FollowStep({ onNext, currentUser }: { onNext: () => void; onBack: () => void; currentUser: User }) {
   const [searchQuery, setSearchQuery] = useState("");
   const { addToast } = useToast();
   const queryClient = useQueryClient();
@@ -189,7 +189,7 @@ function FollowStep({ onNext, onBack, currentUser }: { onNext: () => void; onBac
 }
 
 function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
-    const { isFollowing, toggleFollow } = useFollow(user, currentUser.id);
+    const { isFollowing, handleFollow } = useFollow(user, currentUser.id);
     
     return (
         <div className="flex items-center justify-between py-2 md:py-3 px-2 md:px-3 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition">
@@ -220,7 +220,7 @@ function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
                 "h-9 md:h-10 px-4 md:px-6 text-xs md:text-sm font-semibold border-zinc-200 dark:border-zinc-700 transition-all shrink-0 ml-2 md:ml-4",
                 isFollowing && "text-zinc-500 dark:text-zinc-400"
               )}
-              onClick={() => toggleFollow()}
+              onClick={() => handleFollow()}
             >
               {isFollowing ? "Following" : "Follow"}
             </Button>
@@ -232,7 +232,7 @@ function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
 // STEP 2: HOW IT WORKS
 // -----------------------------------------------------------------------------
 
-function HowItWorksStep({ onNext, onBack, isLoading: propIsLoading }: { onNext: () => void; onBack: () => void; isLoading: boolean }) {
+function HowItWorksStep({ onNext, onBack }: { onNext: () => void; onBack: () => void; isLoading: boolean }) {
   const [isJoining, setIsJoining] = useState(false);
 
   const handleJoin = async () => {

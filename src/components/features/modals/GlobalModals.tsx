@@ -1,32 +1,14 @@
 import React from "react";
-import EditProfileModal from "@/components/features/modals/EditProfileModal";
 import ReportModal from "@/components/features/modals/ReportModal";
 import { useReportModal } from "@/context/ReportContext";
 
-interface GlobalModalsProps {
-  isEditProfileOpen: boolean;
-  setIsEditProfileOpen: (isOpen: boolean) => void;
-  editProfileData: any;
-  setEditProfileData: (data: any) => void;
-}
+interface GlobalModalsProps {}
 
-const GlobalModals: React.FC<GlobalModalsProps> = ({
-  isEditProfileOpen,
-  setIsEditProfileOpen,
-  editProfileData,
-  setEditProfileData,
-}) => {
+const GlobalModals: React.FC<GlobalModalsProps> = () => {
   const { isOpen, targetType, targetId, closeReport } = useReportModal();
 
   return (
     <>
-      <EditProfileModal
-        isOpen={isEditProfileOpen}
-        onClose={() => setIsEditProfileOpen(false)}
-        editProfileData={editProfileData}
-        setEditProfileData={setEditProfileData}
-      />
-
       {targetType && targetId && (
         <ReportModal 
           isOpen={isOpen}

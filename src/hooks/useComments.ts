@@ -5,7 +5,7 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import { fetchCommentsByPostId, addComment } from "@/lib/api";
+import { fetchCommentsByPostId, addComment, deleteComment, updateComment } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import type { Comment, Media } from "@/types";
 
@@ -110,6 +110,25 @@ export const useComments = (
     },
   });
 
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      return deleteComment(commentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+    },
+  });
+
+  const updateCommentMutation = useMutation({
+    mutationFn: async ({ commentId, content, media }: { commentId: string, content: string, media: Media[] }) => {
+      return updateComment(commentId, { content, media });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+    },
+  });
+
   return {
     comments: comments || [],
     fetchNextPage,
@@ -118,6 +137,8 @@ export const useComments = (
     isLoading,
     refetch,
     addComment: addCommentMutation.mutateAsync,
+    deleteComment: deleteCommentMutation.mutateAsync,
+    updateComment: updateCommentMutation.mutateAsync,
     isSubmitting: addCommentMutation.isPending,
   };
 };

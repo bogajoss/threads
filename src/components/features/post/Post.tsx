@@ -47,8 +47,6 @@ import { useToast } from "@/context/ToastContext";
 import { usePosts } from "@/context/PostContext";
 import {
   uploadFile,
-  deleteComment,
-  updateComment,
   incrementPostViews,
   votePoll,
 } from "@/lib/api";
@@ -277,6 +275,8 @@ const Post: React.FC<PostProps> = ({
     isFetchingNextPage: isFetchingMoreComments,
     // isLoading: loadingComments,
     addComment: submitComment,
+    deleteComment: submitDeleteComment,
+    updateComment: submitUpdateComment,
     isSubmitting: submittingComment,
   } = useComments(id, initialComments);
 
@@ -299,7 +299,7 @@ const Post: React.FC<PostProps> = ({
     comments: replies,
     // isLoading: loadingReplies,
     refetch: refetchReplies,
-  } = useComments(post_id || id, [], showReplies ? id : undefined);
+  } = useComments(post_id || id, undefined, showReplies ? id : undefined);
 
   const { ref: viewRef, inView } = useInView({
     threshold: 0.5,
@@ -345,7 +345,7 @@ const Post: React.FC<PostProps> = ({
       const finalMedia = [...editedMedia, ...uploadedNewMedia];
 
       if (isComment) {
-        await updateComment(id, { content: editedContent, media: finalMedia });
+        await submitUpdateComment({ commentId: id, content: editedContent, media: finalMedia });
       } else {
         await updatePost(id, { content: editedContent, media: finalMedia });
       }
@@ -366,7 +366,7 @@ const Post: React.FC<PostProps> = ({
     if (e) e.stopPropagation();
     try {
       if (isComment) {
-        await deleteComment(id);
+        await submitDeleteComment(id);
       } else {
         await deletePost(id);
       }
@@ -420,7 +420,9 @@ const Post: React.FC<PostProps> = ({
 
   const handleReplyClick = (handle: string, commentId?: string) => {
     if (commentId) {
-      const targetParentId = isComment ? parent_id || id : commentId;
+      // If we are already in a comment thread (isComment is true), 
+      // we want to ensure any new reply stays attached to the correct level
+      const targetParentId = isComment ? (parent_id || id) : commentId;
       setReplyTo({ handle, id: targetParentId });
     } else {
       setReplyTo(null);
@@ -757,7 +759,9 @@ const Post: React.FC<PostProps> = ({
             handleCommentClick={(e) => {
               e?.stopPropagation();
               if (onReply) {
-                onReply(user.handle, id);
+                // If it's a comment, use its parent_id (if exists) or its own id to keep it at Level 2
+                const targetId = isComment ? (parent_id || id) : id;
+                onReply(user.handle, targetId);
               } else if (onClick) {
                 onClick();
               }

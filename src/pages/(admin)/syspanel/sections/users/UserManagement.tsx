@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import {
   Search,
-  Filter,
   Loader2,
   Users,
-  ChevronDown,
   ShieldCheck,
   ShieldX,
   Lock,

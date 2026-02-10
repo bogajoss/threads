@@ -37,6 +37,7 @@ const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
 const Settings = lazy(() => import("@/pages/(feed)/Settings"));
 const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
+const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
@@ -64,8 +65,6 @@ export default function Sysm() {
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
 
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [editProfileData, setEditProfileData] = useState({});
   const [viewingStory, setViewingStory] = useState(null);
 
   useKeyboardShortcuts();
@@ -186,12 +185,15 @@ export default function Sysm() {
               path="/u/:handle"
               element={
                 <PageTransition>
-                  <Profile
-                    onEditProfile={(profile: any) => {
-                      setEditProfileData(profile);
-                      setIsEditProfileOpen(true);
-                    }}
-                  />
+                  <Profile />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <PageTransition>
+                  <EditProfile />
                 </PageTransition>
               }
             />
@@ -227,12 +229,7 @@ export default function Sysm() {
         </Routes>
       </Suspense>
 
-      <GlobalModals
-        isEditProfileOpen={isEditProfileOpen}
-        setIsEditProfileOpen={setIsEditProfileOpen}
-        editProfileData={editProfileData}
-        setEditProfileData={setEditProfileData}
-      />
+      <GlobalModals />
 
       {viewingStory && (
         <StoryViewer

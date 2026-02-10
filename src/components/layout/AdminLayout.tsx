@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu, Bell, ShieldAlert, X } from "lucide-react";
+import { Menu, Bell, ShieldAlert } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";

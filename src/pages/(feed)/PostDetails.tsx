@@ -55,7 +55,7 @@ const PostDetails = () => {
           {...post}
           isDetail={true}
           currentUser={currentUser}
-          initialComments={post.comments || []}
+          initialComments={post.comments}
           onUserClick={handleUserClick}
           onDelete={handleDelete}
           onUpdate={handleUpdate}

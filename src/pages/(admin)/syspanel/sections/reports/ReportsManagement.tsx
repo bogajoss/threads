@@ -43,16 +43,16 @@ const ReportsManagement: React.FC = () => {
     );
   }
 
-  const allReports = reports.data || [];
+  const allReports = (reports.data || []) as any[];
   const filteredReports =
     filterStatus === "all"
       ? allReports
-      : allReports.filter((r) => r.status === filterStatus);
+      : allReports.filter((r: any) => r.status === filterStatus);
 
   const statusCounts = {
-    pending: allReports.filter((r) => r.status === "pending").length,
-    resolved: allReports.filter((r) => r.status === "resolved").length,
-    dismissed: allReports.filter((r) => r.status === "dismissed").length,
+    pending: allReports.filter((r: any) => r.status === "pending").length,
+    resolved: allReports.filter((r: any) => r.status === "resolved").length,
+    dismissed: allReports.filter((r: any) => r.status === "dismissed").length,
   };
 
   const handleViewContent = (report: any) => {

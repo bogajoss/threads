@@ -19,10 +19,9 @@ import { useProfile } from "@/hooks/pages/useProfile";
 import type { Post as PostType } from "@/types";
 
 interface ProfileProps {
-  onEditProfile?: (profile: any) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
+const Profile: React.FC<ProfileProps> = () => {
   const {
     handle,
     profile,
@@ -161,7 +160,7 @@ const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
           profile={displayProfile}
           currentUser={currentUser}
           isCurrentUser={currentUser?.handle === displayProfile.handle}
-          onEditProfile={onEditProfile}
+          onEditProfile={() => navigate("/edit-profile")}
           onShowFollowers={() => openFollowModal("Followers")}
           onShowFollowing={() => openFollowModal("Following")}
         />

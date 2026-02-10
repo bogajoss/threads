@@ -1,10 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   LogOut,
   Moon,
   Sun,
   Lock,
   ChevronRight,
+  ChevronLeft,
   ShieldCheck,
   Bell,
   Smartphone,
@@ -24,6 +26,7 @@ import {
 import { useSettings } from "@/hooks";
 
 const Settings: React.FC = () => {
+  const navigate = useNavigate();
   const {
     currentUser,
     darkMode,
@@ -57,7 +60,15 @@ const Settings: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:rounded-xl md:border">
       <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/80 p-4 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
-        <h2 className="text-xl font-bold dark:text-white">Settings</h2>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="rounded-full p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <h2 className="text-xl font-bold dark:text-white">Settings</h2>
+        </div>
       </div>
 
       <div className="mx-auto mt-4 w-full max-w-2xl space-y-6 p-4 pb-20">
