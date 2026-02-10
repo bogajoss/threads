@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import CircularProgress from "@/components/ui/CircularProgress";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -61,10 +62,26 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         coverUrl = res.url;
       }
 
+      const sanitizeWebsite = (input?: string | null) => {
+        if (!input) return input;
+        const trimmed = input.trim();
+        if (!trimmed) return trimmed;
+        try {
+          const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+          return url.hostname.replace(/^www\./i, "");
+        } catch (e) {
+          // fallback: remove protocol, www and any path
+          return trimmed.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "");
+        }
+      };
+
+      const cleanedWebsite = sanitizeWebsite(editProfileData?.website);
+
       await updateProfile({
         ...editProfileData,
         avatar: avatarUrl,
         cover: coverUrl,
+        website: cleanedWebsite,
       });
 
       setNewAvatarFile(null);
@@ -79,6 +96,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
   };
 
+  const getWordCount = (val?: string) =>
+    (val || "").trim().split(/\s+/).filter(Boolean).length;
+
+  const wordCount = getWordCount(editProfileData?.bio);
+  const bioWarn = wordCount >= 50;
+
   return (
     <>
       <Modal
@@ -86,7 +109,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         onClose={() => !loading && onClose()}
         title="Edit Profile"
       >
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
           <input
             type="file"
             ref={coverInputRef}
@@ -166,16 +189,41 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 setEditProfileData({ ...editProfileData, name: e.target.value })
               }
             />
-            <Input
-              label="Bio"
-              textarea={true}
-              value={editProfileData?.bio || ""}
-              onChange={(
-                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-              ) =>
-                setEditProfileData({ ...editProfileData, bio: e.target.value })
-              }
-            />
+
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <Input
+                  label="Bio"
+                  textarea={true}
+                  value={editProfileData?.bio || ""}
+                  className="min-h-[96px] resize-none pr-2"
+                  onChange={(
+                    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+                  ) => {
+                    const raw = e.target.value;
+                    const words = raw.trim().split(/\s+/).filter(Boolean);
+                    if (words.length > 60) {
+                      const trimmed = words.slice(0, 60).join(" ");
+                      setEditProfileData({ ...editProfileData, bio: trimmed });
+                    } else {
+                      setEditProfileData({ ...editProfileData, bio: raw });
+                    }
+                  }
+                  }
+                />
+              </div>
+
+              <div className="flex items-center pt-3">
+                <CircularProgress
+                  current={wordCount}
+                  max={60}
+                  size={24}
+                  strokeWidth={3}
+                  isWarning={bioWarn}
+                />
+              </div>
+            </div>
+
             <Input
               label="Location"
               value={editProfileData?.location || ""}
