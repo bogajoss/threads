@@ -40,10 +40,6 @@ const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
-const ShopPage = lazy(() => import("@/pages/(marketplace)/shop/page"));
-const ProductPage = lazy(
-  () => import("@/pages/(marketplace)/shop/product/page"),
-);
 
 // Admin Pages
 const UserManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/users/UserManagement"));
@@ -201,9 +197,6 @@ export default function Sysm() {
 
           <Route element={<MarketplaceLayout />}>
             <Route path="/pro" element={<ProPage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/shop/product/:id" element={<ProductPage />} />
-            <Route path="/shop/product" element={<ProductPage />} />
           </Route>
 
           <Route element={<InfoLayout />}>

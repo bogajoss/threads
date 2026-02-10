@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import PageTransition from "./PageTransition";
-import { ArrowLeft, ShoppingBag, Crown } from "lucide-react";
+import { ArrowLeft, Crown } from "lucide-react";
 import { SkeletonPost } from "@/components/ui";
 
 const MarketplaceLayout: React.FC = () => {
@@ -37,16 +37,6 @@ const MarketplaceLayout: React.FC = () => {
             >
               <Crown size={18} />
               <span className="hidden xs:inline">Pro</span>
-            </Link>
-            <Link
-              to="/shop"
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/shop"
-                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
-                }`}
-            >
-              <ShoppingBag size={18} />
-              <span className="hidden xs:inline">Shop</span>
             </Link>
           </nav>
         </div>

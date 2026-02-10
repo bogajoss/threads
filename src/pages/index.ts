@@ -12,4 +12,3 @@ export { default as CreatePost } from "./(feed)/CreatePost";
 export { default as Login } from "./(auth)/login/page";
 export { default as Register } from "./(auth)/register/page";
 export { default as ProPage } from "./(marketplace)/pro/page";
-export { default as ShopPage } from "./(marketplace)/shop/page";

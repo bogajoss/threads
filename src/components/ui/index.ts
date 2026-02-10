@@ -28,3 +28,4 @@ export { Textarea } from "./textarea";
 export { default as TypingIndicator } from "./typing-indicator";
 export { default as ProButton } from "./ProButton";
 export * from "./custom-icons";
+export * from "./row";

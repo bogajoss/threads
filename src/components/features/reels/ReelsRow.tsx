@@ -9,7 +9,7 @@ import {
   StoryAuthorName,
   StoryOverlay,
   StoryVideo,
-} from "@/components/kibo-ui/stories";
+} from "@/components/ui/row";
 import { useReels } from "@/hooks/pages/useReels";
 import { Play } from "lucide-react";
 
