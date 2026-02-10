@@ -1,13 +1,9 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, 
   Users, 
-  MessageSquare, 
   ShieldAlert, 
-  Settings, 
   ArrowLeft,
-  PieChart,
   Flag,
   X,
   LogOut,
@@ -18,13 +14,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Overview", path: "/syspanel" },
   { icon: Users, label: "User Control", path: "/syspanel/users" },
   { icon: Flag, label: "Reports Queue", path: "/syspanel/reports" },
-  { icon: MessageSquare, label: "Moderation", path: "/syspanel/content" },
-  { icon: PieChart, label: "Analytics", path: "/syspanel/analytics" },
-  { icon: ShieldAlert, label: "Security", path: "/syspanel/security" },
-  { icon: Settings, label: "Preferences", path: "/syspanel/settings" },
 ];
 
 interface AdminSidebarProps {
@@ -61,7 +52,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
                 <h1 className="text-xl font-black tracking-tighter text-foreground">SYSPANEL</h1>
                 <div className="flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-500/80">AntiGravity v2</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-500/80">Sysm v1</p>
                 </div>
               </div>
             </Link>

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.antigravity.app",
+  appId: "com.sysm.app",
   appName: "Sysm",
   webDir: "dist",
 };

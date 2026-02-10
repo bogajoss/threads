@@ -46,12 +46,8 @@ const ProductPage = lazy(
 );
 
 // Admin Pages
-const SysPanel = lazy(() => import("@/pages/(admin)/syspanel/SysPanelPage"));
 const UserManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/users/UserManagement"));
-const ContentModeration = lazy(() => import("@/pages/(admin)/syspanel/sections/content/ContentModeration"));
 const ReportsManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/reports/ReportsManagement"));
-const AnalyticsDashboard = lazy(() => import("@/pages/(admin)/syspanel/sections/analytics/AnalyticsDashboard"));
-const SystemSettings = lazy(() => import("@/pages/(admin)/syspanel/sections/settings/SystemSettings"));
 
 // Info Pages
 const Terms = lazy(() => import("@/pages/(info)/Terms"));
@@ -226,13 +222,12 @@ export default function Sysm() {
               </ProtectedRoute>
             }
           >
-            <Route path="/syspanel" element={<SysPanel />} />
+            <Route
+              path="/syspanel"
+              element={<Navigate to="/syspanel/users" replace />}
+            />
             <Route path="/syspanel/users" element={<UserManagement />} />
             <Route path="/syspanel/reports" element={<ReportsManagement />} />
-            <Route path="/syspanel/content" element={<ContentModeration />} />
-            <Route path="/syspanel/security" element={<SysPanel />} />
-            <Route path="/syspanel/analytics" element={<AnalyticsDashboard />} />
-            <Route path="/syspanel/settings" element={<SystemSettings />} />
           </Route>
         </Routes>
       </Suspense>

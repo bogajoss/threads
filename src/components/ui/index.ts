@@ -16,6 +16,7 @@ export * from "./scroll-area";
 export { default as SearchBar } from "./search-bar";
 export * from "./select";
 export { default as SignupCard } from "./signup-card";
+export * from "./skeleton";
 export { default as SkeletonPost } from "./skeleton-post";
 export * from "./sonner";
 export { default as SkeletonUser } from "./skeleton-user";

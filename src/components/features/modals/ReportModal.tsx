@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { X, Flag, Loader2, AlertCircle } from "lucide-react";
+import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { reportsApi } from "@/lib/api/reports";
 import type { ReportTargetType } from "@/lib/api/reports";
 import { toast } from "sonner";
-import Button from "@/components/ui/Button";
-import { Textarea } from "@/components/ui/textarea";
+import { Modal, Button, Input } from "@/components/ui";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -18,8 +17,6 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
   const { currentUser } = useAuth();
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async () => {
     if (!currentUser) {
@@ -41,65 +38,86 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-[--border] bg-[--card] p-6 shadow-2xl">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500">
-              <Flag className="h-5 w-5" />
-            </div>
-            <h2 className="text-xl font-black">Report {targetType}</h2>
-          </div>
-          <button onClick={onClose} className="rounded-xl p-2 hover:bg-[--secondary]">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+  const capitalizedTarget = targetType ? targetType.charAt(0).toUpperCase() + targetType.slice(1) : "";
 
-        <div className="mb-6 rounded-2xl bg-amber-500/10 p-4 text-amber-600 dark:text-amber-500">
-          <div className="flex gap-3">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <p className="text-xs font-bold leading-relaxed">
-              AntiGravity takes community safety seriously. Please describe why this content violates our guidelines.
+  return (
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={`Report ${capitalizedTarget}`}
+      className="sm:max-w-[440px]"
+    >
+      <div className="space-y-5 px-5 pb-7 pt-2">
+        {/* Header Icon & Info */}
+        <div className="flex flex-col items-center text-center space-y-2.5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 shadow-inner">
+            <ShieldAlert className="h-7 w-7" />
+          </div>
+          <div>
+            <h3 className="text-base font-black tracking-tight text-[--foreground]">
+              Community Safety First
+            </h3>
+            <p className="text-xs text-[--muted-foreground] max-w-[280px] mx-auto leading-relaxed">
+              Help us keep Sysm safe by reporting content that violates our community guidelines.
             </p>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[--muted-foreground]">
-              Reason for reporting (Optional)
-            </label>
-            <Textarea
-              placeholder="Provide more context..."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="min-h-[120px] rounded-2xl bg-[--secondary]/30 focus:ring-rose-500"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <Button 
-              variant="outline" 
-              className="flex-1 rounded-2xl" 
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="danger" 
-              className="flex-1 rounded-2xl shadow-lg shadow-rose-500/20" 
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Report"}
-            </Button>
+        {/* Warning Box */}
+        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3.5 dark:border-amber-900/30 dark:bg-amber-900/10">
+          <div className="flex gap-3">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-500 mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="text-[10px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-wider">
+                Note on Reporting
+              </p>
+              <p className="text-[11px] leading-relaxed text-amber-700/80 dark:text-amber-500/70">
+                Reports are handled anonymously. Abuse of the reporting system may lead to account restrictions.
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Input Section */}
+        <div className="space-y-2.5">
+          <Input
+            label="Reason for reporting"
+            placeholder="Explain why this content should be reviewed..."
+            textarea={true}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="min-h-[120px] focus:ring-violet-500/30 text-sm rounded-xl"
+          />
+          <p className="text-[10px] text-center text-[--muted-foreground] px-4 italic opacity-80">
+            Be as specific as possible to help our moderation team understand the issue.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-1">
+          <Button 
+            variant="outline" 
+            className="flex-1 rounded-xl h-11 text-sm font-bold" 
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="violet" 
+            className="flex-1 rounded-xl h-11 text-sm font-black shadow-lg shadow-violet-500/20 active:scale-95 transition-all" 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
+            Submit
+          </Button>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 };
 
 export default ReportModal;
+
+

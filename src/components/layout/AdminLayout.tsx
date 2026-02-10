@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu, Bell } from "lucide-react";
+import { Menu, Bell, ShieldAlert } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
@@ -12,27 +12,27 @@ const AdminLayout: React.FC = () => {
   return (
     <div
       className={cn(
-        "min-h-screen bg-background text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-300",
+        "min-h-screen bg-zinc-50 text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-300 dark:bg-zinc-950",
         darkMode && "dark"
       )}
     >
-      {/* Dynamic Mobile Header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border/50 bg-card/60 px-6 py-4 backdrop-blur-xl lg:hidden">
+      {/* Simple Mobile Header */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-white px-4 py-3 dark:bg-black lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg shadow-violet-600/20">
-            <Menu className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm">
+            <ShieldAlert className="h-5 w-5" />
           </div>
-          <span className="text-lg font-black tracking-tighter">SYSPANEL</span>
+          <span className="text-base font-bold tracking-tight">SYSPANEL</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="rounded-xl bg-secondary/50 p-2.5 text-foreground transition-all active:scale-95">
-            <Bell className="h-5 w-5" />
+          <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 text-foreground dark:bg-zinc-900">
+            <Bell className="h-4 w-4" />
           </button>
           <button 
             onClick={() => setIsSidebarOpen(true)}
-            className="rounded-xl bg-violet-600 p-2.5 text-white shadow-lg shadow-violet-600/20 transition-all active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4" />
           </button>
         </div>
       </header>
@@ -43,9 +43,7 @@ const AdminLayout: React.FC = () => {
       />
 
       <div className="lg:ml-72 transition-all duration-500">
-        <main className="mx-auto max-w-7xl px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
-          {/* Subtle background glow */}
-          <div className="pointer-events-none fixed left-1/2 top-0 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-violet-500/5 blur-[120px]" />
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           <Outlet />
         </main>
       </div>

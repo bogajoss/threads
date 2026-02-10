@@ -29,44 +29,38 @@ const UserManagement: React.FC = () => {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-violet-600" />
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground animate-pulse">Syncing user directory...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+          <p className="text-xs font-bold text-muted-foreground">Loading directory...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-8 rounded-full bg-violet-600" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-violet-500">Infrastructure</span>
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter sm:text-5xl text-foreground">User <span className="text-muted-foreground/40">Directory.</span></h1>
-          <p className="text-sm font-bold text-muted-foreground">Orchestrate accounts, permissions and network security.</p>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black tracking-tight">User Directory</h1>
+          <p className="text-sm text-muted-foreground">Manage user accounts and platform permissions.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" size="md" className="rounded-2xl border border-border/50 bg-card px-6">
-            <Filter className="mr-2 h-4 w-4 text-violet-500" />
-            Filters
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="h-10 rounded-xl font-bold">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
           </Button>
-          <Button size="md" className="rounded-2xl bg-violet-600 shadow-xl shadow-violet-600/20">
+          <Button size="sm" className="h-10 rounded-xl font-bold bg-violet-600">
             <Zap className="mr-2 h-4 w-4" />
             Provision
           </Button>
         </div>
       </div>
 
-      {/* Search HUD */}
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-violet-500" />
-        </div>
+      {/* Simplified Search */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input 
-          className="h-16 rounded-[1.5rem] border-border/50 bg-card pl-14 text-base font-bold shadow-sm transition-all focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500/50" 
-          placeholder="Lookup handle, display name or email..." 
+          className="h-12 rounded-xl border-border bg-card pl-12 text-sm font-medium focus:ring-violet-500/10" 
+          placeholder="Search by name or handle..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -76,40 +70,40 @@ const UserManagement: React.FC = () => {
         {filteredUsers.map((user) => {
           if (!user) return null;
           return (
-            <div key={user.id} className="group relative rounded-[2rem] border border-border/50 bg-card p-6 transition-all hover:border-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/5">
+            <div key={user.id} className="rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <Avatar className="h-16 w-16 rounded-2xl ring-4 ring-secondary/50 transition-transform group-hover:scale-105">
-                      <AvatarImage src={user.avatar} className="rounded-2xl object-cover" />
-                      <AvatarFallback className="rounded-2xl bg-violet-500/10 text-violet-600 font-black text-xl">
+                    <Avatar className="h-12 w-12 rounded-xl ring-2 ring-zinc-50 dark:ring-zinc-900">
+                      <AvatarImage src={user.avatar} className="rounded-xl object-cover" />
+                      <AvatarFallback className="rounded-xl bg-violet-50 text-violet-600 font-bold">
                         {user.name[0]}
                       </AvatarFallback>
                     </Avatar>
                     {user.verified && (
-                      <div className="absolute -bottom-1 -right-1 rounded-full bg-background p-1">
-                        <ShieldCheck className="h-4 w-4 text-blue-500 fill-blue-500/10" />
+                      <div className="absolute -bottom-1 -right-1 rounded-full bg-blue-500 p-0.5 ring-2 ring-card">
+                        <ShieldCheck className="h-2.5 w-2.5 text-white" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="truncate text-lg font-black text-foreground">{user.name}</h3>
-                    <p className="truncate text-xs font-bold text-muted-foreground">@{user.handle}</p>
+                    <h3 className="truncate text-sm font-bold text-foreground">{user.name}</h3>
+                    <p className="truncate text-[11px] text-muted-foreground font-medium">@{user.handle}</p>
                   </div>
                 </div>
-                <button className="rounded-xl p-2 text-muted-foreground hover:bg-secondary transition-colors">
-                  <MoreHorizontal className="h-5 w-5" />
+                <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                  <MoreHorizontal className="h-4 w-4" />
                 </button>
               </div>
               
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-secondary/30 p-3">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Authorization</p>
+                  <div className="rounded-xl bg-zinc-50 p-3 dark:bg-zinc-900/50">
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Role</p>
                     <select 
                       value={user.role}
                       onChange={(e) => actions.updateRole({ userId: user.id, role: e.target.value as any })}
-                      className="w-full bg-transparent text-xs font-black uppercase tracking-wider focus:outline-none text-violet-600 cursor-pointer"
+                      className="w-full bg-transparent text-[10px] font-bold uppercase tracking-widest text-violet-600 focus:outline-none"
                     >
                       <option value="user">USER</option>
                       <option value="moderator">MODERATOR</option>
@@ -118,26 +112,23 @@ const UserManagement: React.FC = () => {
                   </div>
                   <div 
                     onClick={() => actions.toggleVerification({ userId: user.id, verified: !user.verified })}
-                    className="rounded-2xl bg-secondary/30 p-3 cursor-pointer transition-colors hover:bg-secondary/50"
+                    className="rounded-xl bg-zinc-50 p-3 cursor-pointer dark:bg-zinc-900/50"
                   >
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Integrity</p>
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "h-2 w-2 rounded-full",
-                        user.verified ? "bg-blue-500" : "bg-muted-foreground/30"
-                      )} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">
-                        {user.verified ? "Verified" : "Standard"}
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status</p>
+                    <div className="flex items-center gap-1.5">
+                      <div className={cn("h-1.5 w-1.5 rounded-full", user.verified ? "bg-blue-500" : "bg-zinc-300")} />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">
+                        {user.verified ? "Verified" : "Basic"}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="flex-1 rounded-xl bg-secondary/50 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary hover:text-foreground transition-all">
-                    User Logs
+                  <button className="flex-1 rounded-xl bg-zinc-100 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-all">
+                    Activity
                   </button>
-                  <button className="rounded-xl bg-rose-500/10 p-3 text-rose-500 hover:bg-rose-500 hover:text-white transition-all">
+                  <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all dark:bg-rose-500/10">
                     <UserX className="h-4 w-4" />
                   </button>
                 </div>
