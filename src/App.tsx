@@ -12,6 +12,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
+import { AnimatePresence } from "framer-motion";
 
 import {
   MainLayout,
@@ -74,159 +75,161 @@ export default function Sysm() {
       <ScrollToTop />
 
       <Suspense fallback={null}>
-        <Routes location={location} key={location.pathname}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Navigate to="/feed" replace />} />
-            <Route
-              path="/feed"
-              element={
-                <PageTransition>
-                  <Home onStoryClick={setViewingStory} />
-                </PageTransition>
-              }
-            />
-            <Route path="/home" element={<Navigate to="/feed" replace />} />
-            <Route
-              path="/explore"
-              element={
-                <PageTransition>
-                  <Explore />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/r"
-              element={
-                <PageTransition>
-                  <Reels />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/r/:id"
-              element={
-                <PageTransition>
-                  <Reels />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/m"
-              element={
-                <PageTransition>
-                  <Messages />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <PageTransition>
-                  <Settings />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/m/:id"
-              element={
-                <PageTransition>
-                  <Messages />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/notifications"
-              element={
-                <PageTransition>
-                  <Notifications />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/p/:id"
-              element={
-                <PageTransition>
-                  <PostDetails />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/create"
-              element={
-                <PageTransition>
-                  <CreatePost />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/c/:handle"
-              element={
-                <PageTransition>
-                  <Community
-                    onPostInCommunity={(c: any) => {
-                      navigate("/create", { state: { initialCommunity: c } });
-                    }}
-                  />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/tags/:tag"
-              element={
-                <PageTransition>
-                  <HashtagFeed />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/u/:handle"
-              element={
-                <PageTransition>
-                  <Profile />
-                </PageTransition>
-              }
-            />
-            <Route
-              path="/edit-profile"
-              element={
-                <PageTransition>
-                  <EditProfile />
-                </PageTransition>
-              }
-            />
-          </Route>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Navigate to="/feed" replace />} />
+              <Route
+                path="/feed"
+                element={
+                  <PageTransition>
+                    <Home onStoryClick={setViewingStory} />
+                  </PageTransition>
+                }
+              />
+              <Route path="/home" element={<Navigate to="/feed" replace />} />
+              <Route
+                path="/explore"
+                element={
+                  <PageTransition>
+                    <Explore />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/r"
+                element={
+                  <PageTransition>
+                    <Reels />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/r/:id"
+                element={
+                  <PageTransition>
+                    <Reels />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/m"
+                element={
+                  <PageTransition>
+                    <Messages />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <PageTransition>
+                    <Settings />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/m/:id"
+                element={
+                  <PageTransition>
+                    <Messages />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <PageTransition>
+                    <Notifications />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/p/:id"
+                element={
+                  <PageTransition>
+                    <PostDetails />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/create"
+                element={
+                  <PageTransition>
+                    <CreatePost />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/c/:handle"
+                element={
+                  <PageTransition>
+                    <Community
+                      onPostInCommunity={(c: any) => {
+                        navigate("/create", { state: { initialCommunity: c } });
+                      }}
+                    />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/tags/:tag"
+                element={
+                  <PageTransition>
+                    <HashtagFeed />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/u/:handle"
+                element={
+                  <PageTransition>
+                    <Profile />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/edit-profile"
+                element={
+                  <PageTransition>
+                    <EditProfile />
+                  </PageTransition>
+                }
+              />
+            </Route>
 
-          <Route element={<MarketplaceLayout />}>
-            <Route path="/pro" element={<ProPage />} />
-          </Route>
+            <Route element={<MarketplaceLayout />}>
+              <Route path="/pro" element={<ProPage />} />
+            </Route>
 
-          <Route element={<InfoLayout />}>
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/guidelines" element={<Guidelines />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/status" element={<Status />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
+            <Route element={<InfoLayout />}>
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/guidelines" element={<Guidelines />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/status" element={<Status />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
 
-          <Route
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
             <Route
-              path="/syspanel"
-              element={<Navigate to="/syspanel/users" replace />}
-            />
-            <Route path="/syspanel/users" element={<UserManagement />} />
-            <Route path="/syspanel/reports" element={<ReportsManagement />} />
-          </Route>
-        </Routes>
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path="/syspanel"
+                element={<Navigate to="/syspanel/users" replace />}
+              />
+              <Route path="/syspanel/users" element={<UserManagement />} />
+              <Route path="/syspanel/reports" element={<ReportsManagement />} />
+            </Route>
+          </Routes>
+        </AnimatePresence>
       </Suspense>
 
       <GlobalModals />

@@ -1,5 +1,6 @@
 import React from "react";
 import type { LucideIcon, LucideProps } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ActionButtonProps {
@@ -60,7 +61,8 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const activeColor = activeColorClass || config.activeText;
 
   return (
-    <button
+    <motion.button
+      whileTap={{ scale: 0.85 }}
       onClick={(e) => {
         e.stopPropagation();
         if (onClick) {
@@ -80,24 +82,35 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           !active && config.hoverBg,
         )}
       >
-        <Icon
-          size={size}
-          strokeWidth={active ? 2.5 : 2}
-          className={cn(
-            "transition-colors duration-200",
-            active && config.activeFill,
-          )}
-        />
+        <motion.div
+          animate={active ? { scale: [1, 1.4, 1], rotate: [0, 15, 0] } : { scale: 1 }}
+          transition={{ duration: 0.45, type: "spring", stiffness: 300, damping: 15 }}
+        >
+          <Icon
+            size={size}
+            strokeWidth={active ? 2.5 : 2}
+            className={cn(
+              "transition-colors duration-200",
+              active && config.activeFill,
+            )}
+          />
+        </motion.div>
       </div>
       {label && <span className="hidden xs:inline">{label}</span>}
-      {count !== undefined && count !== null && (
-        <span
-          className={cn("transition-all", active ? "font-black" : "font-bold")}
-        >
-          {count || 0}
-        </span>
-      )}
-    </button>
+      <AnimatePresence mode="wait">
+        {count !== undefined && count !== null && (
+          <motion.span
+            key={count}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className={cn("transition-all", active ? "font-black" : "font-bold")}
+          >
+            {count || 0}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
   );
 };
 

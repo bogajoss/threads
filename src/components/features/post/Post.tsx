@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Trash,
   Repeat2,
@@ -273,7 +274,6 @@ const Post: React.FC<PostProps> = ({
     fetchNextPage: loadMoreComments,
     hasNextPage: hasMoreComments,
     isFetchingNextPage: isFetchingMoreComments,
-    // isLoading: loadingComments,
     addComment: submitComment,
     deleteComment: submitDeleteComment,
     updateComment: submitUpdateComment,
@@ -297,7 +297,6 @@ const Post: React.FC<PostProps> = ({
 
   const {
     comments: replies,
-    // isLoading: loadingReplies,
     refetch: refetchReplies,
   } = useComments(post_id || id, undefined, showReplies ? id : undefined);
 
@@ -420,8 +419,6 @@ const Post: React.FC<PostProps> = ({
 
   const handleReplyClick = (handle: string, commentId?: string) => {
     if (commentId) {
-      // If we are already in a comment thread (isComment is true), 
-      // we want to ensure any new reply stays attached to the correct level
       const targetParentId = isComment ? (parent_id || id) : commentId;
       setReplyTo({ handle, id: targetParentId });
     } else {
@@ -437,7 +434,13 @@ const Post: React.FC<PostProps> = ({
 
   if (isDetail) {
     return (
-      <div className="flex flex-col" ref={viewRef}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col"
+        ref={viewRef}
+      >
         <article className="p-5 dark:bg-black">
           <PostHeader
             user={user}
@@ -618,12 +621,16 @@ const Post: React.FC<PostProps> = ({
             </AlertDialogContent>
           </AlertDialog>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <article
+    <motion.article
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       ref={viewRef}
       onClick={onClick}
       className={`px-4 transition-all ${isComment
@@ -759,7 +766,6 @@ const Post: React.FC<PostProps> = ({
             handleCommentClick={(e) => {
               e?.stopPropagation();
               if (onReply) {
-                // If it's a comment, use its parent_id (if exists) or its own id to keep it at Level 2
                 const targetId = isComment ? (parent_id || id) : id;
                 onReply(user.handle, targetId);
               } else if (onClick) {
@@ -847,7 +853,7 @@ const Post: React.FC<PostProps> = ({
           </AlertDialog>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 };
 

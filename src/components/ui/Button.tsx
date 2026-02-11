@@ -1,5 +1,5 @@
 import React, { type ButtonHTMLAttributes } from "react";
-
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "rounded-full font-bold inline-flex items-center justify-center relative overflow-hidden transition-all duration-200 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation shadow-sm hover:shadow-md";
+    "rounded-full font-bold inline-flex items-center justify-center relative overflow-hidden transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation shadow-sm hover:shadow-md active:opacity-80";
 
   const variants = {
     primary:
@@ -56,11 +56,13 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   if (variant === "animated") {
+    const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props as any;
     return (
-      <button
+      <motion.button
+        whileTap={{ scale: 0.98 }}
         className={cn("btn-animated", className)}
         disabled={disabled || loading}
-        {...props}
+        {...buttonProps}
       >
         <div className="svg-wrapper-1">
           <div className="svg-wrapper">
@@ -86,15 +88,18 @@ const Button: React.FC<ButtonProps> = ({
         </div>
         <span className="ml-2 uppercase tracking-wider">{children}</span>
         <div className="absolute inset-0 bg-black/0 active:bg-black/5 transition-colors pointer-events-none" />
-      </button>
+      </motion.button>
     );
   }
 
+  const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props as any;
   return (
-    <button
+    <motion.button
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       className={cn(baseStyles, variants[variant], sizes[size], className)}
       disabled={disabled || loading}
-      {...props}
+      {...buttonProps}
     >
       {loading && <span className="mr-2 animate-pulse">...</span>}
       <div
@@ -104,7 +109,7 @@ const Button: React.FC<ButtonProps> = ({
       </div>
 
       <div className="absolute inset-0 bg-black/0 active:bg-black/5 transition-colors pointer-events-none" />
-    </button>
+    </motion.button>
   );
 };
 

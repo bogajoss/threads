@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import {
   HomeIcon,
   ChatIcon,
@@ -38,23 +39,29 @@ const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
           to={item.path}
           aria-label={item.id}
           className={({ isActive }) =>
-            `relative flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 ${isActive ? "text-black dark:text-white" : "text-zinc-400 opacity-70"}`
+            `relative flex h-full flex-1 flex-col items-center justify-center transition-colors duration-200 ${isActive ? "text-black dark:text-white" : "text-zinc-400 opacity-70"}`
           }
         >
           {({ isActive }) => (
-            <>
+            <motion.div
+              whileTap={{ scale: 0.9 }}
+              animate={{ scale: isActive ? 1.1 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="flex flex-col items-center"
+            >
               <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
               {item.id === "notifications" && notificationsCount > 0 && (
-                <span className="absolute right-[30%] top-3 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
+                <span className="absolute right-0 top-0 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
               )}
               {item.id === "messages" && messagesCount > 0 && (
-                <span className="absolute right-[30%] top-3 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
+                <span className="absolute right-0 top-0 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
               )}
-            </>
+            </motion.div>
           )}
         </NavLink>
       ))}
-      <button
+      <motion.button
+        whileTap={{ scale: 0.9 }}
         onClick={() => {
           if (currentUser) handleProfileClick(currentUser.handle);
         }}
@@ -62,7 +69,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
         className="flex h-full flex-1 flex-col items-center justify-center"
       >
         <Avatar
-          className={`size-7 border-2 ${location.pathname.startsWith("/u/") ? "border-black dark:border-white" : "border-transparent opacity-70"}`}
+          className={`size-7 border-2 transition-all ${location.pathname.startsWith("/u/") ? "border-black dark:border-white scale-110" : "border-transparent opacity-70"}`}
         >
           <AvatarImage
             src={currentUser?.avatar || "/default-avatar.webp"}
@@ -73,7 +80,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
             {currentUser?.handle?.[0]?.toUpperCase()}
           </AvatarFallback>
         </Avatar>
-      </button>
+      </motion.button>
     </nav>
   );
 };
