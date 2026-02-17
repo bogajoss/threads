@@ -100,10 +100,12 @@ const CreateCommunity: React.FC = () => {
     }
 
     createMutation.mutate({
-      ...formData,
-      creatorId: currentUser?.id,
-      isPrivate: formData.isPrivate,
-      avatar: formData.avatar
+      name: formData.name,
+      handle: formData.handle,
+      description: formData.description,
+      creator_id: currentUser?.id,
+      is_private: formData.isPrivate,
+      avatar_url: formData.avatar
     });
   };
 

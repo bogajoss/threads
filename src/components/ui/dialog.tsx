@@ -93,7 +93,7 @@ const DialogContent = React.forwardRef<
             dragElastic={{ top: 0, bottom: 0.8 }}
             onDragEnd={handleDragEnd}
             animate={controls}
-            initial={{ y: "100%", opacity: 0.5 }}
+            // initial={{ y: "100%", opacity: 0.5 }}
             style={{ y, opacity }}
             className={cn(
               "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
