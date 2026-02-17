@@ -27,7 +27,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
       className,
     )}
     onClick={(e) => {
@@ -67,7 +67,8 @@ const DialogContent = React.forwardRef<
 
     const handleDragEnd = async (_: any, info: any) => {
       if (isDesktop) return;
-      if (info.offset.y > 150 || info.velocity.y > 500) {
+      // Easier dismissal: drag down > 100px OR fast flick down
+      if (info.offset.y > 100 || info.velocity.y > 300) {
         if (onDragClose) {
           onDragClose();
         } else {
@@ -95,8 +96,9 @@ const DialogContent = React.forwardRef<
         >
           <motion.div
             drag={isDesktop ? false : "y"}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.8 }}
+            // Allow dragging down (positive Y) freely, restrict dragging up (negative Y)
+            dragConstraints={{ top: 0, bottom: 1000 }}
+            dragElastic={{ top: 0.1, bottom: 0.6 }} // Reduced top elastic
             onDragEnd={handleDragEnd}
             animate={isDesktop ? undefined : controls}
             style={isDesktop ? undefined : { y, opacity }}

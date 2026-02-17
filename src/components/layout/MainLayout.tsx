@@ -30,7 +30,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   return (
     <div
       className={cn(
-        "min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200",
+        "min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 pt-[env(safe-area-inset-top)]",
         darkMode && "dark",
       )}
     >
@@ -40,7 +40,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
         <main
           className={`flex w-full flex-1 justify-center px-0 gap-x-0 ${isReelsPage ? "" : "md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8"}`}
         >
-            <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
+          <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
             {isHomePage && (
               <div className="w-full max-w-full overflow-hidden">
                 <FeedHeader />

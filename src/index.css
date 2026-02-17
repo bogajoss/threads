@@ -69,6 +69,12 @@
     @apply bg-[--background] text-[--foreground] transition-colors duration-200;
     background-color: var(--background);
     color: var(--foreground);
+    /* Mobile App Feel */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overscroll-behavior-y: none;
   }
 }
 
