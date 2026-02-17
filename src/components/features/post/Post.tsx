@@ -12,10 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Actionsheet,
-  ActionsheetItem,
-} from "@/components/ui/actionsheet";
+import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -143,10 +140,12 @@ const PostActionsMenu = ({
 
   return (
     <>
-      <div onClick={(e) => {
-        e.stopPropagation();
-        setIsOpen(true);
-      }}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(true);
+        }}
+      >
         {trigger}
       </div>
       <Actionsheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -155,7 +154,9 @@ const PostActionsMenu = ({
             icon={<Share size={18} />}
             onClick={(e) => {
               e.stopPropagation();
-              navigator.clipboard.writeText(`${window.location.origin}/p/${id}`);
+              navigator.clipboard.writeText(
+                `${window.location.origin}/p/${id}`,
+              );
               addToast("Link copied");
               setIsOpen(false);
             }}

@@ -2562,7 +2562,7 @@
     background-color: #8774e1;
   }
   .bg-\[\#8774e1\]\/10 {
-    background-color: oklab(62.6713% 0.0518074 -0.150772/.1);
+    background-color: oklab(62.6713% 0.0518074 -0.150772/0.1);
   }
   .bg-\[--background\] {
     background-color: --background;

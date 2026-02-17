@@ -62,7 +62,7 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
       if (currentUser?.id) {
         updateLastSeen(currentUser.id);
       }
-      
+
       // Delay removal to allow socket to finish establishing if it was just created
       // This prevents the "WebSocket is closed before the connection is established" error
       setTimeout(() => {
@@ -70,7 +70,7 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
           // Silent catch
         });
       }, 500);
-      
+
       setOnlineUsers(new Set());
     };
   }, [currentUser?.id]);

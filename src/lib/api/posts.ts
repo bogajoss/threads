@@ -7,6 +7,7 @@ import {
   REELS_PER_PAGE,
 } from "@/lib/constants";
 import { deleteMultipleFiles } from "./storage";
+import { isValidUUID } from "@/lib/utils";
 
 export const fetchPosts = async (
   cursor: string | null = null,
@@ -27,22 +28,26 @@ export const fetchPosts = async (
       // Let's just try to parse it as ID if it looks like UUID, else ignore.
     }
   }
-  
+
   const params: any = {
     limit_val: limit,
   };
 
   if (lastItemId && isValidUUID(lastItemId)) params.last_item_id = lastItemId;
   if (lastItemScore !== null) params.last_item_score = lastItemScore;
-  
+
   const { data, error } = await supabase.rpc("get_posts_feed", params);
 
   if (error) throw error;
-  
-  return (data || []).map((p: any) => transformPost({
-      ...p,
-      mirrors_count: p.mirrors_count || 0
-  })).filter((p): p is Post => p !== null);
+
+  return (data || [])
+    .map((p: any) =>
+      transformPost({
+        ...p,
+        mirrors_count: p.mirrors_count || 0,
+      }),
+    )
+    .filter((p): p is Post => p !== null);
 };
 
 export const fetchPostById = async (id: string): Promise<Post | null> => {
@@ -99,20 +104,23 @@ export const fetchPostsByUserId = async (
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
-  
   const { data, error } = await supabase.rpc("get_profile_feed", {
     target_user_id: userId,
     limit_val: limit,
-    last_item_time: lastTimestamp || undefined 
+    last_item_time: lastTimestamp || undefined,
   });
-  
+
   if (error) throw error;
-  return (data || []).map((p: any) => transformPost({
-      ...p,
-      // RPC returns flat structure, transformPost handles it if we map clearly
-      // transformPost might need "user" object or "author_data"
-      // The RPC returns "author_data" jsonb which transformPost supports (lines 48: post.author_data || post.user)
-  })).filter((p): p is Post => p !== null);
+  return (data || [])
+    .map((p: any) =>
+      transformPost({
+        ...p,
+        // RPC returns flat structure, transformPost handles it if we map clearly
+        // transformPost might need "user" object or "author_data"
+        // The RPC returns "author_data" jsonb which transformPost supports (lines 48: post.author_data || post.user)
+      }),
+    )
+    .filter((p): p is Post => p !== null);
 };
 
 export const fetchCommentsByUserId = async (
@@ -364,12 +372,12 @@ export const toggleLike = async (
   if (!postId || !userId) return false;
 
   try {
-    const { data, error } = await supabase.rpc("toggle_like", {
+    const { data, error } = await (supabase.rpc as any)("toggle_like", {
       p_post_id: postId,
       p_user_id: userId,
     });
 
-    if (error && (error.code === 'PGRST202' || error.status === 404)) {
+    if (error && (error.code === "PGRST202" || (error as any).status === 404)) {
       // Fallback if RPC is missing
       const { data: existing } = await supabase
         .from("likes")
@@ -379,13 +387,17 @@ export const toggleLike = async (
         .maybeSingle();
 
       if (existing) {
-        await supabase.from("likes").delete().eq("post_id", postId).eq("user_id", userId);
+        await supabase
+          .from("likes")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", userId);
         return false;
       } else {
         const { error: insErr } = await (supabase.from("likes") as any).insert([
           { post_id: postId, user_id: userId },
         ]);
-        if (insErr && insErr.code === '23505') return false; // Conflict handled
+        if (insErr && insErr.code === "23505") return false; // Conflict handled
         return true;
       }
     }
@@ -424,12 +436,12 @@ export const toggleRepost = async (
   if (!postId || !userId) return false;
 
   try {
-    const { data, error } = await supabase.rpc("toggle_repost", {
+    const { data, error } = await (supabase.rpc as any)("toggle_repost", {
       p_post_id: postId,
       p_user_id: userId,
     });
 
-    if (error && (error.code === 'PGRST202' || error.status === 404)) {
+    if (error && (error.code === "PGRST202" || (error as any).status === 404)) {
       // Fallback if RPC is missing
       const { data: existing } = await supabase
         .from("reposts")
@@ -439,13 +451,17 @@ export const toggleRepost = async (
         .maybeSingle();
 
       if (existing) {
-        await supabase.from("reposts").delete().eq("post_id", postId).eq("user_id", userId);
+        await supabase
+          .from("reposts")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", userId);
         return false;
       } else {
-        const { error: insErr } = await (supabase.from("reposts") as any).insert([
-          { post_id: postId, user_id: userId },
-        ]);
-        if (insErr && insErr.code === '23505') return false;
+        const { error: insErr } = await (
+          supabase.from("reposts") as any
+        ).insert([{ post_id: postId, user_id: userId }]);
+        if (insErr && insErr.code === "23505") return false;
         return true;
       }
     }
@@ -575,25 +591,29 @@ export const fetchReels = async (
   let lastReelScore = null;
 
   if (cursor) {
-     const parts = cursor.split(":");
-     if (parts.length === 2) {
-       lastReelId = parts[0];
-       lastReelScore = parseFloat(parts[1]);
-     }
+    const parts = cursor.split(":");
+    if (parts.length === 2) {
+      lastReelId = parts[0];
+      lastReelScore = parseFloat(parts[1]);
+    }
   }
 
   const { data, error } = await supabase.rpc("get_reels_feed", {
     limit_val: limit,
     last_reel_id: lastReelId || undefined,
-    last_reel_score: lastReelScore || undefined
+    last_reel_score: lastReelScore || undefined,
   });
 
   if (error) throw error;
 
-  return (data || []).map((p: any) => transformPost({
-      ...p,
-      mirrors_count: p.mirrors_count || 0,
-  })).filter((p): p is Post => p !== null);
+  return (data || [])
+    .map((p: any) =>
+      transformPost({
+        ...p,
+        mirrors_count: p.mirrors_count || 0,
+      }),
+    )
+    .filter((p): p is Post => p !== null);
 };
 
 export const votePoll = async (

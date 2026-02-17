@@ -90,7 +90,6 @@ const Button: React.FC<ButtonProps> = ({
     );
   }
 
-   
   const { ...buttonProps } = props as any;
   return (
     <motion.button

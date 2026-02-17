@@ -58,10 +58,7 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
       if (lastPost.score !== undefined && lastPost.feed_id) {
         return `${lastPost.feed_id}:${lastPost.score}`;
       }
-      return (
-        lastPost.sort_timestamp ||
-        lastPost.created_at
-      );
+      return lastPost.sort_timestamp || lastPost.created_at;
     },
   });
 

@@ -42,13 +42,12 @@ export const transformPost = (post: any): Post | null => {
     post.reposter_id || post.reposter_data?.id || post.reposted_by?.id;
 
   const timestamp = new Date(post.sort_timestamp || post.created_at).getTime();
-  
+
   // RPC feeds return post_id; direct queries return id
   const postId = post.id || post.post_id;
-  
+
   const baseKey =
-    post.feed_id ||
-    (reposterId ? `${postId}-${reposterId}` : `${postId}-orig`);
+    post.feed_id || (reposterId ? `${postId}-${reposterId}` : `${postId}-orig`);
   const uniqueKey = `${baseKey}-${timestamp}`;
 
   const user = transformUser(post.author_data || post.user);

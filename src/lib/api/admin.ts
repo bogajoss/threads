@@ -16,13 +16,16 @@ export const adminApi = {
   async updateUserRole(userId: string, role: "user" | "admin" | "moderator") {
     if (role === "user") {
       // Remove from admins table — sync_admin_role trigger auto-sets users.role = 'user'
-      const { error } = await supabase.from("admins").delete().eq("user_id", userId);
+      const { error } = await supabase
+        .from("admins")
+        .delete()
+        .eq("user_id", userId);
       if (error) throw error;
     } else {
       // Upsert into admins table — sync_admin_role trigger auto-sets users.role
       const { error } = await supabase.from("admins").upsert({
         user_id: userId,
-        role: role
+        role: role,
       });
       if (error) throw error;
     }
@@ -108,9 +111,9 @@ export const adminApi = {
 
     let table = "posts";
     if (targetType === "community") table = "communities";
-    
+
     // Explicitly cast to any to bypass strict type check for dynamic table name
-    // The previous error was because 'string' type of 'table' variable 
+    // The previous error was because 'string' type of 'table' variable
     // doesn't match the specific string literals expected by supabase.from()
     const { error } = await (supabase.from(table as any) as any)
       .delete()

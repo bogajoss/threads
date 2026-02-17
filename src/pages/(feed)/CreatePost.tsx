@@ -33,12 +33,7 @@ import {
 } from "@/components/ui/select";
 import CircularProgress from "@/components/ui/CircularProgress";
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
-import { 
-  Settings, 
-  Trash2, 
-  FileText, 
-  EyeOff
-} from "lucide-react";
+import { Settings, Trash2, FileText, EyeOff } from "lucide-react";
 
 interface SelectedFile {
   id: string;
@@ -55,12 +50,16 @@ const CreatePost: React.FC = () => {
   const { addToast } = useToast();
 
   const initialCommunity = location.state?.initialCommunity;
-  
+
   const [postContent, setPostContent] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
-  const [generatedThumbnails, setGeneratedThumbnails] = useState<Record<string, string>>({});
-  const [customThumbnails, setCustomThumbnails] = useState<Record<string, File>>({});
+  const [generatedThumbnails, setGeneratedThumbnails] = useState<
+    Record<string, string>
+  >({});
+  const [customThumbnails, setCustomThumbnails] = useState<
+    Record<string, File>
+  >({});
   const [showPoll, setShowPoll] = useState(false);
   const [pollData, setPollData] = useState({
     options: ["", ""],
@@ -74,9 +73,11 @@ const CreatePost: React.FC = () => {
 
   const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [croppingFileId, setCroppingFileId] = useState<string | null>(null);
-  const [activeCoverFileId, setActiveCoverFileId] = useState<string | null>(null);
+  const [activeCoverFileId, setActiveCoverFileId] = useState<string | null>(
+    null,
+  );
   const [showMoreSheet, setShowMoreSheet] = useState(false);
-  
+
   const textareaRef = useAutoResizeTextArea(postContent, 44, 400);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,9 +121,9 @@ const CreatePost: React.FC = () => {
           }
         }, 150);
       };
-      
+
       video.onerror = () => {
-         resolve(""); 
+        resolve("");
       };
     });
   };
@@ -137,32 +138,35 @@ const CreatePost: React.FC = () => {
     setSelectedFiles((prev) => [...prev, ...newFiles]);
 
     for (const fileObj of newFiles) {
-        if (fileObj.file.type.startsWith("video/")) {
-            try {
-                const thumb = await generateVideoThumbnail(fileObj.file);
-                if(thumb) {
-                    setGeneratedThumbnails(prev => ({...prev, [fileObj.id]: thumb}));
-                }
-            } catch (err) {
-                console.error("Thumbnail generation failed", err);
-            }
+      if (fileObj.file.type.startsWith("video/")) {
+        try {
+          const thumb = await generateVideoThumbnail(fileObj.file);
+          if (thumb) {
+            setGeneratedThumbnails((prev) => ({
+              ...prev,
+              [fileObj.id]: thumb,
+            }));
+          }
+        } catch (err) {
+          console.error("Thumbnail generation failed", err);
         }
+      }
     }
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files || !activeCoverFileId) return;
-      const file = e.target.files[0];
-      setCustomThumbnails(prev => ({...prev, [activeCoverFileId]: file}));
-      setActiveCoverFileId(null);
+    if (!e.target.files || !activeCoverFileId) return;
+    const file = e.target.files[0];
+    setCustomThumbnails((prev) => ({ ...prev, [activeCoverFileId]: file }));
+    setActiveCoverFileId(null);
   };
 
   const handleRemoveFile = (id: string) => {
     setSelectedFiles((prev) => prev.filter((f) => f.id !== id));
-    setCustomThumbnails(prev => {
-        const newThumbnails = {...prev};
-        delete newThumbnails[id];
-        return newThumbnails;
+    setCustomThumbnails((prev) => {
+      const newThumbnails = { ...prev };
+      delete newThumbnails[id];
+      return newThumbnails;
     });
   };
 
@@ -244,9 +248,9 @@ const CreatePost: React.FC = () => {
 
       let finalType = "text";
       if (uploadedMedia.length > 0) {
-          finalType = uploadedMedia[0].type === "video" ? "video" : "image";
+        finalType = uploadedMedia[0].type === "video" ? "video" : "image";
       } else if (poll) {
-          finalType = "poll";
+        finalType = "poll";
       }
 
       await addPost({
@@ -273,7 +277,10 @@ const CreatePost: React.FC = () => {
     return null;
   }
 
-  const isPostDisabled = (!postContent.trim() && selectedFiles.length === 0) || loading || postContent.length > MAX_CHARS;
+  const isPostDisabled =
+    (!postContent.trim() && selectedFiles.length === 0) ||
+    loading ||
+    postContent.length > MAX_CHARS;
   const charsLeft = MAX_CHARS - postContent.length;
   const showWarning = postContent.length > MAX_CHARS - 20;
 
@@ -282,14 +289,14 @@ const CreatePost: React.FC = () => {
       <div className="flex flex-col min-h-screen bg-[--background] text-[--foreground] md:max-w-xl md:mx-auto border-x border-[--border] shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border]">
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="text-[15px] font-medium text-neutral-500 hover:text-[--foreground] transition-colors"
           >
             Cancel
           </button>
           <h1 className="text-[17px] font-bold tracking-tight">New thread</h1>
-          <button 
+          <button
             onClick={() => setShowMoreSheet(true)}
             className="text-[--foreground] p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-all"
           >
@@ -302,14 +309,24 @@ const CreatePost: React.FC = () => {
             {/* Left Column (Avatar + Thread Line) */}
             <div className="flex flex-col items-center mr-4 pt-1">
               <Avatar className="w-10 h-10 border-[3px] border-[--background] ring-1 ring-[--border]">
-                <AvatarImage src={currentUser.avatar} className="object-cover" />
-                <AvatarFallback>{currentUser.name?.[0].toUpperCase()}</AvatarFallback>
+                <AvatarImage
+                  src={currentUser.avatar}
+                  className="object-cover"
+                />
+                <AvatarFallback>
+                  {currentUser.name?.[0].toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="w-[2px] flex-1 bg-neutral-200 dark:bg-neutral-800 my-2 rounded-full min-h-[80px]"></div>
               <div className="relative">
                 <Avatar className="w-5 h-5 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-pointer">
-                   <AvatarImage src={currentUser.avatar} className="object-cover" />
-                   <AvatarFallback className="text-[7px]">{currentUser.name?.[0]}</AvatarFallback>
+                  <AvatarImage
+                    src={currentUser.avatar}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-[7px]">
+                    {currentUser.name?.[0]}
+                  </AvatarFallback>
                 </Avatar>
               </div>
             </div>
@@ -317,12 +334,16 @@ const CreatePost: React.FC = () => {
             {/* Right Column (Content) */}
             <div className="flex-1 flex flex-col">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-[15px] tracking-tight hover:underline cursor-pointer">{currentUser.name}</span>
-                
+                <span className="font-bold text-[15px] tracking-tight hover:underline cursor-pointer">
+                  {currentUser.name}
+                </span>
+
                 {userCommunities.length > 0 && (
-                  <Select 
+                  <Select
                     onValueChange={(val) => {
-                      const comm = userCommunities.find((c: any) => c.id === val);
+                      const comm = userCommunities.find(
+                        (c: any) => c.id === val,
+                      );
                       setSelectedCommunity(comm || null);
                     }}
                     value={selectedCommunity?.id || "none"}
@@ -331,10 +352,22 @@ const CreatePost: React.FC = () => {
                       <Users size={12} className="text-neutral-500" />
                       <SelectValue placeholder="Anyone" />
                     </SelectTrigger>
-                    <SelectContent align="end" className="bg-[--background] border-[--border] shadow-xl rounded-xl">
-                      <SelectItem value="none" className="text-xs font-medium py-2.5">Public (Anyone)</SelectItem>
+                    <SelectContent
+                      align="end"
+                      className="bg-[--background] border-[--border] shadow-xl rounded-xl"
+                    >
+                      <SelectItem
+                        value="none"
+                        className="text-xs font-medium py-2.5"
+                      >
+                        Public (Anyone)
+                      </SelectItem>
                       {userCommunities.map((comm: any) => (
-                        <SelectItem key={comm.id} value={comm.id} className="text-xs font-medium py-2.5">
+                        <SelectItem
+                          key={comm.id}
+                          value={comm.id}
+                          className="text-xs font-medium py-2.5"
+                        >
                           {comm.name}
                         </SelectItem>
                       ))}
@@ -342,7 +375,7 @@ const CreatePost: React.FC = () => {
                   </Select>
                 )}
               </div>
-              
+
               <div className="relative">
                 <textarea
                   ref={textareaRef}
@@ -351,24 +384,29 @@ const CreatePost: React.FC = () => {
                   onChange={(e) => setPostContent(e.target.value)}
                   className={cn(
                     "w-full bg-transparent text-[--foreground] placeholder-neutral-500 outline-none resize-none text-[16px] leading-relaxed min-h-[44px] mb-1 transition-colors",
-                    charsLeft < 0 && "text-rose-500"
+                    charsLeft < 0 && "text-rose-500",
                   )}
                 />
-                
+
                 {postContent.length > 0 && (
                   <div className="absolute right-0 bottom-2 flex items-center gap-3">
-                     <CircularProgress 
-                       current={postContent.length} 
-                       max={MAX_CHARS} 
-                       size={22} 
-                       strokeWidth={2.5}
-                       isWarning={showWarning}
-                     />
-                     {showWarning && (
-                       <span className={cn("text-[11px] font-bold", charsLeft < 0 ? "text-rose-500" : "text-neutral-500")}>
-                         {charsLeft}
-                       </span>
-                     )}
+                    <CircularProgress
+                      current={postContent.length}
+                      max={MAX_CHARS}
+                      size={22}
+                      strokeWidth={2.5}
+                      isWarning={showWarning}
+                    />
+                    {showWarning && (
+                      <span
+                        className={cn(
+                          "text-[11px] font-bold",
+                          charsLeft < 0 ? "text-rose-500" : "text-neutral-500",
+                        )}
+                      >
+                        {charsLeft}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -377,62 +415,72 @@ const CreatePost: React.FC = () => {
               {selectedFiles.length > 0 && (
                 <div className="flex overflow-x-auto gap-3.5 mb-5 mt-2 pb-1 scrollbar-hide snap-x">
                   {selectedFiles.map((file) => (
-                    <div key={file.id} className="relative shrink-0 w-[260px] h-[340px] rounded-2xl overflow-hidden border border-[--border] bg-neutral-100 dark:bg-neutral-900 snap-start shadow-md group">
-                       {file.file.type.startsWith("video/") ? (
-                          <>
-                            {customThumbnails[file.id] || generatedThumbnails[file.id] ? (
-                                <img 
-                                    src={customThumbnails[file.id] ? URL.createObjectURL(customThumbnails[file.id]) : generatedThumbnails[file.id]} 
-                                    className="w-full h-full object-cover" 
-                                    alt="Video thumbnail"
-                                />
-                            ) : (
-                                <video
-                                    src={URL.createObjectURL(file.file)}
-                                    className="w-full h-full object-cover"
-                                    muted
-                                    playsInline
-                                />
-                            )}
-                            
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-4 transition-all duration-300">
-                                <div className="flex items-center justify-start">
-                                    <button 
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setActiveCoverFileId(file.id);
-                                            coverInputRef.current?.click();
-                                        }}
-                                        className="text-[11px] font-bold text-white bg-black/60 backdrop-blur-xl px-3 py-2 rounded-full flex items-center gap-2 hover:bg-black/80 transition-colors shadow-lg border border-white/10"
-                                    >
-                                        <ImagePlus size={14} />
-                                        <span>Change Cover</span>
-                                    </button>
-                                </div>
+                    <div
+                      key={file.id}
+                      className="relative shrink-0 w-[260px] h-[340px] rounded-2xl overflow-hidden border border-[--border] bg-neutral-100 dark:bg-neutral-900 snap-start shadow-md group"
+                    >
+                      {file.file.type.startsWith("video/") ? (
+                        <>
+                          {customThumbnails[file.id] ||
+                          generatedThumbnails[file.id] ? (
+                            <img
+                              src={
+                                customThumbnails[file.id]
+                                  ? URL.createObjectURL(
+                                      customThumbnails[file.id],
+                                    )
+                                  : generatedThumbnails[file.id]
+                              }
+                              className="w-full h-full object-cover"
+                              alt="Video thumbnail"
+                            />
+                          ) : (
+                            <video
+                              src={URL.createObjectURL(file.file)}
+                              className="w-full h-full object-cover"
+                              muted
+                              playsInline
+                            />
+                          )}
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-4 transition-all duration-300">
+                            <div className="flex items-center justify-start">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveCoverFileId(file.id);
+                                  coverInputRef.current?.click();
+                                }}
+                                className="text-[11px] font-bold text-white bg-black/60 backdrop-blur-xl px-3 py-2 rounded-full flex items-center gap-2 hover:bg-black/80 transition-colors shadow-lg border border-white/10"
+                              >
+                                <ImagePlus size={14} />
+                                <span>Change Cover</span>
+                              </button>
                             </div>
-                          </>
-                       ) : (
-                          <img 
-                            src={URL.createObjectURL(file.file)} 
-                            alt="preview" 
-                            className="w-full h-full object-cover"
-                          />
-                       )}
-                       <button
-                          onClick={() => handleRemoveFile(file.id)}
-                          className="absolute top-3.5 right-3.5 bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-rose-500 transition-all z-10 shadow-xl group-hover:scale-110 active:scale-90"
-                        >
-                          <X size={18} />
-                        </button>
+                          </div>
+                        </>
+                      ) : (
+                        <img
+                          src={URL.createObjectURL(file.file)}
+                          alt="preview"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      <button
+                        onClick={() => handleRemoveFile(file.id)}
+                        className="absolute top-3.5 right-3.5 bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-rose-500 transition-all z-10 shadow-xl group-hover:scale-110 active:scale-90"
+                      >
+                        <X size={18} />
+                      </button>
                     </div>
                   ))}
-                  <input 
-                    type="file" 
-                    ref={coverInputRef} 
-                    className="hidden" 
-                    accept="image/*" 
-                    onChange={handleCoverSelect} 
+                  <input
+                    type="file"
+                    ref={coverInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleCoverSelect}
                   />
                 </div>
               )}
@@ -440,64 +488,68 @@ const CreatePost: React.FC = () => {
               {/* Poll Interface */}
               {showPoll && (
                 <div className="space-y-2.5 mb-5 mt-2 bg-neutral-50 dark:bg-neutral-900/40 p-4 rounded-3xl border border-[--border]">
-                    {pollData.options.map((option, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <input
-                          className="w-full rounded-2xl border border-[--border] bg-[--background] px-4 py-3 text-[14px] font-medium outline-none focus:ring-2 focus:ring-[--primary]/20 transition-all placeholder:text-neutral-400"
-                          placeholder={`Option ${idx + 1}`}
-                          value={option}
-                          onChange={(e) =>
-                            handlePollOptionChange(idx, e.target.value)
-                          }
-                        />
-                         {pollData.options.length > 2 && (
-                          <button
-                            onClick={() => handleRemovePollOption(idx)}
-                            className="text-neutral-400 hover:text-rose-500 transition-all px-1.5"
-                          >
-                             <X size={22} />
-                          </button>
-                         )}
-                      </div>
-                    ))}
-                    {pollData.options.length < 4 && (
-                      <button 
-                        onClick={handleAddPollOption}
-                        className="text-[13px] font-black text-neutral-400 hover:text-[--primary] transition-colors ml-1.5 mt-1"
-                      >
-                        + Add option
-                      </button>
-                    )}
+                  {pollData.options.map((option, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <input
+                        className="w-full rounded-2xl border border-[--border] bg-[--background] px-4 py-3 text-[14px] font-medium outline-none focus:ring-2 focus:ring-[--primary]/20 transition-all placeholder:text-neutral-400"
+                        placeholder={`Option ${idx + 1}`}
+                        value={option}
+                        onChange={(e) =>
+                          handlePollOptionChange(idx, e.target.value)
+                        }
+                      />
+                      {pollData.options.length > 2 && (
+                        <button
+                          onClick={() => handleRemovePollOption(idx)}
+                          className="text-neutral-400 hover:text-rose-500 transition-all px-1.5"
+                        >
+                          <X size={22} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {pollData.options.length < 4 && (
+                    <button
+                      onClick={handleAddPollOption}
+                      className="text-[13px] font-black text-neutral-400 hover:text-[--primary] transition-colors ml-1.5 mt-1"
+                    >
+                      + Add option
+                    </button>
+                  )}
                 </div>
               )}
 
               {/* Action Icons */}
               <div className="flex items-center gap-7 mt-3 text-neutral-400">
-                <button 
-                  onClick={() => fileInputRef.current?.click()} 
+                <button
+                  onClick={() => fileInputRef.current?.click()}
                   className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
                   title="Add Image/Video"
                 >
                   <ImageIcon size={22} strokeWidth={2.2} />
                 </button>
-                <button 
-                  onClick={() => setShowPoll(!showPoll)} 
-                  className={cn("hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90", showPoll && "text-[--primary]")}
+                <button
+                  onClick={() => setShowPoll(!showPoll)}
+                  className={cn(
+                    "hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90",
+                    showPoll && "text-[--primary]",
+                  )}
                   title="Add Poll"
                 >
                   <AlignLeft size={22} strokeWidth={2.2} />
                 </button>
-                <button 
+                <button
                   className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
                   onClick={() => {
-                     const tag = prompt("Add a hashtag");
-                     if(tag) setHashtags(prev => prev ? `${prev}, ${tag}` : tag);
+                    const tag = prompt("Add a hashtag");
+                    if (tag)
+                      setHashtags((prev) => (prev ? `${prev}, ${tag}` : tag));
                   }}
                   title="Add Hashtag"
                 >
                   <Hash size={22} strokeWidth={2.2} />
                 </button>
-                <button 
+                <button
                   className="hover:text-[--foreground] transition-all p-1 opacity-30 cursor-not-allowed"
                   title="Location"
                 >
@@ -505,36 +557,58 @@ const CreatePost: React.FC = () => {
                 </button>
               </div>
 
-               {hashtags && (
-                  <div className="mt-4 flex flex-wrap gap-2.5">
-                    {hashtags.split(',').map((t, idx) => (
-                      <span key={idx} className="text-[13px] font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                        #{t.trim().replace(/^#/, '')}
-                      </span>
-                    ))}
-                  </div>
-               )}
+              {hashtags && (
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {hashtags.split(",").map((t, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[13px] font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20"
+                    >
+                      #{t.trim().replace(/^#/, "")}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] sticky bottom-0 z-20">
           <Select value={replySetting} onValueChange={setReplySetting}>
             <SelectTrigger className="border-none bg-transparent p-0 h-auto w-auto text-neutral-500 text-[14px] font-semibold hover:text-[--foreground] transition-colors gap-1.5 focus:ring-0">
-               {replySetting === "anyone" && <Globe size={14} />}
-               {replySetting === "following" && <UserCheck size={14} />}
-               {replySetting === "mentioned" && <Lock size={14} />}
-               <span className="capitalize">{replySetting.replace('-', ' ')} can reply</span>
+              {replySetting === "anyone" && <Globe size={14} />}
+              {replySetting === "following" && <UserCheck size={14} />}
+              {replySetting === "mentioned" && <Lock size={14} />}
+              <span className="capitalize">
+                {replySetting.replace("-", " ")} can reply
+              </span>
             </SelectTrigger>
-            <SelectContent align="start" className="bg-[--background] border-[--border] shadow-2xl rounded-2xl p-1.5">
-              <SelectItem value="anyone" className="rounded-xl py-3 px-4 font-bold">Anyone</SelectItem>
-              <SelectItem value="following" className="rounded-xl py-3 px-4 font-bold">Profiles you follow</SelectItem>
-              <SelectItem value="mentioned" className="rounded-xl py-3 px-4 font-bold">Mentioned only</SelectItem>
+            <SelectContent
+              align="start"
+              className="bg-[--background] border-[--border] shadow-2xl rounded-2xl p-1.5"
+            >
+              <SelectItem
+                value="anyone"
+                className="rounded-xl py-3 px-4 font-bold"
+              >
+                Anyone
+              </SelectItem>
+              <SelectItem
+                value="following"
+                className="rounded-xl py-3 px-4 font-bold"
+              >
+                Profiles you follow
+              </SelectItem>
+              <SelectItem
+                value="mentioned"
+                className="rounded-xl py-3 px-4 font-bold"
+              >
+                Mentioned only
+              </SelectItem>
             </SelectContent>
           </Select>
-          
+
           <div className="flex items-center gap-3">
             <Button
               onClick={handlePublish}
@@ -542,9 +616,9 @@ const CreatePost: React.FC = () => {
               loading={loading}
               className={cn(
                 "min-w-[90px] h-11 shadow-xl transition-all active:scale-95 text-[15px]",
-                isPostDisabled 
+                isPostDisabled
                   ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-600 shadow-none"
-                  : "shadow-[--primary]/20 bg-black text-white dark:bg-white dark:text-black"
+                  : "shadow-[--primary]/20 bg-black text-white dark:bg-white dark:text-black",
               )}
             >
               Post
@@ -553,32 +627,32 @@ const CreatePost: React.FC = () => {
         </div>
 
         <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            multiple
-            className="hidden"
-            accept="image/*,video/*"
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          multiple
+          className="hidden"
+          accept="image/*,video/*"
         />
-        
-         {tempCropImage && (
-            <ImageCropper
-              src={tempCropImage}
-              isOpen={!!tempCropImage}
-              onClose={() => {
-                setTempCropImage(null);
-                setCroppingFileId(null);
-              }}
-              onCropComplete={onCropComplete}
-            />
-          )}
 
-        <Actionsheet 
-          isOpen={showMoreSheet} 
+        {tempCropImage && (
+          <ImageCropper
+            src={tempCropImage}
+            isOpen={!!tempCropImage}
+            onClose={() => {
+              setTempCropImage(null);
+              setCroppingFileId(null);
+            }}
+            onCropComplete={onCropComplete}
+          />
+        )}
+
+        <Actionsheet
+          isOpen={showMoreSheet}
           onClose={() => setShowMoreSheet(false)}
           title="Post Options"
         >
-          <ActionsheetItem 
+          <ActionsheetItem
             icon={<FileText size={20} />}
             onClick={() => {
               addToast("Draft saved (Simulated)");
@@ -587,7 +661,7 @@ const CreatePost: React.FC = () => {
           >
             Save as draft
           </ActionsheetItem>
-          <ActionsheetItem 
+          <ActionsheetItem
             icon={<Settings size={20} />}
             onClick={() => {
               addToast("Settings coming soon");
@@ -596,7 +670,7 @@ const CreatePost: React.FC = () => {
           >
             Post settings
           </ActionsheetItem>
-          <ActionsheetItem 
+          <ActionsheetItem
             icon={<EyeOff size={20} />}
             onClick={() => {
               addToast("Visibility settings coming soon");
@@ -606,7 +680,7 @@ const CreatePost: React.FC = () => {
             Who can see this
           </ActionsheetItem>
           <div className="h-px bg-[--border] my-1 mx-6" />
-          <ActionsheetItem 
+          <ActionsheetItem
             variant="destructive"
             icon={<Trash2 size={20} />}
             onClick={() => {
@@ -619,12 +693,9 @@ const CreatePost: React.FC = () => {
             Discard post
           </ActionsheetItem>
         </Actionsheet>
-
       </div>
     </PageTransition>
   );
 };
 
 export default CreatePost;
-
-

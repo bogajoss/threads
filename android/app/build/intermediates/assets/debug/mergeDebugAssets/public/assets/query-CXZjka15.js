@@ -905,13 +905,11 @@ var mt = class extends x {
       this.#e.setOptions(this.options),
       e._defaulted &&
         !k(this.options, e) &&
-        this.#t
-          .getQueryCache()
-          .notify({
-            type: "observerOptionsUpdated",
-            query: this.#e,
-            observer: this,
-          }));
+        this.#t.getQueryCache().notify({
+          type: "observerOptionsUpdated",
+          query: this.#e,
+          observer: this,
+        }));
     const i = this.hasListeners();
     (i && ot(this.#e, s, this.options, e) && this.#l(),
       this.updateResult(),
@@ -1655,13 +1653,11 @@ var Vt = class extends x {
       const e = this.options;
       ((this.options = this.#t.defaultMutationOptions(t)),
         k(this.options, e) ||
-          this.#t
-            .getMutationCache()
-            .notify({
-              type: "observerOptionsUpdated",
-              mutation: this.#s,
-              observer: this,
-            }),
+          this.#t.getMutationCache().notify({
+            type: "observerOptionsUpdated",
+            mutation: this.#s,
+            observer: this,
+          }),
         e?.mutationKey &&
         this.options.mutationKey &&
         T(e.mutationKey) !== T(this.options.mutationKey)

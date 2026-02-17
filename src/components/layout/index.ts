@@ -8,5 +8,6 @@ export { default as ThemeToggle } from "./ThemeToggle";
 export { default as MarketplaceLayout } from "./MarketplaceLayout";
 export { default as CreateActionMenu } from "./CreateActionMenu";
 export { default as InfoLayout } from "./InfoLayout";
+export { default as PersistentLayout } from "./PersistentLayout";
 export { default as AdminLayout } from "./AdminLayout";
 export { default as AdminSidebar } from "./AdminSidebar";

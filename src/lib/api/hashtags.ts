@@ -10,8 +10,9 @@ export const fetchTrendingHashtags = async (
   limit: number = 5,
 ): Promise<Hashtag[]> => {
   // Try materialized view first (trending = last 24h), fall back to hashtags table
-  const { data, error } = await (supabase
-    .from("trending_hashtags" as any) as any)
+  const { data, error } = await (
+    supabase.from("trending_hashtags" as any) as any
+  )
     .select("*")
     .limit(limit);
 
@@ -32,7 +33,7 @@ export const fetchTrendingHashtags = async (
   }
 
   return (data || []).map((h: any) => ({
-    id: h.name,  // materialized view has no id column, use name
+    id: h.name, // materialized view has no id column, use name
     tag: h.name,
     usage_count: h.usage_count || 0,
   }));

@@ -4,10 +4,15 @@ import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import BottomNav from "./BottomNav";
 import FeedHeader from "./FeedHeader";
+import PersistentLayout from "./PersistentLayout";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
-const MainLayout: React.FC<Record<string, never>> = () => {
+interface MainLayoutProps {
+  onStoryClick?: (story: any) => void;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { darkMode } = useTheme();
@@ -40,14 +45,15 @@ const MainLayout: React.FC<Record<string, never>> = () => {
         <main
           className={`flex w-full flex-1 justify-center px-0 gap-x-0 ${isReelsPage ? "" : "md:px-2 md:py-3 md:gap-x-4 lg:gap-x-8"}`}
         >
-          <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
+            <div className="flex w-full min-w-0 flex-1 flex-col overflow-x-hidden">
             {isHomePage && (
               <div className="w-full max-w-full overflow-hidden">
                 <FeedHeader />
               </div>
             )}
 
-            <div className="w-full min-w-0">
+            <div className="w-full min-w-0 relative">
+              <PersistentLayout onStoryClick={onStoryClick} />
               <Outlet />
             </div>
           </div>

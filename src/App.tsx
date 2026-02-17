@@ -4,20 +4,16 @@ import { useState, Suspense, lazy } from "react";
 import {
   Routes,
   Route,
-  useLocation,
-  Navigate,
-  useNavigate,
+  useNavigate
 } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
-import { AnimatePresence } from "framer-motion";
 
 import {
   MainLayout,
   PageTransition,
-  CreateActionMenu,
   MarketplaceLayout,
   InfoLayout,
   AdminLayout,
@@ -26,12 +22,9 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
 import { ImageViewer } from "@/components/ui";
+import { ScrollToTop } from "@/lib/utils";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
-const Home = lazy(() => import("@/pages/(feed)/Feed"));
-const Explore = lazy(() => import("@/pages/(feed)/Explore"));
-const Reels = lazy(() => import("@/pages/(feed)/Reels"));
-const Messages = lazy(() => import("@/pages/(feed)/Messages"));
-const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
 const Profile = lazy(() => import("@/pages/(feed)/Profile"));
 const Community = lazy(() => import("@/pages/(feed)/Community"));
 const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
@@ -60,11 +53,10 @@ const Support = lazy(() => import("@/pages/(info)/Support"));
 const Status = lazy(() => import("@/pages/(info)/Status"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
-import { ScrollToTop } from "@/lib/utils";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+const Reels = lazy(() => import("@/pages/(feed)/Reels"));
+const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 
 export default function Sysm() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
@@ -79,38 +71,20 @@ export default function Sysm() {
       <ScrollToTop />
 
       <Suspense fallback={null}>
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+        <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Navigate to="/feed" replace />} />
-              <Route
-                path="/feed"
-                element={
-                  <PageTransition>
-                    <Home onStoryClick={setViewingStory} />
-                  </PageTransition>
-                }
-              />
-              <Route path="/home" element={<Navigate to="/feed" replace />} />
-              <Route
-                path="/explore"
-                element={
-                  <PageTransition>
-                    <Explore />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/r"
-                element={
-                  <PageTransition>
-                    <Reels />
-                  </PageTransition>
-                }
-              />
+            
+            <Route element={currentUser ? <MainLayout onStoryClick={setViewingStory} /> : <MainLayout onStoryClick={setViewingStory} />}>
+              <Route path="/" element={null} />
+              <Route path="/feed" element={null} />
+              <Route path="/home" element={null} />
+              <Route path="/explore" element={null} />
+              <Route path="/r" element={null} />
+              <Route path="/m" element={null} />
+              <Route path="/notifications" element={null} />
+              
               <Route
                 path="/r/:id"
                 element={
@@ -119,14 +93,8 @@ export default function Sysm() {
                   </PageTransition>
                 }
               />
-              <Route
-                path="/m"
-                element={
-                  <PageTransition>
-                    <Messages />
-                  </PageTransition>
-                }
-              />
+              <Route path="/m/:id" element={<PageTransition><Messages /></PageTransition>} />
+
               <Route
                 path="/settings"
                 element={
@@ -135,30 +103,8 @@ export default function Sysm() {
                   </PageTransition>
                 }
               />
-              <Route
-                path="/m/:id"
-                element={
-                  <PageTransition>
-                    <Messages />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/notifications"
-                element={
-                  <PageTransition>
-                    <Notifications />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/p/:id"
-                element={
-                  <PageTransition>
-                    <PostDetails />
-                  </PageTransition>
-                }
-              />
+
+              <Route path="/p/:id" element={<PageTransition><PostDetails /></PageTransition>} />
               <Route
                 path="/create"
                 element={
@@ -203,60 +149,30 @@ export default function Sysm() {
                   </PageTransition>
                 }
               />
+              
+              {/* Correctly nest MarketplaceLayout */}
+              <Route element={<MarketplaceLayout />}>
+                 <Route path="/pro" element={<ProPage />} />
+              </Route>
+
+            </Route>
+            
+            <Route path="/syspanel" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
+              <Route path="users" element={<UserManagement />} />
+              <Route path="reports" element={<ReportsManagement />} />
             </Route>
 
-            <Route element={<MarketplaceLayout />}>
-              <Route path="/pro" element={<ProPage />} />
+            <Route path="/info" element={<InfoLayout />}>
+              <Route path="terms" element={<Terms />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="guidelines" element={<Guidelines />} />
+              <Route path="support" element={<Support />} />
+              <Route path="status" element={<Status />} />
             </Route>
 
-            <Route element={<InfoLayout />}>
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/guidelines" element={<Guidelines />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/status" element={<Status />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-
-            <Route
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route
-                path="/syspanel"
-                element={<Navigate to="/syspanel/users" replace />}
-              />
-              <Route path="/syspanel/users" element={<UserManagement />} />
-              <Route path="/syspanel/reports" element={<ReportsManagement />} />
-            </Route>
-          </Routes>
-        </AnimatePresence>
+            <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </Suspense>
-
-      <GlobalModals />
-
-      {viewingStory && (
-        <StoryViewer
-          story={viewingStory}
-          onClose={(storyId?: string) => {
-            if (storyId) {
-              const seenStories = JSON.parse(
-                localStorage.getItem("seenStories") || "[]",
-              );
-              if (!seenStories.includes(storyId)) {
-                localStorage.setItem(
-                  "seenStories",
-                  JSON.stringify([...seenStories, storyId]),
-                );
-              }
-            }
-            setViewingStory(null);
-          }}
-        />
-      )}
 
       {isOpen && (
         <ImageViewer
@@ -267,11 +183,14 @@ export default function Sysm() {
         />
       )}
 
-      {currentUser && location.pathname === "/feed" && (
-        <div className="fixed bottom-20 right-5 z-50 md:hidden">
-          <CreateActionMenu triggerClassName="size-12 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950" />
-        </div>
+      {viewingStory && (
+        <StoryViewer
+          story={viewingStory}
+          onClose={() => setViewingStory(null)}
+        />
       )}
+
+      <GlobalModals />
     </VideoPlaybackProvider>
   );
 }

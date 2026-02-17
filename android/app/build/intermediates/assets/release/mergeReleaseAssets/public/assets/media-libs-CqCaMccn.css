@@ -302,7 +302,7 @@ a.plyr__control:before {
   font-size: 13px;
   font-size: var(--plyr-font-size-menu, var(--plyr-font-size-small, 13px));
   padding: 4.66667px 10.5px;
-  padding: calc(var(--plyr-control-spacing, 10px) * 0.7/1.5)
+  padding: calc(var(--plyr-control-spacing, 10px) * 0.7 / 1.5)
     calc(var(--plyr-control-spacing, 10px) * 0.7 * 1.5);
   user-select: none;
   align-items: center;
@@ -345,7 +345,7 @@ a.plyr__control:before {
   margin: 7px;
   margin: calc(var(--plyr-control-spacing, 10px) * 0.7);
   margin-bottom: 3.5px;
-  margin-bottom: calc(var(--plyr-control-spacing, 10px) * 0.7/2);
+  margin-bottom: calc(var(--plyr-control-spacing, 10px) * 0.7 / 2);
   padding-left: 28px;
   padding-left: calc(var(--plyr-control-spacing, 10px) * 0.7 * 4);
   width: calc(100% - 14px);
@@ -369,7 +369,7 @@ a.plyr__control:before {
   content: "";
   height: 1px;
   margin-top: 3.5px;
-  margin-top: calc(var(--plyr-control-spacing, 10px) * 0.7/2);
+  margin-top: calc(var(--plyr-control-spacing, 10px) * 0.7 / 2);
   position: absolute;
   top: 100%;
   left: 0;

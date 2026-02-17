@@ -24,10 +24,7 @@ export const useReels = () => {
         if (lastReel.score !== undefined) {
           return `${lastReel.id}:${lastReel.score}`;
         }
-        return (
-          lastReel.sort_timestamp ||
-          lastReel.created_at
-        );
+        return lastReel.sort_timestamp || lastReel.created_at;
       },
     });
 

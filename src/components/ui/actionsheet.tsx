@@ -61,24 +61,25 @@ interface ActionsheetItemProps extends React.ButtonHTMLAttributes<HTMLButtonElem
   icon?: React.ReactNode;
 }
 
-const ActionsheetItem = React.forwardRef<HTMLButtonElement, ActionsheetItemProps>(
-  ({ className, variant = "default", icon, children, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          "flex w-full items-center gap-3 px-6 py-4 text-[16px] font-semibold transition-colors active:bg-neutral-100 dark:active:bg-neutral-900",
-          variant === "destructive" ? "text-rose-500" : "text-[--foreground]",
-          className
-        )}
-        {...props}
-      >
-        {icon && <span className="flex shrink-0">{icon}</span>}
-        <span className="flex-1 text-left">{children}</span>
-      </button>
-    );
-  }
-);
+const ActionsheetItem = React.forwardRef<
+  HTMLButtonElement,
+  ActionsheetItemProps
+>(({ className, variant = "default", icon, children, ...props }, ref) => {
+  return (
+    <button
+      ref={ref}
+      className={cn(
+        "flex w-full items-center gap-3 px-6 py-4 text-[16px] font-semibold transition-colors active:bg-neutral-100 dark:active:bg-neutral-900",
+        variant === "destructive" ? "text-rose-500" : "text-[--foreground]",
+        className,
+      )}
+      {...props}
+    >
+      {icon && <span className="flex shrink-0">{icon}</span>}
+      <span className="flex-1 text-left">{children}</span>
+    </button>
+  );
+});
 ActionsheetItem.displayName = "ActionsheetItem";
 
 export { Actionsheet, ActionsheetItem };
