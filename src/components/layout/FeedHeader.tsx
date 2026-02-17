@@ -1,6 +1,13 @@
+import { motion } from "framer-motion";
+
 const FeedHeader = () => {
   return (
-    <div className="group relative mb-6 aspect-[21/9] w-full cursor-pointer overflow-hidden rounded-3xl sm:aspect-[2.5/1]">
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="group relative mb-6 aspect-[21/9] w-full cursor-pointer overflow-hidden rounded-3xl sm:aspect-[2.5/1] active:scale-[0.98] transition-transform duration-200"
+    >
       <img
         src="/welcome-banner.webp"
         alt="Welcome Banner"
@@ -22,6 +29,7 @@ const FeedHeader = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
+            onClick={(e) => e.stopPropagation()}
           >
             @Systemadminbd
           </a>
@@ -29,15 +37,17 @@ const FeedHeader = () => {
       </div>
 
       <div className="absolute bottom-4 right-8">
-        <img
+        <motion.img
+          animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           src="/logo.webp"
-          className="size-12 animate-pulse rounded-xl opacity-80"
+          className="size-12 rounded-xl opacity-80"
           alt=""
           loading="lazy"
           decoding="async"
         />
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -52,6 +52,14 @@ const DialogContent = React.forwardRef<
     const y = useMotionValue(0);
     const opacity = useTransform(y, [0, 200], [1, 0.5]);
 
+    React.useEffect(() => {
+      controls.start({
+        y: 0,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
+      });
+    }, [controls]);
+
     const handleDragEnd = async (_: any, info: any) => {
       if (info.offset.y > 150 || info.velocity.y > 500) {
         if (onDragClose) {
@@ -85,13 +93,14 @@ const DialogContent = React.forwardRef<
             dragElastic={{ top: 0, bottom: 0.8 }}
             onDragEnd={handleDragEnd}
             animate={controls}
+            initial={{ y: "100%", opacity: 0.5 }}
             style={{ y, opacity }}
             className={cn(
-              "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg duration-300 ease-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-full data-[state=open]:slide-in-from-bottom-full rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
+              "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
               className,
             )}
           >
-            <div className="flex w-full items-center justify-center pt-2 pb-1 shrink-0">
+            <div className="flex w-full items-center justify-center pt-2 pb-1 shrink-0 cursor-grab active:cursor-grabbing">
               <div className="h-1.5 w-12 rounded-full bg-zinc-200 dark:bg-zinc-800" />
             </div>
 
@@ -104,7 +113,7 @@ const DialogContent = React.forwardRef<
             {showCloseButton && (
               <DialogPrimitive.Close
                 data-dialog-close
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-500 dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 dark:data-[state=open]:bg-zinc-800 dark:data-[state=open]:text-zinc-400"
+                className="absolute right-4 top-4 rounded-full p-1 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-500 dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 dark:data-[state=open]:bg-zinc-800 dark:data-[state=open]:text-zinc-400"
               >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>

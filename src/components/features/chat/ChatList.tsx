@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Search, UserPlus, Edit } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CreateGroupModal } from "@/components/features/modals";
+import { useNavigate } from "react-router-dom";
 import type { User } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -163,7 +163,7 @@ const ChatList: React.FC<ChatListProps> = ({
   onlineUsers = new Set(),
   typingStatus = {},
 }) => {
-  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const activeUsers = conversations.filter((c) => onlineUsers.has(c.user?.id));
 
@@ -201,7 +201,7 @@ const ChatList: React.FC<ChatListProps> = ({
             />
           </div>
           <button
-            onClick={() => setIsCreateGroupOpen(true)}
+            onClick={() => navigate("/create-group")}
             className="shrink-0 rounded-full bg-zinc-100 p-2.5 text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
           >
             <Edit size={20} />
@@ -359,14 +359,6 @@ const ChatList: React.FC<ChatListProps> = ({
           </div>
         </ScrollArea>
       </div>
-
-      <CreateGroupModal
-        isOpen={isCreateGroupOpen}
-        onClose={() => setIsCreateGroupOpen(false)}
-        onCreated={(convId) => {
-          onSelect({ id: convId, isGroup: true });
-        }}
-      />
     </div>
   );
 };

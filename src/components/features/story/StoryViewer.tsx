@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface Story {
@@ -23,6 +23,8 @@ interface StoryViewerProps {
   onClose: (storyId?: string) => void;
 }
 
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+
 const StoryViewer: React.FC<StoryViewerProps> = ({
   story: storyGroup,
   onClose,
@@ -30,6 +32,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const dragY = useMotionValue(0);
+  const opacity = useTransform(dragY, [0, 200], [1, 0.5]);
+  const scale = useTransform(dragY, [0, 200], [1, 0.9]);
 
   const stories = storyGroup.stories;
   const currentStory = stories[currentIndex];
@@ -71,8 +77,13 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   }, [handleNext, currentIndex, isPaused]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex animate-in fade-in flex-col items-center justify-center bg-black duration-300">
-      <div className="absolute left-0 right-0 top-0 z-20 flex flex-col gap-4 p-4">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black"
+    >
+      <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
           {stories.map((_, idx) => (
             <div
@@ -94,7 +105,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
           ))}
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pointer-events-auto">
           <Link
             to={`/u/${storyGroup.user.handle}`}
             className="flex items-center gap-3 transition-opacity hover:opacity-80"
@@ -110,8 +121,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
                 {storyGroup.user.handle?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-white shadow-black drop-shadow-md">
+            <div className="flex flex-col text-white">
+              <span className="text-sm font-bold shadow-black drop-shadow-md">
                 {storyGroup.user.handle}
               </span>
               <span className="text-[10px] text-white/60 shadow-black drop-shadow-md">
@@ -124,51 +135,52 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
           </Link>
           <button
             onClick={() => onClose(storyGroup.user.id)}
-            className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
+            className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
           >
             <X size={24} />
           </button>
         </div>
       </div>
 
-      <div className="relative flex h-full w-full max-w-xl items-center justify-center p-2">
-        {currentIndex > 0 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrev();
-            }}
-            className="absolute left-4 z-30 rounded-full bg-black/20 p-2 text-white backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
-          >
-            <ChevronLeft size={32} />
-          </button>
-        )}
-
-        <div className="relative flex h-full w-full items-center justify-center">
-          <img
+      <motion.div 
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.8 }}
+        style={{ y: dragY, opacity, scale }}
+        onDragEnd={(_, info) => {
+          if (info.offset.y > 100 || info.velocity.y > 500) {
+            onClose(storyGroup.user.id);
+          }
+        }}
+        className="relative flex h-full w-full max-w-xl items-center justify-center p-2 touch-none"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
             key={currentStory.id}
-            src={currentStory.media}
-            className="h-full max-h-full w-full animate-in fade-in zoom-in-95 object-contain rounded-xl shadow-2xl duration-300"
-            alt=""
-          />
-          {isPaused && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <div className="animate-in fade-in zoom-in rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold text-white backdrop-blur-md duration-200">
-                PAUSED
+            initial={{ opacity: 0, scale: 0.9, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 1.1, x: -20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="relative flex h-full w-full items-center justify-center"
+          >
+            <img
+              src={currentStory.media}
+              className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
+              alt=""
+            />
+            {isPaused && (
+              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold text-white backdrop-blur-md"
+                >
+                  PAUSED
+                </motion.div>
               </div>
-            </div>
-          )}
-        </div>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleNext();
-          }}
-          className="absolute right-4 z-30 rounded-full bg-black/20 p-2 text-white backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
-        >
-          <ChevronRight size={32} />
-        </button>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         <div className="absolute inset-0 z-20 flex">
           <div className="w-[30%] cursor-w-resize" onClick={handlePrev}></div>
@@ -178,8 +190,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
           ></div>
           <div className="w-[30%] cursor-e-resize" onClick={handleNext}></div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

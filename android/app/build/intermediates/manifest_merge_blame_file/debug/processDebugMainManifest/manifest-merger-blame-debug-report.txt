@@ -1,6 +1,6 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-3    package="com.antigravity.app"
+3    package="com.sysm.app"
 4    android:versionCode="1"
 5    android:versionName="1.0" >
 6
@@ -56,12 +56,12 @@
 34
 35    <permission
 35-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:22:5-24:47
-36        android:name="com.antigravity.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+36        android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
 36-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:23:9-81
 37        android:protectionLevel="signature" />
 37-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:24:9-44
 38
-39    <uses-permission android:name="com.antigravity.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+39    <uses-permission android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 39-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:26:5-97
 39-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:26:22-94
 40
@@ -85,7 +85,7 @@
 50-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:10:9-40
 51        <activity
 51-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:12:9-25:20
-52            android:name="com.antigravity.app.MainActivity"
+52            android:name="com.sysm.app.MainActivity"
 52-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:14:13-41
 53            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
 53-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:13:13-148
@@ -112,7 +112,7 @@
 65        <provider
 66            android:name="androidx.core.content.FileProvider"
 66-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:13-62
-67            android:authorities="com.antigravity.app.fileprovider"
+67            android:authorities="com.sysm.app.fileprovider"
 67-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:13-64
 68            android:exported="false"
 68-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:13-37
@@ -129,7 +129,7 @@
 74-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
 75            android:name="androidx.startup.InitializationProvider"
 75-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
-76            android:authorities="com.antigravity.app.androidx-startup"
+76            android:authorities="com.sysm.app.androidx-startup"
 76-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
 77            android:exported="false" >
 77-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37

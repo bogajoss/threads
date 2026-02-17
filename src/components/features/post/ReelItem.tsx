@@ -31,6 +31,8 @@ interface ReelItemProps {
   shouldLoad?: boolean;
 }
 
+import { motion, AnimatePresence } from "framer-motion";
+
 const ReelItem: React.FC<ReelItemProps> = React.memo(
   ({ reel, isActive, isMuted, shouldLoad = true }) => {
     const navigate = useNavigate();
@@ -109,6 +111,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
       return () => {
         if (timeoutId) clearTimeout(timeoutId);
+        // Ensure video pauses when component unmounts or isActive changes
+        if (player && typeof player.pause === "function") {
+             player.pause();
+        }
       };
     }, [isActive, isVideoLoaded]);
 
@@ -220,7 +226,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       if (!currentUser) return;
 
       setShowHeart(true);
-      setTimeout(() => setShowHeart(false), 1000);
+      setTimeout(() => setShowHeart(false), 800);
 
       if (!isLiked) {
         setIsLiked(true);
@@ -291,7 +297,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     return (
       <div
         data-id={reel.id}
-        className="reel-item relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer"
+        className="reel-item relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden bg-black cursor-pointer select-none"
         onClick={handleInteraction}
       >
         <div className="relative flex h-full w-full max-w-[450px] items-center justify-center">
@@ -325,21 +331,33 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             </div>
           )}
 
-          {showHeart && (
-            <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-              <div className="animate-in zoom-in-50 fade-out fill-mode-forwards duration-500">
+          <AnimatePresence>
+            {showHeart && (
+              <motion.div 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 1.2, 1], opacity: 1 }}
+                exit={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 400, damping: 20 }}
+                className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
+              >
                 <Heart
                   size={120}
                   fill="white"
-                  className="scale-125 text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]"
+                  className="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]"
                 />
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {showPlayPauseIcon && (
-            <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-              <div className="animate-in fade-in zoom-in-90 scale-100 animate-out zoom-out-110 fade-out fill-mode-forwards duration-500">
+          <AnimatePresence>
+            {showPlayPauseIcon && (
+              <motion.div 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
+              >
                 <div className="rounded-full border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
                   {showPlayPauseIcon === "play" ? (
                     <Play
@@ -351,9 +369,9 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                     <Pause size={50} fill="white" className="text-white" />
                   )}
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
 
@@ -361,7 +379,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             <div className="pointer-events-auto mb-3 flex items-center gap-2">
               <Link
                 to={`/u/${reel.user?.handle}`}
-                className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                className="flex items-center gap-2 transition-opacity hover:opacity-80 active:scale-95"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Avatar className="size-10 border-2 border-white">
@@ -454,53 +472,62 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
           <div className="absolute bottom-6 right-2 z-10 flex flex-col items-center gap-6">
             <div className="pointer-events-auto flex flex-col items-center gap-1">
-              <button
-                className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                className={`rounded-full p-3 backdrop-blur-md transition-all ${
                   isLiked
                     ? "bg-rose-500/20 text-rose-500"
                     : "bg-zinc-800/50 text-white hover:bg-zinc-700"
                 }`}
                 onClick={handleToggleLike}
               >
-                <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
-              </button>
+                <motion.div
+                  animate={isLiked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Heart size={28} fill={isLiked ? "currentColor" : "none"} />
+                </motion.div>
+              </motion.button>
               <span className="text-xs font-bold text-white">{likesCount}</span>
             </div>
             <div className="pointer-events-auto flex flex-col items-center gap-1">
-              <button
-                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsCommentsOpen(true);
                 }}
               >
                 <ChatIcon size={28} />
-              </button>
+              </motion.button>
               <span className="text-xs font-bold text-white">
                 {reel.stats?.comments || 0}
               </span>
             </div>
             <div className="pointer-events-auto flex flex-col items-center gap-1">
-              <button
-                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700 active:scale-90"
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-zinc-700"
                 onClick={handleShare}
               >
                 <ShareIcon size={28} />
-              </button>
+              </motion.button>
               <span className="text-xs font-bold text-white">
                 {reel.stats?.shares || 0}
               </span>
             </div>
             <div className="pointer-events-auto flex flex-col items-center gap-1">
-              <button
-                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-rose-500/20 hover:text-rose-500 active:scale-90"
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md transition-colors hover:bg-rose-500/20 hover:text-rose-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   openReport("reel", reel.id);
                 }}
               >
                 <Flag size={28} />
-              </button>
+              </motion.button>
             </div>
           </div>
 

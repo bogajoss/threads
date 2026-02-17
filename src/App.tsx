@@ -31,6 +31,8 @@ const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
 const Settings = lazy(() => import("@/pages/(feed)/Settings"));
 const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
+const CreateCommunity = lazy(() => import("@/pages/(feed)/CreateCommunity"));
+const CreateGroup = lazy(() => import("@/pages/(feed)/CreateGroup"));
 const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
@@ -110,6 +112,22 @@ export default function Sysm() {
                 element={
                   <PageTransition>
                     <CreatePost />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/create-community"
+                element={
+                  <PageTransition>
+                    <CreateCommunity />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/create-group"
+                element={
+                  <PageTransition>
+                    <CreateGroup />
                   </PageTransition>
                 }
               />

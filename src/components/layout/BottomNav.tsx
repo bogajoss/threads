@@ -14,6 +14,8 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 import { cn } from "@/lib/utils";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 const BottomNav: React.FC = () => {
     const { currentUser } = useAuth();
     const location = useLocation();
@@ -53,10 +55,15 @@ const BottomNav: React.FC = () => {
                     )
                 }
                 >
-                <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-800">
-                    <AvatarImage src={currentUser?.avatar} alt={currentUser?.handle} className="object-cover" />
-                    <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
+                <motion.div
+                  animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-800">
+                      <AvatarImage src={currentUser?.avatar} alt={currentUser?.handle} className="object-cover" />
+                      <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </motion.div>
                 </NavLink>
                 )
         }
@@ -72,18 +79,30 @@ const BottomNav: React.FC = () => {
                 )
             }
             >
-             <div className="relative">
+             <motion.div 
+                className="relative"
+                animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+             >
                 <item.icon 
                     size={26} 
                     strokeWidth={isActive ? 2.5 : 2} 
                     className={isActive ? "fill-current" : ""} 
                 />
-                 {item.count ? (
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-black animate-in zoom-in duration-200">
-                    {item.count > 9 ? "9+" : item.count}
-                    </span>
-                ) : null}
-            </div>
+                 <AnimatePresence>
+                   {item.count ? (
+                      <motion.span 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-black"
+                      >
+                      {item.count > 9 ? "9+" : item.count}
+                      </motion.span>
+                  ) : null}
+                </AnimatePresence>
+            </motion.div>
             </NavLink>
         );
         })}

@@ -19,7 +19,6 @@ import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
 import { uploadFile, fetchUserCommunities } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { PageTransition } from "@/components/layout";
 import ImageCropper from "@/components/ui/image-cropper";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
@@ -285,17 +284,16 @@ const CreatePost: React.FC = () => {
   const showWarning = postContent.length > MAX_CHARS - 20;
 
   return (
-    <PageTransition>
-      <div className="flex flex-col min-h-screen bg-[--background] text-[--foreground] md:max-w-xl md:mx-auto border-x border-[--border] shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border]">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-[15px] font-medium text-neutral-500 hover:text-[--foreground] transition-colors"
-          >
-            Cancel
-          </button>
-          <h1 className="text-[17px] font-bold tracking-tight">New thread</h1>
+    <div className="flex flex-col min-h-screen bg-[--background] text-[--foreground] md:rounded-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border] rounded-t-xl">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-[15px] font-medium text-neutral-500 hover:text-[--foreground] transition-colors"
+        >
+          Cancel
+        </button>
+          <h1 className="text-[17px] font-bold tracking-tight">Create post</h1>
           <button
             onClick={() => setShowMoreSheet(true)}
             className="text-[--foreground] p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-all"
@@ -306,7 +304,7 @@ const CreatePost: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="flex px-6 pt-6 pb-20">
-            {/* Left Column (Avatar + Thread Line) */}
+            {/* Left Column (Avatar) */}
             <div className="flex flex-col items-center mr-4 pt-1">
               <Avatar className="w-10 h-10 border-[3px] border-[--background] ring-1 ring-[--border]">
                 <AvatarImage
@@ -317,18 +315,6 @@ const CreatePost: React.FC = () => {
                   {currentUser.name?.[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="w-[2px] flex-1 bg-neutral-200 dark:bg-neutral-800 my-2 rounded-full min-h-[80px]"></div>
-              <div className="relative">
-                <Avatar className="w-5 h-5 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-pointer">
-                  <AvatarImage
-                    src={currentUser.avatar}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-[7px]">
-                    {currentUser.name?.[0]}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
             </div>
 
             {/* Right Column (Content) */}
@@ -694,7 +680,6 @@ const CreatePost: React.FC = () => {
           </ActionsheetItem>
         </Actionsheet>
       </div>
-    </PageTransition>
   );
 };
 

@@ -10,7 +10,6 @@ import {
   SkeletonUser,
 } from "@/components/ui";
 import { Plus, Users, Hash, UserCircle } from "lucide-react";
-import CreateCommunityModal from "@/components/features/modals/CreateCommunityModal";
 import { useExplore } from "@/hooks/pages/useExplore";
 import { Post } from "@/components/features/post";
 import type { Post as PostType, Community } from "@/types";
@@ -22,8 +21,6 @@ const Explore: React.FC = () => {
     setSearchQuery,
     activeTab,
     setActiveTab,
-    isCreateModalOpen,
-    setIsCreateModalOpen,
     communitiesData,
     isCommunitiesLoading,
     isFetchingMoreCommunities,
@@ -72,7 +69,7 @@ const Explore: React.FC = () => {
           />
           {currentUser && (
             <button
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => navigate("/create-community")}
               className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-zinc-950 text-white shadow-sm transition-all hover:scale-105 active:scale-95 dark:bg-white dark:text-zinc-950"
               title="Create Community"
             >
@@ -250,10 +247,6 @@ const Explore: React.FC = () => {
         )}
       </div>
 
-      <CreateCommunityModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
     </div>
   );
 };

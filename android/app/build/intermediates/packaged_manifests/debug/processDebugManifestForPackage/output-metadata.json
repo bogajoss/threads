@@ -4,7 +4,7 @@
     "type": "PACKAGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.antigravity.app",
+  "applicationId": "com.sysm.app",
   "variantName": "debug",
   "elements": [
     {

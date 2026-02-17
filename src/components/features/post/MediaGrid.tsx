@@ -10,6 +10,8 @@ interface MediaGridProps {
   items?: Media[] | Media;
 }
 
+import { motion } from "framer-motion";
+
 const GridImage = ({
   item,
   onClick,
@@ -20,20 +22,26 @@ const GridImage = ({
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className="relative size-full overflow-hidden" onClick={onClick}>
+    <motion.div 
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="relative size-full overflow-hidden" 
+      onClick={onClick}
+    >
       {!loaded && (
         <div className="absolute inset-0 animate-pulse bg-zinc-200 dark:bg-zinc-800" />
       )}
-      <img
+      <motion.img
         src={item.url || (item as any).src}
-        className={`size-full object-cover transition-all duration-500 hover:scale-[1.02] ${
-          loaded ? "opacity-100" : "opacity-0"
-        }`}
+        initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+        animate={loaded ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="size-full object-cover"
         alt=""
         loading="lazy"
         onLoad={() => setLoaded(true)}
       />
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   X,
   ChevronLeft,
   ChevronRight,
   Download,
-  ZoomIn,
-  ZoomOut,
   RotateCcw,
 } from "lucide-react";
 import type { Media } from "@/types";
@@ -17,6 +15,8 @@ interface ImageViewerProps {
   onNavigate: (index: number) => void;
 }
 
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+
 const ImageViewer: React.FC<ImageViewerProps> = ({
   media,
   currentIndex = 0,
@@ -24,31 +24,11 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   onNavigate,
 }) => {
   const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [touchStart, setTouchStart] = useState<{
-    x: number;
-    y: number;
-    time: number;
-  } | null>(null);
-  const [initialDistance, setInitialDistance] = useState<number | null>(null);
+  const dragY = useMotionValue(0);
+  const opacity = useTransform(dragY, [-200, 0, 200], [0.5, 1, 0.5]);
+  const viewScale = useTransform(dragY, [-200, 0, 200], [0.8, 1, 0.8]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-
-  const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.5, 4));
-  const handleZoomOut = () => {
-    setScale((prev) => {
-      const newScale = Math.max(prev - 0.5, 1);
-      if (newScale === 1) setPosition({ x: 0, y: 0 });
-      return newScale;
-    });
-  };
-  const handleReset = () => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-  };
+  const handleReset = () => setScale(1);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -83,164 +63,64 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     typeof currentItem === "string" ? currentItem : currentItem.url;
   const hasMultiple = media.length > 1;
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale > 1 && !isVideo) {
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && scale > 1 && !isVideo) {
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      });
-    }
-  };
-
-  const handleMouseUp = () => setIsDragging(false);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      setTouchStart({
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-        time: Date.now(),
-      });
-      if (scale > 1 && !isVideo) {
-        setIsDragging(true);
-        setDragStart({
-          x: e.touches[0].clientX - position.x,
-          y: e.touches[0].clientY - position.y,
-        });
-      }
-    } else if (e.touches.length === 2 && !isVideo) {
-      const distance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY,
-      );
-      setInitialDistance(distance);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      if (isDragging && scale > 1 && !isVideo) {
-        setPosition({
-          x: e.touches[0].clientX - dragStart.x,
-          y: e.touches[0].clientY - dragStart.y,
-        });
-      }
-    } else if (e.touches.length === 2 && initialDistance && !isVideo) {
-      const distance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY,
-      );
-      const newScale = Math.min(
-        Math.max(scale * (distance / initialDistance), 1),
-        4,
-      );
-      setScale(newScale);
-      setInitialDistance(distance);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (e.touches.length < 2) setInitialDistance(null);
-    setIsDragging(false);
-
-    if (touchStart && scale === 1) {
-      const touchEnd = {
-        x: e.changedTouches[0].clientX,
-        y: e.changedTouches[0].clientY,
-      };
-      const dx = touchEnd.x - touchStart.x;
-      const dy = touchEnd.y - touchStart.y;
-      const dt = Date.now() - touchStart.time;
-
-      if (Math.abs(dx) > 50 && Math.abs(dy) < 50 && dt < 300) {
-        if (dx > 0) handlePrev();
-        else handleNext();
-      }
-    }
-    setTouchStart(null);
-  };
-
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     const link = document.createElement("a");
     link.href = currentUrl;
-    link.download = `sysm-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
+    link.download = `threads-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 z-[100] flex touch-none flex-col items-center justify-center overflow-hidden bg-black/95 backdrop-blur-md"
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md touch-none"
       onClick={onClose}
     >
-      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent p-4">
-        <div className="flex flex-col">
-          <span className="text-lg font-bold text-white drop-shadow-md">
+      <motion.div 
+        style={{ opacity }}
+        className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent p-4"
+      >
+        <div className="flex flex-col text-white">
+          <span className="text-lg font-bold drop-shadow-md">
             {hasMultiple
               ? `${currentIndex + 1} / ${media.length}`
               : isVideo
-                ? "Video View"
-                : "Image View"}
+                ? "Video"
+                : "Image"}
           </span>
         </div>
 
         <div
-          className="flex items-center gap-1 sm:gap-3"
+          className="flex items-center gap-3"
           onClick={(e) => e.stopPropagation()}
         >
           {!isVideo && (
-            <>
-              <button
-                onClick={handleZoomOut}
-                className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
-              >
-                <ZoomOut size={20} />
-              </button>
-              <button
-                onClick={handleZoomIn}
-                className="hidden rounded-full p-2 text-white transition-colors hover:bg-white/10 sm:block"
-              >
-                <ZoomIn size={20} />
-              </button>
-              <button
-                onClick={handleReset}
-                className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
-              >
-                <RotateCcw size={20} />
-              </button>
-            </>
+            <button
+              onClick={handleReset}
+              className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
+            >
+              <RotateCcw size={20} />
+            </button>
           )}
           <button
             onClick={handleDownload}
-            className="rounded-full p-2 text-white transition-colors hover:bg-white/10"
+            className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
           >
             <Download size={20} />
           </button>
-          <div className="mx-1 hidden h-6 w-px bg-white/20 sm:block" />
           <button
             onClick={onClose}
-            className="rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20"
+            className="rounded-full bg-white/10 p-2 text-white transition-all hover:bg-white/20 active:scale-90"
           >
             <X size={24} />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       <div className="relative flex h-full w-full items-center justify-center">
         {hasMultiple && currentIndex > 0 && scale === 1 && (
@@ -255,36 +135,52 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           </button>
         )}
 
-        <div
-          className={`relative ${!isVideo ? "cursor-grab active:cursor-grabbing" : ""} transition-transform duration-200 ease-out`}
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+        <motion.div
+          drag={scale === 1 ? "y" : false}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.8}
+          style={{ y: dragY, opacity, scale: viewScale }}
+          onDragEnd={(_, info) => {
+            if (Math.abs(info.offset.y) > 100 || Math.abs(info.velocity.y) > 500) {
+              onClose();
+            }
           }}
-          onMouseDown={handleMouseDown}
+          className="relative flex h-full w-full items-center justify-center"
           onClick={(e) => e.stopPropagation()}
         >
-          {isVideo ? (
-            <video
-              src={currentUrl}
-              controls
-              autoPlay
-              className="max-h-[85vh] max-w-[95vw] rounded-sm shadow-2xl"
-              poster={
-                typeof currentItem !== "string"
-                  ? currentItem.poster || undefined
-                  : undefined
-              }
-            />
-          ) : (
-            <img
-              ref={imageRef}
-              src={currentUrl}
-              className="max-h-[85vh] max-w-[95vw] select-none rounded-sm object-contain shadow-2xl"
-              alt=""
-              draggable={false}
-            />
-          )}
-        </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 50, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -50, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="flex h-full w-full items-center justify-center p-4"
+              drag={scale === 1 ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.x > 100) handlePrev();
+                else if (info.offset.x < -100) handleNext();
+              }}
+            >
+              {isVideo ? (
+                <video
+                  src={currentUrl}
+                  controls
+                  autoPlay
+                  className="max-h-full max-w-full rounded-lg shadow-2xl"
+                />
+              ) : (
+                <motion.img
+                  src={currentUrl}
+                  animate={{ scale }}
+                  className="max-h-full max-w-full select-none rounded-lg object-contain shadow-2xl pointer-events-none"
+                  alt=""
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
         {hasMultiple && currentIndex < media.length - 1 && scale === 1 && (
           <button
@@ -299,41 +195,40 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         )}
       </div>
 
-      {hasMultiple && (
-        <div
-          className="hide-scrollbar absolute bottom-8 flex max-w-[90%] gap-3 overflow-x-auto rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {media.map((item, idx) => {
-            const url = typeof item === "string" ? item : item.url;
-            const thumb =
-              typeof item !== "string" && item.poster ? item.poster : url;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  handleReset();
-                  onNavigate(idx);
-                }}
-                className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
-                  idx === currentIndex
-                    ? "scale-110 border-violet-500 shadow-lg shadow-violet-500/20"
-                    : "border-transparent opacity-40 hover:opacity-100"
-                }`}
-              >
-                <img src={thumb} className="size-full object-cover" alt="" />
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {scale === 1 && hasMultiple && (
-        <div className="absolute bottom-4 text-[10px] font-bold uppercase tracking-widest text-white/30 md:hidden">
-          Swipe to navigate
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {hasMultiple && scale === 1 && (
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 50, opacity: 0 }}
+            className="hide-scrollbar absolute bottom-8 flex max-w-[90%] gap-3 overflow-x-auto rounded-2xl border border-white/10 bg-black/40 p-3 backdrop-blur-xl z-30"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {media.map((item, idx) => {
+              const url = typeof item === "string" ? item : item.url;
+              const thumb =
+                typeof item !== "string" && item.poster ? item.poster : url;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    handleReset();
+                    onNavigate(idx);
+                  }}
+                  className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all active:scale-90 ${
+                    idx === currentIndex
+                      ? "scale-110 border-white shadow-lg shadow-white/20"
+                      : "border-transparent opacity-40 hover:opacity-100"
+                  }`}
+                >
+                  <img src={thumb} className="size-full object-cover" alt="" />
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
