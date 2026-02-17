@@ -1,6 +1,5 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { Check, CheckCheck, Reply } from "lucide-react";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
 import { motion, useMotionValue, useTransform } from "framer-motion";
@@ -25,7 +24,6 @@ const Message = ({
   onReply,
   onEdit,
   onDelete,
-  onReaction
 }: MessageProps) => {
   const x = useMotionValue(0);
   const swipeThreshold = -50;
@@ -38,6 +36,12 @@ const Message = ({
       if (window.navigator.vibrate) window.navigator.vibrate(10);
     }
   };
+
+  const formattedTime = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+  }).format(new Date(message.updatedAt || Date.now()));
 
   return (
     <motion.div
@@ -114,7 +118,7 @@ const Message = ({
                     <div className={cn("mb-2 -mx-2 -mt-2 overflow-hidden rounded-xl", message.text ? "mb-2" : "-mb-2")}>
                       {message.media.map((item: any, idx: number) => (
                         <div key={idx} className="relative">
-                          {item.type === 'video' || item.url.endsWith('.mp4') ? (
+                          {(item.type === 'video' || (item.url && item.url.endsWith('.mp4'))) ? (
                             <VideoPlayer src={item.url} />
                           ) : (
                             <img src={item.url} className="w-full h-auto object-cover max-h-[300px]" alt="Attachment" />
@@ -131,7 +135,7 @@ const Message = ({
                   "mt-1 flex items-center justify-end gap-1 text-[10px] opacity-70",
                    isMe ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"
                 )}>
-                  <span>{format(new Date(message.updatedAt || Date.now()), "h:mm a")}</span>
+                  <span>{formattedTime}</span>
                   {isMe && (
                     <span>
                       {message.isRead ? <CheckCheck size={12} /> : <Check size={12} />}
