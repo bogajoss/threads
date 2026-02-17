@@ -8,6 +8,8 @@ import {
   useTransform,
 } from "framer-motion";
 
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+
 import { cn } from "@/lib/utils";
 
 const Dialog = DialogPrimitive.Root;
@@ -48,19 +50,23 @@ const DialogContent = React.forwardRef<
     { className, children, onDragClose, showCloseButton = true, ...props },
     ref,
   ) => {
+    const isDesktop = useMediaQuery("(min-width: 640px)");
     const controls = useAnimation();
     const y = useMotionValue(0);
     const opacity = useTransform(y, [0, 200], [1, 0.5]);
 
     React.useEffect(() => {
-      controls.start({
-        y: 0,
-        opacity: 1,
-        transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
-      });
-    }, [controls]);
+      if (!isDesktop) {
+        controls.start({
+          y: 0,
+          opacity: 1,
+          transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
+        });
+      }
+    }, [controls, isDesktop]);
 
     const handleDragEnd = async (_: any, info: any) => {
+      if (isDesktop) return;
       if (info.offset.y > 150 || info.velocity.y > 500) {
         if (onDragClose) {
           onDragClose();
@@ -88,13 +94,12 @@ const DialogContent = React.forwardRef<
           {...props}
         >
           <motion.div
-            drag="y"
+            drag={isDesktop ? false : "y"}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.8 }}
             onDragEnd={handleDragEnd}
-            animate={controls}
-            // initial={{ y: "100%", opacity: 0.5 }}
-            style={{ y, opacity }}
+            animate={isDesktop ? undefined : controls}
+            style={isDesktop ? undefined : { y, opacity }}
             className={cn(
               "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
               className,
