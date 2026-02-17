@@ -13,13 +13,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu";
+  Actionsheet,
+  ActionsheetItem,
+} from "@/components/ui/actionsheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -143,87 +139,79 @@ const PostActionsMenu = ({
   trigger,
 }: PostActionsMenuProps) => {
   const { openReport } = useReportModal();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+    <>
+      <div onClick={(e) => {
+        e.stopPropagation();
+        setIsOpen(true);
+      }}>
         {trigger}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-48 rounded-xl border-zinc-100 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-      >
-        <DropdownMenuGroup>
-          {!isComment && (
-            <DropdownMenuItem
-              className="cursor-pointer gap-2 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/p/${id}`,
-                );
-                addToast("Link copied");
-              }}
-            >
-              <Share size={16} />
-              <span>Copy link</span>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            className="cursor-pointer gap-2 py-2.5"
+      </div>
+      <Actionsheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        {!isComment && (
+          <ActionsheetItem
+            icon={<Share size={18} />}
             onClick={(e) => {
               e.stopPropagation();
-              openReport("post", id);
+              navigator.clipboard.writeText(`${window.location.origin}/p/${id}`);
+              addToast("Link copied");
+              setIsOpen(false);
             }}
           >
-            <Flag size={16} />
-            <span>Report {isComment ? "comment" : "post"}</span>
-          </DropdownMenuItem>
-          {!isCurrentUser && (
-            <DropdownMenuItem
-              className="cursor-pointer gap-2 py-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                openReport("user", user.id);
-              }}
-            >
-              <UserMinus size={16} />
-              <span>Report @{user.handle}</span>
-            </DropdownMenuItem>
-          )}
-          {isCurrentUser && (
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className="cursor-pointer gap-2 py-2.5"
-            >
-              <Pencil size={16} />
-              Edit {isComment ? "Comment" : "Post"}
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
-        {isCurrentUser && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer gap-2 py-2.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              >
-                <Trash size={16} />
-                <span>Delete {isComment ? "comment" : "post"}</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </>
+            Copy link
+          </ActionsheetItem>
         )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <ActionsheetItem
+          icon={<Flag size={18} />}
+          onClick={(e) => {
+            e.stopPropagation();
+            openReport("post", id);
+            setIsOpen(false);
+          }}
+        >
+          Report {isComment ? "comment" : "post"}
+        </ActionsheetItem>
+        {!isCurrentUser && (
+          <ActionsheetItem
+            icon={<UserMinus size={18} />}
+            onClick={(e) => {
+              e.stopPropagation();
+              openReport("user", user.id);
+              setIsOpen(false);
+            }}
+          >
+            Report @{user.handle}
+          </ActionsheetItem>
+        )}
+        {isCurrentUser && (
+          <ActionsheetItem
+            icon={<Pencil size={18} />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+              setIsOpen(false);
+            }}
+          >
+            Edit {isComment ? "Comment" : "Post"}
+          </ActionsheetItem>
+        )}
+        {isCurrentUser && (
+          <ActionsheetItem
+            variant="destructive"
+            icon={<Trash size={18} />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+              setIsOpen(false);
+            }}
+          >
+            Delete {isComment ? "comment" : "post"}
+          </ActionsheetItem>
+        )}
+      </Actionsheet>
+    </>
   );
 };
 
@@ -261,7 +249,7 @@ const Post: React.FC<PostProps> = ({
     setLocalStats,
     handleLike,
     handleRepost,
-  } = usePostInteraction(id, stats, currentUser);
+  } = usePostInteraction(post_id || id, stats, currentUser);
 
   const { deletePost, updatePost } = usePosts();
 
@@ -274,7 +262,7 @@ const Post: React.FC<PostProps> = ({
     deleteComment: submitDeleteComment,
     updateComment: submitUpdateComment,
     isSubmitting: submittingComment,
-  } = useComments(id, initialComments);
+  } = useComments(post_id || id, initialComments);
 
   const [newComment, setNewComment] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);

@@ -28,11 +28,14 @@ export const fetchPosts = async (
     }
   }
   
-  const { data, error } = await supabase.rpc("get_posts_feed", {
+  const params: any = {
     limit_val: limit,
-    last_item_id: lastItemId || undefined,
-    last_item_score: lastItemScore || undefined
-  });
+  };
+
+  if (lastItemId && isValidUUID(lastItemId)) params.last_item_id = lastItemId;
+  if (lastItemScore !== null) params.last_item_score = lastItemScore;
+  
+  const { data, error } = await supabase.rpc("get_posts_feed", params);
 
   if (error) throw error;
   
@@ -360,27 +363,38 @@ export const toggleLike = async (
 ): Promise<boolean> => {
   if (!postId || !userId) return false;
 
-  const { data: existingLikes } = await supabase
-    .from("likes")
-    .select("post_id")
-    .eq("post_id", postId)
-    .eq("user_id", userId)
-    .limit(1);
+  try {
+    const { data, error } = await supabase.rpc("toggle_like", {
+      p_post_id: postId,
+      p_user_id: userId,
+    });
 
-  const hasLiked = existingLikes && existingLikes.length > 0;
+    if (error && (error.code === 'PGRST202' || error.status === 404)) {
+      // Fallback if RPC is missing
+      const { data: existing } = await supabase
+        .from("likes")
+        .select("post_id")
+        .eq("post_id", postId)
+        .eq("user_id", userId)
+        .maybeSingle();
 
-  if (hasLiked) {
-    await supabase
-      .from("likes")
-      .delete()
-      .eq("post_id", postId)
-      .eq("user_id", userId);
+      if (existing) {
+        await supabase.from("likes").delete().eq("post_id", postId).eq("user_id", userId);
+        return false;
+      } else {
+        const { error: insErr } = await (supabase.from("likes") as any).insert([
+          { post_id: postId, user_id: userId },
+        ]);
+        if (insErr && insErr.code === '23505') return false; // Conflict handled
+        return true;
+      }
+    }
+
+    if (error) throw error;
+    return !!data;
+  } catch (err) {
+    console.error("toggleLike error:", err);
     return false;
-  } else {
-    await (supabase.from("likes") as any).insert([
-      { post_id: postId, user_id: userId },
-    ]);
-    return true;
   }
 };
 
@@ -409,27 +423,38 @@ export const toggleRepost = async (
 ): Promise<boolean> => {
   if (!postId || !userId) return false;
 
-  const { data: existingReposts } = await supabase
-    .from("reposts")
-    .select("post_id")
-    .eq("post_id", postId)
-    .eq("user_id", userId)
-    .limit(1);
+  try {
+    const { data, error } = await supabase.rpc("toggle_repost", {
+      p_post_id: postId,
+      p_user_id: userId,
+    });
 
-  const hasReposted = existingReposts && existingReposts.length > 0;
+    if (error && (error.code === 'PGRST202' || error.status === 404)) {
+      // Fallback if RPC is missing
+      const { data: existing } = await supabase
+        .from("reposts")
+        .select("post_id")
+        .eq("post_id", postId)
+        .eq("user_id", userId)
+        .maybeSingle();
 
-  if (hasReposted) {
-    await supabase
-      .from("reposts")
-      .delete()
-      .eq("post_id", postId)
-      .eq("user_id", userId);
+      if (existing) {
+        await supabase.from("reposts").delete().eq("post_id", postId).eq("user_id", userId);
+        return false;
+      } else {
+        const { error: insErr } = await (supabase.from("reposts") as any).insert([
+          { post_id: postId, user_id: userId },
+        ]);
+        if (insErr && insErr.code === '23505') return false;
+        return true;
+      }
+    }
+
+    if (error) throw error;
+    return !!data;
+  } catch (err) {
+    console.error("toggleRepost error:", err);
     return false;
-  } else {
-    await (supabase.from("reposts") as any).insert([
-      { post_id: postId, user_id: userId },
-    ]);
-    return true;
   }
 };
 

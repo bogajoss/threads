@@ -60,7 +60,9 @@ export const useNotificationsPage = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      setTimeout(() => {
+        supabase.removeChannel(channel).catch(() => {});
+      }, 500);
     };
   }, [currentUser?.id, queryClient]);
 

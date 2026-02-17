@@ -56,13 +56,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   if (variant === "animated") {
-     
-    const {
-      onDrag: _onDrag,
-      onDragStart: _onDragStart,
-      onDragEnd: _onDragEnd,
-      ...buttonProps
-    } = props as any;
+    const { ...buttonProps } = props as any;
     return (
       <motion.button
         whileTap={{ scale: 0.98 }}
@@ -97,12 +91,7 @@ const Button: React.FC<ButtonProps> = ({
   }
 
    
-  const {
-    onDrag: _onDrag,
-    onDragStart: _onDragStart,
-    onDragEnd: _onDragEnd,
-    ...buttonProps
-  } = props as any;
+  const { ...buttonProps } = props as any;
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}

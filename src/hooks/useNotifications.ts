@@ -16,6 +16,7 @@ export const useNotifications = (currentUser: User | null) => {
   useEffect(() => {
     if (!currentUser?.id) return;
 
+    let mounted = true;
     const channel = supabase
       .channel(`unread_count:${currentUser.id}`)
       .on(
@@ -27,6 +28,7 @@ export const useNotifications = (currentUser: User | null) => {
           filter: `recipient_id=eq.${currentUser.id}`,
         },
         () => {
+          if (!mounted) return;
           queryClient.invalidateQueries({
             queryKey: ["unread_notifications_count", currentUser.id],
           });
@@ -38,7 +40,12 @@ export const useNotifications = (currentUser: User | null) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      mounted = false;
+      setTimeout(() => {
+        supabase.removeChannel(channel).catch(() => {
+          // Silent catch
+        });
+      }, 500);
     };
   }, [currentUser?.id, queryClient]);
 

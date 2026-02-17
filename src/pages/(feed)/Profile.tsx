@@ -91,7 +91,7 @@ const Profile: React.FC = () => {
         <>
           {filteredPosts.map((post: PostType) => (
             <Post
-              key={post.id}
+              key={post.feed_id || post.id}
               currentUser={currentUser}
               {...post}
               onClick={() => handlePostClick(post.id)}

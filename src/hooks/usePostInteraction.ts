@@ -153,6 +153,7 @@ export const usePostInteraction = (
     if (e) e.stopPropagation();
     if (!currentUser) return addToast("Please login to like!", "error");
     if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return;
+    if (likeMutation.isPending) return;
     likeMutation.mutate();
   };
 

@@ -91,6 +91,11 @@ const DialogContent = React.forwardRef<
               <div className="h-1.5 w-12 rounded-full bg-zinc-200 dark:bg-zinc-800" />
             </div>
 
+            {/* Hidden title for accessibility if not provided elsewhere */}
+            <DialogPrimitive.Title className="sr-only">
+              Dialog
+            </DialogPrimitive.Title>
+
             {children}
             {showCloseButton && (
               <DialogPrimitive.Close

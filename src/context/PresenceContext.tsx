@@ -30,6 +30,7 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
   useEffect(() => {
     if (!currentUser?.id) return;
 
+    let mounted = true;
     const channel = supabase.channel("global_presence", {
       config: {
         presence: {
@@ -40,13 +41,14 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
 
     channel
       .on("presence", { event: "sync" }, () => {
+        if (!mounted) return;
         const newState = channel.presenceState();
         const onlineIds = new Set<string>();
         Object.keys(newState).forEach((id) => onlineIds.add(id));
         setOnlineUsers(onlineIds);
       })
       .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
+        if (status === "SUBSCRIBED" && mounted) {
           await channel.track({
             userId: currentUser.id,
             online_at: new Date().toISOString(),
@@ -56,10 +58,19 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
       });
 
     return () => {
+      mounted = false;
       if (currentUser?.id) {
         updateLastSeen(currentUser.id);
       }
-      supabase.removeChannel(channel);
+      
+      // Delay removal to allow socket to finish establishing if it was just created
+      // This prevents the "WebSocket is closed before the connection is established" error
+      setTimeout(() => {
+        supabase.removeChannel(channel).catch(() => {
+          // Silent catch
+        });
+      }, 500);
+      
       setOnlineUsers(new Set());
     };
   }, [currentUser?.id]);

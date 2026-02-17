@@ -1,34 +1,51 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trash2, Globe, ChevronLeft, Film, Layout } from "lucide-react";
-import { MediaIcon, ShareIcon, ProButton } from "@/components/ui";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Image as ImageIcon,
+  Hash,
+  AlignLeft,
+  MapPin,
+  MoreHorizontal,
+  X,
+  ImagePlus,
+  Users,
+  Globe,
+  Lock,
+  UserCheck,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { uploadFile, fetchUserCommunities, addStory } from "@/lib/api";
+import { uploadFile, fetchUserCommunities } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/textarea";
-import MediaUploader from "@/components/features/modals/MediaUploader";
 import { PageTransition } from "@/components/layout";
 import ImageCropper from "@/components/ui/image-cropper";
-import CircularProgress from "@/components/ui/CircularProgress";
 import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
+import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import CircularProgress from "@/components/ui/CircularProgress";
+import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
+import { 
+  Settings, 
+  Trash2, 
+  FileText, 
+  EyeOff
+} from "lucide-react";
 
 interface SelectedFile {
   id: string;
   file: File;
 }
 
-type PostType = "post" | "reel" | "story";
+const MAX_CHARS = 500;
 
 const CreatePost: React.FC = () => {
   const navigate = useNavigate();
@@ -36,22 +53,14 @@ const CreatePost: React.FC = () => {
   const { currentUser } = useAuth();
   const { addPost } = usePosts();
   const { addToast } = useToast();
-  const queryClient = useQueryClient();
 
   const initialCommunity = location.state?.initialCommunity;
-  const initialType: PostType = location.state?.isStory
-    ? "story"
-    : location.state?.isReel
-      ? "reel"
-      : "post";
-
-  const [createType, setCreateType] = useState<PostType>(initialType);
+  
   const [postContent, setPostContent] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
-  const [customThumbnails, setCustomThumbnails] = useState<
-    Record<string, File>
-  >({});
+  const [generatedThumbnails, setGeneratedThumbnails] = useState<Record<string, string>>({});
+  const [customThumbnails, setCustomThumbnails] = useState<Record<string, File>>({});
   const [showPoll, setShowPoll] = useState(false);
   const [pollData, setPollData] = useState({
     options: ["", ""],
@@ -61,33 +70,100 @@ const CreatePost: React.FC = () => {
   const [selectedCommunity, setSelectedCommunity] = useState<any | null>(
     initialCommunity || null,
   );
+  const [replySetting, setReplySetting] = useState("anyone");
 
   const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [croppingFileId, setCroppingFileId] = useState<string | null>(null);
-
-  const isStory = createType === "story";
-  const isReel = createType === "reel";
+  const [activeCoverFileId, setActiveCoverFileId] = useState<string | null>(null);
+  const [showMoreSheet, setShowMoreSheet] = useState(false);
+  
+  const textareaRef = useAutoResizeTextArea(postContent, 44, 400);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: userCommunities = [] } = useQuery({
     queryKey: ["user-communities", currentUser?.id],
     queryFn: () => fetchUserCommunities(currentUser!.id),
-    enabled: !!currentUser?.id && !isStory,
+    enabled: !!currentUser?.id,
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const generateVideoThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "auto";
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
+      video.playsInline = true;
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      video.onloadeddata = () => {
+        // Seek to 1 second or middle
+        const seekTime = Math.min(1, video.duration / 2);
+        video.currentTime = seekTime;
+      };
+
+      video.onseeked = () => {
+        // Small delay to ensure the frame is actually rendered
+        setTimeout(() => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumb = canvas.toDataURL("image/jpeg", 0.7);
+            resolve(thumb);
+          } catch (e) {
+            console.error("Error capturing thumbnail:", e);
+            resolve("");
+          } finally {
+            video.remove();
+          }
+        }, 150);
+      };
+      
+      video.onerror = () => {
+         resolve(""); 
+      };
+    });
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const files = Array.from(e.target.files).map((file) => ({
+    const newFiles: SelectedFile[] = Array.from(e.target.files).map((file) => ({
       id: Math.random().toString(36).substring(2, 11),
       file,
     }));
 
-    if (isStory || isReel) {
-      setSelectedFiles([files[0]]);
-    } else {
-      setSelectedFiles((prev) => [...prev, ...files]);
+    setSelectedFiles((prev) => [...prev, ...newFiles]);
+
+    for (const fileObj of newFiles) {
+        if (fileObj.file.type.startsWith("video/")) {
+            try {
+                const thumb = await generateVideoThumbnail(fileObj.file);
+                if(thumb) {
+                    setGeneratedThumbnails(prev => ({...prev, [fileObj.id]: thumb}));
+                }
+            } catch (err) {
+                console.error("Thumbnail generation failed", err);
+            }
+        }
     }
+  };
+
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.files || !activeCoverFileId) return;
+      const file = e.target.files[0];
+      setCustomThumbnails(prev => ({...prev, [activeCoverFileId]: file}));
+      setActiveCoverFileId(null);
+  };
+
+  const handleRemoveFile = (id: string) => {
+    setSelectedFiles((prev) => prev.filter((f) => f.id !== id));
+    setCustomThumbnails(prev => {
+        const newThumbnails = {...prev};
+        delete newThumbnails[id];
+        return newThumbnails;
+    });
   };
 
   const handleAddPollOption = () => {
@@ -109,33 +185,12 @@ const CreatePost: React.FC = () => {
     setPollData((prev) => ({ ...prev, options: newOptions }));
   };
 
-  const handleCrop = (id: string) => {
-    const fileToCrop = selectedFiles.find((f) => f.id === id);
-    if (!fileToCrop) return;
-
-    setCroppingFileId(id);
-    const reader = new FileReader();
-    reader.onload = () => {
-      setTempCropImage(reader.result as string);
-    };
-    reader.readAsDataURL(fileToCrop.file);
-  };
-
-  const handleStartCrop = () => {
-    if (selectedFiles.length === 0) return;
-    handleCrop(selectedFiles[0].id);
-  };
-
   const onCropComplete = (blob: Blob) => {
     const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, {
       type: "image/jpeg",
     });
 
-    if (isStory || isReel) {
-      setSelectedFiles([
-        { id: Math.random().toString(36).substring(2, 11), file: croppedFile },
-      ]);
-    } else if (croppingFileId) {
+    if (croppingFileId) {
       setSelectedFiles((prev) =>
         prev.map((f) =>
           f.id === croppingFileId ? { ...f, file: croppedFile } : f,
@@ -147,47 +202,23 @@ const CreatePost: React.FC = () => {
     setCroppingFileId(null);
   };
 
-  const handlePublish = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePublish = async () => {
     if (!currentUser) return;
-
-    if (isStory) {
-      if (selectedFiles.length === 0) return;
-      setLoading(true);
-      try {
-        const uploadedMedia = await uploadFile(selectedFiles[0].file);
-        await addStory(currentUser.id, uploadedMedia.url, uploadedMedia.type);
-        addToast("Story shared!");
-        queryClient.invalidateQueries({ queryKey: ["stories"] });
-        navigate("/feed");
-      } catch (err) {
-        console.error("Failed to create story:", err);
-        addToast("Failed to share story.", "error");
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
     if (!postContent.trim() && selectedFiles.length === 0) return;
-
-    if (isOverCharLimit && !isStory && !isReel) {
-      navigate("/pro");
-      return;
-    }
+    if (postContent.length > MAX_CHARS) return;
 
     setLoading(true);
     try {
       const uploadedMedia = [];
       for (let i = 0; i < selectedFiles.length; i++) {
         const item = selectedFiles[i];
-        const customPoster = customThumbnails[item.id] || null;
-        const res = await uploadFile(item.file, "media", customPoster);
+        const customThumb = customThumbnails[item.id] || null;
+        const res = await uploadFile(item.file, "media", customThumb as any);
         uploadedMedia.push(res);
       }
 
       let poll = null;
-      if (!isReel && showPoll && pollData.options.some((o) => o.trim())) {
+      if (showPoll && pollData.options.some((o) => o.trim())) {
         poll = {
           options: pollData.options
             .filter((o) => o.trim())
@@ -211,24 +242,23 @@ const CreatePost: React.FC = () => {
         finalContent += `\n\n${tagList}`;
       }
 
+      let finalType = "text";
+      if (uploadedMedia.length > 0) {
+          finalType = uploadedMedia[0].type === "video" ? "video" : "image";
+      } else if (poll) {
+          finalType = "poll";
+      }
+
       await addPost({
         content: finalContent,
         media: uploadedMedia,
         poll,
-        type: isReel
-          ? "reel"
-          : uploadedMedia.length > 0
-            ? uploadedMedia[0].type === "video"
-              ? "video"
-              : "image"
-            : poll
-              ? "poll"
-              : "text",
+        type: finalType as any,
         userId: currentUser.id,
         communityId: selectedCommunity?.id || null,
       });
 
-      addToast(isReel ? "Reel published!" : "Post published!");
+      addToast("Post published!");
       navigate("/feed");
     } catch (err) {
       console.error("Failed to create post:", err);
@@ -238,439 +268,363 @@ const CreatePost: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if ((isStory || isReel) && selectedFiles.length > 1) {
-      setSelectedFiles([selectedFiles[0]]);
-    }
-  }, [createType, isStory, isReel, selectedFiles]);
-
   if (!currentUser) {
     navigate("/login");
     return null;
   }
 
-  const pageTitle = isStory
-    ? "Add Story"
-    : isReel
-      ? "Create Reel"
-      : "Create Post";
-
-  const charCount = postContent.length;
-  const isOverCharLimit = charCount > 160;
+  const isPostDisabled = (!postContent.trim() && selectedFiles.length === 0) || loading || postContent.length > MAX_CHARS;
+  const charsLeft = MAX_CHARS - postContent.length;
+  const showWarning = postContent.length > MAX_CHARS - 20;
 
   return (
     <PageTransition>
-      <div className="flex min-h-screen flex-col bg-[--background] dark:bg-black md:rounded-3xl md:border md:border-[--border] md:shadow-sm">
-        <div className="sticky top-0 z-10 flex flex-col border-b border-[--border] bg-[--background]/80 backdrop-blur-md dark:bg-black/80">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate(-1)}
-                className="rounded-full p-2 text-[--foreground] hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <h1 className="text-xl font-black tracking-tight text-[--foreground] font-english">
-                {pageTitle}
-              </h1>
-            </div>
-
-            {!isStory && (
-              <div className="flex items-center gap-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="group flex items-center gap-1.5 rounded-full border border-[--border] bg-[--card] px-3 py-1.5 text-xs font-bold text-[--foreground] transition-all hover:bg-zinc-50 dark:hover:bg-zinc-900"
-                    >
-                      {selectedCommunity ? (
-                        <>
-                          <Avatar className="size-4 shrink-0 overflow-hidden rounded-full border border-[--border]">
-                            <AvatarImage
-                              src={selectedCommunity.avatar}
-                              className="object-cover"
-                            />
-                            <AvatarFallback className="text-[6px]">
-                              {selectedCommunity.name?.[0]?.toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="max-w-[80px] truncate">
-                            {selectedCommunity.name}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Globe
-                            size={12}
-                            className="text-zinc-400 transition-colors group-hover:text-violet-500"
-                          />
-                          <span>Everyone</span>
-                        </>
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-64 rounded-xl border-[--border] bg-[--card] p-1.5 shadow-xl"
-                  >
-                    <DropdownMenuItem
-                      onClick={() => setSelectedCommunity(null)}
-                      className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                    >
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
-                        <Globe size={18} className="text-zinc-500" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold">Everyone</span>
-                        <span className="text-xs text-zinc-500">
-                          Public feed
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-                    {userCommunities.length > 0 && (
-                      <div className="mx-2 my-1 h-px bg-[--border]" />
-                    )}
-                    <div className="max-h-[250px] overflow-y-auto">
-                      {userCommunities
-                        .filter(
-                          (c: any) => !c.isPrivate || c.myRole === "admin",
-                        )
-                        .map((c: any) => (
-                          <DropdownMenuItem
-                            key={c.id}
-                            onClick={() => setSelectedCommunity(c)}
-                            className="cursor-pointer gap-3 rounded-lg px-3 py-2 focus:bg-zinc-50 dark:focus:bg-zinc-900"
-                          >
-                            <Avatar className="size-9 border border-[--border]">
-                              <AvatarImage src={c.avatar} />
-                              <AvatarFallback>{c.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex flex-col">
-                              <span className="truncate text-sm font-bold">
-                                {c.name}
-                              </span>
-                              <span className="text-xs text-zinc-500">
-                                Community
-                              </span>
-                            </div>
-                          </DropdownMenuItem>
-                        ))}
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-          </div>
-
-          <div className="flex px-4 pb-4">
-            <div className="flex w-full overflow-hidden rounded-2xl bg-zinc-100/50 p-1.5 dark:bg-zinc-900/50 ring-1 ring-zinc-200/50 dark:ring-zinc-800/50">
-              {[
-                { id: "post", label: "Post", icon: Layout },
-                { id: "story", label: "Story", icon: MediaIcon },
-                { id: "reel", label: "Reel", icon: Film },
-              ].map((type) => (
-                <button
-                  key={type.id}
-                  type="button"
-                  onClick={() => setCreateType(type.id as PostType)}
-                  className={cn(
-                    "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-black transition-all duration-300",
-                    createType === type.id
-                      ? "bg-white text-zinc-950 shadow-md shadow-zinc-200/50 dark:bg-zinc-800 dark:text-white dark:shadow-none translate-y-[-1px]"
-                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200",
-                  )}
-                >
-                  <type.icon
-                    size={16}
-                    strokeWidth={createType === type.id ? 3 : 2}
-                  />
-                  <span>{type.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="flex flex-col min-h-screen bg-[--background] text-[--foreground] md:max-w-xl md:mx-auto border-x border-[--border] shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border]">
+          <button 
+            onClick={() => navigate(-1)}
+            className="text-[15px] font-medium text-neutral-500 hover:text-[--foreground] transition-colors"
+          >
+            Cancel
+          </button>
+          <h1 className="text-[17px] font-bold tracking-tight">New thread</h1>
+          <button 
+            onClick={() => setShowMoreSheet(true)}
+            className="text-[--foreground] p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-all"
+          >
+            <MoreHorizontal size={22} />
+          </button>
         </div>
 
-        <form
-          onSubmit={handlePublish}
-          className="flex flex-1 flex-col gap-8 p-6 max-w-5xl w-full mx-auto font-bangla"
-        >
-          {!isStory && (
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                  Caption
-                </label>
-                <div className="w-6 h-6">
-                  <CircularProgress
-                    current={charCount}
-                    max={160}
-                    size={24}
-                    strokeWidth={3}
-                    isWarning={isOverCharLimit}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex px-6 pt-6 pb-20">
+            {/* Left Column (Avatar + Thread Line) */}
+            <div className="flex flex-col items-center mr-4 pt-1">
+              <Avatar className="w-10 h-10 border-[3px] border-[--background] ring-1 ring-[--border]">
+                <AvatarImage src={currentUser.avatar} className="object-cover" />
+                <AvatarFallback>{currentUser.name?.[0].toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="w-[2px] flex-1 bg-neutral-200 dark:bg-neutral-800 my-2 rounded-full min-h-[80px]"></div>
+              <div className="relative">
+                <Avatar className="w-5 h-5 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-pointer">
+                   <AvatarImage src={currentUser.avatar} className="object-cover" />
+                   <AvatarFallback className="text-[7px]">{currentUser.name?.[0]}</AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+
+            {/* Right Column (Content) */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-bold text-[15px] tracking-tight hover:underline cursor-pointer">{currentUser.name}</span>
+                
+                {userCommunities.length > 0 && (
+                  <Select 
+                    onValueChange={(val) => {
+                      const comm = userCommunities.find((c: any) => c.id === val);
+                      setSelectedCommunity(comm || null);
+                    }}
+                    value={selectedCommunity?.id || "none"}
+                  >
+                    <SelectTrigger className="h-7 px-3 py-0 border-none bg-neutral-100 dark:bg-neutral-900 text-[12px] font-bold rounded-full w-auto gap-1.5 focus:ring-0 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
+                      <Users size={12} className="text-neutral-500" />
+                      <SelectValue placeholder="Anyone" />
+                    </SelectTrigger>
+                    <SelectContent align="end" className="bg-[--background] border-[--border] shadow-xl rounded-xl">
+                      <SelectItem value="none" className="text-xs font-medium py-2.5">Public (Anyone)</SelectItem>
+                      {userCommunities.map((comm: any) => (
+                        <SelectItem key={comm.id} value={comm.id} className="text-xs font-medium py-2.5">
+                          {comm.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  placeholder="What's new?"
+                  value={postContent}
+                  onChange={(e) => setPostContent(e.target.value)}
+                  className={cn(
+                    "w-full bg-transparent text-[--foreground] placeholder-neutral-500 outline-none resize-none text-[16px] leading-relaxed min-h-[44px] mb-1 transition-colors",
+                    charsLeft < 0 && "text-rose-500"
+                  )}
+                />
+                
+                {postContent.length > 0 && (
+                  <div className="absolute right-0 bottom-2 flex items-center gap-3">
+                     <CircularProgress 
+                       current={postContent.length} 
+                       max={MAX_CHARS} 
+                       size={22} 
+                       strokeWidth={2.5}
+                       isWarning={showWarning}
+                     />
+                     {showWarning && (
+                       <span className={cn("text-[11px] font-bold", charsLeft < 0 ? "text-rose-500" : "text-neutral-500")}>
+                         {charsLeft}
+                       </span>
+                     )}
+                  </div>
+                )}
+              </div>
+
+              {/* Media Previews */}
+              {selectedFiles.length > 0 && (
+                <div className="flex overflow-x-auto gap-3.5 mb-5 mt-2 pb-1 scrollbar-hide snap-x">
+                  {selectedFiles.map((file) => (
+                    <div key={file.id} className="relative shrink-0 w-[260px] h-[340px] rounded-2xl overflow-hidden border border-[--border] bg-neutral-100 dark:bg-neutral-900 snap-start shadow-md group">
+                       {file.file.type.startsWith("video/") ? (
+                          <>
+                            {customThumbnails[file.id] || generatedThumbnails[file.id] ? (
+                                <img 
+                                    src={customThumbnails[file.id] ? URL.createObjectURL(customThumbnails[file.id]) : generatedThumbnails[file.id]} 
+                                    className="w-full h-full object-cover" 
+                                    alt="Video thumbnail"
+                                />
+                            ) : (
+                                <video
+                                    src={URL.createObjectURL(file.file)}
+                                    className="w-full h-full object-cover"
+                                    muted
+                                    playsInline
+                                />
+                            )}
+                            
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-4 transition-all duration-300">
+                                <div className="flex items-center justify-start">
+                                    <button 
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveCoverFileId(file.id);
+                                            coverInputRef.current?.click();
+                                        }}
+                                        className="text-[11px] font-bold text-white bg-black/60 backdrop-blur-xl px-3 py-2 rounded-full flex items-center gap-2 hover:bg-black/80 transition-colors shadow-lg border border-white/10"
+                                    >
+                                        <ImagePlus size={14} />
+                                        <span>Change Cover</span>
+                                    </button>
+                                </div>
+                            </div>
+                          </>
+                       ) : (
+                          <img 
+                            src={URL.createObjectURL(file.file)} 
+                            alt="preview" 
+                            className="w-full h-full object-cover"
+                          />
+                       )}
+                       <button
+                          onClick={() => handleRemoveFile(file.id)}
+                          className="absolute top-3.5 right-3.5 bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-rose-500 transition-all z-10 shadow-xl group-hover:scale-110 active:scale-90"
+                        >
+                          <X size={18} />
+                        </button>
+                    </div>
+                  ))}
+                  <input 
+                    type="file" 
+                    ref={coverInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleCoverSelect} 
                   />
                 </div>
-              </div>
-              <Textarea
-                className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
-                placeholder={
-                  isReel
-                    ? "Add a caption for your reel..."
-                    : "What's on your mind?"
-                }
-                value={postContent}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setPostContent(e.target.value)
-                }
-              />
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2.5">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                {isStory ? "Select Media" : isReel ? "Add Video" : "Add Media"}
-              </label>
-              {selectedFiles.length > 0 && !isStory && !isReel && (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 transition-colors font-english"
-                >
-                  + ADD MORE
-                </button>
               )}
-            </div>
 
-            {selectedFiles.length === 0 ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="group flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-[--border] bg-zinc-50/30 py-20 transition-all hover:border-violet-500 hover:bg-violet-50/10 dark:bg-zinc-900/20 cursor-pointer"
-              >
-                <div className="rounded-2xl bg-[--background] p-5 shadow-sm ring-1 ring-[--border] transition-transform group-hover:scale-110">
-                  {isReel ? (
-                    <Film className="text-violet-500" size={40} />
-                  ) : (
-                    <MediaIcon className="text-violet-500" size={40} />
-                  )}
-                </div>
-                <div className="text-center space-y-1">
-                  <p className="text-lg font-bold text-[--foreground] font-english">
-                    Choose a{" "}
-                    {isStory
-                      ? "photo or video"
-                      : isReel
-                        ? "video"
-                        : "photo or video"}
-                  </p>
-                  <p className="text-sm text-zinc-500 font-english">
-                    {isStory
-                      ? "Stories last for 24 hours"
-                      : isReel
-                        ? "Reels should be in vertical format"
-                        : "Photos and videos are supported"}
-                  </p>
-                </div>
-              </div>
-            ) : isStory || isReel ? (
-              <div className="space-y-6">
-                <div
-                  className={cn(
-                    "relative mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl ring-8 ring-[--border] bg-black",
-                    isStory ? "aspect-[9/16]" : "aspect-[9/16]",
-                  )}
-                >
-                  {selectedFiles[0].file.type.startsWith("video/") ? (
-                    <video
-                      src={URL.createObjectURL(selectedFiles[0].file)}
-                      className="h-full w-full object-cover"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  ) : (
-                    <img
-                      src={URL.createObjectURL(selectedFiles[0].file)}
-                      className="h-full w-full object-cover"
-                      alt="Preview"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                  <button
-                    type="button"
-                    onClick={() => setSelectedFiles([])}
-                    className="absolute right-4 top-4 rounded-full bg-black/50 p-2.5 text-white backdrop-blur-md transition-colors hover:bg-rose-500"
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </div>
-
-                <div className="flex justify-center">
-                  {selectedFiles[0].file.type.startsWith("image/") && (
-                    <button
-                      type="button"
-                      onClick={handleStartCrop}
-                      className="flex items-center gap-2 rounded-full bg-violet-100 px-6 py-2.5 text-sm font-black text-violet-600 transition-all hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400"
-                    >
-                      <MediaIcon size={18} />
-                      <span>CROP & EDIT</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <MediaUploader
-                selectedFiles={selectedFiles}
-                setSelectedFiles={setSelectedFiles}
-                customThumbnails={customThumbnails}
-                setCustomThumbnails={setCustomThumbnails}
-                onCrop={handleCrop}
-              />
-            )}
-          </div>
-
-          {!isStory && (
-            <div className="flex flex-col gap-2.5">
-              <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                Add Hashtags
-              </label>
-              <Input
-                placeholder="Art, Expression, Learn"
-                type="text"
-                className="w-full rounded-2xl border-[--border] bg-zinc-50/30 px-5 py-4 text-base font-medium transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 h-14"
-                value={hashtags}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setHashtags(e.target.value)
-                }
-              />
-            </div>
-          )}
-
-          {!isStory && !isReel && (
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-black tracking-wide text-zinc-500 uppercase dark:text-zinc-400 font-english">
-                  Poll (Optional)
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPoll(!showPoll)}
-                  className={`text-xs font-bold transition-colors font-english ${showPoll ? "text-rose-500" : "text-violet-600 dark:text-violet-400"}`}
-                >
-                  {showPoll ? "REMOVE POLL" : "ADD POLL"}
-                </button>
-              </div>
-
+              {/* Poll Interface */}
               {showPoll && (
-                <div className="space-y-4 rounded-2xl border border-violet-100 bg-violet-50/10 p-6 dark:border-violet-900/20 dark:bg-violet-900/5 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="space-y-3">
+                <div className="space-y-2.5 mb-5 mt-2 bg-neutral-50 dark:bg-neutral-900/40 p-4 rounded-3xl border border-[--border]">
                     {pollData.options.map((option, idx) => (
                       <div key={idx} className="flex gap-2">
                         <input
-                          className="w-full rounded-xl border border-[--border] bg-[--background] px-4 py-3.5 text-sm font-medium outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5"
+                          className="w-full rounded-2xl border border-[--border] bg-[--background] px-4 py-3 text-[14px] font-medium outline-none focus:ring-2 focus:ring-[--primary]/20 transition-all placeholder:text-neutral-400"
                           placeholder={`Option ${idx + 1}`}
                           value={option}
                           onChange={(e) =>
                             handlePollOptionChange(idx, e.target.value)
                           }
                         />
-                        {pollData.options.length > 2 && (
+                         {pollData.options.length > 2 && (
                           <button
-                            type="button"
                             onClick={() => handleRemovePollOption(idx)}
-                            className="rounded-xl p-3.5 text-zinc-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20 transition-colors"
+                            className="text-neutral-400 hover:text-rose-500 transition-all px-1.5"
                           >
-                            <Trash2 size={20} />
+                             <X size={22} />
                           </button>
-                        )}
+                         )}
                       </div>
                     ))}
-                  </div>
-                  {pollData.options.length < 4 && (
-                    <button
-                      type="button"
-                      onClick={handleAddPollOption}
-                      className="w-full rounded-xl border border-dashed border-violet-200 py-3.5 text-sm font-bold text-violet-600 hover:bg-violet-100/50 dark:border-violet-800 transition-all font-english"
-                    >
-                      + ADD OPTION
-                    </button>
-                  )}
+                    {pollData.options.length < 4 && (
+                      <button 
+                        onClick={handleAddPollOption}
+                        className="text-[13px] font-black text-neutral-400 hover:text-[--primary] transition-colors ml-1.5 mt-1"
+                      >
+                        + Add option
+                      </button>
+                    )}
                 </div>
               )}
+
+              {/* Action Icons */}
+              <div className="flex items-center gap-7 mt-3 text-neutral-400">
+                <button 
+                  onClick={() => fileInputRef.current?.click()} 
+                  className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
+                  title="Add Image/Video"
+                >
+                  <ImageIcon size={22} strokeWidth={2.2} />
+                </button>
+                <button 
+                  onClick={() => setShowPoll(!showPoll)} 
+                  className={cn("hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90", showPoll && "text-[--primary]")}
+                  title="Add Poll"
+                >
+                  <AlignLeft size={22} strokeWidth={2.2} />
+                </button>
+                <button 
+                  className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
+                  onClick={() => {
+                     const tag = prompt("Add a hashtag");
+                     if(tag) setHashtags(prev => prev ? `${prev}, ${tag}` : tag);
+                  }}
+                  title="Add Hashtag"
+                >
+                  <Hash size={22} strokeWidth={2.2} />
+                </button>
+                <button 
+                  className="hover:text-[--foreground] transition-all p-1 opacity-30 cursor-not-allowed"
+                  title="Location"
+                >
+                  <MapPin size={22} strokeWidth={2.2} />
+                </button>
+              </div>
+
+               {hashtags && (
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    {hashtags.split(',').map((t, idx) => (
+                      <span key={idx} className="text-[13px] font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                        #{t.trim().replace(/^#/, '')}
+                      </span>
+                    ))}
+                  </div>
+               )}
             </div>
-          )}
-
-          <div className="flex gap-4 items-center justify-end pb-16 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-2xl px-8 py-3 font-bold text-zinc-500 hover:text-[--foreground] border-[--border] transition-all font-english"
-              onClick={() => navigate(-1)}
-            >
-              CANCEL
-            </Button>
-
-            {isOverCharLimit && !isStory && !isReel ? (
-              <ProButton
-                type="submit"
-                label="pro"
-                hoverLabel="lagbe!"
-                disabled={loading}
-              />
-            ) : (
-              <Button
-                type="submit"
-                variant={loading ? "primary" : "animated"}
-                icon={!loading && <ShareIcon size={24} />}
-                disabled={
-                  (!isStory &&
-                    !postContent.trim() &&
-                    selectedFiles.length === 0) ||
-                  (isStory && selectedFiles.length === 0) ||
-                  (isReel && selectedFiles.length === 0) ||
-                  loading
-                }
-                className="font-english"
-              >
-                {loading ? (
-                  <span className="animate-pulse">...</span>
-                ) : isStory ? (
-                  "Post"
-                ) : isReel ? (
-                  "Post"
-                ) : (
-                  "Post"
-                )}
-              </Button>
-            )}
           </div>
+          
+        </div>
 
-          <input
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] sticky bottom-0 z-20">
+          <Select value={replySetting} onValueChange={setReplySetting}>
+            <SelectTrigger className="border-none bg-transparent p-0 h-auto w-auto text-neutral-500 text-[14px] font-semibold hover:text-[--foreground] transition-colors gap-1.5 focus:ring-0">
+               {replySetting === "anyone" && <Globe size={14} />}
+               {replySetting === "following" && <UserCheck size={14} />}
+               {replySetting === "mentioned" && <Lock size={14} />}
+               <span className="capitalize">{replySetting.replace('-', ' ')} can reply</span>
+            </SelectTrigger>
+            <SelectContent align="start" className="bg-[--background] border-[--border] shadow-2xl rounded-2xl p-1.5">
+              <SelectItem value="anyone" className="rounded-xl py-3 px-4 font-bold">Anyone</SelectItem>
+              <SelectItem value="following" className="rounded-xl py-3 px-4 font-bold">Profiles you follow</SelectItem>
+              <SelectItem value="mentioned" className="rounded-xl py-3 px-4 font-bold">Mentioned only</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handlePublish}
+              disabled={isPostDisabled}
+              loading={loading}
+              className={cn(
+                "min-w-[90px] h-11 shadow-xl transition-all active:scale-95 text-[15px]",
+                isPostDisabled 
+                  ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-600 shadow-none"
+                  : "shadow-[--primary]/20 bg-black text-white dark:bg-white dark:text-black"
+              )}
+            >
+              Post
+            </Button>
+          </div>
+        </div>
+
+        <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
-            multiple={!isStory && !isReel}
+            multiple
             className="hidden"
-            accept={isReel ? "video/*" : "image/*,video/*"}
-          />
-        </form>
-      </div>
-
-      {tempCropImage && (
-        <ImageCropper
-          src={tempCropImage}
-          isOpen={!!tempCropImage}
-          onClose={() => {
-            setTempCropImage(null);
-            setCroppingFileId(null);
-          }}
-          onCropComplete={onCropComplete}
-          aspect={isStory || isReel ? 9 / 16 : undefined}
+            accept="image/*,video/*"
         />
-      )}
+        
+         {tempCropImage && (
+            <ImageCropper
+              src={tempCropImage}
+              isOpen={!!tempCropImage}
+              onClose={() => {
+                setTempCropImage(null);
+                setCroppingFileId(null);
+              }}
+              onCropComplete={onCropComplete}
+            />
+          )}
+
+        <Actionsheet 
+          isOpen={showMoreSheet} 
+          onClose={() => setShowMoreSheet(false)}
+          title="Post Options"
+        >
+          <ActionsheetItem 
+            icon={<FileText size={20} />}
+            onClick={() => {
+              addToast("Draft saved (Simulated)");
+              setShowMoreSheet(false);
+            }}
+          >
+            Save as draft
+          </ActionsheetItem>
+          <ActionsheetItem 
+            icon={<Settings size={20} />}
+            onClick={() => {
+              addToast("Settings coming soon");
+              setShowMoreSheet(false);
+            }}
+          >
+            Post settings
+          </ActionsheetItem>
+          <ActionsheetItem 
+            icon={<EyeOff size={20} />}
+            onClick={() => {
+              addToast("Visibility settings coming soon");
+              setShowMoreSheet(false);
+            }}
+          >
+            Who can see this
+          </ActionsheetItem>
+          <div className="h-px bg-[--border] my-1 mx-6" />
+          <ActionsheetItem 
+            variant="destructive"
+            icon={<Trash2 size={20} />}
+            onClick={() => {
+              if (confirm("Discard this post?")) {
+                navigate(-1);
+              }
+              setShowMoreSheet(false);
+            }}
+          >
+            Discard post
+          </ActionsheetItem>
+        </Actionsheet>
+
+      </div>
     </PageTransition>
   );
 };
 
 export default CreatePost;
+
+

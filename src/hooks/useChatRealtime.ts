@@ -124,8 +124,10 @@ export const useChatRealtime = (
     const currentTimeouts = typingTimeoutsRef.current;
 
     return () => {
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(typingChannel);
+      setTimeout(() => {
+        supabase.removeChannel(messagesChannel).catch(() => {});
+        supabase.removeChannel(typingChannel).catch(() => {});
+      }, 500);
       Object.values(currentTimeouts).forEach(window.clearTimeout);
     };
   }, [currentUser?.id, queryClient, activeConversationId, markAsRead]);
