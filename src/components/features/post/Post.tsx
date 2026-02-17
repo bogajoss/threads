@@ -24,6 +24,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   PollDisplay,
   QuotedPost,
   CommentInput,
@@ -35,7 +42,7 @@ import {
   PostActions,
   PostStats,
 } from "@/components/features/post";
-import { usePostInteraction, useComments } from "@/hooks";
+import { usePostInteraction, useComments, useMediaQuery } from "@/hooks";
 import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
 import { usePosts } from "@/context/PostContext";
@@ -137,6 +144,82 @@ const PostActionsMenu = ({
 }: PostActionsMenuProps) => {
   const { openReport } = useReportModal();
   const [isOpen, setIsOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  if (isDesktop) {
+    return (
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+          <div className="cursor-pointer outline-none">{trigger}</div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          {!isComment && (
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/p/${id}`,
+                );
+                addToast("Link copied");
+                setIsOpen(false);
+              }}
+            >
+              <Share className="mr-2 h-4 w-4" />
+              <span>Copy link</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              openReport("post", id);
+              setIsOpen(false);
+            }}
+          >
+            <Flag className="mr-2 h-4 w-4" />
+            <span>Report {isComment ? "comment" : "post"}</span>
+          </DropdownMenuItem>
+          {!isCurrentUser && (
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                openReport("user", user.id);
+                setIsOpen(false);
+              }}
+            >
+              <UserMinus className="mr-2 h-4 w-4" />
+              <span>Report @{user.handle}</span>
+            </DropdownMenuItem>
+          )}
+          {isCurrentUser && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                  setIsOpen(false);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                <span>Edit {isComment ? "Comment" : "Post"}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-500 focus:text-red-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                  setIsOpen(false);
+                }}
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                <span>Delete {isComment ? "comment" : "post"}</span>
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <>
@@ -145,6 +228,7 @@ const PostActionsMenu = ({
           e.stopPropagation();
           setIsOpen(true);
         }}
+        className="cursor-pointer"
       >
         {trigger}
       </div>

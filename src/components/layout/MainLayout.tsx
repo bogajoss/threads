@@ -58,7 +58,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
             </div>
           </div>
 
-          {!location.pathname.startsWith("/m") && <SidebarRight />}
+          {!location.pathname.startsWith("/m") && !isReelsPage && <SidebarRight />}
         </main>
       </div>
 

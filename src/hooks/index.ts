@@ -19,3 +19,4 @@ export * from "./pages/useNotificationsPage";
 export * from "./pages/usePostDetails";
 export * from "./pages/useReels";
 export * from "./pages/useSettings";
+export * from './useMediaQuery';

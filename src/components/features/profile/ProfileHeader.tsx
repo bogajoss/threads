@@ -30,6 +30,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
+import { useMediaQuery } from "@/hooks";
 import { getOrCreateConversation } from "@/lib/api";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
@@ -63,6 +65,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const navigate = useNavigate();
   const { openReport } = useReportModal();
   const [isStartingChat, setIsStartingChat] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // Use hook even if profile is null to avoid hook conditional rules,
   // but we need to be careful. usage of hooks must be consistent.
@@ -185,50 +189,98 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     </>
                   )}
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                {isDesktop ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                        <MoreHorizontal size={20} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          className="cursor-pointer gap-2"
+                          onClick={() => {
+                            navigator.clipboard.writeText(window.location.href);
+                            addToast("Profile link copied!");
+                          }}
+                        >
+                          <Share size={16} />
+                          Share Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer gap-2"
+                          onClick={() =>
+                            openReport(
+                              isCommunity ? "community" : "user",
+                              profile.id,
+                            )
+                          }
+                        >
+                          <Flag size={16} />
+                          Report {isCommunity ? "community" : "user"}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          className="cursor-pointer gap-2"
+                          onClick={() => addToast("User blocked", "info")}
+                        >
+                          <Ban size={16} />
+                          Block user
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setIsMenuOpen(true)}
+                      className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    >
                       <MoreHorizontal size={20} />
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        className="cursor-pointer gap-2"
+                    <Actionsheet
+                      isOpen={isMenuOpen}
+                      onClose={() => setIsMenuOpen(false)}
+                    >
+                      <ActionsheetItem
+                        icon={<Share size={18} />}
                         onClick={() => {
                           navigator.clipboard.writeText(window.location.href);
                           addToast("Profile link copied!");
+                          setIsMenuOpen(false);
                         }}
                       >
-                        <Share size={16} />
                         Share Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer gap-2"
-                        onClick={() =>
+                      </ActionsheetItem>
+                      <ActionsheetItem
+                        icon={<Flag size={18} />}
+                        onClick={() => {
                           openReport(
                             isCommunity ? "community" : "user",
                             profile.id,
-                          )
-                        }
+                          );
+                          setIsMenuOpen(false);
+                        }}
                       >
-                        <Flag size={16} />
                         Report {isCommunity ? "community" : "user"}
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem
+                      </ActionsheetItem>
+                      <ActionsheetItem
                         variant="destructive"
-                        className="cursor-pointer gap-2"
-                        onClick={() => addToast("User blocked", "info")}
+                        icon={<Ban size={18} />}
+                        onClick={() => {
+                          addToast("User blocked", "info");
+                          setIsMenuOpen(false);
+                        }}
                       >
-                        <Ban size={16} />
                         Block user
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      </ActionsheetItem>
+                    </Actionsheet>
+                  </>
+                )}
               </>
             )}
           </div>
