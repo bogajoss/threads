@@ -148,12 +148,17 @@ const PostActionsMenu = ({
 
   if (isDesktop) {
     return (
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <div className="cursor-pointer outline-none">{trigger}</div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          {!isComment && (
+      <div onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={true}>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <div className="cursor-pointer outline-none">{trigger}</div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="w-56"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {!isComment && (
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
@@ -218,6 +223,7 @@ const PostActionsMenu = ({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     );
   }
 
@@ -232,70 +238,72 @@ const PostActionsMenu = ({
       >
         {trigger}
       </div>
-      <Actionsheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        {!isComment && (
+      <div onClick={(e) => e.stopPropagation()}>
+        <Actionsheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          {!isComment && (
+            <ActionsheetItem
+              icon={<Share size={18} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/p/${id}`,
+                );
+                addToast("Link copied");
+                setIsOpen(false);
+              }}
+            >
+              Copy link
+            </ActionsheetItem>
+          )}
           <ActionsheetItem
-            icon={<Share size={18} />}
+            icon={<Flag size={18} />}
             onClick={(e) => {
               e.stopPropagation();
-              navigator.clipboard.writeText(
-                `${window.location.origin}/p/${id}`,
-              );
-              addToast("Link copied");
+              openReport("post", id);
               setIsOpen(false);
             }}
           >
-            Copy link
+            Report {isComment ? "comment" : "post"}
           </ActionsheetItem>
-        )}
-        <ActionsheetItem
-          icon={<Flag size={18} />}
-          onClick={(e) => {
-            e.stopPropagation();
-            openReport("post", id);
-            setIsOpen(false);
-          }}
-        >
-          Report {isComment ? "comment" : "post"}
-        </ActionsheetItem>
-        {!isCurrentUser && (
-          <ActionsheetItem
-            icon={<UserMinus size={18} />}
-            onClick={(e) => {
-              e.stopPropagation();
-              openReport("user", user.id);
-              setIsOpen(false);
-            }}
-          >
-            Report @{user.handle}
-          </ActionsheetItem>
-        )}
-        {isCurrentUser && (
-          <ActionsheetItem
-            icon={<Pencil size={18} />}
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-              setIsOpen(false);
-            }}
-          >
-            Edit {isComment ? "Comment" : "Post"}
-          </ActionsheetItem>
-        )}
-        {isCurrentUser && (
-          <ActionsheetItem
-            variant="destructive"
-            icon={<Trash size={18} />}
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-              setIsOpen(false);
-            }}
-          >
-            Delete {isComment ? "comment" : "post"}
-          </ActionsheetItem>
-        )}
-      </Actionsheet>
+          {!isCurrentUser && (
+            <ActionsheetItem
+              icon={<UserMinus size={18} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                openReport("user", user.id);
+                setIsOpen(false);
+              }}
+            >
+              Report @{user.handle}
+            </ActionsheetItem>
+          )}
+          {isCurrentUser && (
+            <ActionsheetItem
+              icon={<Pencil size={18} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+                setIsOpen(false);
+              }}
+            >
+              Edit {isComment ? "Comment" : "Post"}
+            </ActionsheetItem>
+          )}
+          {isCurrentUser && (
+            <ActionsheetItem
+              variant="destructive"
+              icon={<Trash size={18} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+                setIsOpen(false);
+              }}
+            >
+              Delete {isComment ? "comment" : "post"}
+            </ActionsheetItem>
+          )}
+        </Actionsheet>
+      </div>
     </>
   );
 };

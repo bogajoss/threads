@@ -20,3 +20,4 @@ export * from "./pages/usePostDetails";
 export * from "./pages/useReels";
 export * from "./pages/useSettings";
 export * from './useMediaQuery';
+export * from "./useMediaQuery";

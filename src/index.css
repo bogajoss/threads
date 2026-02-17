@@ -387,3 +387,19 @@
 .animate-dot-pulse {
   animation: dot-pulse 1.4s infinite ease-in-out;
 }
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.touch-action-none {
+  touch-action: none;
+}

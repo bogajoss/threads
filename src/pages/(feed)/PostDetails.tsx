@@ -37,7 +37,7 @@ const PostDetails = () => {
   }
 
   return (
-    <div className="min-h-screen animate-in slide-in-from-right-5 overflow-hidden rounded-none border-y border-zinc-100 bg-white pb-16 shadow-sm duration-300 dark:border-zinc-800 dark:bg-black md:rounded-xl md:border">
+    <div className="min-h-screen animate-in slide-in-from-right-5 overflow-hidden rounded-none border-y border-zinc-100 bg-white shadow-sm duration-300 dark:border-zinc-800 dark:bg-black md:rounded-xl md:border pb-[calc(60px+env(safe-area-inset-bottom))]">
       <div className="border-b border-zinc-100 dark:border-zinc-800">
         <div className="sticky top-0 z-20 border-b border-zinc-100 bg-white/90 px-4 py-3 backdrop-blur-md dark:border-zinc-800 dark:bg-black/90">
           <div className="flex items-center gap-x-4">

@@ -52,7 +52,7 @@ const Reels = () => {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-black md:rounded-xl">
       <button
         onClick={() => navigate(-1)}
-        className="absolute left-6 top-6 z-50 rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
+        className="absolute left-6 top-[max(1.5rem,env(safe-area-inset-top)+1.5rem)] z-50 rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
         title="Back"
       >
         <ArrowLeft size={24} strokeWidth={2.5} />
@@ -60,7 +60,7 @@ const Reels = () => {
 
       <button
         onClick={toggleMute}
-        className="absolute right-6 top-6 z-50 rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
+        className="absolute right-6 top-[max(1.5rem,env(safe-area-inset-top)+1.5rem)] z-50 rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
         title={isMuted ? "Unmute" : "Mute"}
       >
         {isMuted ? (

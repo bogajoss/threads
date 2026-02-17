@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import BottomNav from "./BottomNav";
@@ -14,7 +14,6 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { darkMode } = useTheme();
 
   const isHomePage = location.pathname === "/" || location.pathname === "/feed";
@@ -27,10 +26,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
     location.pathname === "/edit-profile" ||
     (location.pathname.startsWith("/m") &&
       location.pathname.split("/").length > 2);
-
-  const handleProfileClick = (handle: string) => {
-    navigate(`/u/${handle}`);
-  };
 
   return (
     <div
@@ -62,7 +57,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
         </main>
       </div>
 
-      {!isNavHidden && <BottomNav handleProfileClick={handleProfileClick} />}
+      {!isNavHidden && <BottomNav />}
     </div>
   );
 };

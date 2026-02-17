@@ -1,88 +1,94 @@
 import React from "react";
-import { motion } from "framer-motion";
 import {
   HomeIcon,
-  ChatIcon,
-  CommunityIcon,
-  ReelsIcon,
-  NotificationsIcon,
-} from "@/components/ui";
+  SearchIcon,
+  VideoIcon,
+  MessageCircle,
+  Bell,
+  User,
+} from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
+import { cn } from "@/lib/utils";
 
-interface BottomNavProps {
-  handleProfileClick: (handle: string) => void;
-}
+const BottomNav: React.FC = () => {
+    const { currentUser } = useAuth();
+    const location = useLocation();
 
-const BottomNav: React.FC<BottomNavProps> = ({ handleProfileClick }) => {
-  const { currentUser } = useAuth();
-  const { unreadCount: notificationsCount } = useNotifications(currentUser);
-  const { unreadCount: messagesCount } = useConversations(currentUser);
-  const location = useLocation();
+    // Hooks might not be available if not wrapped properly or auth is loading, handle gracefully
+    const notifications = useNotifications(currentUser);
+    const conversations = useConversations(currentUser);
+    
+    const unreadNotifications = notifications?.unreadCount || 0;
+    const unreadMessages = conversations?.unreadCount || 0;
 
-  const navItems = [
+    const navItems = [
     { id: "home", icon: HomeIcon, path: "/feed" },
-    { id: "explore", icon: CommunityIcon, path: "/explore" },
-    { id: "reels", icon: ReelsIcon, path: "/r" },
-    { id: "messages", icon: ChatIcon, path: "/m" },
-    { id: "notifications", icon: NotificationsIcon, path: "/notifications" },
-  ];
+    { id: "explore", icon: SearchIcon, path: "/explore" },
+    { id: "create", icon: VideoIcon, path: "/create", isSpecial: true },
+    { id: "notifications", icon: Bell, path: "/notifications", count: unreadNotifications },
+    { id: "messages", icon: MessageCircle, path: "/m", count: unreadMessages }, 
+    { id: "profile", icon: User, path: currentUser ? `/u/${currentUser.handle}` : "/login", isProfile: true },
+    ];
 
-  return (
-    <nav className="pb-safe fixed bottom-0 left-0 right-0 z-[40] flex h-16 items-center border-t border-zinc-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-black/90 md:hidden">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.id}
-          to={item.path}
-          aria-label={item.id}
-          className={({ isActive }) =>
-            `relative flex h-full flex-1 flex-col items-center justify-center transition-colors duration-200 ${isActive ? "text-black dark:text-white" : "text-zinc-400 opacity-70"}`
-          }
-        >
-          {({ isActive }) => (
-            <motion.div
-              whileTap={{ scale: 0.9 }}
-              animate={{ scale: isActive ? 1.1 : 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="flex flex-col items-center"
+    return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-start justify-around border-t border-zinc-200 bg-white/95 backdrop-blur-md px-2 pt-3 pb-[env(safe-area-inset-bottom)] dark:border-zinc-800 dark:bg-black/95 transition-transform duration-300 md:hidden print:hidden touch-manipulation">
+        {navItems.map((item) => {
+        const isActive = location.pathname === item.path || (item.path !== '/' && item.path !== '/login' && location.pathname.startsWith(item.path));
+        
+        if (item.isProfile) {
+                return (
+                <NavLink
+                key={item.id}
+                to={item.path}
+                className={({ isActive }) =>
+                    cn(
+                    "relative flex flex-col items-center justify-center transition-all active:scale-90",
+                    isActive 
+                        ? "ring-2 ring-black dark:ring-white ring-offset-2 ring-offset-white dark:ring-offset-black rounded-full" 
+                        : ""
+                    )
+                }
+                >
+                <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-800">
+                    <AvatarImage src={currentUser?.avatar} alt={currentUser?.handle} className="object-cover" />
+                    <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
+                </NavLink>
+                )
+        }
+
+        return (
+            <NavLink
+            key={item.id}
+            to={item.path}
+            className={({ isActive }) =>
+                cn(
+                "relative flex flex-col items-center justify-center p-2 transition-colors active:scale-90", 
+                isActive ? "text-black dark:text-white" : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
+                )
+            }
             >
-              <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
-              {item.id === "notifications" && notificationsCount > 0 && (
-                <span className="absolute right-0 top-0 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
-              )}
-              {item.id === "messages" && messagesCount > 0 && (
-                <span className="absolute right-0 top-0 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-black"></span>
-              )}
-            </motion.div>
-          )}
-        </NavLink>
-      ))}
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        onClick={() => {
-          if (currentUser) handleProfileClick(currentUser.handle);
-        }}
-        aria-label="My Profile"
-        className="flex h-full flex-1 flex-col items-center justify-center"
-      >
-        <Avatar
-          className={`size-7 border-2 transition-all ${location.pathname.startsWith("/u/") ? "border-black dark:border-white scale-110" : "border-transparent opacity-70"}`}
-        >
-          <AvatarImage
-            src={currentUser?.avatar || "/default-avatar.webp"}
-            alt="Profile"
-            className="object-cover"
-          />
-          <AvatarFallback>
-            {currentUser?.handle?.[0]?.toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </motion.button>
+             <div className="relative">
+                <item.icon 
+                    size={26} 
+                    strokeWidth={isActive ? 2.5 : 2} 
+                    className={isActive ? "fill-current" : ""} 
+                />
+                 {item.count ? (
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-black animate-in zoom-in duration-200">
+                    {item.count > 9 ? "9+" : item.count}
+                    </span>
+                ) : null}
+            </div>
+            </NavLink>
+        );
+        })}
     </nav>
-  );
+    );
 };
 
 export default BottomNav;
