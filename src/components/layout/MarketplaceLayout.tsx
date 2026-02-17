@@ -30,10 +30,11 @@ const MarketplaceLayout: React.FC = () => {
           <nav className="flex items-center gap-1 sm:gap-4">
             <Link
               to="/pro"
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/pro"
-                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
-                }`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                location.pathname === "/pro"
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                  : "hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400"
+              }`}
             >
               <Crown size={18} />
               <span className="hidden xs:inline">Pro</span>
@@ -43,12 +44,13 @@ const MarketplaceLayout: React.FC = () => {
       </header>
 
       <main className="w-full">
-
-        <Suspense fallback={
-          <div className="container mx-auto py-8 px-4 flex flex-col">
-            <SkeletonPost />
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="container mx-auto py-8 px-4 flex flex-col">
+              <SkeletonPost />
+            </div>
+          }
+        >
           <PageTransition>
             <Outlet />
           </PageTransition>

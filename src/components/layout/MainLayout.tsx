@@ -31,7 +31,7 @@ const MainLayout: React.FC<Record<string, never>> = () => {
     <div
       className={cn(
         "min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200",
-        darkMode && "dark"
+        darkMode && "dark",
       )}
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">

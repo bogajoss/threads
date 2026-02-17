@@ -69,18 +69,20 @@ const ReportsManagement: React.FC = () => {
             navigate(`/p/${target_data.post_id}?highlight=${target_id}`);
           }
           break;
-        case "user":
+        case "user": {
           // Try to get user handle from target_data or use ID
           const userHandle = target_data?.handle || target_id;
           navigate(`/u/${userHandle}`);
           break;
+        }
         case "community":
           navigate(`/c/${target_id}`);
           break;
-        case "profile":
+        case "profile": {
           const profileHandle = target_data?.handle || target_id;
           navigate(`/u/${profileHandle}`);
           break;
+        }
         default:
           console.warn("Unknown report type:", target_type);
       }
@@ -91,17 +93,16 @@ const ReportsManagement: React.FC = () => {
 
   const handleResolveReport = async (report: any) => {
     if (
-      confirm(
-        `Delete the reported ${report.target_type} and mark as resolved?`
-      )
+      confirm(`Delete the reported ${report.target_type} and mark as resolved?`)
     ) {
       setDeletingReportId(report.id);
       try {
         await new Promise((resolve) => {
           const timeoutId = setTimeout(resolve, 500);
-          actions.deleteTarget(
-            { type: report.target_type, id: report.target_id }
-          );
+          actions.deleteTarget({
+            type: report.target_type,
+            id: report.target_id,
+          });
           return () => clearTimeout(timeoutId);
         });
 
@@ -124,7 +125,9 @@ const ReportsManagement: React.FC = () => {
             <Flag className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight">Reports Queue</h1>
+            <h1 className="text-2xl font-black tracking-tight">
+              Reports Queue
+            </h1>
             <p className="text-sm text-zinc-500">
               Monitor and resolve community reported content
             </p>
@@ -183,7 +186,8 @@ const ReportsManagement: React.FC = () => {
       {/* Filter */}
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-          Showing {filteredReports.length} report{filteredReports.length !== 1 ? "s" : ""}
+          Showing {filteredReports.length} report
+          {filteredReports.length !== 1 ? "s" : ""}
         </p>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[150px] rounded-xl border-zinc-200 dark:border-zinc-800">
@@ -254,7 +258,7 @@ const ReportsManagement: React.FC = () => {
                         ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
                         : report.status === "resolved"
                           ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : "bg-zinc-500/10 text-zinc-700 dark:text-zinc-400"
+                          : "bg-zinc-500/10 text-zinc-700 dark:text-zinc-400",
                     )}
                   >
                     {report.status === "pending" && (

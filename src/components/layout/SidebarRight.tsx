@@ -36,7 +36,7 @@ const FooterLinks = () => (
         <Link key={link.name} to={link.path} className="hover:underline">
           {link.name}
         </Link>
-      )
+      ),
     )}
   </div>
 );
@@ -56,7 +56,9 @@ const SidebarRight = () => {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
-      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}&tab=posts`);
+      navigate(
+        `/explore?q=${encodeURIComponent(searchQuery.trim())}&tab=posts`,
+      );
       setSearchQuery("");
     }
   };

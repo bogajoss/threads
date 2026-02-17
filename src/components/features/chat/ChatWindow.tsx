@@ -1,13 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Check,
-  CheckCheck,
-  Reply as ReplyIcon,
-} from "lucide-react";
+import { Check, CheckCheck, Reply as ReplyIcon } from "lucide-react";
 import MessageSkeleton from "./skeleton-message";
-import {
-  TypingIndicator,
-} from "@/components/ui";
+import { TypingIndicator } from "@/components/ui";
 import { useLightbox } from "@/context/LightboxContext";
 import {
   ChatHeader,
@@ -66,7 +60,7 @@ const MessageBubble = ({
   onDeleteMessage,
   setEditingMessage,
   onToggleReaction,
-  currentUser
+  currentUser,
 }: any) => {
   const x = useMotionValue(0);
   const swipeThreshold = -60;
@@ -140,16 +134,23 @@ const MessageBubble = ({
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      const el = document.getElementById(`msg-${msg.replyTo.id}`);
+                      const el = document.getElementById(
+                        `msg-${msg.replyTo.id}`,
+                      );
                       if (el) {
-                        el.scrollIntoView({ behavior: "smooth", block: "center" });
+                        el.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
                       }
                     }}
                   >
                     <div className="flex items-center gap-1.5 mb-0.5 opacity-75">
                       <ReplyIcon size={12} />
                       <span className="font-bold truncate">
-                        {msg.replyTo.senderName === currentUser?.name ? "You" : msg.replyTo.senderName}
+                        {msg.replyTo.senderName === currentUser?.name
+                          ? "You"
+                          : msg.replyTo.senderName}
                       </span>
                     </div>
                     <div className="truncate opacity-90 text-[11px]">
@@ -195,13 +196,19 @@ const MessageBubble = ({
                       <div className="h-12 w-48 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" />
                     }
                   >
-                    {handleVoiceMessage(msg.media[0].url, msg.media[0].duration, isMe)}
+                    {handleVoiceMessage(
+                      msg.media[0].url,
+                      msg.media[0].duration,
+                      isMe,
+                    )}
                   </React.Suspense>
                 )}
 
                 {msg.text && msg.type !== "voice" && (
                   <div className="whitespace-pre-wrap break-words pr-12">
-                    <Linkify options={{ ...linkifyOptions, className: "underline" }}>
+                    <Linkify
+                      options={{ ...linkifyOptions, className: "underline" }}
+                    >
                       {msg.text}
                     </Linkify>
                   </div>
@@ -217,9 +224,13 @@ const MessageBubble = ({
                     <span className="text-[10px]">
                       {msg.isOptimistic ? "sending..." : msg.time}
                     </span>
-                    {isMe && !msg.isOptimistic && (
-                      msg.isRead ? <CheckCheck size={13} className="text-white" /> : <Check size={13} className="text-white/60" />
-                    )}
+                    {isMe &&
+                      !msg.isOptimistic &&
+                      (msg.isRead ? (
+                        <CheckCheck size={13} className="text-white" />
+                      ) : (
+                        <Check size={13} className="text-white/60" />
+                      ))}
                   </div>
                 )}
               </div>
@@ -228,7 +239,9 @@ const MessageBubble = ({
               <ContextMenuItem onSelect={() => setReplyingTo(msg)}>
                 Reply
               </ContextMenuItem>
-              <ContextMenuItem onSelect={() => navigator.clipboard.writeText(msg.text)}>
+              <ContextMenuItem
+                onSelect={() => navigator.clipboard.writeText(msg.text)}
+              >
                 Copy
               </ContextMenuItem>
               {isMe && (

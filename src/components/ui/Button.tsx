@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
-  | "primary"
-  | "secondary"
-  | "outline"
-  | "danger"
-  | "ghost"
-  | "violet"
-  | "animated";
+    | "primary"
+    | "secondary"
+    | "outline"
+    | "danger"
+    | "ghost"
+    | "violet"
+    | "animated";
   size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
   className?: string;
@@ -56,7 +56,13 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   if (variant === "animated") {
-    const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props as any;
+     
+    const {
+      onDrag: _onDrag,
+      onDragStart: _onDragStart,
+      onDragEnd: _onDragEnd,
+      ...buttonProps
+    } = props as any;
     return (
       <motion.button
         whileTap={{ scale: 0.98 }}
@@ -67,9 +73,7 @@ const Button: React.FC<ButtonProps> = ({
         <div className="svg-wrapper-1">
           <div className="svg-wrapper">
             {icon ? (
-              <div className="icon-wrapper [&>svg]:w-4 [&>svg]:h-4">
-                {icon}
-              </div>
+              <div className="icon-wrapper [&>svg]:w-4 [&>svg]:h-4">{icon}</div>
             ) : (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +96,13 @@ const Button: React.FC<ButtonProps> = ({
     );
   }
 
-  const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props as any;
+   
+  const {
+    onDrag: _onDrag,
+    onDragStart: _onDragStart,
+    onDragEnd: _onDragEnd,
+    ...buttonProps
+  } = props as any;
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}

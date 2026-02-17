@@ -45,8 +45,12 @@ const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 
 // Admin Pages
-const UserManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/users/UserManagement"));
-const ReportsManagement = lazy(() => import("@/pages/(admin)/syspanel/sections/reports/ReportsManagement"));
+const UserManagement = lazy(
+  () => import("@/pages/(admin)/syspanel/sections/users/UserManagement"),
+);
+const ReportsManagement = lazy(
+  () => import("@/pages/(admin)/syspanel/sections/reports/ReportsManagement"),
+);
 
 // Info Pages
 const Terms = lazy(() => import("@/pages/(info)/Terms"));

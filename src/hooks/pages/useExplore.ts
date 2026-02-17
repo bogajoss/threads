@@ -35,7 +35,7 @@ export const useExplore = () => {
       if (searchQuery) {
         return searchUsers(searchQuery);
       }
-      return searchUsers(""); 
+      return searchUsers("");
     },
     enabled: activeTab === "users",
     initialPageParam: null as string | null,

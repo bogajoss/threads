@@ -45,12 +45,7 @@ const Modal: React.FC<ModalProps> = ({
           className,
         )}
       >
-        <DialogHeader
-          className={cn(
-            "shrink-0 px-5 py-4",
-            !title && "sr-only",
-          )}
-        >
+        <DialogHeader className={cn("shrink-0 px-5 py-4", !title && "sr-only")}>
           <DialogTitle className="text-center text-lg font-bold">
             {title}
           </DialogTitle>

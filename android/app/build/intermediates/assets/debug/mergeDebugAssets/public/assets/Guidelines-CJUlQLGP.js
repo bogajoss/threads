@@ -1,1 +1,87 @@
-import{a as c}from"./rolldown-runtime-BaZ8gS7u.js";import{o,s as n}from"./animations-pEILWrFP.js";import{c as m}from"./framework-di2JoXyY.js";var h=m(),_=c(n(),1),t=c(o(),1),x=()=>{const e=(0,h.c)(5);let s,r;e[0]===Symbol.for("react.memo_cache_sentinel")?(s=(0,t.jsx)("h1",{className:"text-4xl font-extrabold tracking-tight lg:text-5xl",children:"Community Guidelines"}),r=(0,t.jsx)("p",{className:"text-xl text-zinc-500",children:"How we keep Sysm safe and welcoming."}),e[0]=s,e[1]=r):(s=e[0],r=e[1]);let i;e[2]===Symbol.for("react.memo_cache_sentinel")?(i=(0,t.jsxs)("section",{className:"mt-8 space-y-4",children:[(0,t.jsx)("h2",{className:"text-2xl font-bold",children:"1. Be Respectful"}),(0,t.jsx)("p",{children:"Treat others with respect. Harassment, bullying, and hate speech are strictly prohibited."})]}),e[2]=i):i=e[2];let l;e[3]===Symbol.for("react.memo_cache_sentinel")?(l=(0,t.jsxs)("section",{className:"space-y-4",children:[(0,t.jsx)("h2",{className:"text-2xl font-bold",children:"2. Share Authentic Content"}),(0,t.jsx)("p",{children:"Don't impersonate others or share misleading information. Be yourself."})]}),e[3]=l):l=e[3];let a;return e[4]===Symbol.for("react.memo_cache_sentinel")?(a=(0,t.jsxs)("div",{className:"space-y-6",children:[s,r,i,l,(0,t.jsxs)("section",{className:"space-y-4",children:[(0,t.jsx)("h2",{className:"text-2xl font-bold",children:"3. No Spam"}),(0,t.jsx)("p",{children:"Keep the community clean. Avoid excessive self-promotion or repetitive content."})]})]}),e[4]=a):a=e[4],a},u=x;export{u as default};
+import { a as c } from "./rolldown-runtime-BaZ8gS7u.js";
+import { o, s as n } from "./animations-pEILWrFP.js";
+import { c as m } from "./framework-di2JoXyY.js";
+var h = m(),
+  _ = c(n(), 1),
+  t = c(o(), 1),
+  x = () => {
+    const e = (0, h.c)(5);
+    let s, r;
+    e[0] === Symbol.for("react.memo_cache_sentinel")
+      ? ((s = (0, t.jsx)("h1", {
+          className: "text-4xl font-extrabold tracking-tight lg:text-5xl",
+          children: "Community Guidelines",
+        })),
+        (r = (0, t.jsx)("p", {
+          className: "text-xl text-zinc-500",
+          children: "How we keep Sysm safe and welcoming.",
+        })),
+        (e[0] = s),
+        (e[1] = r))
+      : ((s = e[0]), (r = e[1]));
+    let i;
+    e[2] === Symbol.for("react.memo_cache_sentinel")
+      ? ((i = (0, t.jsxs)("section", {
+          className: "mt-8 space-y-4",
+          children: [
+            (0, t.jsx)("h2", {
+              className: "text-2xl font-bold",
+              children: "1. Be Respectful",
+            }),
+            (0, t.jsx)("p", {
+              children:
+                "Treat others with respect. Harassment, bullying, and hate speech are strictly prohibited.",
+            }),
+          ],
+        })),
+        (e[2] = i))
+      : (i = e[2]);
+    let l;
+    e[3] === Symbol.for("react.memo_cache_sentinel")
+      ? ((l = (0, t.jsxs)("section", {
+          className: "space-y-4",
+          children: [
+            (0, t.jsx)("h2", {
+              className: "text-2xl font-bold",
+              children: "2. Share Authentic Content",
+            }),
+            (0, t.jsx)("p", {
+              children:
+                "Don't impersonate others or share misleading information. Be yourself.",
+            }),
+          ],
+        })),
+        (e[3] = l))
+      : (l = e[3]);
+    let a;
+    return (
+      e[4] === Symbol.for("react.memo_cache_sentinel")
+        ? ((a = (0, t.jsxs)("div", {
+            className: "space-y-6",
+            children: [
+              s,
+              r,
+              i,
+              l,
+              (0, t.jsxs)("section", {
+                className: "space-y-4",
+                children: [
+                  (0, t.jsx)("h2", {
+                    className: "text-2xl font-bold",
+                    children: "3. No Spam",
+                  }),
+                  (0, t.jsx)("p", {
+                    children:
+                      "Keep the community clean. Avoid excessive self-promotion or repetitive content.",
+                  }),
+                ],
+              }),
+            ],
+          })),
+          (e[4] = a))
+        : (a = e[4]),
+      a
+    );
+  },
+  u = x;
+export { u as default };

@@ -64,10 +64,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const { openReport } = useReportModal();
   const [isStartingChat, setIsStartingChat] = useState(false);
 
-  // Use hook even if profile is null to avoid hook conditional rules, 
+  // Use hook even if profile is null to avoid hook conditional rules,
   // but we need to be careful. usage of hooks must be consistent.
   // Actually, better to return early ONLY if we can verify hooks aren't compromised.
-  // But wait, useFollow expects a profile. 
+  // But wait, useFollow expects a profile.
   // It is safer to render Skeleton in the parent or handle it here gracefully.
   // The prompt asks to return ProfileSkeleton if profile is null.
 
@@ -130,8 +130,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
       <div className="flex flex-col space-y-4 p-4 pt-16 sm:p-6 sm:pt-20">
         <div className="flex items-start justify-between">
-          <div className="min-w-0 flex-1 pr-4">
-          </div>
+          <div className="min-w-0 flex-1 pr-4"></div>
           <div className="flex shrink-0 gap-2">
             {isCurrentUser ? (
               <div className="flex gap-2">
@@ -206,7 +205,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer gap-2"
-                        onClick={() => openReport(isCommunity ? "community" : "user", profile.id)}
+                        onClick={() =>
+                          openReport(
+                            isCommunity ? "community" : "user",
+                            profile.id,
+                          )
+                        }
                       >
                         <Flag size={16} />
                         Report {isCommunity ? "community" : "user"}

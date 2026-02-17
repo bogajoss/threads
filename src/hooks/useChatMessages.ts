@@ -89,9 +89,9 @@ export const useChatMessages = (
           reactions: reactions.filter((r) => r.message_id === m.id),
           time: m.created_at
             ? new Date(m.created_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+                hour: "2-digit",
+                minute: "2-digit",
+              })
             : "Just now",
           updatedAt: m.updated_at,
           isOptimistic: m.isOptimistic,
@@ -229,11 +229,11 @@ export const useChatMessages = (
             ...old,
             pages: old.pages.map((page: any[]) =>
               page.map((m: any) =>
-                m.id === messageId ? { ...m, content } : m
-              )
+                m.id === messageId ? { ...m, content } : m,
+              ),
             ),
           };
-        }
+        },
       );
 
       return { previousMessages };
@@ -250,7 +250,7 @@ export const useChatMessages = (
     onError: (_err, _vars, context) => {
       queryClient.setQueryData(
         ["messages", activeConversationId],
-        context?.previousMessages
+        context?.previousMessages,
       );
       addToast("Failed to edit message", "error");
     },
@@ -268,7 +268,10 @@ export const useChatMessages = (
     ]);
 
     const existingReaction = previousReactions?.find(
-      (r) => r.message_id === messageId && r.user_id === currentUser.id && r.emoji === emoji
+      (r) =>
+        r.message_id === messageId &&
+        r.user_id === currentUser.id &&
+        r.emoji === emoji,
     );
 
     queryClient.setQueryData<Reaction[]>(
@@ -285,7 +288,7 @@ export const useChatMessages = (
           created_at: new Date().toISOString(),
         };
         return [...old, optimisticReaction];
-      }
+      },
     );
 
     try {
@@ -297,7 +300,7 @@ export const useChatMessages = (
       console.error("Failed to toggle reaction:", err);
       queryClient.setQueryData(
         ["reactions", activeConversationId],
-        previousReactions
+        previousReactions,
       );
       addToast("Failed to update reaction", "error");
     }
@@ -321,10 +324,10 @@ export const useChatMessages = (
           return {
             ...old,
             pages: old.pages.map((page: any[]) =>
-              page.filter((m: any) => m.id !== messageId)
+              page.filter((m: any) => m.id !== messageId),
             ),
           };
-        }
+        },
       );
 
       return { previousMessages };
@@ -340,7 +343,7 @@ export const useChatMessages = (
     onError: (_err, _messageId, context) => {
       queryClient.setQueryData(
         ["messages", activeConversationId],
-        context?.previousMessages
+        context?.previousMessages,
       );
       addToast("Failed to delete message", "error");
     },

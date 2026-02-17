@@ -13,11 +13,19 @@ export const adminApi = {
     return (data || []).map(transformUser);
   },
 
-  async updateUserRole(userId: string, role: 'user' | 'admin' | 'moderator') {
-    const { error } = await (supabase.from("users") as any)
-      .update({ role })
-      .eq("id", userId);
-    if (error) throw error;
+  async updateUserRole(userId: string, role: "user" | "admin" | "moderator") {
+    if (role === "user") {
+      // Remove from admins table — sync_admin_role trigger auto-sets users.role = 'user'
+      const { error } = await supabase.from("admins").delete().eq("user_id", userId);
+      if (error) throw error;
+    } else {
+      // Upsert into admins table — sync_admin_role trigger auto-sets users.role
+      const { error } = await supabase.from("admins").upsert({
+        user_id: userId,
+        role: role
+      });
+      if (error) throw error;
+    }
   },
 
   async toggleUserVerification(userId: string, isVerified: boolean) {
@@ -28,9 +36,9 @@ export const adminApi = {
   },
 
   async toggleUserBan(userId: string, isBanned: boolean) {
-    const { error } = await (supabase as any).rpc("toggle_user_ban", { 
-      target_user_id: userId, 
-      ban_status: isBanned 
+    const { error } = await (supabase as any).rpc("toggle_user_ban", {
+      target_user_id: userId,
+      ban_status: isBanned,
     });
     if (error) throw error;
   },
@@ -43,18 +51,17 @@ export const adminApi = {
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) throw error;
-    
-    return (data || []).map((post: any) => transformPost({ 
-      ...post, 
-      author_data: post.user 
-    }));
+
+    return (data || []).map((post: any) =>
+      transformPost({
+        ...post,
+        author_data: post.user,
+      }),
+    );
   },
 
   async deletePost(postId: string) {
-    const { error } = await supabase
-      .from("posts")
-      .delete()
-      .eq("id", postId);
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
     if (error) throw error;
   },
 
@@ -84,7 +91,10 @@ export const adminApi = {
     return data;
   },
 
-  async updateReportStatus(reportId: string, status: 'pending' | 'resolved' | 'dismissed') {
+  async updateReportStatus(
+    reportId: string,
+    status: "pending" | "resolved" | "dismissed",
+  ) {
     const { error } = await (supabase.from("reports") as any)
       .update({ status })
       .eq("id", reportId);
@@ -99,15 +109,24 @@ export const adminApi = {
     let table = "posts";
     if (targetType === "community") table = "communities";
     
-    const { error } = await (supabase.from(table) as any).delete().eq("id", targetId);
+    // Explicitly cast to any to bypass strict type check for dynamic table name
+    // The previous error was because 'string' type of 'table' variable 
+    // doesn't match the specific string literals expected by supabase.from()
+    const { error } = await (supabase.from(table as any) as any)
+      .delete()
+      .eq("id", targetId);
     if (error) throw error;
   },
 
   // Analytics
   async getAnalytics() {
-    const { data: usersData } = await supabase.from("users").select("created_at");
-    const { data: postsData } = await supabase.from("posts").select("created_at");
-    
+    const { data: usersData } = await supabase
+      .from("users")
+      .select("created_at");
+    const { data: postsData } = await supabase
+      .from("posts")
+      .select("created_at");
+
     return {
       usersByDay: usersData || [],
       postsByDay: postsData || [],
@@ -116,13 +135,18 @@ export const adminApi = {
 
   // System Settings
   async getSettings() {
-    const { data, error } = await supabase.from("system_settings" as any).select("*").single();
+    const { data, error } = await supabase
+      .from("system_settings" as any)
+      .select("*")
+      .single();
     if (error) return { maintenance_mode: false, allow_signups: true };
     return data;
   },
 
   async updateSettings(settings: any) {
-    const { error } = await (supabase.from("system_settings" as any) as any).upsert(settings);
+    const { error } = await (
+      supabase.from("system_settings" as any) as any
+    ).upsert(settings);
     if (error) throw error;
-  }
+  },
 };

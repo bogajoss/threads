@@ -21,16 +21,12 @@
     {
       "minApi": 28,
       "maxApi": 30,
-      "baselineProfiles": [
-        "baselineProfiles/1/app-release-unsigned.dm"
-      ]
+      "baselineProfiles": ["baselineProfiles/1/app-release-unsigned.dm"]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
-      "baselineProfiles": [
-        "baselineProfiles/0/app-release-unsigned.dm"
-      ]
+      "baselineProfiles": ["baselineProfiles/0/app-release-unsigned.dm"]
     }
   ],
   "minSdkVersionForDexing": 24

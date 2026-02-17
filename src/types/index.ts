@@ -6,7 +6,10 @@ export interface User {
   avatar: string;
   cover: string;
   verified: boolean;
-  role: 'user' | 'admin' | 'moderator';
+  role: "user" | "admin" | "moderator";
+  roles?: "Elite" | "Hunter" | "Newbie";
+  isPro?: boolean;
+  postsCount?: number;
   bio: string | null;
   location: string | null;
   website: string | null;
@@ -61,7 +64,7 @@ export interface Post {
   user_id: string;
   content: string;
   media: Media[] | null;
-  type: "text" | "image" | "video" | "reel";
+  type: "text" | "image" | "video" | "reel" | "poll" | "repost" | "file";
   poll: any | null;
   parent_id: string | null;
   community_id: string | null;
@@ -76,6 +79,7 @@ export interface Post {
   commenterAvatars?: string[];
   sort_timestamp?: string;
   sortTimestamp?: string;
+  score?: number; // Added for algorithmic feed cursor
 }
 
 export interface Comment {

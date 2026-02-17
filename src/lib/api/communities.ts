@@ -41,15 +41,35 @@ export const fetchCommunityPosts = async (
   limit: number = 10,
 ): Promise<Post[]> => {
   let query = supabase
-    .from("unified_posts")
-    .select("*")
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                role,
+                roles,
+                is_pro
+            ),
+            communities (
+                id,
+                handle,
+                name,
+                avatar_url
+            )
+        `,
+    )
     .eq("community_id", communityId)
-    .is("reposter_id", null)
-    .order("sort_timestamp", { ascending: false })
+    .neq("type", "reel")
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
-    query = query.lt("sort_timestamp", lastTimestamp);
+    query = query.lt("created_at", lastTimestamp);
   }
 
   const { data, error } = await query;
@@ -248,7 +268,9 @@ export const updateMemberRole = async (
   return data;
 };
 
-export const checkCommunityHandleAvailability = async (handle: string): Promise<boolean> => {
+export const checkCommunityHandleAvailability = async (
+  handle: string,
+): Promise<boolean> => {
   if (!handle) return false;
   const { count, error } = await (supabase.from("communities") as any)
     .select("*", { count: "exact", head: true })

@@ -281,7 +281,9 @@ const ProPage: React.FC = () => {
               <span className="text-6xl font-black text-foreground tracking-tighter drop-shadow-lg">
                 $29
               </span>
-              <span className="text-2xl text-muted-foreground font-medium">/mo</span>
+              <span className="text-2xl text-muted-foreground font-medium">
+                /mo
+              </span>
             </div>
             <p className="text-sm font-medium text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
               Save 20% with annual billing

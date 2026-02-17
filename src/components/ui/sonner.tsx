@@ -34,7 +34,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <InfoIcon className="size-4" />,
         warning: <TriangleAlertIcon className="size-4" />,
         error: <OctagonXIcon className="size-4" />,
-        loading: <span className="size-4 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />,
+        loading: (
+          <span className="size-4 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800" />
+        ),
       }}
       style={
         {

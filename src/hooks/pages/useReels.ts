@@ -20,9 +20,13 @@ export const useReels = () => {
       initialPageParam: null as string | null,
       getNextPageParam: (lastPage) => {
         if (!lastPage || lastPage.length < 10) return undefined;
+        const lastReel = lastPage[lastPage.length - 1];
+        if (lastReel.score !== undefined) {
+          return `${lastReel.id}:${lastReel.score}`;
+        }
         return (
-          lastPage[lastPage.length - 1].sort_timestamp ||
-          lastPage[lastPage.length - 1].created_at
+          lastReel.sort_timestamp ||
+          lastReel.created_at
         );
       },
     });

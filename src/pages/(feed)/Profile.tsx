@@ -18,10 +18,7 @@ import ProfileSkeleton from "@/components/features/profile/skeleton-profile";
 import { useProfile } from "@/hooks/pages/useProfile";
 import type { Post as PostType } from "@/types";
 
-interface ProfileProps {
-}
-
-const Profile: React.FC<ProfileProps> = () => {
+const Profile: React.FC = () => {
   const {
     handle,
     profile,

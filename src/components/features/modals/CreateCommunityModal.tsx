@@ -4,7 +4,11 @@ import Button from "@/components/ui/Button";
 import { Users, Camera, CheckCircle2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { createCommunity, uploadFile, checkCommunityHandleAvailability } from "@/lib/api";
+import {
+  createCommunity,
+  uploadFile,
+  checkCommunityHandleAvailability,
+} from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -43,7 +47,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
       const timer = setTimeout(async () => {
         setHandleStatus({ loading: true, available: null });
         try {
-          const isAvailable = await checkCommunityHandleAvailability(formData.handle);
+          const isAvailable = await checkCommunityHandleAvailability(
+            formData.handle,
+          );
           setHandleStatus({ loading: false, available: isAvailable });
         } catch {
           setHandleStatus({ loading: false, available: null });
@@ -93,7 +99,14 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.handle || formData.handle.length < 5 || !currentUser || handleStatus.available === false) return;
+    if (
+      !formData.name ||
+      !formData.handle ||
+      formData.handle.length < 5 ||
+      !currentUser ||
+      handleStatus.available === false
+    )
+      return;
 
     createMutation.mutate({
       name: formData.name,
@@ -241,7 +254,12 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             type="submit"
             className="flex-1"
             disabled={
-              createMutation.isPending || loading || !formData.name || !formData.handle || formData.handle.length < 5 || handleStatus.available === false
+              createMutation.isPending ||
+              loading ||
+              !formData.name ||
+              !formData.handle ||
+              formData.handle.length < 5 ||
+              handleStatus.available === false
             }
           >
             {createMutation.isPending ? (

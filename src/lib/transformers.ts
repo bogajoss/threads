@@ -19,8 +19,11 @@ export const transformUser = (supabaseUser: any): User | null => {
     name: supabaseUser.display_name,
     avatar: supabaseUser.avatar_url || "/default-avatar.webp",
     cover: supabaseUser.cover_url || "/welcome-banner.webp",
-    verified: supabaseUser.is_verified,
-    role: supabaseUser.role || 'user',
+    verified: supabaseUser.is_verified ?? false,
+    role: supabaseUser.role || "user",
+    roles: supabaseUser.roles || "Newbie",
+    isPro: supabaseUser.is_pro || false,
+    postsCount: supabaseUser.posts_count || 0,
     bio: supabaseUser.bio,
     location: supabaseUser.location,
     website: supabaseUser.website,
@@ -39,9 +42,13 @@ export const transformPost = (post: any): Post | null => {
     post.reposter_id || post.reposter_data?.id || post.reposted_by?.id;
 
   const timestamp = new Date(post.sort_timestamp || post.created_at).getTime();
+  
+  // RPC feeds return post_id; direct queries return id
+  const postId = post.id || post.post_id;
+  
   const baseKey =
     post.feed_id ||
-    (reposterId ? `${post.id}-${reposterId}` : `${post.id}-orig`);
+    (reposterId ? `${postId}-${reposterId}` : `${postId}-orig`);
   const uniqueKey = `${baseKey}-${timestamp}`;
 
   const user = transformUser(post.author_data || post.user);
@@ -49,13 +56,20 @@ export const transformPost = (post: any): Post | null => {
 
   return {
     ...post,
+    id: postId,
     feed_id: uniqueKey,
+    score: post.rank_score || post.score,
+    type: post.type || "text",
+    user_id: post.user_id,
+    community_id: post.community_id || null,
+    parent_id: post.parent_id || null,
+    poll: post.poll || null,
+    quoted_post_id: post.quoted_post_id || null,
     stats: {
       comments: post.comments_count || 0,
       likes: post.likes_count || 0,
       reposts: post.mirrors_count || 0,
       views: post.views_count || 0,
-      shares: post.shares_count || 0,
     },
     user: user,
     community:
@@ -152,15 +166,17 @@ export const transformMessage = (m: any): Message | null => {
     type: m.type || "text",
     media: m.media || [],
     reply_to_id: m.reply_to_id,
-    reply_to: m.reply_to ? {
-      id: m.reply_to.id,
-      content: m.reply_to.content,
-      sender: {
-        id: m.reply_to.sender?.id,
-        username: m.reply_to.sender?.username,
-        display_name: m.reply_to.sender?.display_name
-      }
-    } : null,
+    reply_to: m.reply_to
+      ? {
+          id: m.reply_to.id,
+          content: m.reply_to.content,
+          sender: {
+            id: m.reply_to.sender?.id,
+            username: m.reply_to.sender?.username,
+            display_name: m.reply_to.sender?.display_name,
+          },
+        }
+      : null,
     is_read: m.is_read,
     created_at: m.created_at,
   };

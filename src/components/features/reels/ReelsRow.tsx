@@ -30,7 +30,10 @@ const ReelsRow: React.FC<ReelsRowProps> = ({ index = 0 }) => {
         </div>
         <div className="flex gap-4 overflow-hidden px-4">
           {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="aspect-[9/16] w-[150px] shrink-0 rounded-xl sm:w-[180px]" />
+            <Skeleton
+              key={i}
+              className="aspect-[9/16] w-[150px] shrink-0 rounded-xl sm:w-[180px]"
+            />
           ))}
         </div>
       </div>

@@ -41,7 +41,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-screen w-72 border-r border-zinc-200 bg-white transition-all duration-300 dark:border-zinc-800 dark:bg-black lg:translate-x-0 hidden lg:flex lg:flex-col",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex h-full flex-col overflow-y-auto">
@@ -92,7 +92,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
                       "flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all",
                       isActive
                         ? "bg-violet-600 text-white shadow-lg shadow-violet-600/30"
-                        : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                        : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900",
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -111,7 +111,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 rounded-lg ring-2 ring-violet-600/20">
-                  <AvatarImage src={currentUser?.avatar} className="rounded-lg" />
+                  <AvatarImage
+                    src={currentUser?.avatar}
+                    className="rounded-lg"
+                  />
                   <AvatarFallback className="rounded-lg bg-violet-500/10 font-bold text-violet-600">
                     {currentUser?.name?.[0] || "A"}
                   </AvatarFallback>

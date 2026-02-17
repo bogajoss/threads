@@ -94,7 +94,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 playPromise.catch(() => {
                   if (player) {
                     player.muted = true;
-                    player.play().catch(() => { });
+                    player.play().catch(() => {});
                   }
                 });
               }
@@ -169,6 +169,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
       if (player && player.duration) {
         const newTime = percentage * player.duration;
+        // eslint-disable-next-line react-hooks/immutability
         player.currentTime = newTime;
         setProgress(percentage * 100);
       }
@@ -205,7 +206,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       const player = playerRef.current?.plyr;
       if (player) {
         if (player.paused) {
-          player.play().catch(() => { });
+          player.play().catch(() => {});
           setShowPlayPauseIcon("play");
         } else {
           player.pause();
@@ -306,7 +307,11 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             ) : (
               <div className="aspect-[9/16] w-full bg-zinc-900">
                 <img
-                  src={reel.media?.[0]?.preview || reel.media?.[0]?.thumbnail || videoUrl}
+                  src={
+                    reel.media?.[0]?.preview ||
+                    reel.media?.[0]?.thumbnail ||
+                    videoUrl
+                  }
                   className="h-full w-full object-cover opacity-50 blur-xl"
                   alt="Reel preview"
                 />
@@ -373,10 +378,11 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               </Link>
               {currentUser?.id !== reel.user?.id && (
                 <button
-                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${isFollowing
+                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                    isFollowing
                       ? "border border-white/50 bg-transparent text-white"
                       : "bg-white text-black hover:bg-zinc-200"
-                    }`}
+                  }`}
                   onClick={handleToggleFollow}
                 >
                   {isFollowing ? (
@@ -449,10 +455,11 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           <div className="absolute bottom-6 right-2 z-10 flex flex-col items-center gap-6">
             <div className="pointer-events-auto flex flex-col items-center gap-1">
               <button
-                className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${isLiked
+                className={`rounded-full p-3 backdrop-blur-md transition-all active:scale-90 ${
+                  isLiked
                     ? "bg-rose-500/20 text-rose-500"
                     : "bg-zinc-800/50 text-white hover:bg-zinc-700"
-                  }`}
+                }`}
                 onClick={handleToggleLike}
               >
                 <Heart size={28} fill={isLiked ? "currentColor" : "none"} />

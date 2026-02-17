@@ -10,7 +10,13 @@ interface MediaGridProps {
   items?: Media[] | Media;
 }
 
-const GridImage = ({ item, onClick }: { item: Media; onClick: (e: React.MouseEvent) => void }) => {
+const GridImage = ({
+  item,
+  onClick,
+}: {
+  item: Media;
+  onClick: (e: React.MouseEvent) => void;
+}) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -20,8 +26,9 @@ const GridImage = ({ item, onClick }: { item: Media; onClick: (e: React.MouseEve
       )}
       <img
         src={item.url || (item as any).src}
-        className={`size-full object-cover transition-all duration-500 hover:scale-[1.02] ${loaded ? "opacity-100" : "opacity-0"
-          }`}
+        className={`size-full object-cover transition-all duration-500 hover:scale-[1.02] ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
         alt=""
         loading="lazy"
         onLoad={() => setLoaded(true)}
@@ -59,7 +66,8 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
     <div className="mt-2 space-y-2">
       {media.length > 0 && (
         <div
-          className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 dark:border-zinc-800 ${media.length === 1
+          className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 dark:border-zinc-800 ${
+            media.length === 1
               ? "grid-cols-1"
               : media.length === 2
                 ? hasVideo
@@ -68,13 +76,14 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
                 : media.length === 3
                   ? "aspect-[16/9] grid-cols-2 grid-rows-2"
                   : "aspect-[16/9] grid-cols-2 grid-rows-2"
-            }`}
+          }`}
         >
           {media.map((item, idx) => (
             <div
               key={idx}
-              className={`relative cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${media.length === 3 && idx === 0 ? "row-span-2" : ""
-                }`}
+              className={`relative cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${
+                media.length === 3 && idx === 0 ? "row-span-2" : ""
+              }`}
             >
               {item.type === "video" ? (
                 <Suspense

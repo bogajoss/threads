@@ -46,11 +46,7 @@ import { usePostInteraction, useComments } from "@/hooks";
 import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
 import { usePosts } from "@/context/PostContext";
-import {
-  uploadFile,
-  incrementPostViews,
-  votePoll,
-} from "@/lib/api";
+import { uploadFile, incrementPostViews, votePoll } from "@/lib/api";
 import { extractUrl } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
 import type { User, Media, CommunityShort } from "@/types";
@@ -95,8 +91,8 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
   return (
     <div className="relative mt-2 h-7 w-7">
       {displayAvatars.map((avatar, i) => {
-        let positionClass = "";
-        let sizeClass = "";
+        let positionClass: string;
+        let sizeClass: string;
 
         if (displayAvatars.length === 1) {
           positionClass = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
@@ -295,10 +291,11 @@ const Post: React.FC<PostProps> = ({
   );
   const [showReplies, setShowReplies] = useState(false);
 
-  const {
-    comments: replies,
-    refetch: refetchReplies,
-  } = useComments(post_id || id, undefined, showReplies ? id : undefined);
+  const { comments: replies, refetch: refetchReplies } = useComments(
+    post_id || id,
+    undefined,
+    showReplies ? id : undefined,
+  );
 
   const { ref: viewRef, inView } = useInView({
     threshold: 0.5,
@@ -344,7 +341,11 @@ const Post: React.FC<PostProps> = ({
       const finalMedia = [...editedMedia, ...uploadedNewMedia];
 
       if (isComment) {
-        await submitUpdateComment({ commentId: id, content: editedContent, media: finalMedia });
+        await submitUpdateComment({
+          commentId: id,
+          content: editedContent,
+          media: finalMedia,
+        });
       } else {
         await updatePost(id, { content: editedContent, media: finalMedia });
       }
@@ -419,7 +420,7 @@ const Post: React.FC<PostProps> = ({
 
   const handleReplyClick = (handle: string, commentId?: string) => {
     if (commentId) {
-      const targetParentId = isComment ? (parent_id || id) : commentId;
+      const targetParentId = isComment ? parent_id || id : commentId;
       setReplyTo({ handle, id: targetParentId });
     } else {
       setReplyTo(null);
@@ -594,7 +595,6 @@ const Post: React.FC<PostProps> = ({
             </>
           </div>
 
-
           <AlertDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
@@ -603,8 +603,8 @@ const Post: React.FC<PostProps> = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your
-                  post and all its comments.
+                  This action cannot be undone. This will permanently delete
+                  your post and all its comments.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -633,10 +633,11 @@ const Post: React.FC<PostProps> = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
       ref={viewRef}
       onClick={onClick}
-      className={`px-4 transition-all ${isComment
-        ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-        : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
-        } ${onClick ? "cursor-pointer" : ""}`}
+      className={`px-4 transition-all ${
+        isComment
+          ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
+          : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
+      } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2 ml-1 flex items-center space-x-1.5 text-[13px] font-semibold text-zinc-600">
@@ -677,19 +678,19 @@ const Post: React.FC<PostProps> = ({
           </div>
           {((!isComment && localStats.comments > 0) ||
             (isComment && !parent_id && localStats.comments > 0)) && (
-              <>
-                <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
-                {!isComment && (
-                  <ReplyAvatars
-                    avatars={
-                      commenterAvatars.length > 0
-                        ? commenterAvatars
-                        : (comments || []).slice(0, 3).map((c) => c.user.avatar)
-                    }
-                  />
-                )}
-              </>
-            )}
+            <>
+              <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+              {!isComment && (
+                <ReplyAvatars
+                  avatars={
+                    commenterAvatars.length > 0
+                      ? commenterAvatars
+                      : (comments || []).slice(0, 3).map((c) => c.user.avatar)
+                  }
+                />
+              )}
+            </>
+          )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <PostHeader
@@ -766,7 +767,7 @@ const Post: React.FC<PostProps> = ({
             handleCommentClick={(e) => {
               e?.stopPropagation();
               if (onReply) {
-                const targetId = isComment ? (parent_id || id) : id;
+                const targetId = isComment ? parent_id || id : id;
                 onReply(user.handle, targetId);
               } else if (onClick) {
                 onClick();
@@ -834,8 +835,8 @@ const Post: React.FC<PostProps> = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your
-                  post and all its comments.
+                  This action cannot be undone. This will permanently delete
+                  your post and all its comments.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

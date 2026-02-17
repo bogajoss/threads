@@ -83,8 +83,15 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         )}
       >
         <motion.div
-          animate={active ? { scale: [1, 1.4, 1], rotate: [0, 15, 0] } : { scale: 1 }}
-          transition={{ duration: 0.45, type: "spring", stiffness: 300, damping: 15 }}
+          animate={
+            active ? { scale: [1, 1.4, 1], rotate: [0, 15, 0] } : { scale: 1 }
+          }
+          transition={{
+            duration: 0.45,
+            type: "spring",
+            stiffness: 300,
+            damping: 15,
+          }}
         >
           <Icon
             size={size}
@@ -104,7 +111,10 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={cn("transition-all", active ? "font-black" : "font-bold")}
+            className={cn(
+              "transition-all",
+              active ? "font-black" : "font-bold",
+            )}
           >
             {count || 0}
           </motion.span>

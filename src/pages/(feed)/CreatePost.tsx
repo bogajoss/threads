@@ -1,13 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Trash2,
-  Globe,
-  ChevronLeft,
-  Film,
-  Layout,
-} from "lucide-react";
+import { Trash2, Globe, ChevronLeft, Film, Layout } from "lucide-react";
 import { MediaIcon, ShareIcon, ProButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
@@ -383,10 +377,13 @@ const CreatePost: React.FC = () => {
                     "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-black transition-all duration-300",
                     createType === type.id
                       ? "bg-white text-zinc-950 shadow-md shadow-zinc-200/50 dark:bg-zinc-800 dark:text-white dark:shadow-none translate-y-[-1px]"
-                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200",
                   )}
                 >
-                  <type.icon size={16} strokeWidth={createType === type.id ? 3 : 2} />
+                  <type.icon
+                    size={16}
+                    strokeWidth={createType === type.id ? 3 : 2}
+                  />
                   <span>{type.label}</span>
                 </button>
               ))}
@@ -416,9 +413,15 @@ const CreatePost: React.FC = () => {
               </div>
               <Textarea
                 className="min-h-[150px] w-full rounded-2xl border-[--border] bg-zinc-50/30 p-4 text-lg font-medium leading-relaxed outline-none transition-all focus:border-violet-500 focus:ring-4 focus:ring-violet-500/5 dark:bg-zinc-900/20 text-[--foreground] placeholder:text-zinc-400"
-                placeholder={isReel ? "Add a caption for your reel..." : "What's on your mind?"}
+                placeholder={
+                  isReel
+                    ? "Add a caption for your reel..."
+                    : "What's on your mind?"
+                }
                 value={postContent}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPostContent(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setPostContent(e.target.value)
+                }
               />
             </div>
           )}
@@ -620,13 +623,24 @@ const CreatePost: React.FC = () => {
                 type="submit"
                 variant={loading ? "primary" : "animated"}
                 icon={!loading && <ShareIcon size={24} />}
-                disabled={(!isStory && !postContent.trim() && selectedFiles.length === 0) || (isStory && selectedFiles.length === 0) || (isReel && selectedFiles.length === 0) || loading}
+                disabled={
+                  (!isStory &&
+                    !postContent.trim() &&
+                    selectedFiles.length === 0) ||
+                  (isStory && selectedFiles.length === 0) ||
+                  (isReel && selectedFiles.length === 0) ||
+                  loading
+                }
                 className="font-english"
               >
                 {loading ? (
                   <span className="animate-pulse">...</span>
+                ) : isStory ? (
+                  "Post"
+                ) : isReel ? (
+                  "Post"
                 ) : (
-                  isStory ? "Post" : isReel ? "Post" : "Post"
+                  "Post"
                 )}
               </Button>
             )}

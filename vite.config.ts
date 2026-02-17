@@ -43,7 +43,11 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
-            if (/node_modules\/(react|react-dom|react-router-dom|scheduler)/.test(id)) {
+            if (
+              /node_modules\/(react|react-dom|react-router-dom|scheduler)/.test(
+                id,
+              )
+            ) {
               return "framework";
             }
             if (/node_modules\/(@supabase|supabase-js)/.test(id)) {
@@ -52,13 +56,23 @@ export default defineConfig({
             if (/node_modules\/@tanstack/.test(id)) {
               return "query";
             }
-            if (/node_modules\/(framer-motion|motion-dom|motion-utils)/.test(id)) {
+            if (
+              /node_modules\/(framer-motion|motion-dom|motion-utils)/.test(id)
+            ) {
               return "animations";
             }
-            if (/node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/.test(id)) {
+            if (
+              /node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/.test(
+                id,
+              )
+            ) {
               return "ui-libs";
             }
-            if (/node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/.test(id)) {
+            if (
+              /node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/.test(
+                id,
+              )
+            ) {
               return "media-libs";
             }
             if (/node_modules\/(linkifyjs|linkify-react)/.test(id)) {

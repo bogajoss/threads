@@ -13,7 +13,7 @@ const AdminLayout: React.FC = () => {
     <div
       className={cn(
         "min-h-screen flex flex-col bg-white text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-200 dark:bg-black",
-        darkMode && "dark"
+        darkMode && "dark",
       )}
     >
       {/* Mobile Header */}
@@ -39,7 +39,10 @@ const AdminLayout: React.FC = () => {
 
       {/* Main Layout */}
       <div className="flex flex-1 gap-0">
-        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <AdminSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
         {/* Content Area */}
         <div className="flex-1 lg:ml-72 transition-all duration-300">

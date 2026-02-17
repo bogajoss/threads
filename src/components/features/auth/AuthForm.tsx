@@ -34,7 +34,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
       const timer = setTimeout(async () => {
         setUsernameStatus({ loading: true, available: null });
         try {
-          const isAvailable = await checkUsernameAvailability(formData.username);
+          const isAvailable = await checkUsernameAvailability(
+            formData.username,
+          );
           setUsernameStatus({ loading: false, available: isAvailable });
         } catch {
           setUsernameStatus({ loading: false, available: null });
@@ -48,8 +50,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (type === "signup" && (usernameStatus.available === false || formData.username.length < 5)) {
-      addToast(formData.username.length < 5 ? "Username must be at least 5 characters" : "Please choose a different username", "error");
+    if (
+      type === "signup" &&
+      (usernameStatus.available === false || formData.username.length < 5)
+    ) {
+      addToast(
+        formData.username.length < 5
+          ? "Username must be at least 5 characters"
+          : "Please choose a different username",
+        "error",
+      );
       return;
     }
     setLoading(true);
@@ -137,14 +147,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
                 placeholder="johndoe"
                 value={formData.username}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "");
+                  const value = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_]/g, "");
                   setFormData({ ...formData, username: value });
                 }}
                 required
               />
               <div className="absolute right-3 top-[38px]">
                 {usernameStatus.loading ? (
-                  <span className="animate-pulse text-zinc-400 font-bold">...</span>
+                  <span className="animate-pulse text-zinc-400 font-bold">
+                    ...
+                  </span>
                 ) : usernameStatus.available === true ? (
                   <CheckCircle2 size={18} className="text-emerald-500" />
                 ) : usernameStatus.available === false ? (
@@ -170,7 +184,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           type="submit"
           className="mt-6 w-full justify-center py-3 text-lg"
           loading={loading}
-          disabled={type === "signup" && (usernameStatus.available === false || formData.username.length < 5)}
+          disabled={
+            type === "signup" &&
+            (usernameStatus.available === false || formData.username.length < 5)
+          }
         >
           {type === "login" ? "Log in" : "Sign up"}
         </Button>

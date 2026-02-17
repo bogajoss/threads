@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           handle: user.email?.split("@")[0] || "user",
           avatar: "/default-avatar.webp",
           verified: false,
-          role: 'user',
+          role: "user",
           cover: "/welcome-banner.webp",
           bio: null,
           location: null,

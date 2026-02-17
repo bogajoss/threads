@@ -67,11 +67,16 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         const trimmed = input.trim();
         if (!trimmed) return trimmed;
         try {
-          const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+          const url = new URL(
+            /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
+          );
           return url.hostname.replace(/^www\./i, "");
-        } catch (e) {
+        } catch {
           // fallback: remove protocol, www and any path
-          return trimmed.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "");
+          return trimmed
+            .replace(/^https?:\/\//i, "")
+            .replace(/^www\./i, "")
+            .replace(/\/.*$/, "");
         }
       };
 
@@ -198,7 +203,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   value={editProfileData?.bio || ""}
                   className="min-h-[96px] resize-none pr-2"
                   onChange={(
-                    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+                    e: React.ChangeEvent<
+                      HTMLInputElement | HTMLTextAreaElement
+                    >,
                   ) => {
                     const raw = e.target.value;
                     const words = raw.trim().split(/\s+/).filter(Boolean);
@@ -208,8 +215,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     } else {
                       setEditProfileData({ ...editProfileData, bio: raw });
                     }
-                  }
-                  }
+                  }}
                 />
               </div>
 

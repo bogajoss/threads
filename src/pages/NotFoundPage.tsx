@@ -19,9 +19,10 @@ const NotFoundPage: React.FC = () => {
       <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white sm:text-4xl">
         Page not found
       </h2>
-      
+
       <p className="mt-4 max-w-md text-lg text-zinc-500">
-        Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or never existed.
+        Sorry, we couldn't find the page you're looking for. It might have been
+        moved, deleted, or never existed.
       </p>
 
       <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -32,7 +33,7 @@ const NotFoundPage: React.FC = () => {
           <Home size={20} />
           Back to Feed
         </Link>
-        
+
         <button
           onClick={() => window.history.back()}
           className="flex items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-8 py-3 font-bold text-black transition-all hover:bg-zinc-50 active:scale-95 dark:border-zinc-800 dark:bg-black dark:text-white dark:hover:bg-zinc-900"
@@ -44,7 +45,10 @@ const NotFoundPage: React.FC = () => {
 
       <div className="mt-12">
         <p className="text-sm text-zinc-400">
-          Think this is a mistake? <Link to="/support" className="text-violet-500 hover:underline">Contact Support</Link>
+          Think this is a mistake?{" "}
+          <Link to="/support" className="text-violet-500 hover:underline">
+            Contact Support
+          </Link>
         </p>
       </div>
     </div>

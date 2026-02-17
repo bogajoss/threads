@@ -13,7 +13,12 @@ interface ReportModalProps {
   targetId: string;
 }
 
-const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, targetId }) => {
+const ReportModal: React.FC<ReportModalProps> = ({
+  isOpen,
+  onClose,
+  targetType,
+  targetId,
+}) => {
   const { currentUser } = useAuth();
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,8 +31,15 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
 
     setIsSubmitting(true);
     try {
-      await reportsApi.createReport(currentUser.id, targetType, targetId, reason);
-      toast.success("Thank you for your report. Our team will review it shortly.");
+      await reportsApi.createReport(
+        currentUser.id,
+        targetType,
+        targetId,
+        reason,
+      );
+      toast.success(
+        "Thank you for your report. Our team will review it shortly.",
+      );
       onClose();
       setReason("");
     } catch (error) {
@@ -38,12 +50,14 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
     }
   };
 
-  const capitalizedTarget = targetType ? targetType.charAt(0).toUpperCase() + targetType.slice(1) : "";
+  const capitalizedTarget = targetType
+    ? targetType.charAt(0).toUpperCase() + targetType.slice(1)
+    : "";
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
       title={`Report ${capitalizedTarget}`}
       className="sm:max-w-[440px]"
     >
@@ -58,7 +72,8 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
               Community Safety First
             </h3>
             <p className="text-xs text-[--muted-foreground] max-w-[280px] mx-auto leading-relaxed">
-              Help us keep Sysm safe by reporting content that violates our community guidelines.
+              Help us keep Sysm safe by reporting content that violates our
+              community guidelines.
             </p>
           </div>
         </div>
@@ -72,7 +87,8 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
                 Note on Reporting
               </p>
               <p className="text-[11px] leading-relaxed text-amber-700/80 dark:text-amber-500/70">
-                Reports are handled anonymously. Abuse of the reporting system may lead to account restrictions.
+                Reports are handled anonymously. Abuse of the reporting system
+                may lead to account restrictions.
               </p>
             </div>
           </div>
@@ -89,23 +105,24 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
             className="min-h-[120px] focus:ring-violet-500/30 text-sm rounded-xl"
           />
           <p className="text-[10px] text-center text-[--muted-foreground] px-4 italic opacity-80">
-            Be as specific as possible to help our moderation team understand the issue.
+            Be as specific as possible to help our moderation team understand
+            the issue.
           </p>
         </div>
 
         {/* Actions */}
         <div className="flex gap-3 pt-1">
-          <Button 
-            variant="outline" 
-            className="flex-1 rounded-xl h-11 text-sm font-bold" 
+          <Button
+            variant="outline"
+            className="flex-1 rounded-xl h-11 text-sm font-bold"
             onClick={onClose}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button 
-            variant="violet" 
-            className="flex-1 rounded-xl h-11 text-sm font-black shadow-lg shadow-violet-500/20 active:scale-95 transition-all" 
+          <Button
+            variant="violet"
+            className="flex-1 rounded-xl h-11 text-sm font-black shadow-lg shadow-violet-500/20 active:scale-95 transition-all"
             onClick={handleSubmit}
             disabled={isSubmitting}
             loading={isSubmitting}
@@ -119,5 +136,3 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetType, 
 };
 
 export default ReportModal;
-
-

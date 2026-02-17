@@ -201,7 +201,10 @@ export const fetchFollowers = async (
         display_name,
         avatar_url,
         is_verified,
-        bio
+        bio,
+        role,
+        roles,
+        is_pro
       )
     `,
     )
@@ -238,7 +241,10 @@ export const fetchFollowing = async (
         display_name,
         avatar_url,
         is_verified,
-        bio
+        bio,
+        role,
+        roles,
+        is_pro
       )
     `,
     )
@@ -274,7 +280,9 @@ export const fetchFollowStats = async (
   };
 };
 
-export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+export const checkUsernameAvailability = async (
+  username: string,
+): Promise<boolean> => {
   if (!username) return false;
   const { count, error } = await supabase
     .from("users")

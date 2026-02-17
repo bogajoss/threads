@@ -41,8 +41,7 @@ const UserManagement: React.FC = () => {
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.handle.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole =
-      filters.role === "all" || user.role === filters.role;
+    const matchesRole = filters.role === "all" || user.role === filters.role;
 
     const matchesStatus =
       filters.status === "all" ||
@@ -58,7 +57,9 @@ const UserManagement: React.FC = () => {
       <div className="flex min-h-[600px] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
-          <p className="text-sm font-semibold text-zinc-500">Loading users...</p>
+          <p className="text-sm font-semibold text-zinc-500">
+            Loading users...
+          </p>
         </div>
       </div>
     );
@@ -73,7 +74,9 @@ const UserManagement: React.FC = () => {
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight">User Directory</h1>
+            <h1 className="text-2xl font-black tracking-tight">
+              User Directory
+            </h1>
             <p className="text-sm text-zinc-500">
               Manage platform users and permissions
             </p>
@@ -94,7 +97,10 @@ const UserManagement: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Select value={filters.role} onValueChange={(value) => setFilters({ ...filters, role: value })}>
+          <Select
+            value={filters.role}
+            onValueChange={(value) => setFilters({ ...filters, role: value })}
+          >
             <SelectTrigger className="w-[180px] rounded-xl border-zinc-200 dark:border-zinc-800">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
@@ -160,7 +166,10 @@ const UserManagement: React.FC = () => {
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="relative shrink-0">
                       <Avatar className="h-12 w-12 rounded-2xl ring-2 ring-zinc-200 dark:ring-zinc-800">
-                        <AvatarImage src={user.avatar} className="rounded-2xl" />
+                        <AvatarImage
+                          src={user.avatar}
+                          className="rounded-2xl"
+                        />
                         <AvatarFallback className="rounded-2xl bg-violet-500/10 text-sm font-bold text-violet-600">
                           {user.name[0]?.toUpperCase()}
                         </AvatarFallback>
@@ -259,7 +268,7 @@ const UserManagement: React.FC = () => {
                         const action = user.isBanned ? "unban" : "ban";
                         if (
                           confirm(
-                            `Are you sure you want to ${action} @${user.handle}?`
+                            `Are you sure you want to ${action} @${user.handle}?`,
                           )
                         ) {
                           actions.toggleBan({
@@ -273,7 +282,7 @@ const UserManagement: React.FC = () => {
                         "h-9 rounded-lg px-3",
                         user.isBanned
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-400"
-                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-400"
+                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-400",
                       )}
                     >
                       {user.isBanned ? (
@@ -293,8 +302,15 @@ const UserManagement: React.FC = () => {
       {/* Summary */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-black">
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Showing <span className="font-semibold text-foreground">{filteredUsers.length}</span> of{" "}
-          <span className="font-semibold text-foreground">{users.data?.length || 0}</span> users
+          Showing{" "}
+          <span className="font-semibold text-foreground">
+            {filteredUsers.length}
+          </span>{" "}
+          of{" "}
+          <span className="font-semibold text-foreground">
+            {users.data?.length || 0}
+          </span>{" "}
+          users
         </p>
       </div>
     </div>

@@ -5,7 +5,12 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import { fetchCommentsByPostId, addComment, deleteComment, updateComment } from "@/lib/api";
+import {
+  fetchCommentsByPostId,
+  addComment,
+  deleteComment,
+  updateComment,
+} from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import type { Comment, Media } from "@/types";
 
@@ -64,7 +69,8 @@ export const useComments = (
       const queryKey = ["comments", postId, parentId];
       await queryClient.cancelQueries({ queryKey });
 
-      const previousComments = queryClient.getQueryData<InfiniteData<Comment[]>>(queryKey);
+      const previousComments =
+        queryClient.getQueryData<InfiniteData<Comment[]>>(queryKey);
 
       const optimisticComment: Comment = {
         id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -80,17 +86,15 @@ export const useComments = (
       };
 
       queryClient.setQueryData<InfiniteData<Comment[]>>(queryKey, (old) => {
-        if (!old) return {
-          pages: [[optimisticComment]],
-          pageParams: [null],
-        };
+        if (!old)
+          return {
+            pages: [[optimisticComment]],
+            pageParams: [null],
+          };
 
         return {
           ...old,
-          pages: [
-            [optimisticComment, ...old.pages[0]],
-            ...old.pages.slice(1),
-          ],
+          pages: [[optimisticComment, ...old.pages[0]], ...old.pages.slice(1)],
         };
       });
 
@@ -121,7 +125,15 @@ export const useComments = (
   });
 
   const updateCommentMutation = useMutation({
-    mutationFn: async ({ commentId, content, media }: { commentId: string, content: string, media: Media[] }) => {
+    mutationFn: async ({
+      commentId,
+      content,
+      media,
+    }: {
+      commentId: string;
+      content: string;
+      media: Media[];
+    }) => {
       return updateComment(commentId, { content, media });
     },
     onSuccess: () => {

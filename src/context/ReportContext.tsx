@@ -12,7 +12,9 @@ interface ReportContextType {
 
 const ReportContext = createContext<ReportContextType | undefined>(undefined);
 
-export const ReportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ReportProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [targetType, setTargetType] = useState<ReportTargetType | null>(null);
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -30,14 +32,18 @@ export const ReportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   return (
-    <ReportContext.Provider value={{ isOpen, targetType, targetId, openReport, closeReport }}>
+    <ReportContext.Provider
+      value={{ isOpen, targetType, targetId, openReport, closeReport }}
+    >
       {children}
     </ReportContext.Provider>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useReportModal = () => {
   const context = useContext(ReportContext);
-  if (!context) throw new Error("useReportModal must be used within a ReportProvider");
+  if (!context)
+    throw new Error("useReportModal must be used within a ReportProvider");
   return context;
 };

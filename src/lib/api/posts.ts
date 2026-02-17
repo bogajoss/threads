@@ -9,24 +9,37 @@ import {
 import { deleteMultipleFiles } from "./storage";
 
 export const fetchPosts = async (
-  lastTimestamp: string | null = null,
+  cursor: string | null = null,
   limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
-  let query = supabase
-    .from("unified_posts")
-    .select("*")
-    .neq("type", "reel")
-    .order("sort_timestamp", { ascending: false })
-    .limit(limit);
+  let lastItemId = null;
+  let lastItemScore = null;
 
-  if (lastTimestamp) {
-    query = query.lt("sort_timestamp", lastTimestamp);
+  if (cursor) {
+    if (cursor.includes(":")) {
+      const parts = cursor.split(":");
+      lastItemId = parts[0];
+      lastItemScore = parseFloat(parts[1]);
+    } else {
+      // Fallback for unexpected cursor format or pure timestamp
+      // If pure timestamp, we can't really paginate the score-based feed correctly without score.
+      // But maybe the client isn't updated yet.
+      // Let's just try to parse it as ID if it looks like UUID, else ignore.
+    }
   }
-
-  const { data, error } = await query;
+  
+  const { data, error } = await supabase.rpc("get_posts_feed", {
+    limit_val: limit,
+    last_item_id: lastItemId || undefined,
+    last_item_score: lastItemScore || undefined
+  });
 
   if (error) throw error;
-  return (data || []).map(transformPost).filter((p): p is Post => p !== null);
+  
+  return (data || []).map((p: any) => transformPost({
+      ...p,
+      mirrors_count: p.mirrors_count || 0
+  })).filter((p): p is Post => p !== null);
 };
 
 export const fetchPostById = async (id: string): Promise<Post | null> => {
@@ -45,7 +58,10 @@ export const fetchPostById = async (id: string): Promise<Post | null> => {
                 location,
                 website,
                 follower_count,
-                following_count
+                following_count,
+                role,
+                roles,
+                is_pro
             ),
             communities (
                 id,
@@ -60,7 +76,10 @@ export const fetchPostById = async (id: string): Promise<Post | null> => {
                     username,
                     display_name,
                     avatar_url,
-                    is_verified
+                    is_verified,
+                    role,
+                    roles,
+                    is_pro
                 )
             )
         `,
@@ -77,21 +96,20 @@ export const fetchPostsByUserId = async (
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
-  let query = supabase
-    .from("unified_posts")
-    .select("*")
-    .or(`user_id.eq.${userId},reposter_id.eq.${userId}`)
-    .order("sort_timestamp", { ascending: false })
-    .limit(limit);
-
-  if (lastTimestamp) {
-    query = query.lt("sort_timestamp", lastTimestamp);
-  }
-
-  const { data, error } = await query;
-
+  
+  const { data, error } = await supabase.rpc("get_profile_feed", {
+    target_user_id: userId,
+    limit_val: limit,
+    last_item_time: lastTimestamp || undefined 
+  });
+  
   if (error) throw error;
-  return (data || []).map(transformPost).filter((p): p is Post => p !== null);
+  return (data || []).map((p: any) => transformPost({
+      ...p,
+      // RPC returns flat structure, transformPost handles it if we map clearly
+      // transformPost might need "user" object or "author_data"
+      // The RPC returns "author_data" jsonb which transformPost supports (lines 48: post.author_data || post.user)
+  })).filter((p): p is Post => p !== null);
 };
 
 export const fetchCommentsByUserId = async (
@@ -132,7 +150,7 @@ export const fetchCommentsByUserId = async (
 interface AddPostParams {
   content: string;
   media?: Media[];
-  type?: "text" | "image" | "video" | "reel";
+  type?: "text" | "image" | "video" | "reel" | "poll" | "file";
   userId: string;
   poll?: any;
   parentId?: string | null;
@@ -441,22 +459,40 @@ export const searchPosts = async (
   communityOnly: boolean = false,
 ): Promise<Post[]> => {
   let supabaseQuery = supabase
-    .from("unified_posts")
-    .select("*")
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                role,
+                roles,
+                is_pro
+            ),
+            communities (
+                id,
+                handle,
+                name,
+                avatar_url
+            )
+        `,
+    )
     .ilike("content", `%${queryText}%`);
 
   if (communityOnly) {
-    supabaseQuery = supabaseQuery
-      .not("community_id", "is", null)
-      .is("reposter_id", null);
+    supabaseQuery = supabaseQuery.not("community_id", "is", null);
   }
 
   supabaseQuery = supabaseQuery
-    .order("sort_timestamp", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
-    supabaseQuery = supabaseQuery.lt("sort_timestamp", lastTimestamp);
+    supabaseQuery = supabaseQuery.lt("created_at", lastTimestamp);
   }
 
   const { data, error } = await supabaseQuery;
@@ -470,15 +506,34 @@ export const fetchCommunityExplorePosts = async (
   limit: number = POSTS_PER_PAGE,
 ): Promise<Post[]> => {
   let query = supabase
-    .from("unified_posts")
-    .select("*")
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                role,
+                roles,
+                is_pro
+            ),
+            communities (
+                id,
+                handle,
+                name,
+                avatar_url
+            )
+        `,
+    )
     .not("community_id", "is", null)
-    .is("reposter_id", null)
-    .order("sort_timestamp", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (lastTimestamp) {
-    query = query.lt("sort_timestamp", lastTimestamp);
+    query = query.lt("created_at", lastTimestamp);
   }
 
   const { data, error } = await query;
@@ -488,24 +543,32 @@ export const fetchCommunityExplorePosts = async (
 };
 
 export const fetchReels = async (
-  lastTimestamp: string | null = null,
+  cursor: string | null = null,
   limit: number = REELS_PER_PAGE,
 ): Promise<Post[]> => {
-  let query = supabase
-    .from("unified_posts")
-    .select("*")
-    .eq("type", "reel")
-    .order("sort_timestamp", { ascending: false })
-    .limit(limit);
+  let lastReelId = null;
+  let lastReelScore = null;
 
-  if (lastTimestamp) {
-    query = query.lt("sort_timestamp", lastTimestamp);
+  if (cursor) {
+     const parts = cursor.split(":");
+     if (parts.length === 2) {
+       lastReelId = parts[0];
+       lastReelScore = parseFloat(parts[1]);
+     }
   }
 
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc("get_reels_feed", {
+    limit_val: limit,
+    last_reel_id: lastReelId || undefined,
+    last_reel_score: lastReelScore || undefined
+  });
 
   if (error) throw error;
-  return (data || []).map(transformPost).filter((p): p is Post => p !== null);
+
+  return (data || []).map((p: any) => transformPost({
+      ...p,
+      mirrors_count: p.mirrors_count || 0,
+  })).filter((p): p is Post => p !== null);
 };
 
 export const votePoll = async (

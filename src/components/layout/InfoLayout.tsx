@@ -15,12 +15,10 @@ const InfoLayout: React.FC = () => {
             <ArrowLeft size={20} />
             <span className="text-sm font-medium">Back to Feed</span>
           </Link>
-          
           <Link to="/" className="flex items-center gap-2">
             <img src="/logo.webp" alt="Logo" className="size-8 rounded-lg" />
             <span className="text-xl font-bold tracking-tight">Sysm</span>
           </Link>
-
           <div className="w-20" /> {/* Spacer for balance */}
         </div>
       </header>
@@ -37,31 +35,99 @@ const InfoLayout: React.FC = () => {
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white">Legal</h3>
+              <h3 className="text-sm font-semibold text-black dark:text-white">
+                Legal
+              </h3>
               <ul className="mt-4 space-y-2">
-                <li><Link to="/terms" className="text-sm text-zinc-500 hover:text-violet-500">Terms</Link></li>
-                <li><Link to="/privacy" className="text-sm text-zinc-500 hover:text-violet-500">Privacy</Link></li>
-                <li><Link to="/guidelines" className="text-sm text-zinc-500 hover:text-violet-500">Guidelines</Link></li>
+                <li>
+                  <Link
+                    to="/terms"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/privacy"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/guidelines"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Guidelines
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white">Support</h3>
+              <h3 className="text-sm font-semibold text-black dark:text-white">
+                Support
+              </h3>
               <ul className="mt-4 space-y-2">
-                <li><Link to="/support" className="text-sm text-zinc-500 hover:text-violet-500">Help Center</Link></li>
-                <li><Link to="/status" className="text-sm text-zinc-500 hover:text-violet-500">System Status</Link></li>
+                <li>
+                  <Link
+                    to="/support"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/status"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    System Status
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white">Community</h3>
+              <h3 className="text-sm font-semibold text-black dark:text-white">
+                Community
+              </h3>
               <ul className="mt-4 space-y-2">
-                <li><a href="https://discord.gg/sysm" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-500 hover:text-violet-500">Discord</a></li>
-                <li><a href="https://github.com/sysm" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-500 hover:text-violet-500">GitHub</a></li>
+                <li>
+                  <a
+                    href="https://discord.gg/sysm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Discord
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sysm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    GitHub
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white">Social</h3>
+              <h3 className="text-sm font-semibold text-black dark:text-white">
+                Social
+              </h3>
               <ul className="mt-4 space-y-2">
-                <li><Link to="/feed" className="text-sm text-zinc-500 hover:text-violet-500">Threads</Link></li>
+                <li>
+                  <Link
+                    to="/feed"
+                    className="text-sm text-zinc-500 hover:text-violet-500"
+                  >
+                    Threads
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

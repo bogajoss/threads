@@ -22,11 +22,16 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   const offset = circumference - (percent / 100) * circumference;
 
   // Use theme CSS variables from index.css for consistent colors
-  const progressColor = isWarning ? "var(--destructive, #ef4444)" : "var(--ring, #7c3aed)";
+  const progressColor = isWarning
+    ? "var(--destructive, #ef4444)"
+    : "var(--ring, #7c3aed)";
   const bgColor = "var(--border, rgba(0,0,0,0.1))";
 
   return (
-    <div className="relative inline-block" style={{ width: size, height: size }}>
+    <div
+      className="relative inline-block"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={size / 2}
@@ -48,7 +53,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           strokeDashoffset={offset}
           strokeLinecap="round"
           className="transition-all duration-300"
-          style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+          style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
         />
       </svg>
 

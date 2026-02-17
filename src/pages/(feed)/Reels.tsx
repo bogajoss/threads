@@ -115,7 +115,7 @@ const Reels = () => {
                 // Load current, previous, and next videos
                 Math.abs(
                   reels.findIndex((r) => r.id === activeReelId) -
-                  reels.findIndex((r) => r.id === reel.id),
+                    reels.findIndex((r) => r.id === reel.id),
                 ) <= 1
               }
             />

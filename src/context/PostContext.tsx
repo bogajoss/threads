@@ -53,9 +53,14 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < 20) return undefined;
+      const lastPost = lastPage[lastPage.length - 1];
+      // Use score-based cursor for algorithmic feed
+      if (lastPost.score !== undefined && lastPost.feed_id) {
+        return `${lastPost.feed_id}:${lastPost.score}`;
+      }
       return (
-        lastPage[lastPage.length - 1].sort_timestamp ||
-        lastPage[lastPage.length - 1].created_at
+        lastPost.sort_timestamp ||
+        lastPost.created_at
       );
     },
   });
@@ -68,7 +73,10 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     mutationFn: addPostApi,
     onMutate: async (newPostData) => {
       await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
-      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>(["posts", "feed"]);
+      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>([
+        "posts",
+        "feed",
+      ]);
 
       if (previousPosts && currentUser) {
         const optimisticPost: Post = {
@@ -91,16 +99,16 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
           sort_timestamp: new Date().toISOString(),
         };
 
-        queryClient.setQueryData<InfiniteData<Post[]>>(["posts", "feed"], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: [
-              [optimisticPost, ...old.pages[0]],
-              ...old.pages.slice(1),
-            ],
-          };
-        });
+        queryClient.setQueryData<InfiniteData<Post[]>>(
+          ["posts", "feed"],
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              pages: [[optimisticPost, ...old.pages[0]], ...old.pages.slice(1)],
+            };
+          },
+        );
       }
 
       return { previousPosts };
@@ -152,19 +160,25 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
       updatePostApi(postId, data),
     onMutate: async ({ postId, data }) => {
       await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
-      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>(["posts", "feed"]);
+      const previousPosts = queryClient.getQueryData<InfiniteData<Post[]>>([
+        "posts",
+        "feed",
+      ]);
 
-      queryClient.setQueryData<InfiniteData<Post[]>>(["posts", "feed"], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((post) =>
-              post.id === postId ? { ...post, ...data } : post
-            )
-          ),
-        };
-      });
+      queryClient.setQueryData<InfiniteData<Post[]>>(
+        ["posts", "feed"],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((post) =>
+                post.id === postId ? { ...post, ...data } : post,
+              ),
+            ),
+          };
+        },
+      );
 
       return { previousPosts };
     },
