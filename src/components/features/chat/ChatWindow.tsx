@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, MoreHorizontal, Phone, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui";
@@ -8,6 +8,7 @@ import ChatInput from "./ChatInput";
 import Message from "./Message";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "@/lib/api/storage";
+import { formatTimeAgo } from "@/lib/utils";
 
 interface ChatWindowProps {
   conversation: any;
@@ -54,50 +55,50 @@ const ChatWindow = ({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages.length, isTyping]); 
+  }, [messages.length, isTyping]);
 
   const displayName = conversation.isGroup ? conversation.name : conversation.user?.name;
   const displayAvatar = conversation.isGroup ? conversation.avatar : conversation.user?.avatar;
 
-  const handleSend = async (text: string, attachments: File[], audioBlob: Blob | undefined, duration: number | undefined) => {
-      if (editingMessage) {
-          onEditMessage?.(editingMessage.id, text);
-          setEditingMessage(null);
-          return;
+  const handleSend = async (text: string, attachments: File[], audioBlob: Blob | undefined, _duration: number | undefined) => {
+    if (editingMessage) {
+      onEditMessage?.(editingMessage.id, text);
+      setEditingMessage(null);
+      return;
+    }
+
+    let uploadedMedia: any[] = [];
+    let type = "text";
+
+    try {
+      // Upload attachments
+      if (attachments.length > 0) {
+        const uploads = await Promise.all(attachments.map(file => uploadFile(file)));
+        uploadedMedia = uploads;
+        type = uploads[0].type === "video" ? "video" : "image";
       }
 
-      let uploadedMedia: any[] = [];
-      let type = "text";
-
-      try {
-          // Upload attachments
-          if (attachments.length > 0) {
-              const uploads = await Promise.all(attachments.map(file => uploadFile(file)));
-              uploadedMedia = uploads;
-              type = uploads[0].type === "video" ? "video" : "image";
-          }
-          
-          // Upload audio
-          if (audioBlob) {
-              const audioFile = new File([audioBlob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
-              const upload = await uploadFile(audioFile);
-              uploadedMedia.push(upload);
-              type = "voice";
-          }
-      } catch (error) {
-          console.error("Failed to upload media:", error);
-          // Ideally show a toast here
-          return;
+      // Upload audio
+      if (audioBlob) {
+        const audioFile = new File([audioBlob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
+        const upload = await uploadFile(audioFile);
+        uploadedMedia.push(upload);
+        type = "voice";
       }
+    } catch (error) {
+      console.error("Failed to upload media:", error);
+      // Ideally show a toast here
+      return;
+    }
 
-      onSendMessage(
-          conversation.id,
-          text,
-          type,
-          uploadedMedia,
-          replyingTo?.id
-      );
-      setReplyingTo(null);
+    onSendMessage(
+      conversation.id,
+      text,
+      type,
+      uploadedMedia,
+      replyingTo?.id
+    );
+    setReplyingTo(null);
   };
 
   return (
@@ -113,68 +114,72 @@ const ChatWindow = ({
           >
             <ArrowLeft size={20} />
           </Button>
-          
+
           <div className="relative cursor-pointer" onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}>
             <Avatar className="h-10 w-10 border border-zinc-200 dark:border-zinc-800">
               <AvatarImage src={displayAvatar} />
               <AvatarFallback>{displayName?.[0]}</AvatarFallback>
             </Avatar>
             {isOnline && !conversation.isGroup && (
-               <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-[2px] border-white bg-emerald-500 dark:border-zinc-950" />
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-[2px] border-white bg-emerald-500 dark:border-zinc-950" />
             )}
           </div>
 
-          <div 
-             className="flex flex-col cursor-pointer"
-             onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}
+          <div
+            className="flex flex-col cursor-pointer"
+            onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}
           >
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-none">
               {displayName}
             </h3>
             <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-               {conversation.isGroup 
-                 ? `${conversation.members?.length || 0} members` 
-                 : isOnline ? "Active now" : "Offline"}
+              {conversation.isGroup
+                ? `${conversation.members?.length || 0} members`
+                : isOnline || (conversation.user?.lastSeen && (new Date().getTime() - new Date(conversation.user.lastSeen).getTime()) < 60000)
+                  ? "Active now"
+                  : conversation.user?.lastSeen
+                    ? `Last seen ${formatTimeAgo(conversation.user.lastSeen)}`
+                    : "Offline"}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-1">
-           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
-             <Phone size={20} />
-           </Button>
-           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
-             <Video size={20} />
-           </Button>
-           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
-             <MoreHorizontal size={20} />
-           </Button>
+          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
+            <Phone size={20} />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
+            <Video size={20} />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
+            <MoreHorizontal size={20} />
+          </Button>
         </div>
       </div>
 
       {/* Messages Area */}
       <ScrollArea className="flex-1 bg-zinc-50/50 dark:bg-[#09090b]">
         {/* We use a ref on a div inside ScrollArea to manipulate scroll position manually */}
-        <div 
-            ref={scrollRef} 
-            className="absolute inset-0 overflow-y-auto p-4 flex flex-col gap-1"
-            style={{ overscrollBehavior: "contain" }}
+        <div
+          ref={scrollRef}
+          className="absolute inset-0 overflow-y-auto p-4 flex flex-col gap-1"
+          style={{ overscrollBehavior: "contain" }}
         >
           {messages.length === 0 && !isLoading && (
-              <div className="flex h-full flex-col items-center justify-center gap-4 text-center opacity-50">
-                <Avatar className="h-24 w-24 grayscale opacity-50">
-                  <AvatarImage src={displayAvatar} />
-                  <AvatarFallback>{displayName?.[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                   <h3 className="text-lg font-semibold">Say hello!</h3>
-                   <p className="text-sm">Start the conversation with {displayName.split(" ")[0]}.</p>
-                </div>
+            <div className="flex h-full flex-col items-center justify-center gap-4 text-center opacity-50">
+              <Avatar className="h-24 w-24 grayscale opacity-50">
+                <AvatarImage src={displayAvatar} />
+                <AvatarFallback>{displayName?.[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-lg font-semibold">Say hello!</h3>
+                <p className="text-sm">Start the conversation with {displayName.split(" ")[0]}.</p>
               </div>
+            </div>
           )}
-          
+
           {isLoading && messages.length === 0 && (
-             <div className="py-10 text-center text-sm text-zinc-500">Loading messages...</div>
+            <div className="py-10 text-center text-sm text-zinc-500">Loading messages...</div>
           )}
 
           {messages.map((msg, i) => {
@@ -197,15 +202,15 @@ const ChatWindow = ({
             );
           })}
 
-            {isTyping && (
-                <div className="flex items-end gap-2 mb-2 ml-10">
-                    <div className="rounded-2xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800 rounded-tl-sm">
-                        <TypingIndicator />
-                    </div>
-                </div>
-            )}
-            
-            <div className="h-4" /> {/* Spacer at bottom */}
+          {isTyping && (
+            <div className="flex items-end gap-2 mb-2 ml-10">
+              <div className="rounded-2xl bg-zinc-100 px-4 py-3 dark:bg-zinc-800 rounded-tl-sm">
+                <TypingIndicator />
+              </div>
+            </div>
+          )}
+
+          <div className="h-4" /> {/* Spacer at bottom */}
         </div>
       </ScrollArea>
 

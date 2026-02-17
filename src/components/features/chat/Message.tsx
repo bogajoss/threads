@@ -1,9 +1,10 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Check, CheckCheck, Reply } from "lucide-react";
+import { Check, CheckCheck, Reply, FileText, Download } from "lucide-react";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import VideoPlayer from "@/components/features/post/VideoPlayer";
+import VoiceMessage from "./VoiceMessage";
 
 interface MessageProps {
   message: any;
@@ -38,9 +39,9 @@ const Message = ({
   };
 
   const formattedTime = new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
   }).format(new Date(message.updatedAt || Date.now()));
 
   return (
@@ -54,8 +55,8 @@ const Message = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
-       {/* Swipe Reply Indicator */}
-       <motion.div
+      {/* Swipe Reply Indicator */}
+      <motion.div
         style={{ opacity: replyIconOpacity, scale: replyIconScale, right: 10 }}
         className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center size-8 rounded-full bg-violet-500/20 text-violet-600 dark:text-violet-400 z-0 pointer-events-none"
       >
@@ -76,21 +77,21 @@ const Message = ({
         {!isMe && (
           <div className="w-8 flex-shrink-0">
             {showAvatar ? (
-               <img
+              <img
                 src={message.senderAvatar || "/placeholder-avatar.png"}
                 alt={message.senderName}
                 className="size-8 rounded-full object-cover bg-zinc-200 dark:bg-zinc-800"
-               />
+              />
             ) : (
               <div className="w-8" />
             )}
           </div>
         )}
 
-        <div className={cn("flex flex-col min-w-0", isMe ? "items-end" : "items-start")}> 
+        <div className={cn("flex flex-col min-w-0", isMe ? "items-end" : "items-start")}>
           {/* Reply Preview */}
           {message.replyTo && (
-            <div 
+            <div
               className={cn(
                 "mb-1 flex items-center gap-2 rounded-lg bg-zinc-100 px-3 py-2 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 max-w-full truncate opacity-80 hover:opacity-100 cursor-pointer transition-opacity",
                 isMe ? "self-end" : "self-start"
@@ -110,30 +111,65 @@ const Message = ({
                   isMe
                     ? "rounded-2xl rounded-tr-sm bg-violet-600 text-white dark:bg-violet-600"
                     : "rounded-2xl rounded-tl-sm bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100",
-                    message.isOptimistic && "opacity-70"
+                  message.isOptimistic && "opacity-70"
                 )}
               >
                 {/* Media Attachments */}
                 {message.media && message.media.length > 0 && (
-                    <div className={cn("mb-2 -mx-2 -mt-2 overflow-hidden rounded-xl", message.text ? "mb-2" : "-mb-2")}>
-                      {message.media.map((item: any, idx: number) => (
-                        <div key={idx} className="relative">
-                          {(item.type === 'video' || (item.url && item.url.endsWith('.mp4'))) ? (
-                            <VideoPlayer src={item.url} />
-                          ) : (
-                            <img src={item.url} className="w-full h-auto object-cover max-h-[300px]" alt="Attachment" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                  <div className={cn("mb-2 -mx-2 -mt-2 overflow-hidden rounded-xl", message.text ? "mb-2" : "-mb-2")}>
+                    {message.media.map((item: any, idx: number) => (
+                      <div key={idx} className="relative">
+                        {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
+                          <VideoPlayer src={item.url} />
+                        ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
+                          <div className="px-2 py-1">
+                            <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
+                          </div>
+                        ) : (item.type === 'image' || (typeof item.url === 'string' && (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/i)))) ? (
+                          <img src={item.url} className="w-full h-auto object-cover max-h-[300px]" alt="Attachment" />
+                        ) : (
+                          // Generic File
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg border hover:bg-black/5 transition-colors",
+                              isMe ? "border-white/20 bg-white/10" : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+                            )}
+                          >
+                            <div className={cn(
+                              "p-2 rounded-full",
+                              isMe ? "bg-white/20" : "bg-zinc-100 dark:bg-zinc-800"
+                            )}>
+                              <FileText size={20} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name || "Attachment"}</p>
+                              <p className="text-xs opacity-70">{item.size ? `${(item.size / 1024).toFixed(0)} KB` : "File"}</p>
+                            </div>
+                            <Download size={16} className="opacity-70" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
-                
+
+                {/* Special case for top-level message type='voice' if media is strings or structure differs */}
+                {message.type === 'voice' && (!message.media || message.media.length === 0) && (
+                  <div className="py-1">
+                    <p className="text-xs opacity-70 italic">Voice message unavailable</p>
+                  </div>
+                )}
+
+
                 {message.text}
 
                 {/* Timestamp & Status */}
                 <div className={cn(
                   "mt-1 flex items-center justify-end gap-1 text-[10px] opacity-70",
-                   isMe ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"
+                  isMe ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"
                 )}>
                   <span>{formattedTime}</span>
                   {isMe && (
@@ -146,11 +182,11 @@ const Message = ({
             </ContextMenuTrigger>
             <ContextMenuContent className="w-48">
               <ContextMenuItem onClick={() => onReply(message)}>Reply</ContextMenuItem>
-              <ContextMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>Copy</ContextMenuItem>
+              {message.text && <ContextMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>Copy</ContextMenuItem>}
               {isMe && (
                 <>
                   <ContextMenuSeparator />
-                  {onEdit && <ContextMenuItem onClick={() => onEdit(message)}>Edit</ContextMenuItem>}
+                  {onEdit && message.type === 'text' && <ContextMenuItem onClick={() => onEdit(message)}>Edit</ContextMenuItem>}
                   {onDelete && <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>Delete</ContextMenuItem>}
                 </>
               )}
@@ -159,16 +195,16 @@ const Message = ({
 
           {/* Reactions */}
           {message.reactions && message.reactions.length > 0 && (
-             <div className={cn(
-               "mt-1 flex flex-wrap gap-1",
-               isMe ? "justify-end" : "justify-start"
-             )}>
-                {message.reactions.map((reaction: any, idx: number) => (
-                   <span key={idx} className="px-1.5 py-0.5 text-xs bg-zinc-100 dark:bg-zinc-800 rounded-full border border-zinc-200 dark:border-zinc-700">
-                      {reaction.emoji}
-                   </span>
-                ))}
-             </div>
+            <div className={cn(
+              "mt-1 flex flex-wrap gap-1",
+              isMe ? "justify-end" : "justify-start"
+            )}>
+              {message.reactions.map((reaction: any, idx: number) => (
+                <span key={idx} className="px-1.5 py-0.5 text-xs bg-zinc-100 dark:bg-zinc-800 rounded-full border border-zinc-200 dark:border-zinc-700">
+                  {reaction.emoji}
+                </span>
+              ))}
+            </div>
           )}
 
         </div>

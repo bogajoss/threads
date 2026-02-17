@@ -294,7 +294,7 @@ export const sendMessage = async (
   senderId: string,
   content: string,
   type: string = "text",
-  media: string[] = [],
+  media: any[] = [],
   replyToId: string | null = null,
 ): Promise<Message | null> => {
   const { data, error } = await (supabase.from("messages") as any)
