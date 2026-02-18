@@ -5,6 +5,7 @@ import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, C
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import VideoPlayer from "@/components/features/post/VideoPlayer";
 import VoiceMessage from "./VoiceMessage";
+import RichText from "@/components/ui/rich-text";
 
 interface MessageProps {
   message: any;
@@ -164,7 +165,10 @@ const Message = ({
                 )}
 
 
-                {message.text}
+                <RichText
+                  content={message.text}
+                  className={cn(isMe ? "text-white" : "text-zinc-900 dark:text-zinc-100")}
+                />
 
                 {/* Timestamp & Status */}
                 <div className={cn(

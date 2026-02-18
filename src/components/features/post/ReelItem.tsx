@@ -5,9 +5,7 @@ const Plyr = React.lazy(() =>
   import("plyr-react").then((m) => ({ default: m.Plyr })),
 );
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import Linkify from "linkify-react";
-import { linkifyOptions } from "@/lib/linkify";
-import { useNavigate } from "react-router-dom";
+import RichText from "@/components/ui/rich-text";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
@@ -35,7 +33,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
   ({ reel, isActive, isMuted, shouldLoad = true }) => {
-    const navigate = useNavigate();
     const { currentUser } = useAuth();
     const { addToast } = useToast();
     const { openReport } = useReportModal();
@@ -96,7 +93,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 playPromise.catch(() => {
                   if (player) {
                     player.muted = true;
-                    player.play().catch(() => {});
+                    player.play().catch(() => { });
                   }
                 });
               }
@@ -113,7 +110,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         if (timeoutId) clearTimeout(timeoutId);
         // Ensure video pauses when component unmounts or isActive changes
         if (player && typeof player.pause === "function") {
-             player.pause();
+          player.pause();
         }
       };
     }, [isActive, isVideoLoaded]);
@@ -212,7 +209,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       const player = playerRef.current?.plyr;
       if (player) {
         if (player.paused) {
-          player.play().catch(() => {});
+          player.play().catch(() => { });
           setShowPlayPauseIcon("play");
         } else {
           player.pause();
@@ -333,7 +330,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
           <AnimatePresence>
             {showHeart && (
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: [0, 1.2, 1], opacity: 1 }}
                 exit={{ scale: 1.5, opacity: 0 }}
@@ -351,7 +348,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
           <AnimatePresence>
             {showPlayPauseIcon && (
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 1.5, opacity: 0 }}
@@ -396,11 +393,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               </Link>
               {currentUser?.id !== reel.user?.id && (
                 <button
-                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
-                    isFollowing
-                      ? "border border-white/50 bg-transparent text-white"
-                      : "bg-white text-black hover:bg-zinc-200"
-                  }`}
+                  className={`ml-2 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${isFollowing
+                    ? "border border-white/50 bg-transparent text-white"
+                    : "bg-white text-black hover:bg-zinc-200"
+                    }`}
                   onClick={handleToggleFollow}
                 >
                   {isFollowing ? (
@@ -417,53 +413,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 </button>
               )}
             </div>
-            <Linkify
-              options={{
-                ...linkifyOptions,
-                render: ({ attributes, content }) => {
-                  const { href, ...props } = attributes;
-                  const isExternal =
-                    !href.startsWith("/") &&
-                    (href.startsWith("http") || href.startsWith("www"));
-
-                  if (
-                    href.startsWith("/u/") ||
-                    href.startsWith("/tags/") ||
-                    href.startsWith("/c/") ||
-                    href.startsWith("/explore")
-                  ) {
-                    return (
-                      <span
-                        key={content}
-                        {...props}
-                        className="cursor-pointer font-bold text-white hover:underline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(href);
-                        }}
-                      >
-                        {content}
-                      </span>
-                    );
-                  }
-                  return (
-                    <a
-                      key={content}
-                      href={href}
-                      {...props}
-                      className="text-white hover:underline"
-                      target={isExternal ? "_blank" : undefined}
-                      rel={isExternal ? "noopener noreferrer" : undefined}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {content}
-                    </a>
-                  );
-                },
-              }}
-            >
-              <p className="mb-3 line-clamp-2 text-sm">{reel.content}</p>
-            </Linkify>
+            <RichText
+              content={reel.content}
+              className="mb-3 line-clamp-2 text-sm text-white"
+            />
             <div className="flex items-center gap-2 text-xs opacity-90">
               <Music size={14} className="animate-spin-slow" />
               <span>Original Audio - {reel.user?.handle}</span>
@@ -474,11 +427,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             <div className="pointer-events-auto flex flex-col items-center gap-1">
               <motion.button
                 whileTap={{ scale: 0.8 }}
-                className={`rounded-full p-3 backdrop-blur-md transition-all ${
-                  isLiked
-                    ? "bg-rose-500/20 text-rose-500"
-                    : "bg-zinc-800/50 text-white hover:bg-zinc-700"
-                }`}
+                className={`rounded-full p-3 backdrop-blur-md transition-all ${isLiked
+                  ? "bg-rose-500/20 text-rose-500"
+                  : "bg-zinc-800/50 text-white hover:bg-zinc-700"
+                  }`}
                 onClick={handleToggleLike}
               >
                 <motion.div

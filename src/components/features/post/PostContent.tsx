@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Linkify from "linkify-react";
-import { linkifyOptions } from "@/lib/linkify";
+import RichText from "@/components/ui/rich-text";
 import { isBangla, cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -28,7 +26,6 @@ const PostContent: React.FC<PostContentProps> = ({
   isUpdating,
   contentClass,
 }) => {
-  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const isTxtBangla = typeof content === "string" && isBangla(content);
 
@@ -41,11 +38,10 @@ const PostContent: React.FC<PostContentProps> = ({
         <Textarea
           value={editedContent}
           onChange={(e: any) => setEditedContent(e.target.value)}
-          className={`min-h-[100px] w-full rounded-xl border-zinc-200 bg-zinc-50 focus:ring-violet-500 dark:border-zinc-800 dark:bg-zinc-900 ${
-            isBangla(editedContent || "")
-              ? "font-bangla text-lg"
-              : "font-english"
-          }`}
+          className={`min-h-[100px] w-full rounded-xl border-zinc-200 bg-zinc-50 focus:ring-violet-500 dark:border-zinc-800 dark:bg-zinc-900 ${isBangla(editedContent || "")
+            ? "font-bangla text-lg"
+            : "font-english"
+            }`}
           autoFocus
         />
         <div className="flex justify-end gap-2">
@@ -84,85 +80,7 @@ const PostContent: React.FC<PostContentProps> = ({
         contentClass,
       )}
     >
-      <Linkify
-        options={{
-          ...linkifyOptions,
-          render: ({ attributes, content: linkContent }) => {
-            const { href, ...props } = attributes;
-            const origin = window.location.origin;
-
-            if (href.includes("internal.tag/")) {
-              const tag = decodeURIComponent(href.split("internal.tag/")[1]);
-              return (
-                <span
-                  key={linkContent as string}
-                  {...props}
-                  className={cn(
-                    "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400 font-bangla",
-                    props.className,
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/tags/${tag}`);
-                  }}
-                >
-                  #{tag}
-                </span>
-              );
-            }
-
-            let internalPath = null;
-            if (href.startsWith("/")) {
-              internalPath = href;
-            } else if (href.startsWith(origin)) {
-              internalPath = href.replace(origin, "");
-            }
-
-            if (internalPath) {
-              return (
-                <span
-                  key={linkContent as string}
-                  {...props}
-                  className={cn(
-                    "cursor-pointer font-medium text-violet-600 hover:underline dark:text-violet-400",
-                    props.className,
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(internalPath!);
-                  }}
-                >
-                  {linkContent}
-                </span>
-              );
-            }
-
-            return (
-              <a
-                key={linkContent as string}
-                href={href}
-                {...props}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "text-violet-600 hover:underline dark:text-violet-400",
-                  props.className,
-                )}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {linkContent}
-              </a>
-            );
-          },
-        }}
-      >
-        {typeof textToProcess === "string"
-          ? textToProcess.replace(
-              /#([\u0980-\u09FF\w]+)/g,
-              "https://internal.tag/$1",
-            )
-          : textToProcess}
-      </Linkify>
+      <RichText content={textToProcess} />
       {shouldTruncate && !isExpanded && "..."}
       {shouldTruncate && (
         <button

@@ -53,17 +53,20 @@ const DialogContent = React.forwardRef<
     const isDesktop = useMediaQuery("(min-width: 640px)");
     const controls = useAnimation();
     const y = useMotionValue(0);
-    const opacity = useTransform(y, [0, 200], [1, 0.5]);
+    const opacity = useTransform(y, [0, 200], [1, 0.5], { clamp: true });
 
     React.useEffect(() => {
       if (!isDesktop) {
+        // Explicitly set starting values
+        y.set(100); // Start slightly off/down for effect or 0
+
         controls.start({
           y: 0,
           opacity: 1,
           transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
         });
       }
-    }, [controls, isDesktop]);
+    }, [controls, isDesktop, y]);
 
     const handleDragEnd = async (_: any, info: any) => {
       if (isDesktop) return;
@@ -100,6 +103,7 @@ const DialogContent = React.forwardRef<
             dragConstraints={{ top: 0, bottom: 1000 }}
             dragElastic={{ top: 0.1, bottom: 0.6 }} // Reduced top elastic
             onDragEnd={handleDragEnd}
+            onClick={(e) => e.stopPropagation()}
             animate={isDesktop ? undefined : controls}
             style={isDesktop ? undefined : { y, opacity }}
             className={cn(

@@ -77,11 +77,11 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   }, [handleNext, currentIndex, isPaused]);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black"
+      onClick={() => onClose(storyGroup.user.id)}
     >
       <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
@@ -134,7 +134,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             </div>
           </Link>
           <button
-            onClick={() => onClose(storyGroup.user.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose(storyGroup.user.id);
+            }}
             className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
           >
             <X size={24} />
@@ -142,7 +145,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         </div>
       </div>
 
-      <motion.div 
+      <motion.div
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.8 }}
@@ -152,6 +155,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             onClose(storyGroup.user.id);
           }
         }}
+        onClick={(e) => e.stopPropagation()}
         className="relative flex h-full w-full max-w-xl items-center justify-center p-2 touch-none"
       >
         <AnimatePresence mode="wait">
@@ -170,7 +174,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             />
             {isPaused && (
               <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold text-white backdrop-blur-md"

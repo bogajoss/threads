@@ -33,8 +33,7 @@ import {
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import { useMediaQuery } from "@/hooks";
 import { getOrCreateConversation } from "@/lib/api";
-import Linkify from "linkify-react";
-import { linkifyOptions } from "@/lib/linkify";
+import RichText from "@/components/ui/rich-text";
 
 import { useFollow } from "@/hooks/useFollow";
 import { useReportModal } from "@/context/ReportContext";
@@ -311,51 +310,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         </div>
 
         <div className="whitespace-pre-line text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 sm:text-[15px]">
-          <Linkify
-            options={{
-              ...linkifyOptions,
-              render: ({ attributes, content: text }) => {
-                const { href, ...props } = attributes;
-                const isExternal =
-                  !href.startsWith("/") &&
-                  (href.startsWith("http") || href.startsWith("www"));
-
-                if (
-                  href.startsWith("/u/") ||
-                  href.startsWith("/tags/") ||
-                  href.startsWith("/c/") ||
-                  href.startsWith("/explore")
-                ) {
-                  return (
-                    <span
-                      key={text}
-                      {...props}
-                      className="cursor-pointer font-bold text-rose-500 hover:underline dark:text-rose-400"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(href);
-                      }}
-                    >
-                      {text}
-                    </span>
-                  );
-                }
-                return (
-                  <a
-                    key={text}
-                    href={href}
-                    {...props}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
-                  >
-                    {text}
-                  </a>
-                );
-              },
-            }}
-          >
-            {profile.bio}
-          </Linkify>
+          <RichText
+            content={profile.bio}
+            className="text-zinc-900 dark:text-zinc-100"
+          />
         </div>
 
         {(profile.website || profile.location) && (

@@ -81,7 +81,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md touch-none"
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         style={{ opacity }}
         className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent p-4"
       >
@@ -146,7 +146,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
             }
           }}
           className="relative flex h-full w-full items-center justify-center"
-          onClick={(e) => e.stopPropagation()}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -168,12 +167,14 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
                   src={currentUrl}
                   controls
                   autoPlay
+                  onClick={(e) => e.stopPropagation()}
                   className="max-h-full max-w-full rounded-lg shadow-2xl"
                 />
               ) : (
                 <motion.img
                   src={currentUrl}
                   animate={{ scale }}
+                  onClick={(e) => e.stopPropagation()}
                   className="max-h-full max-w-full select-none rounded-lg object-contain shadow-2xl pointer-events-none"
                   alt=""
                 />
@@ -215,11 +216,10 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
                     handleReset();
                     onNavigate(idx);
                   }}
-                  className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all active:scale-90 ${
-                    idx === currentIndex
+                  className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all active:scale-90 ${idx === currentIndex
                       ? "scale-110 border-white shadow-lg shadow-white/20"
                       : "border-transparent opacity-40 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <img src={thumb} className="size-full object-cover" alt="" />
                 </button>
