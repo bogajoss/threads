@@ -74,9 +74,8 @@ const Notifications: React.FC = () => {
             <div
               key={notif.id}
               onClick={() => handleNotificationClick(notif)}
-              className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${
-                !notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
-              }`}
+              className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${!notif.is_read ? "bg-violet-50/30 dark:bg-violet-900/10" : ""
+                }`}
             >
               <div className="relative">
                 <Avatar className="h-12 w-12 border border-zinc-100 dark:border-zinc-800">
@@ -114,17 +113,10 @@ const Notifications: React.FC = () => {
           <Button
             variant="ghost"
             onClick={() => loadNotifications()}
-            disabled={isFetchingMore}
+            loading={isFetchingMore}
             className="text-sm"
           >
-            {isFetchingMore ? (
-              <>
-                <span className="mr-2 animate-pulse">...</span>
-                Loading...
-              </>
-            ) : (
-              "Load more"
-            )}
+            Load more
           </Button>
         </div>
       )}

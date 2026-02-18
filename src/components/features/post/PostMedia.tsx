@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { X, Film, Plus } from "lucide-react";
+import { X, Film, Plus, Loader2 } from "lucide-react";
 import { MediaGrid } from "@/components/features/post";
 import type { Media } from "@/types";
 
@@ -67,7 +67,7 @@ const PostMedia: React.FC<PostMediaProps> = ({
                 />
               ) : (
                 <div className="flex size-full items-center justify-center">
-                  <Film size={24} className="animate-pulse text-violet-500" />
+                  <Loader2 size={24} className="animate-spin text-violet-500" />
                 </div>
               )}
               <button

@@ -7,6 +7,7 @@ import {
   Flag,
   Ban,
   Gavel,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -159,11 +160,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <button
                   onClick={handleMessageClick}
                   disabled={isStartingChat}
-                  className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                  className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900 flex items-center justify-center min-w-[36px]"
                   aria-label="Message"
                 >
                   {isStartingChat ? (
-                    <span className="animate-pulse">...</span>
+                    <Loader2 size={18} className="animate-spin" />
                   ) : (
                     <Mail size={20} />
                   )}
@@ -178,11 +179,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   variant={isFollowing ? "secondary" : "primary"}
                   onClick={handleFollow}
                   className="flex min-w-0 items-center gap-2 px-4 text-sm sm:min-w-[100px]"
-                  disabled={loading}
+                  loading={loading}
                 >
-                  {loading ? (
-                    <span className="mx-auto animate-pulse">...</span>
-                  ) : isFollowing ? (
+                  {isFollowing ? (
                     <>
                       <FollowingIcon size={18} />
                       <span className="hidden sm:inline">Following</span>

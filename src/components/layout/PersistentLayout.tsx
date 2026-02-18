@@ -88,7 +88,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* FEED */}
       <div className={isFeedActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isFeedActive}>
-          <PageTransition>
+          <PageTransition mode="none">
             <Feed onStoryClick={onStoryClick} />
           </PageTransition>
         </KeepAlive>
@@ -97,7 +97,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* EXPLORE */}
       <div className={isExploreActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isExploreActive}>
-          <PageTransition>
+          <PageTransition mode="none">
             <Explore />
           </PageTransition>
         </KeepAlive>
@@ -106,7 +106,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* REELS */}
       <div className={isReelsActive ? "block min-h-[100dvh]" : "hidden bg-black"}>
         <KeepAlive isActive={isReelsActive}>
-          <PageTransition>
+          <PageTransition mode="none">
             <Reels />
           </PageTransition>
         </KeepAlive>
@@ -115,7 +115,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* MESSAGES */}
       <div className={isMessagesActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isMessagesActive}>
-          <PageTransition>
+          <PageTransition mode="none">
             <Messages />
           </PageTransition>
         </KeepAlive>
@@ -124,7 +124,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* NOTIFICATIONS */}
       <div className={isNotificationsActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isNotificationsActive}>
-          <PageTransition>
+          <PageTransition mode="none">
             <Notifications />
           </PageTransition>
         </KeepAlive>

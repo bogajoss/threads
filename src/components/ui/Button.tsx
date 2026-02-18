@@ -1,5 +1,6 @@
 import React, { type ButtonHTMLAttributes } from "react";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -99,7 +100,9 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       {...buttonProps}
     >
-      {loading && <span className="mr-2 animate-pulse">...</span>}
+      {loading && (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      )}
       <div
         className={cn("flex items-center gap-x-1.5", loading && "opacity-80")}
       >

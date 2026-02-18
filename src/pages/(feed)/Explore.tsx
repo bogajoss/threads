@@ -84,27 +84,27 @@ const Explore: React.FC = () => {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="gap-8 rounded-none border-none bg-transparent p-0 px-4 w-full h-12">
+            <TabsList className="flex w-full h-12 gap-0 border-none bg-transparent p-0 px-4">
               <TabsTrigger
                 value="communities"
-                className="flex h-full gap-2 rounded-none border-b-2 border-transparent px-2 font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                className="flex flex-1 h-full items-center justify-center rounded-none border-b-2 border-transparent font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                title="Communities"
               >
-                <Users size={18} />
-                Communities
+                <Users size={22} />
               </TabsTrigger>
               <TabsTrigger
                 value="posts"
-                className="flex h-full gap-2 rounded-none border-b-2 border-transparent px-2 font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                className="flex flex-1 h-full items-center justify-center rounded-none border-b-2 border-transparent font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                title="Posts"
               >
-                <Hash size={18} />
-                Posts
+                <Hash size={22} />
               </TabsTrigger>
               <TabsTrigger
                 value="users"
-                className="flex h-full gap-2 rounded-none border-b-2 border-transparent px-2 font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                className="flex flex-1 h-full items-center justify-center rounded-none border-b-2 border-transparent font-bold text-zinc-500 transition-all data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-zinc-950 dark:data-[state=active]:text-white"
+                title="Users"
               >
-                <UserCircle size={18} />
-                Users
+                <UserCircle size={22} />
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -135,11 +135,8 @@ const Explore: React.FC = () => {
                   variant="secondary"
                   className="w-full"
                   onClick={() => loadCommunities()}
-                  disabled={isFetchingMoreCommunities}
+                  loading={isFetchingMoreCommunities}
                 >
-                  {isFetchingMoreCommunities && (
-                    <span className="mr-2 animate-pulse">...</span>
-                  )}
                   Load more
                 </Button>
               </div>
@@ -166,12 +163,8 @@ const Explore: React.FC = () => {
                       variant="secondary"
                       className="w-full max-w-xs"
                       onClick={() => loadPosts()}
-                      disabled={isFetchingMorePosts}
+                      loading={isFetchingMorePosts}
                     >
-                      {" "}
-                      {isFetchingMorePosts && (
-                        <span className="mr-2 animate-pulse">...</span>
-                      )}
                       Load more
                     </Button>
                   </div>
@@ -215,11 +208,8 @@ const Explore: React.FC = () => {
                       variant="secondary"
                       className="w-full max-w-xs"
                       onClick={() => loadUsers()}
-                      disabled={isFetchingMoreUsers}
+                      loading={isFetchingMoreUsers}
                     >
-                      {isFetchingMoreUsers && (
-                        <span className="mr-2 animate-pulse">...</span>
-                      )}
                       Load more
                     </Button>
                   </div>

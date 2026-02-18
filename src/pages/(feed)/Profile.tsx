@@ -104,11 +104,8 @@ const Profile: React.FC = () => {
                 variant="secondary"
                 className="w-full max-w-xs"
                 onClick={() => loadUserPosts()}
-                disabled={isFetchingMorePosts}
+                loading={isFetchingMorePosts}
               >
-                {isFetchingMorePosts && (
-                  <span className="mr-2 animate-pulse">...</span>
-                )}
                 Load more posts
               </Button>
             </div>
@@ -228,11 +225,8 @@ const Profile: React.FC = () => {
                       variant="secondary"
                       className="w-full text-xs"
                       onClick={() => fetchNextFollows()}
-                      disabled={isFetchingMoreFollows}
+                      loading={isFetchingMoreFollows}
                     >
-                      {isFetchingMoreFollows ? (
-                        <span className="mr-2 animate-pulse">...</span>
-                      ) : null}
                       Load more
                     </Button>
                   </div>

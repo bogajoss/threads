@@ -149,11 +149,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           }
           className="ml-4 flex !w-auto shrink-0 items-center gap-1.5 rounded-full border-zinc-200 !px-4 !py-1.5 text-sm font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           onClick={onButtonClick}
-          disabled={loading}
+          loading={loading}
         >
-          {loading ? (
-            <span className="size-4 animate-pulse">...</span>
-          ) : isCommunity ? (
+          {isCommunity ? (
             isJoined ? (
               <>
                 <FollowingIcon size={16} />

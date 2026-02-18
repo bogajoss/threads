@@ -3,13 +3,9 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import {
-  Camera,
-  Trash2,
-  LogOut,
-  ShieldCheck,
-  Search,
   UserPlus,
   X,
+  Loader2,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
@@ -313,18 +309,21 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                         </div>
                         <button
                           disabled={addMemberMutation.isPending}
-                          onClick={() => addMemberMutation.mutate(user.id)}
-                          className="rounded-full bg-violet-600 px-3 py-1 text-[10px] font-bold text-white transition-all hover:bg-violet-700 active:scale-95 disabled:opacity-50"
+                          className="rounded-full bg-violet-600 px-3 py-1 text-[10px] font-bold text-white transition-all hover:bg-violet-700 active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[50px]"
                         >
-                          {addMemberMutation.isPending ? "Adding..." : "Add"}
+                          {addMemberMutation.isPending ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            "Add"
+                          )}
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
                 {searching && (
-                  <div className="py-2 text-center text-xs text-zinc-400">
-                    Searching...
+                  <div className="flex flex-col items-center justify-center py-4 gap-2">
+                    <Loader2 size={18} className="animate-spin text-zinc-400" />
                   </div>
                 )}
               </div>
@@ -332,8 +331,11 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
 
             <div className="space-y-1">
               {loadingParts ? (
-                <div className="py-8 text-center text-zinc-400">
-                  Loading members...
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <Loader2 size={24} className="animate-spin text-zinc-300" />
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                    Loading members...
+                  </p>
                 </div>
               ) : (
                 participants.map((user: any) => (

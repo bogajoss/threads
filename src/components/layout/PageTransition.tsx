@@ -5,9 +5,10 @@ import { motionTokens } from "@/config/motion";
 
 interface PageTransitionProps {
   children: React.ReactNode;
+  mode?: "default" | "none";
 }
 
-const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
+const PageTransition: React.FC<PageTransitionProps> = ({ children, mode = "default" }) => {
   const isPresent = useIsPresent();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -25,12 +26,24 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     exit: { opacity: 0, y: -10 },
   };
 
+  const noAnimationVariants = {
+    initial: { opacity: 1, x: 0, y: 0 },
+    animate: { opacity: 1, x: 0, y: 0 },
+    exit: { opacity: 1, x: 0, y: 0 },
+  };
+
+  const variants = mode === "none"
+    ? noAnimationVariants
+    : isMobile
+      ? mobileVariants
+      : desktopVariants;
+
   return (
     <motion.div
       initial="initial"
       animate="animate"
       exit="exit"
-      variants={isMobile ? mobileVariants : desktopVariants}
+      variants={variants}
       transition={
         isMobile
           ? motionTokens.transition.sheetSpring

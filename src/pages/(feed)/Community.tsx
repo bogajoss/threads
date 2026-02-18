@@ -136,12 +136,10 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                 <Button
                   variant={isMember ? "outline" : "primary"}
                   onClick={handleJoinToggle}
-                  disabled={isJoining}
+                  loading={isJoining}
                   className={`flex h-10 items-center justify-center gap-2 rounded-full px-4 font-bold transition-all ${isMember ? "border-zinc-200 hover:border-rose-100 hover:bg-rose-50 hover:text-rose-500 dark:border-zinc-800 dark:hover:bg-rose-900/20" : "bg-zinc-950 text-white hover:scale-105 dark:bg-white dark:text-zinc-950"}`}
                 >
-                  {isJoining ? (
-                    <span className="animate-pulse">...</span>
-                  ) : isMember ? (
+                  {isMember ? (
                     <>
                       <FollowingIcon size={18} />
                       <span className="hidden sm:inline">Joined</span>
@@ -239,11 +237,8 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                     variant="secondary"
                     className="w-full max-w-xs"
                     onClick={() => loadCommunityPosts()}
-                    disabled={isFetchingMorePosts}
+                    loading={isFetchingMorePosts}
                   >
-                    {isFetchingMorePosts && (
-                      <span className="mr-2 animate-pulse">...</span>
-                    )}
                     Load more
                   </Button>{" "}
                 </div>

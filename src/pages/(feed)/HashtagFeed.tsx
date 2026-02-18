@@ -82,11 +82,8 @@ const HashtagFeed = () => {
                     variant="secondary"
                     className="w-full max-w-xs"
                     onClick={() => loadMore()}
-                    disabled={fetchingMore}
+                    loading={fetchingMore}
                   >
-                    {fetchingMore && (
-                      <span className="mr-2 animate-pulse">...</span>
-                    )}
                     Load more
                   </Button>
                 </div>

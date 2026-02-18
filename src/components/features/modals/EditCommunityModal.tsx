@@ -223,13 +223,10 @@ export default function EditCommunityModal({
                 <Button
                   type="submit"
                   className="h-11 flex-1 rounded-xl bg-zinc-900 font-bold text-white transition-all hover:bg-zinc-800 active:scale-95 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                  disabled={loading || !formData.name}
+                  loading={loading}
+                  disabled={!formData.name}
                 >
-                  {loading ? (
-                    <span className="animate-pulse">...</span>
-                  ) : (
-                    "Save Changes"
-                  )}
+                  Save Changes
                 </Button>
               </div>
             </form>

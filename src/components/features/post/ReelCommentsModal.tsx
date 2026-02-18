@@ -164,16 +164,16 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
                 />
               ))}
               {hasMore && (
-                <button
-                  onClick={() => loadComments(true)}
-                  disabled={isFetchingMore}
-                  className="flex w-full items-center justify-center gap-2 py-6 text-sm font-bold text-violet-600 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
-                >
-                  {isFetchingMore && (
-                    <span className="mr-2 animate-pulse">...</span>
-                  )}
-                  View more replies
-                </button>
+                <div className="flex justify-center border-t border-zinc-100 py-4 dark:border-zinc-800">
+                  <Button
+                    variant="ghost"
+                    onClick={() => loadComments(true)}
+                    loading={isFetchingMore}
+                    className="text-violet-600 font-bold"
+                  >
+                    View more replies
+                  </Button>
+                </div>
               )}
             </div>
           ) : (

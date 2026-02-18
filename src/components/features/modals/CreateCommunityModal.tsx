@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import { Users, Camera, CheckCircle2, XCircle } from "lucide-react";
+import { Users, Camera, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import {
@@ -142,7 +142,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             </Avatar>
             <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
               {loading ? (
-                <span className="animate-pulse text-white font-bold">...</span>
+                <Loader2 size={24} className="animate-spin text-white" />
               ) : (
                 <Camera size={24} className="text-white" />
               )}
@@ -198,7 +198,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {handleStatus.loading ? (
-                  <span className="animate-pulse text-zinc-400">...</span>
+                  <Loader2 size={18} className="animate-spin text-zinc-400" />
                 ) : handleStatus.available === true ? (
                   <CheckCircle2 size={18} className="text-emerald-500" />
                 ) : handleStatus.available === false ? (
@@ -253,8 +253,8 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
           <Button
             type="submit"
             className="flex-1"
+            loading={createMutation.isPending}
             disabled={
-              createMutation.isPending ||
               loading ||
               !formData.name ||
               !formData.handle ||
@@ -262,11 +262,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
               handleStatus.available === false
             }
           >
-            {createMutation.isPending ? (
-              <span className="animate-pulse">...</span>
-            ) : (
-              "Create"
-            )}
+            Create
           </Button>
         </div>
       </form>
