@@ -58,10 +58,12 @@ const DialogContent = React.forwardRef<
 
     React.useEffect(() => {
       if (!isDesktop) {
+        // Reset state on mount
+        y.stop();
         y.set(100);
+
         controls.start({
           y: 0,
-          opacity: 1,
           transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
         });
       }
