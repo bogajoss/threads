@@ -30,11 +30,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   return (
     <div
       className={cn(
-        "min-h-screen bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 pt-[env(safe-area-inset-top)]",
+        "min-h-[100dvh] bg-[--background] text-[--foreground] font-sans selection:bg-violet-500 selection:text-white transition-colors duration-200 pt-[env(safe-area-inset-top)]",
         darkMode && "dark",
       )}
     >
-      <div className="mx-auto flex min-h-screen w-full max-w-[1500px] justify-center px-0 sm:px-0">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[1500px] justify-center px-0 sm:px-0">
         <SidebarLeft />
 
         <main

@@ -27,7 +27,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
+      "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
       className,
     )}
     onClick={(e) => {
@@ -50,6 +50,7 @@ const DialogContent = React.forwardRef<
     { className, children, onDragClose, showCloseButton = true, ...props },
     ref,
   ) => {
+    // ... (keep existing hook logic: isDesktop, controls, y, opacity, handleDragEnd) ...
     const isDesktop = useMediaQuery("(min-width: 640px)");
     const controls = useAnimation();
     const y = useMotionValue(0);
@@ -57,9 +58,7 @@ const DialogContent = React.forwardRef<
 
     React.useEffect(() => {
       if (!isDesktop) {
-        // Explicitly set starting values
-        y.set(100); // Start slightly off/down for effect or 0
-
+        y.set(100);
         controls.start({
           y: 0,
           opacity: 1,
@@ -70,7 +69,6 @@ const DialogContent = React.forwardRef<
 
     const handleDragEnd = async (_: any, info: any) => {
       if (isDesktop) return;
-      // Easier dismissal: drag down > 100px OR fast flick down
       if (info.offset.y > 100 || info.velocity.y > 300) {
         if (onDragClose) {
           onDragClose();
@@ -99,9 +97,8 @@ const DialogContent = React.forwardRef<
         >
           <motion.div
             drag={isDesktop ? false : "y"}
-            // Allow dragging down (positive Y) freely, restrict dragging up (negative Y)
             dragConstraints={{ top: 0, bottom: 1000 }}
-            dragElastic={{ top: 0.1, bottom: 0.6 }} // Reduced top elastic
+            dragElastic={{ top: 0.1, bottom: 0.6 }}
             onDragEnd={handleDragEnd}
             onClick={(e) => e.stopPropagation()}
             animate={isDesktop ? undefined : controls}
@@ -115,7 +112,6 @@ const DialogContent = React.forwardRef<
               <div className="h-1.5 w-12 rounded-full bg-zinc-200 dark:bg-zinc-800" />
             </div>
 
-            {/* Hidden title for accessibility if not provided elsewhere */}
             <DialogPrimitive.Title className="sr-only">
               Dialog
             </DialogPrimitive.Title>
@@ -124,9 +120,9 @@ const DialogContent = React.forwardRef<
             {showCloseButton && (
               <DialogPrimitive.Close
                 data-dialog-close
-                className="absolute right-4 top-4 rounded-full p-1 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-500 dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 dark:data-[state=open]:bg-zinc-800 dark:data-[state=open]:text-zinc-400"
+                className="absolute right-4 top-4 rounded-full p-3 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100 data-[state=open]:text-zinc-500 dark:ring-offset-zinc-950 dark:focus:ring-zinc-300 dark:data-[state=open]:bg-zinc-800 dark:data-[state=open]:text-zinc-400"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
                 <span className="sr-only">Close</span>
               </DialogPrimitive.Close>
             )}

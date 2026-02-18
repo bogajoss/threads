@@ -141,6 +141,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   onClick={() => onEditProfile?.(profile)}
                   className="flex size-10 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition-all hover:bg-zinc-50 active:scale-95 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
                   title="Edit Profile"
+                  aria-label="Edit Profile"
                 >
                   <EditIcon size={20} />
                 </button>
@@ -148,6 +149,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   onClick={() => navigate("/settings")}
                   className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-all hover:bg-zinc-50 active:scale-95 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
                   title="Settings"
+                  aria-label="Settings"
                 >
                   <SettingsIcon size={20} />
                 </button>
@@ -158,6 +160,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   onClick={handleMessageClick}
                   disabled={isStartingChat}
                   className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                  aria-label="Message"
                 >
                   {isStartingChat ? (
                     <span className="animate-pulse">...</span>
@@ -165,7 +168,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     <Mail size={20} />
                   )}
                 </button>
-                <button className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
+                <button
+                  className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                  aria-label="Notifications"
+                >
                   <Bell size={20} />
                 </button>
                 <Button
@@ -191,7 +197,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {isDesktop ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+                      <button
+                        className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        aria-label="More options"
+                      >
                         <MoreHorizontal size={20} />
                       </button>
                     </DropdownMenuTrigger>
@@ -238,6 +247,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     <button
                       onClick={() => setIsMenuOpen(true)}
                       className="rounded-full p-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                      aria-label="More options"
                     >
                       <MoreHorizontal size={20} />
                     </button>

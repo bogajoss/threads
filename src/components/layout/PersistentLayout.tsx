@@ -17,22 +17,22 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
   const location = useLocation();
   const path = location.pathname;
   const scrollPositions = useRef<Record<string, number>>({});
-  
+
   // Track the *previous* path to know what to save
   const prevPathRef = useRef(path);
   const currentScrollY = useRef(0);
 
   // Active state logic
   const isFeedActive = path === "/feed" || path === "/";
-  const isExploreActive = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/")); 
-  const isReelsActive = path === "/r" || path === "/r/"; 
+  const isExploreActive = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/"));
+  const isReelsActive = path === "/r" || path === "/r/";
   const isMessagesActive = path === "/m" || path === "/m/";
   const isNotificationsActive = path === "/notifications";
 
   // Continuous scroll tracker
   useEffect(() => {
     const handleScroll = () => {
-        currentScrollY.current = window.scrollY;
+      currentScrollY.current = window.scrollY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -40,93 +40,93 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
   // Update prev path and save scroll position in an Effect, not render
   useLayoutEffect(() => {
-      // If path has changed
-      if (prevPathRef.current !== path) {
-          const prev = prevPathRef.current;
-          const wasFeed = prev === "/feed" || prev === "/";
-          const wasExplore = prev === "/explore" || (prev.startsWith("/explore/") && prev.split("/").length === 3);
-          const wasReels = prev === "/r" || prev === "/r/"; 
-          const wasMessages = prev === "/m" || prev === "/m/";
-          const wasNotifications = prev === "/notifications";
+    // If path has changed
+    if (prevPathRef.current !== path) {
+      const prev = prevPathRef.current;
+      const wasFeed = prev === "/feed" || prev === "/";
+      const wasExplore = prev === "/explore" || (prev.startsWith("/explore/") && prev.split("/").length === 3);
+      const wasReels = prev === "/r" || prev === "/r/";
+      const wasMessages = prev === "/m" || prev === "/m/";
+      const wasNotifications = prev === "/notifications";
 
-          const lastScrollY = currentScrollY.current;
+      const lastScrollY = currentScrollY.current;
 
-          // Save the last known scroll position to the outgoing tab
-          if (wasFeed) scrollPositions.current["feed"] = lastScrollY;
-          else if (wasExplore) scrollPositions.current["explore"] = lastScrollY;
-          else if (wasReels) scrollPositions.current["reels"] = lastScrollY;
-          else if (wasMessages) scrollPositions.current["messages"] = lastScrollY;
-          else if (wasNotifications) scrollPositions.current["notifications"] = lastScrollY;
-          
-          prevPathRef.current = path;
+      // Save the last known scroll position to the outgoing tab
+      if (wasFeed) scrollPositions.current["feed"] = lastScrollY;
+      else if (wasExplore) scrollPositions.current["explore"] = lastScrollY;
+      else if (wasReels) scrollPositions.current["reels"] = lastScrollY;
+      else if (wasMessages) scrollPositions.current["messages"] = lastScrollY;
+      else if (wasNotifications) scrollPositions.current["notifications"] = lastScrollY;
 
-          // Restore scroll for the NEW path immediately
-          const getPos = (key: string) => scrollPositions.current[key] || 0;
-          let newPos = 0;
-          
-          // Determine new active 
-          const newIsFeed = path === "/feed" || path === "/";
-          const newIsExplore = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/")); 
-          const newIsReels = path === "/r" || path === "/r/"; 
-          const newIsMessages = path === "/m" || path === "/m/";
-          const newIsNotifications = path === "/notifications";
+      prevPathRef.current = path;
 
-          if (newIsFeed) newPos = getPos("feed");
-          else if (newIsExplore) newPos = getPos("explore");
-          else if (newIsReels) newPos = getPos("reels");
-          else if (newIsMessages) newPos = getPos("messages");
-          else if (newIsNotifications) newPos = getPos("notifications");
+      // Restore scroll for the NEW path immediately
+      const getPos = (key: string) => scrollPositions.current[key] || 0;
+      let newPos = 0;
 
-          window.scrollTo(0, newPos);
-          currentScrollY.current = newPos;
-      }
-  }, [path]); 
+      // Determine new active 
+      const newIsFeed = path === "/feed" || path === "/";
+      const newIsExplore = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/"));
+      const newIsReels = path === "/r" || path === "/r/";
+      const newIsMessages = path === "/m" || path === "/m/";
+      const newIsNotifications = path === "/notifications";
+
+      if (newIsFeed) newPos = getPos("feed");
+      else if (newIsExplore) newPos = getPos("explore");
+      else if (newIsReels) newPos = getPos("reels");
+      else if (newIsMessages) newPos = getPos("messages");
+      else if (newIsNotifications) newPos = getPos("notifications");
+
+      window.scrollTo(0, newPos);
+      currentScrollY.current = newPos;
+    }
+  }, [path]);
 
 
   return (
     <div className="relative w-full">
       {/* FEED */}
-      <div className={isFeedActive ? "block min-h-screen" : "hidden"}>
+      <div className={isFeedActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isFeedActive}>
-            <PageTransition>
-              <Feed onStoryClick={onStoryClick} />
-            </PageTransition>
+          <PageTransition>
+            <Feed onStoryClick={onStoryClick} />
+          </PageTransition>
         </KeepAlive>
       </div>
 
       {/* EXPLORE */}
-      <div className={isExploreActive ? "block min-h-screen" : "hidden"}>
+      <div className={isExploreActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isExploreActive}>
-            <PageTransition>
-              <Explore />
-            </PageTransition>
+          <PageTransition>
+            <Explore />
+          </PageTransition>
         </KeepAlive>
       </div>
 
       {/* REELS */}
-      <div className={isReelsActive ? "block min-h-screen" : "hidden bg-black"}>
+      <div className={isReelsActive ? "block min-h-[100dvh]" : "hidden bg-black"}>
         <KeepAlive isActive={isReelsActive}>
-             <PageTransition>
-              <Reels />
-             </PageTransition>
+          <PageTransition>
+            <Reels />
+          </PageTransition>
         </KeepAlive>
       </div>
 
       {/* MESSAGES */}
-      <div className={isMessagesActive ? "block min-h-screen" : "hidden"}>
+      <div className={isMessagesActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isMessagesActive}>
-            <PageTransition>
-              <Messages />
-            </PageTransition>
+          <PageTransition>
+            <Messages />
+          </PageTransition>
         </KeepAlive>
       </div>
 
       {/* NOTIFICATIONS */}
-      <div className={isNotificationsActive ? "block min-h-screen" : "hidden"}>
+      <div className={isNotificationsActive ? "block min-h-[100dvh]" : "hidden"}>
         <KeepAlive isActive={isNotificationsActive}>
-            <PageTransition>
-              <Notifications />
-            </PageTransition>
+          <PageTransition>
+            <Notifications />
+          </PageTransition>
         </KeepAlive>
       </div>
     </div>
@@ -148,7 +148,7 @@ function KeepAlive({ isActive, children }: { isActive: boolean; children: React.
 
   return (
     <Suspense fallback={<div className="h-screen w-full bg-black" />}>
-       {children}
+      {children}
     </Suspense>
   );
 }

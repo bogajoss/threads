@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
-    | "primary"
-    | "secondary"
-    | "outline"
-    | "danger"
-    | "ghost"
-    | "violet"
-    | "animated";
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "danger"
+  | "ghost"
+  | "violet"
+  | "animated";
   size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
   className?: string;
@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "rounded-full font-bold inline-flex items-center justify-center relative overflow-hidden transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation shadow-sm hover:shadow-md active:opacity-80";
+    "rounded-full font-bold inline-flex items-center justify-center relative overflow-hidden transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none touch-manipulation shadow-sm hover:shadow-md active:opacity-80";
 
   const variants = {
     primary:
