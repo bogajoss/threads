@@ -1,5 +1,5 @@
 {
-  "appId": "com.antigravity.app",
-  "appName": "Sysm",
-  "webDir": "dist"
+	"appId": "com.sysm.app",
+	"appName": "Sysm",
+	"webDir": "dist"
 }
