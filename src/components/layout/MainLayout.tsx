@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import BottomNav from "./BottomNav";
@@ -7,6 +7,8 @@ import FeedHeader from "./FeedHeader";
 import PersistentLayout from "./PersistentLayout";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 
 interface MainLayoutProps {
   onStoryClick?: (story: any) => void;
@@ -15,6 +17,7 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   const location = useLocation();
   const { darkMode } = useTheme();
+  const navigate = useNavigate();
 
   const isHomePage = location.pathname === "/" || location.pathname === "/feed";
   const isReelsPage = location.pathname.startsWith("/r");
@@ -58,6 +61,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
       </div>
 
       {!isNavHidden && <BottomNav />}
+
+      {/* Mobile FAB */}
+      <AnimatePresence>
+        {!isNavHidden && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0, opacity: 0, y: 20 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navigate("/create")}
+            className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] right-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-zinc-950 text-white shadow-2xl transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 md:hidden"
+            aria-label="Create Post"
+          >
+            <Plus size={28} strokeWidth={2.5} />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

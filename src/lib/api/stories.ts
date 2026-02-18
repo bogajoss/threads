@@ -38,12 +38,14 @@ export const addStory = async (
   userId: string,
   mediaUrl: string,
   type: string = "image",
+  content?: string,
 ): Promise<Story | null> => {
   const { data, error } = await (supabase.from("stories") as any).insert([
     {
       user_id: userId,
       media_url: mediaUrl,
       type,
+      content,
     },
   ]).select(`
             *,

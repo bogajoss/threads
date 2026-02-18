@@ -113,6 +113,7 @@ export interface Story {
   id: string;
   user_id: string;
   media: string;
+  content?: string;
   created_at: string;
   expires_at: string;
   user: User;

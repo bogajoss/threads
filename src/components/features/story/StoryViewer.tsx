@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 interface Story {
   id: string;
   media: string;
+  content?: string;
   created_at: string;
 }
 
@@ -172,6 +173,15 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
               className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
               alt=""
             />
+            {currentStory.content && (
+              <div className="absolute bottom-16 left-0 right-0 px-8 pb-4 z-30">
+                <div className="bg-black/40 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 shadow-lg">
+                  <p className="text-white text-sm font-medium leading-relaxed drop-shadow-sm text-center">
+                    {currentStory.content}
+                  </p>
+                </div>
+              </div>
+            )}
             {isPaused && (
               <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
                 <motion.div

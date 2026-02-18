@@ -2,7 +2,6 @@ import React from "react";
 import {
   HomeIcon,
   SearchIcon,
-  VideoIcon,
   MessageCircle,
   Bell,
   User,
@@ -30,7 +29,6 @@ const BottomNav: React.FC = () => {
   const navItems = [
     { id: "home", icon: HomeIcon, path: "/feed" },
     { id: "explore", icon: SearchIcon, path: "/explore" },
-    { id: "create", icon: VideoIcon, path: "/create", isSpecial: true },
     { id: "notifications", icon: Bell, path: "/notifications", count: unreadNotifications },
     { id: "messages", icon: MessageCircle, path: "/m", count: unreadMessages },
     { id: "profile", icon: User, path: currentUser ? `/u/${currentUser.handle}` : "/login", isProfile: true },
