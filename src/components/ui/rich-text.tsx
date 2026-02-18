@@ -40,7 +40,7 @@ const RichText: React.FC<RichTextProps> = ({ content, className, onClick }) => {
                                     key={linkContent as string}
                                     {...props}
                                     className={cn(
-                                        "cursor-pointer font-bold text-rose-600 hover:underline dark:text-rose-400",
+                                        "cursor-pointer font-bold text-blue-600 hover:underline dark:text-blue-400",
                                         props.className
                                     )}
                                     onClick={(e) => {
@@ -69,7 +69,7 @@ const RichText: React.FC<RichTextProps> = ({ content, className, onClick }) => {
                                     key={linkContent as string}
                                     {...props}
                                     className={cn(
-                                        "cursor-pointer font-medium text-violet-600 hover:underline dark:text-violet-400",
+                                        "cursor-pointer font-medium text-blue-600 hover:underline dark:text-blue-400",
                                         props.className
                                     )}
                                     onClick={(e) => {
@@ -91,7 +91,7 @@ const RichText: React.FC<RichTextProps> = ({ content, className, onClick }) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={cn(
-                                    "text-violet-600 hover:underline dark:text-violet-400",
+                                    "text-blue-600 hover:underline dark:text-blue-400",
                                     props.className
                                 )}
                                 onClick={(e) => e.stopPropagation()}

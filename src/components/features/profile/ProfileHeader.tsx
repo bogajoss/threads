@@ -331,7 +331,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   href={`https://${profile.website}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-black hover:underline dark:text-white"
+                  className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
                 >
                   {profile.website}
                 </a>

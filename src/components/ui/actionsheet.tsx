@@ -50,7 +50,18 @@ const Actionsheet: React.FC<ActionsheetProps> = ({
             )}
           </DialogHeader>
         )}
-        <div className="flex flex-col py-2 max-sm:pb-8">{children}</div>
+        <div className="flex flex-col py-2 max-sm:pb-8">
+          {children}
+          <div className="px-4 py-2">
+            <div className="h-px w-full bg-neutral-100 dark:bg-neutral-900 mb-2" />
+            <ActionsheetItem
+              onClick={onClose}
+              className="justify-center rounded-xl bg-neutral-100 py-3 text-neutral-900 transition-all hover:bg-neutral-200 active:scale-[0.98] dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            >
+              Close
+            </ActionsheetItem>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
