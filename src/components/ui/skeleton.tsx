@@ -7,11 +7,13 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "animate-pulse animate-in fade-in duration-500 rounded-md bg-zinc-200 dark:bg-zinc-800",
+        "relative overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-800",
         className,
       )}
       {...props}
-    />
+    >
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-zinc-700/30" />
+    </div>
   );
 }
 

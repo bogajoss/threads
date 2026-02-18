@@ -49,9 +49,9 @@ const Explore: React.FC = () => {
   ) {
     return (
       <div className="min-h-screen bg-white dark:bg-black md:rounded-xl">
-        {[1, 2, 3].map((i) => (
-          <SkeletonPost key={i} />
-        ))}
+        {activeTab === "posts"
+          ? [1, 2, 3].map((i) => <SkeletonPost key={i} />)
+          : [1, 2, 3, 4, 5, 6].map((i) => <SkeletonUser key={i} />)}
       </div>
     );
   }

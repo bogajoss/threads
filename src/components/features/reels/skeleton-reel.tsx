@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SkeletonReel() {
   return (
-    <div className="relative h-[100dvh] w-full bg-zinc-900 border-zinc-800 md:rounded-xl md:border overflow-hidden">
+    <div className="relative h-[100dvh] w-full bg-black border-zinc-800 md:rounded-xl md:border overflow-hidden">
       <div className="absolute right-4 bottom-20 flex flex-col gap-4 items-center">
         <Skeleton className="h-10 w-10 rounded-full" />
         <Skeleton className="h-10 w-10 rounded-full" />

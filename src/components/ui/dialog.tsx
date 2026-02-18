@@ -11,6 +11,7 @@ import {
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import { cn } from "@/lib/utils";
+import { motionTokens } from "@/config/motion";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -64,7 +65,7 @@ const DialogContent = React.forwardRef<
 
         controls.start({
           y: 0,
-          transition: { type: "spring", stiffness: 400, damping: 35, mass: 0.8 }
+          transition: motionTokens.transition.sheetSpring
         });
       }
     }, [controls, isDesktop, y]);
@@ -83,7 +84,7 @@ const DialogContent = React.forwardRef<
       } else {
         controls.start({
           y: 0,
-          transition: { type: "spring", stiffness: 300, damping: 30 },
+          transition: motionTokens.transition.sheetSpring,
         });
       }
     };

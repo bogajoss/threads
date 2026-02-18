@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, useIsPresent } from "framer-motion";
 import { useMediaQuery } from "@/hooks";
+import { motionTokens } from "@/config/motion";
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -14,7 +15,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   const mobileVariants = {
     initial: { x: "100%", zIndex: 10 },
     animate: { x: 0, zIndex: 10 },
-    exit: { x: "-30%", opacity: 0.9, zIndex: 0 }, 
+    exit: { x: "-30%", opacity: 0.9, zIndex: 0 },
   };
 
   // Modern fade-up for desktop
@@ -32,17 +33,12 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       variants={isMobile ? mobileVariants : desktopVariants}
       transition={
         isMobile
-          ? {
-              type: "spring",
-              stiffness: 300,
-              damping: 32,
-              mass: 0.8,
-            }
+          ? motionTokens.transition.sheetSpring
           : {
-              type: "tween",
-              ease: "easeInOut",
-              duration: 0.2,
-            }
+            type: "tween",
+            ease: "easeInOut",
+            duration: 0.2,
+          }
       }
       className="w-full h-full"
       style={{
