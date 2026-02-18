@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Search, X, Users, Check, Camera, Loader2 } from "lucide-react";
+import { Search, X, Users, Check, Camera } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { searchUsers, createGroupConversation, uploadFile } from "@/lib/api";

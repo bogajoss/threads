@@ -6,6 +6,11 @@ import {
   UserPlus,
   X,
   Loader2,
+  Camera,
+  Search,
+  ShieldCheck,
+  LogOut,
+  Trash2,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";

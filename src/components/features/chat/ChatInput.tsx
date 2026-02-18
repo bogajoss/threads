@@ -20,6 +20,7 @@ import EmojiPicker from "@/components/ui/emoji-picker";
 import { ShareIcon } from "@/components/ui";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -51,6 +52,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const textAreaRef = useAutoResizeTextArea(text);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   React.useEffect(() => {
     if (editingMessage) {
@@ -120,10 +122,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSendMessage(text, attachments);
     setText("");
     setAttachments([]);
-    setReplyingTo(null);
-
     setTimeout(() => {
-      textAreaRef.current?.focus();
+      if (isDesktop) {
+        textAreaRef.current?.focus();
+      } else {
+        textAreaRef.current?.blur();
+      }
     }, 10);
   };
 
@@ -157,14 +161,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="shrink-0 p-2 md:p-3 relative z-20">
+    <div className="shrink-0 p-2 md:p-3 relative z-50 bg-white dark:bg-[#09090b]">
       <AnimatePresence>
         {attachments.length > 0 && (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            className="flex gap-2 overflow-x-auto mx-auto mb-2 px-2 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 max-w-3xl no-scrollbar"
+            className="flex gap-2 overflow-x-auto mx-auto mb-2 px-2 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 w-full max-w-3xl no-scrollbar"
           >
             {attachments.map((file, idx) => (
               <div
@@ -200,7 +204,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            className="flex items-center justify-between mx-auto mb-1.5 px-4 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 max-w-3xl"
+            className="flex items-center justify-between mx-auto mb-1.5 px-4 py-2 bg-white dark:bg-[#212121] rounded-2xl shadow-lg border border-zinc-100 dark:border-zinc-800 w-full max-w-3xl"
           >
             <div className="text-sm flex items-center gap-3 min-w-0">
               <div className="size-8 flex items-center justify-center rounded-full bg-violet-500/10 text-violet-500">
@@ -231,10 +235,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         )}
       </AnimatePresence>
 
-      <div className="flex items-end gap-2 max-w-3xl mx-auto">
+      <div className="flex items-end gap-2 w-full max-w-3xl mx-auto">
         <div
           className={cn(
-            "flex-1 flex items-center gap-1 rounded-[24px] px-1.5 py-1.5 transition-all bg-white dark:bg-[#212121] shadow-md border-0 ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-violet-500/30",
+            "flex-1 min-w-0 flex items-center gap-1 rounded-[24px] px-1.5 py-1.5 transition-all bg-white dark:bg-[#212121] shadow-md border-0 ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-violet-500/30",
             (isRecording || audioBlob) && "bg-zinc-900 ring-red-500/50",
           )}
         >

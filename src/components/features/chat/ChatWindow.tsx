@@ -9,6 +9,7 @@ import Message from "./Message";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "@/lib/api/storage";
 import { formatTimeAgo } from "@/lib/utils";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
 
 interface ChatWindowProps {
   conversation: any;
@@ -49,6 +50,19 @@ const ChatWindow = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [replyingTo, setReplyingTo] = useState<any | null>(null);
   const [editingMessage, setEditingMessage] = useState<any | null>(null);
+  const { height: viewportHeight, keyboardHeight: _keyboardHeight, keyboardOpen } = useMobileViewport();
+
+  // Adjust scroll on keyboard open
+  useEffect(() => {
+    if (keyboardOpen && scrollRef.current) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }, 100);
+    }
+  }, [keyboardOpen]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -102,9 +116,12 @@ const ChatWindow = ({
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-white dark:bg-[#09090b]">
+    <div
+      className="flex w-full flex-col bg-white dark:bg-[#09090b] relative overflow-hidden"
+      style={{ height: `${viewportHeight}px` }}
+    >
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-zinc-800 dark:bg-[#09090b]/80">
+      <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-zinc-800 dark:bg-[#09090b]/80 z-30">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -162,7 +179,7 @@ const ChatWindow = ({
         {/* We use a ref on a div inside ScrollArea to manipulate scroll position manually */}
         <div
           ref={scrollRef}
-          className="absolute inset-0 overflow-y-auto p-4 flex flex-col gap-1"
+          className="absolute inset-0 overflow-y-auto p-4 flex flex-col gap-1 pb-[100px] md:pb-[100px]" // Add extra padding for fixed input
           style={{ overscrollBehavior: "contain" }}
         >
           {messages.length === 0 && !isLoading && (
@@ -209,21 +226,31 @@ const ChatWindow = ({
               </div>
             </div>
           )}
-
-          <div className="h-4" /> {/* Spacer at bottom */}
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
-      <div className="shrink-0 bg-white p-3 dark:bg-[#09090b]">
-        <ChatInput
-          onSendMessage={handleSend}
-          onTyping={onTyping}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-          editingMessage={editingMessage}
-          setEditingMessage={setEditingMessage}
-        />
+      {/* Fixed Input Area */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#09090b] border-t border-zinc-100 dark:border-zinc-800 transition-transform duration-100 ease-out md:absolute md:transform-none"
+        style={{
+          bottom: 'calc(env(safe-area-inset-bottom) + var(--keyboard-height, 0px))',
+          // For mobile, if we are in a portal/modal or standalone, this fixed positioning is key.
+          // But we need to check if we are inside the Messages page layout which might constrain width.
+          // Since this is ChatWindow, it is often rendered inside MainLayout -> Outlet or similar.
+          // If we use fixed, it breaks out of the parent container width on Desktop unless we constrain it.
+          // The "md:absolute" helps for desktop if the parent is relative.
+        }}
+      >
+        <div className="w-full max-w-[1500px] mx-auto md:max-w-none">
+          <ChatInput
+            onSendMessage={handleSend}
+            onTyping={onTyping}
+            replyingTo={replyingTo}
+            setReplyingTo={setReplyingTo}
+            editingMessage={editingMessage}
+            setEditingMessage={setEditingMessage}
+          />
+        </div>
       </div>
     </div>
   );
