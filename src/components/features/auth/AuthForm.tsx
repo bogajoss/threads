@@ -99,7 +99,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
             <img
               src="/logo.webp"
               alt="Logo"
-              className="size-16 rounded-2xl border-2 border-zinc-100 shadow-xl dark:border-zinc-800"
+              className="size-16 rounded-2xl shadow-xl"
             />
           </div>
         </div>

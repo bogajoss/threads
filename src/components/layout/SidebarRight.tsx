@@ -139,9 +139,8 @@ const SidebarRight = () => {
         </button>
         <button
           onClick={() => navigate("/login")}
-          className="cursor-pointer flex flex-1 items-center justify-center gap-2 rounded-full bg-zinc-950 py-2.5 font-bold text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-zinc-950"
+          className="cursor-pointer flex-1 rounded-full bg-zinc-950 py-2.5 font-bold text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-zinc-950"
         >
-          <img src="/logo.webp" alt="" className="size-4 rounded-sm" />
           Login
         </button>
         {themeToggleBtn}
