@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Sysm</string>
-    <string name="title_activity_main">Sysm</string>
-    <string name="package_name">com.sysm.app</string>
-    <string name="custom_url_scheme">com.sysm.app</string>
+    <string name="app_name">mysys</string>
+    <string name="title_activity_main">mysys</string>
+    <string name="package_name">com.mysys.app</string>
+    <string name="custom_url_scheme">com.mysys.app</string>
 </resources>

@@ -19,7 +19,7 @@ const PostStats: React.FC<PostStatsProps> = ({
 }) => {
   if (isDetail) {
     return (
-      <div className="mt-4 flex items-center gap-x-6 border-b border-zinc-100 pb-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+      <div className="mt-5 flex items-center gap-x-6 border-b border-zinc-100 pb-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         <div className="flex items-center gap-x-1">
           <span className="font-bold text-black dark:text-white">
             {views || 0}
@@ -48,7 +48,7 @@ const PostStats: React.FC<PostStatsProps> = ({
 
   return (
     <div
-      className={`mt-1 flex items-center gap-x-1.5 px-0.5 ${isComment ? "text-[12px]" : "text-[14px]"} font-medium text-zinc-500 dark:text-zinc-400`}
+      className={`mt-2 flex items-center gap-x-2 px-0.5 ${isComment ? "text-[12px]" : "text-[14px]"} font-medium text-zinc-500 dark:text-zinc-400`}
     >
       {views > 0 && !isComment && (
         <>

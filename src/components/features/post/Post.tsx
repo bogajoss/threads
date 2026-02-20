@@ -523,7 +523,7 @@ const Post: React.FC<PostProps> = ({
         className="flex flex-col"
         ref={viewRef}
       >
-        <article className="p-5 dark:bg-black">
+        <article className="p-6 dark:bg-black">
           <PostHeader
             user={user}
             timeAgo={timeAgo}
@@ -587,7 +587,7 @@ const Post: React.FC<PostProps> = ({
             />
           )}
           {quotedPost && (
-            <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-700">
+            <div className="mt-5 overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-700">
               <QuotedPost {...quotedPost} />
             </div>
           )}
@@ -598,6 +598,8 @@ const Post: React.FC<PostProps> = ({
             comments={localStats.comments || 0}
             isDetail={true}
           />
+
+          <div className="my-4" />
 
           <PostActions
             liked={liked}
@@ -714,14 +716,14 @@ const Post: React.FC<PostProps> = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
       ref={viewRef}
       onClick={onClick}
-      className={`px-4 transition-all ${
+      className={`px-5 transition-all ${
         isComment
-          ? "py-2 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-          : "py-4 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
+          ? "py-3 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
+          : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
       } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
-        <div className="mb-2 ml-1 flex items-center space-x-1.5 text-[13px] font-semibold text-zinc-600">
+        <div className="mb-2.5 ml-1 flex items-center space-x-1.5 text-[13px] font-semibold text-zinc-600">
           <Repeat2 size={14} className="text-zinc-500" />
           <span
             className="flex cursor-pointer items-center text-zinc-700 hover:underline dark:text-zinc-300"
@@ -735,7 +737,7 @@ const Post: React.FC<PostProps> = ({
         </div>
       )}
 
-      <div className="flex items-start gap-x-3">
+      <div className="flex items-start gap-x-3.5">
         <div className="flex shrink-0 flex-col items-center self-stretch pt-0.5">
           <div
             className="cursor-pointer"

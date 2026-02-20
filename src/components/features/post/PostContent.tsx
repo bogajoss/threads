@@ -74,8 +74,8 @@ const PostContent: React.FC<PostContentProps> = ({
       className={cn(
         "whitespace-pre-line break-words",
         isDetail
-          ? "text-lg leading-relaxed sm:text-xl sm:leading-8"
-          : "text-[15px] leading-relaxed",
+          ? "text-lg leading-relaxed sm:text-xl sm:leading-8 mt-1"
+          : "text-[15px] leading-snug mt-0.5",
         isTxtBangla ? "font-bangla text-[1.15em]" : "font-english",
         contentClass,
       )}

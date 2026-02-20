@@ -26,7 +26,7 @@ const PostActions: React.FC<PostActionsProps> = ({
 }) => {
   if (isDetail) {
     return (
-      <div className="mt-4 flex w-full items-center justify-around py-1">
+      <div className="mt-5 flex w-full items-center justify-around py-2">
         <ActionButton
           icon={Heart}
           label="Like"
@@ -63,7 +63,7 @@ const PostActions: React.FC<PostActionsProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-x-1 ${isComment ? "mt-1.5" : "mt-3"}`}
+      className={`flex items-center gap-x-1.5 ${isComment ? "mt-2" : "mt-3.5"}`}
     >
       <ActionButton
         icon={Heart}

@@ -334,7 +334,7 @@ const Settings: React.FC = () => {
         </section>
 
         <div className="py-4 pb-10 text-center text-xs text-zinc-400">
-          Sysm © 2026. Decentralized & Open Source.
+          mysys © 2026. Decentralized & Open Source.
         </div>
       </div>
     </div>

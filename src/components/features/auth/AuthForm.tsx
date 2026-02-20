@@ -104,7 +104,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           </div>
         </div>
         <h2 className="mb-2 text-3xl font-extrabold tracking-tight dark:text-white">
-          {type === "login" ? "Welcome back!" : "Join Sysm today"}
+          {type === "login" ? "Welcome back!" : "Join mysys today"}
         </h2>
         <p className="font-medium text-zinc-500">
           The decentralized social network

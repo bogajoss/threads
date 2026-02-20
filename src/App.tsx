@@ -58,7 +58,7 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 
-export default function Sysm() {
+export default function Mysys() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =

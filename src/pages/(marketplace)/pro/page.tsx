@@ -250,7 +250,7 @@ const ProPage: React.FC = () => {
               alignmentBaseline="middle"
               className="tracking-wider"
             >
-              Sysm Pro
+              mysys Pro
             </text>
 
             <circle cx="100" cy="100" r="5" fill="var(--foreground)" />
@@ -268,7 +268,7 @@ const ProPage: React.FC = () => {
         <div className="flex flex-col items-center gap-8 -mt-10 z-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="text-center space-y-3">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-              Upgrade to Sysm Pro
+              Upgrade to mysys Pro
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto text-lg">
               Unlock advanced neural processing, unlimited trace routes, and

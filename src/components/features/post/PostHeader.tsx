@@ -39,9 +39,9 @@ const PostHeader: React.FC<PostHeaderProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between ${isDetail ? "pb-4" : "min-h-[40px] mb-1"}`}
+      className={`flex items-center justify-between ${isDetail ? "pb-5" : "min-h-[40px] mb-2"}`}
     >
-      <div className="flex items-center gap-x-3 flex-1 min-w-0">
+      <div className="flex items-center gap-x-3.5 flex-1 min-w-0">
         {showAvatar && (
           <button className="shrink-0" onClick={handleUserClick}>
             <Avatar
@@ -114,7 +114,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
           </div>
         </div>
       </div>
-      <div className="-mt-1 flex items-center gap-2">
+      <div className="-mt-1 flex items-center gap-2.5">
         <span className="whitespace-nowrap text-[12px] text-zinc-500 dark:text-zinc-400">
           {timeAgo || "Recent"}
         </span>
