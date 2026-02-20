@@ -29,6 +29,7 @@ const Actionsheet: React.FC<ActionsheetProps> = ({
       <DialogContent
         onDragClose={onClose}
         showCloseButton={false}
+        overlayClassName="z-[9999]"
         className="max-sm:p-0 max-sm:gap-0 max-sm:rounded-t-[32px] overflow-hidden"
       >
         {!title && (

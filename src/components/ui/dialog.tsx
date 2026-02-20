@@ -23,21 +23,30 @@ const DialogClose = DialogPrimitive.Close;
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
-      className,
-    )}
-    onClick={(e) => {
-      e.stopPropagation();
-      props.onClick?.(e);
-    }}
-    {...props}
-  />
-));
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & {
+    overlayClassName?: string;
+  }
+>(({ className, overlayClassName, ...props }, ref) => {
+  const overlayStyle = overlayClassName?.includes('z-[9999]') 
+    ? { zIndex: 9999 } 
+    : undefined;
+    
+  return (
+    <DialogPrimitive.Overlay
+      ref={ref}
+      style={overlayStyle}
+      className={cn(
+        "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
+        overlayClassName,
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        props.onClick?.(e);
+      }}
+      {...props}
+    />
+  );
+});
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
@@ -45,10 +54,11 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     onDragClose?: () => void;
     showCloseButton?: boolean;
+    overlayClassName?: string;
   }
 >(
   (
-    { className, children, onDragClose, showCloseButton = true, ...props },
+    { className, children, onDragClose, showCloseButton = true, overlayClassName, ...props },
     ref,
   ) => {
     // ... (keep existing hook logic: isDesktop, controls, y, opacity, handleDragEnd) ...
@@ -91,7 +101,7 @@ const DialogContent = React.forwardRef<
 
     return (
       <DialogPortal>
-        <DialogOverlay />
+        <DialogOverlay overlayClassName={overlayClassName} />
         <DialogPrimitive.Content
           ref={ref}
           asChild
@@ -105,7 +115,7 @@ const DialogContent = React.forwardRef<
             onDragEnd={handleDragEnd}
             onClick={(e) => e.stopPropagation()}
             animate={isDesktop ? undefined : controls}
-            style={isDesktop ? undefined : { y, opacity }}
+            style={isDesktop ? undefined : { y, opacity, zIndex: overlayClassName?.includes('z-[9999]') ? 9999 : undefined }}
             className={cn(
               "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
               className,
