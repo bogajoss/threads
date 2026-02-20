@@ -30,21 +30,22 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { copyToClipboard, getBaseUrl } from "@/lib/utils";
+import { useToast } from "@/context/ToastContext";
+import ShareModal from "./ShareModal";
+import PostContent from "./PostContent";
+import PostMedia from "./PostMedia";
+import PostActions from "./PostActions";
 import {
   PollDisplay,
   QuotedPost,
   CommentInput,
   LinkPreview,
-  ShareModal,
   PostHeader,
-  PostContent,
-  PostMedia,
-  PostActions,
   PostStats,
 } from "@/components/features/post";
 import { usePostInteraction, useComments, useMediaQuery } from "@/hooks";
 import { useReportModal } from "@/context/ReportContext";
-import { useToast } from "@/context/ToastContext";
 import { usePosts } from "@/context/PostContext";
 import { uploadFile, incrementPostViews, votePoll } from "@/lib/api";
 import { extractUrl } from "@/lib/utils";
@@ -162,11 +163,14 @@ const PostActionsMenu = ({
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/p/${id}`,
-                );
-                addToast("Link copied");
-                setIsOpen(false);
+                copyToClipboard(`${getBaseUrl()}/p/${id}`)
+                  .then(() => {
+                    addToast("Link copied");
+                    setIsOpen(false);
+                  })
+                  .catch(() => {
+                    addToast("Failed to copy link", "error");
+                  });
               }}
             >
               <Share className="mr-2 h-4 w-4" />
@@ -245,11 +249,14 @@ const PostActionsMenu = ({
               icon={<Share size={18} />}
               onClick={(e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/p/${id}`,
-                );
-                addToast("Link copied");
-                setIsOpen(false);
+                copyToClipboard(`${getBaseUrl()}/p/${id}`)
+                  .then(() => {
+                    addToast("Link copied");
+                    setIsOpen(false);
+                  })
+                  .catch(() => {
+                    addToast("Failed to copy link", "error");
+                  });
               }}
             >
               Copy link
@@ -847,7 +854,7 @@ const Post: React.FC<PostProps> = ({
             reposted={reposted}
             handleLike={handleLike}
             handleRepost={handleRepost}
-            handleCommentClick={(e) => {
+            handleCommentClick={(e?: React.MouseEvent) => {
               e?.stopPropagation();
               if (onReply) {
                 const targetId = isComment ? parent_id || id : id;
@@ -856,7 +863,7 @@ const Post: React.FC<PostProps> = ({
                 onClick();
               }
             }}
-            handleShareClick={(e) => {
+            handleShareClick={(e?: React.MouseEvent) => {
               e?.stopPropagation();
               setIsShareModalOpen(true);
             }}

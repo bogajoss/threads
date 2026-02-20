@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -88,6 +88,13 @@ const CreatePost: React.FC = () => {
     queryFn: () => fetchUserCommunities(currentUser!.id),
     enabled: !!currentUser?.id,
   });
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
 
   const generateVideoThumbnail = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -290,7 +297,6 @@ const CreatePost: React.FC = () => {
   };
 
   if (!currentUser) {
-    navigate("/login");
     return null;
   }
 

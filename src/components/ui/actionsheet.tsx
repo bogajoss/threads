@@ -8,6 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 interface ActionsheetProps {
   isOpen: boolean;
@@ -31,7 +32,15 @@ const Actionsheet: React.FC<ActionsheetProps> = ({
         showCloseButton={false}
         overlayClassName="z-[9999]"
         className="max-sm:p-0 max-sm:gap-0 max-sm:rounded-t-[32px] overflow-hidden"
+        style={{ zIndex: 9999 }}
       >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 rounded-full p-2 opacity-70 transition-opacity hover:opacity-100 active:scale-95"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
         {!title && (
           <DialogPrimitive.Title className="sr-only">
             Menu

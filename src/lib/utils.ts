@@ -2,10 +2,46 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+import { Clipboard } from "@capacitor/clipboard";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// Universal copy to clipboard - works on both web and Android
+export const copyToClipboard = async (text: string): Promise<void> => {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      // Use Capacitor Clipboard for Android/iOS
+      await Clipboard.write({ string: text });
+    } else {
+      // Use native Clipboard API for web
+      await navigator.clipboard.writeText(text);
+    }
+  } catch (err) {
+    console.error("Failed to copy to clipboard:", err);
+    throw err;
+  }
+};
+
+// Get base URL for post links - works on both web and Android
+export const getBaseUrl = (): string => {
+  // For production web app
+  if (window.location.origin.includes("systemadminbd.com")) {
+    return "https://feed.systemadminbd.com";
+  }
+  // For localhost development
+  if (window.location.origin.includes("localhost")) {
+    return window.location.origin;
+  }
+  // For Android/Capacitor app
+  if (Capacitor.isNativePlatform()) {
+    return "https://feed.systemadminbd.com";
+  }
+  // Fallback
+  return window.location.origin;
+};
 
 export const ScrollToTop = () => {
   const { pathname } = useLocation();

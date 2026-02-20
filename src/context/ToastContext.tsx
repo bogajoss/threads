@@ -33,6 +33,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         position="bottom-center"
         toastOptions={{
           className: "rounded-full font-bold",
+          duration: 2000,
         }}
       />
     </ToastContext.Provider>

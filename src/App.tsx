@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
+import { useDeepLinks } from "@/hooks/useDeepLinks";
 
 import {
   MainLayout,
@@ -67,6 +68,7 @@ export default function Mysys() {
   const [viewingStory, setViewingStory] = useState(null);
 
   useKeyboardShortcuts();
+  useDeepLinks(); // Handle deep links
 
   return (
     <VideoPlaybackProvider>

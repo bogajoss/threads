@@ -19,6 +19,7 @@ import {
   fetchConversations,
 } from "@/lib/api/messages";
 import type { User } from "@/types";
+import { copyToClipboard } from "@/lib/utils";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -102,7 +103,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const handleCopy = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(url);
+      await copyToClipboard(url);
       setCopied(true);
       addToast("Link copied to clipboard!", "success");
       setTimeout(() => setCopied(false), 2000);

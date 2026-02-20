@@ -440,3 +440,12 @@
 .touch-action-none {
   touch-action: none;
 }
+
+/* Actionsheet z-index fix - ensure it appears above FAB and other elements */
+[data-radix-dialog-content] {
+  z-index: 9999 !important;
+}
+
+[data-radix-dialog-overlay] {
+  z-index: 9999 !important;
+}

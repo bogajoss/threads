@@ -22,6 +22,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep Linking - Custom URL Scheme -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mysys" />
+            </intent-filter>
+
+            <!-- Deep Linking - HTTPS Links (Android App Links) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" android:pathPrefix="/p/" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" android:pathPrefix="/r/" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" android:pathPrefix="/profile/" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" android:pathPrefix="/m/" />
+                <data android:scheme="https" android:host="feed.systemadminbd.com" android:pathPrefix="/c/" />
+            </intent-filter>
+
         </activity>
 
         <provider

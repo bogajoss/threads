@@ -39,6 +39,7 @@ import RichText from "@/components/ui/rich-text";
 import { useFollow } from "@/hooks/useFollow";
 import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
+import { copyToClipboard, getBaseUrl } from "@/lib/utils";
 
 interface ProfileHeaderProps {
   profile: any;
@@ -208,8 +209,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         <DropdownMenuItem
                           className="cursor-pointer gap-2"
                           onClick={() => {
-                            navigator.clipboard.writeText(window.location.href);
-                            addToast("Profile link copied!");
+                            copyToClipboard(`${getBaseUrl()}/profile/${profile.handle || profile.id}`)
+                              .then(() => addToast("Profile link copied!"))
+                              .catch(() => addToast("Failed to copy link", "error"));
                           }}
                         >
                           <Share size={16} />
@@ -257,9 +259,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       <ActionsheetItem
                         icon={<Share size={18} />}
                         onClick={() => {
-                          navigator.clipboard.writeText(window.location.href);
-                          addToast("Profile link copied!");
-                          setIsMenuOpen(false);
+                          copyToClipboard(`${getBaseUrl()}/profile/${profile.handle || profile.id}`)
+                            .then(() => {
+                              addToast("Profile link copied!");
+                              setIsMenuOpen(false);
+                            })
+                            .catch(() => {
+                              addToast("Failed to copy link", "error");
+                              setIsMenuOpen(false);
+                            });
                         }}
                       >
                         Share Profile

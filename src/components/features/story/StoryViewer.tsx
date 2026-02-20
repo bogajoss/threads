@@ -83,6 +83,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={() => onClose(storyGroup.user.id)}
+      className="fixed inset-0 z-[9999] bg-black/90"
     >
       <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
