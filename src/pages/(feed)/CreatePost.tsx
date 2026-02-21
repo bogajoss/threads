@@ -32,6 +32,13 @@ import {
 } from "@/components/ui/select";
 import CircularProgress from "@/components/ui/CircularProgress";
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Settings, Trash2, FileText, EyeOff } from "lucide-react";
 
 interface SelectedFile {
@@ -61,16 +68,18 @@ const CreatePost: React.FC = () => {
   const [customThumbnails, setCustomThumbnails] = useState<
     Record<string, File>
   >({});
-  const [showPoll, setShowPoll] = useState(false);
-  const [pollData, setPollData] = useState({
-    options: ["", ""],
-    duration: "1 day",
-  });
+  // const [showPoll, setShowPoll] = useState(false); // Disabled - Coming Soon
+  // const [pollData, setPollData] = useState({
+  //   options: ["", ""],
+  //   duration: "1 day",
+  // });
   const [loading, setLoading] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<any | null>(
     initialCommunity || null,
   );
   const [replySetting, setReplySetting] = useState("anyone");
+  const [showHashtagDialog, setShowHashtagDialog] = useState(false);
+  const [hashtagInput, setHashtagInput] = useState("");
 
   const [tempCropImage, setTempCropImage] = useState<string | null>(null);
   const [croppingFileId, setCroppingFileId] = useState<string | null>(null);
@@ -178,23 +187,38 @@ const CreatePost: React.FC = () => {
     });
   };
 
-  const handleAddPollOption = () => {
-    if (pollData.options.length < 4) {
-      setPollData((prev) => ({ ...prev, options: [...prev.options, ""] }));
+  // const handleAddPollOption = () => {
+  //   if (pollData.options.length < 4) {
+  //     setPollData((prev) => ({ ...prev, options: [...prev.options, ""] }));
+  //   }
+  // };
+
+  // const handleRemovePollOption = (index: number) => {
+  //   setPollData((prev) => ({
+  //     ...prev,
+  //     options: prev.options.filter((_, i) => i !== index),
+  //   }));
+  // };
+
+  // const handlePollOptionChange = (index: number, value: string) => {
+  //   const newOptions = [...pollData.options];
+  //   newOptions[index] = value;
+  //   setPollData((prev) => ({ ...prev, options: newOptions }));
+  // };
+
+  const handleAddHashtag = () => {
+    if (hashtagInput.trim()) {
+      const tag = hashtagInput.trim().replace(/^#/, "");
+      setHashtags((prev) => {
+        if (prev) {
+          return prev.includes(tag) ? prev : `${prev}, ${tag}`;
+        }
+        return tag;
+      });
+      setHashtagInput("");
+      setShowHashtagDialog(false);
+      addToast(`Hashtag #${tag} added!`);
     }
-  };
-
-  const handleRemovePollOption = (index: number) => {
-    setPollData((prev) => ({
-      ...prev,
-      options: prev.options.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handlePollOptionChange = (index: number, value: string) => {
-    const newOptions = [...pollData.options];
-    newOptions[index] = value;
-    setPollData((prev) => ({ ...prev, options: newOptions }));
   };
 
   const onCropComplete = (blob: Blob) => {
@@ -229,19 +253,19 @@ const CreatePost: React.FC = () => {
         uploadedMedia.push(res);
       }
 
-      let poll = null;
-      if (showPoll && pollData.options.some((o) => o.trim())) {
-        poll = {
-          options: pollData.options
-            .filter((o) => o.trim())
-            .map((text, idx) => ({
-              id: idx + 1,
-              text,
-              votes: 0,
-            })),
-          ends_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        };
-      }
+      // let poll = null;
+      // if (showPoll && pollData.options.some((o) => o.trim())) {
+      //   poll = {
+      //     options: pollData.options
+      //       .filter((o) => o.trim())
+      //       .map((text, idx) => ({
+      //         id: idx + 1,
+      //         text,
+      //         votes: 0,
+      //       })),
+      //     ends_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      //   };
+      // }
 
       let finalContent = postContent;
       if (hashtags.trim()) {
@@ -257,9 +281,10 @@ const CreatePost: React.FC = () => {
       let finalType = "text";
       if (uploadedMedia.length > 0) {
         finalType = uploadedMedia[0].type === "video" ? "video" : "image";
-      } else if (poll) {
-        finalType = "poll";
       }
+      // else if (poll) {
+      //   finalType = "poll";
+      // }
 
       if (isStory) {
         if (uploadedMedia.length === 0) {
@@ -280,7 +305,7 @@ const CreatePost: React.FC = () => {
         await addPost({
           content: finalContent,
           media: uploadedMedia,
-          poll,
+          // poll,
           type: finalType as any,
           userId: currentUser.id,
           communityId: selectedCommunity?.id || null,
@@ -497,8 +522,8 @@ const CreatePost: React.FC = () => {
               </div>
             )}
 
-            {/* Poll Interface */}
-            {showPoll && (
+            {/* Poll Interface - Disabled */}
+            {/* {showPoll && (
               <div className="space-y-2.5 mb-5 mt-2 bg-neutral-50 dark:bg-neutral-900/40 p-4 rounded-3xl border border-[--border]">
                 {pollData.options.map((option, idx) => (
                   <div key={idx} className="flex gap-2">
@@ -529,7 +554,7 @@ const CreatePost: React.FC = () => {
                   </button>
                 )}
               </div>
-            )}
+            )} */}
 
             {/* Action Icons */}
             <div className="flex items-center gap-7 mt-3 text-neutral-400">
@@ -542,28 +567,71 @@ const CreatePost: React.FC = () => {
               </button>
               {!isStory && (
                 <button
-                  onClick={() => setShowPoll(!showPoll)}
-                  className={cn(
-                    "hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90",
-                    showPoll && "text-[--primary]",
-                  )}
-                  title="Add Poll"
+                  disabled
+                  className="hover:text-[--foreground] transition-all p-1 opacity-30 cursor-not-allowed"
+                  title="Poll (Coming Soon)"
                 >
                   <AlignLeft size={22} strokeWidth={2.2} />
                 </button>
               )}
               {!isStory && (
-                <button
-                  className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
-                  onClick={() => {
-                    const tag = prompt("Add a hashtag");
-                    if (tag)
-                      setHashtags((prev) => (prev ? `${prev}, ${tag}` : tag));
+                <Dialog
+                  open={showHashtagDialog}
+                  onOpenChange={(open) => {
+                    setShowHashtagDialog(open);
+                    if (!open) setHashtagInput("");
                   }}
-                  title="Add Hashtag"
                 >
-                  <Hash size={22} strokeWidth={2.2} />
-                </button>
+                  <DialogTrigger asChild>
+                    <button
+                      className="hover:text-[--foreground] transition-all p-1 hover:scale-110 active:scale-90"
+                      title="Add Hashtag"
+                    >
+                      <Hash size={22} strokeWidth={2.2} />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                      <DialogTitle>Add Hashtag</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 py-4">
+                      <input
+                        type="text"
+                        value={hashtagInput}
+                        onChange={(e) =>
+                          setHashtagInput(e.target.value.replace(/^#/, ""))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddHashtag();
+                          }
+                        }}
+                        placeholder="e.g. technology, news, sports"
+                        className="w-full rounded-xl border border-[--border] bg-[--background] px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[--primary]"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => {
+                            setShowHashtagDialog(false);
+                            setHashtagInput("");
+                          }}
+                          variant="secondary"
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleAddHashtag}
+                          className="flex-1"
+                        >
+                          Add Hashtag
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               )}
               <button
                 className="hover:text-[--foreground] transition-all p-1 opacity-30 cursor-not-allowed"

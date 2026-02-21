@@ -364,7 +364,7 @@ const EditProfile: React.FC = () => {
           </div>
 
           <div className="py-10 text-center text-xs text-zinc-400">
-            Your profile changes will be visible to everyone on mysys.
+            Your profile changes will be visible to everyone on MySys.
           </div>
         </div>
       </div>

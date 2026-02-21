@@ -23,7 +23,7 @@ const SignupCard: React.FC<SignupCardProps> = ({ className }) => {
         </span>
       </div>
       <h2 className="mt-2 text-lg font-extrabold leading-tight text-[--foreground]">
-        Get your mysys account now!
+        Get your MySys account now!
       </h2>
       <div className="flex w-full flex-col gap-2">
         <button

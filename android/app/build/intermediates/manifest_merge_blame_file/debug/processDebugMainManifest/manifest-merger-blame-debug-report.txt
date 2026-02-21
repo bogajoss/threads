@@ -1,6 +1,6 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-3    package="com.sysm.app"
+3    package="com.mysys.app"
 4    android:versionCode="1"
 5    android:versionName="1.0" >
 6
@@ -11,62 +11,62 @@
 11    <!-- Permissions -->
 12
 13    <uses-permission android:name="android.permission.INTERNET" />
-13-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:40:5-67
-13-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:40:22-64
+13-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:61:5-67
+13-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:61:22-64
 14    <!-- Camera and Microphone -->
 15    <uses-permission android:name="android.permission.CAMERA" />
-15-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:42:5-65
-15-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:42:22-62
+15-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:63:5-65
+15-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:63:22-62
 16    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-16-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:43:5-71
-16-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:43:22-68
+16-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:64:5-71
+16-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:64:22-68
 17    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-17-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:44:5-80
-17-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:44:22-77
+17-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:65:5-80
+17-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:65:22-77
 18
 19    <!-- Storage and Media (Android 13+) -->
 20    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-20-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:47:5-76
-20-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:47:22-73
+20-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:68:5-76
+20-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:68:22-73
 21    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-21-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:48:5-75
-21-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:48:22-72
+21-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:69:5-75
+21-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:69:22-72
 22    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-22-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:49:5-75
-22-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:49:22-72
+22-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:70:5-75
+22-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:70:22-72
 23
 24    <!-- Legacy Storage (for Android 12 and below) -->
 25    <uses-permission
-25-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:52:5-107
+25-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:73:5-107
 26        android:name="android.permission.READ_EXTERNAL_STORAGE"
-26-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:52:22-77
+26-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:73:22-77
 27        android:maxSdkVersion="32" />
-27-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:52:78-104
+27-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:73:78-104
 28    <uses-permission
-28-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:53:5-108
+28-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:74:5-108
 29        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-29-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:53:22-78
+29-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:74:22-78
 30        android:maxSdkVersion="29" />
-30-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:53:79-105
+30-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:74:79-105
 31
 32    <!-- Notifications -->
 33    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-33-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:56:5-77
-33-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:56:22-74
+33-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:77:5-77
+33-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:77:22-74
 34
 35    <permission
 35-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:22:5-24:47
-36        android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+36        android:name="com.mysys.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
 36-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:23:9-81
 37        android:protectionLevel="signature" />
 37-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:24:9-44
 38
-39    <uses-permission android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+39    <uses-permission android:name="com.mysys.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 39-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:26:5-97
 39-->[androidx.core:core:1.17.0] /home/codespace/.gradle/caches/8.14.3/transforms/11094a199bb7945826b161d8a9c17beb/transformed/core-1.17.0/AndroidManifest.xml:26:22-94
 40
 41    <application
-41-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:4:5-36:19
+41-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:4:5-57:19
 42        android:allowBackup="true"
 42-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:5:9-35
 43        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
@@ -81,115 +81,199 @@
 48-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:8:9-54
 49        android:supportsRtl="true"
 49-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:9:9-35
-50        android:theme="@style/AppTheme" >
+50        android:theme="@style/AppTheme"
 50-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:10:9-40
-51        <activity
-51-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:12:9-25:20
-52            android:name="com.sysm.app.MainActivity"
-52-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:14:13-41
-53            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
-53-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:13:13-148
-54            android:exported="true"
-54-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:18:13-36
-55            android:label="@string/title_activity_main"
-55-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:15:13-56
-56            android:launchMode="singleTask"
-56-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:17:13-44
-57            android:theme="@style/AppTheme.NoActionBarLaunch" >
-57-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:16:13-62
-58            <intent-filter>
-58-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:20:13-23:29
-59                <action android:name="android.intent.action.MAIN" />
-59-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:21:17-69
-59-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:21:25-66
-60
-61                <category android:name="android.intent.category.LAUNCHER" />
-61-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:22:17-77
-61-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:22:27-74
-62            </intent-filter>
-63        </activity>
+51        android:usesCleartextTraffic="true" >
+51-->[:capacitor-cordova-android-plugins] /workspaces/codespaces-blank/threads/android/capacitor-cordova-android-plugins/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:8:18-53
+52        <activity
+52-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:12:9-46:20
+53            android:name="com.mysys.app.MainActivity"
+53-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:14:13-41
+54            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+54-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:13:13-148
+55            android:exported="true"
+55-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:18:13-36
+56            android:label="@string/title_activity_main"
+56-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:15:13-56
+57            android:launchMode="singleTask"
+57-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:17:13-44
+58            android:theme="@style/AppTheme.NoActionBarLaunch" >
+58-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:16:13-62
+59            <intent-filter>
+59-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:20:13-23:29
+60                <action android:name="android.intent.action.MAIN" />
+60-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:21:17-69
+60-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:21:25-66
+61
+62                <category android:name="android.intent.category.LAUNCHER" />
+62-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:22:17-77
+62-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:22:27-74
+63            </intent-filter>
 64
-65        <provider
-66            android:name="androidx.core.content.FileProvider"
-66-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:13-62
-67            android:authorities="com.sysm.app.fileprovider"
-67-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:13-64
-68            android:exported="false"
-68-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:13-37
-69            android:grantUriPermissions="true" >
-69-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:31:13-47
-70            <meta-data
-70-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:32:13-34:64
-71                android:name="android.support.FILE_PROVIDER_PATHS"
-71-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:33:17-67
-72                android:resource="@xml/file_paths" />
-72-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:34:17-51
-73        </provider>
-74        <provider
-74-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
-75            android:name="androidx.startup.InitializationProvider"
-75-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
-76            android:authorities="com.sysm.app.androidx-startup"
-76-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
-77            android:exported="false" >
-77-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
-78            <meta-data
-78-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
-79                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-79-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
-80                android:value="androidx.startup" />
-80-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
-81            <meta-data
-81-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
-82                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-82-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
-83                android:value="androidx.startup" />
-83-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
-84            <meta-data
-84-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
-85                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-85-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
-86                android:value="androidx.startup" />
-86-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
-87        </provider>
-88
-89        <receiver
-89-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
-90            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-90-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
-91            android:directBootAware="false"
-91-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
-92            android:enabled="true"
-92-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
-93            android:exported="true"
-93-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
-94            android:permission="android.permission.DUMP" >
-94-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
-95            <intent-filter>
-95-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
-96                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-96-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
-96-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
-97            </intent-filter>
-98            <intent-filter>
-98-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
-99                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-99-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
-99-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
-100            </intent-filter>
-101            <intent-filter>
-101-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
-102                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-102-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
-102-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
-103            </intent-filter>
-104            <intent-filter>
-104-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
-105                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-105-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
-105-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
-106            </intent-filter>
-107        </receiver>
-108    </application>
-109
-110</manifest>
+65            <!-- Deep Linking - Custom URL Scheme -->
+66            <intent-filter>
+66-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:26:13-31:29
+67                <action android:name="android.intent.action.VIEW" />
+67-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:27:17-69
+67-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:27:25-66
+68
+69                <category android:name="android.intent.category.DEFAULT" />
+69-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:17-76
+69-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:27-73
+70                <category android:name="android.intent.category.BROWSABLE" />
+70-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:17-78
+70-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:27-75
+71
+72                <data android:scheme="mysys" />
+72-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+72-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+73            </intent-filter>
+74
+75            <!-- Deep Linking - HTTPS Links (Android App Links) -->
+76            <intent-filter android:autoVerify="true" >
+76-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:34:13-44:29
+76-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:34:28-53
+77                <action android:name="android.intent.action.VIEW" />
+77-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:27:17-69
+77-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:27:25-66
+78
+79                <category android:name="android.intent.category.DEFAULT" />
+79-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:17-76
+79-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:28:27-73
+80                <category android:name="android.intent.category.BROWSABLE" />
+80-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:17-78
+80-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:29:27-75
+81
+82                <data
+82-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+83                    android:host="feed.systemadminbd.com"
+83-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+84                    android:scheme="https" />
+84-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+85                <data
+85-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+86                    android:host="feed.systemadminbd.com"
+86-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+87                    android:pathPrefix="/p/"
+87-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:39:84-108
+88                    android:scheme="https" />
+88-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+89                <data
+89-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+90                    android:host="feed.systemadminbd.com"
+90-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+91                    android:pathPrefix="/r/"
+91-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:39:84-108
+92                    android:scheme="https" />
+92-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+93                <data
+93-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+94                    android:host="feed.systemadminbd.com"
+94-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+95                    android:pathPrefix="/profile/"
+95-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:39:84-108
+96                    android:scheme="https" />
+96-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+97                <data
+97-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+98                    android:host="feed.systemadminbd.com"
+98-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+99                    android:pathPrefix="/m/"
+99-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:39:84-108
+100                    android:scheme="https" />
+100-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+101                <data
+101-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:17-48
+102                    android:host="feed.systemadminbd.com"
+102-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:38:46-83
+103                    android:pathPrefix="/c/"
+103-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:39:84-108
+104                    android:scheme="https" />
+104-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:30:23-45
+105            </intent-filter>
+106        </activity>
+107
+108        <provider
+109            android:name="androidx.core.content.FileProvider"
+109-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:49:13-62
+110            android:authorities="com.mysys.app.fileprovider"
+110-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:50:13-64
+111            android:exported="false"
+111-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:51:13-37
+112            android:grantUriPermissions="true" >
+112-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:52:13-47
+113            <meta-data
+113-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:53:13-55:64
+114                android:name="android.support.FILE_PROVIDER_PATHS"
+114-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:54:17-67
+115                android:resource="@xml/file_paths" />
+115-->/workspaces/codespaces-blank/threads/android/app/src/main/AndroidManifest.xml:55:17-51
+116        </provider>
+117        <provider
+117-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+118            android:name="androidx.startup.InitializationProvider"
+118-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+119            android:authorities="com.mysys.app.androidx-startup"
+119-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+120            android:exported="false" >
+120-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+121            <meta-data
+121-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+122                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+122-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+123                android:value="androidx.startup" />
+123-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/8.14.3/transforms/353d69426d62513a7e19e841051a3a44/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+124            <meta-data
+124-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+125                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+125-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+126                android:value="androidx.startup" />
+126-->[androidx.lifecycle:lifecycle-process:2.6.2] /home/codespace/.gradle/caches/8.14.3/transforms/14a3b51da1167f75215e7e32d2231e74/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+127            <meta-data
+127-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+128                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+128-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+129                android:value="androidx.startup" />
+129-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+130        </provider>
+131
+132        <receiver
+132-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+133            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+133-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+134            android:directBootAware="false"
+134-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+135            android:enabled="true"
+135-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+136            android:exported="true"
+136-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+137            android:permission="android.permission.DUMP" >
+137-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+138            <intent-filter>
+138-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+139                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+139-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+139-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+140            </intent-filter>
+141            <intent-filter>
+141-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+142                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+142-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+142-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+143            </intent-filter>
+144            <intent-filter>
+144-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+145                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+145-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+145-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+146            </intent-filter>
+147            <intent-filter>
+147-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+148                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+148-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+148-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/8.14.3/transforms/f95ab50c54d3211c648684c462933e30/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+149            </intent-filter>
+150        </receiver>
+151    </application>
+152
+153</manifest>

@@ -11,7 +11,7 @@ const Terms: React.FC = () => {
       <section className="mt-8 space-y-4">
         <h2 className="text-2xl font-bold">1. Acceptance of Terms</h2>
         <p>
-          By accessing or using mysys, you agree to be bound by these Terms of
+          By accessing or using MySys, you agree to be bound by these Terms of
           Service. If you do not agree to all of these terms, do not use our
           services.
         </p>
@@ -20,7 +20,7 @@ const Terms: React.FC = () => {
       <section className="space-y-4">
         <h2 className="text-2xl font-bold">2. User Conduct</h2>
         <p>
-          You are responsible for your use of mysys and for any content you
+          You are responsible for your use of MySys and for any content you
           provide. You agree to use the service in compliance with all
           applicable laws and regulations.
         </p>

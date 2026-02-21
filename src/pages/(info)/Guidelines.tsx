@@ -7,7 +7,7 @@ const Guidelines: React.FC = () => {
         Community Guidelines
       </h1>
       <p className="text-xl text-zinc-500">
-        How we keep mysys safe and welcoming.
+        How we keep MySys safe and welcoming.
       </p>
 
       <section className="mt-8 space-y-4">

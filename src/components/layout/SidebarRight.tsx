@@ -8,13 +8,13 @@ import { SearchBar, SignupCard } from "@/components/ui";
 import { fetchTrendingHashtags } from "@/lib/api";
 
 const footerLinks = [
-  { name: "© 2026 mysys", path: "/terms" },
+  { name: "© 2026 MySys", path: "/terms" },
   { name: "Terms", path: "/terms" },
   { name: "Privacy", path: "/privacy" },
   { name: "Guidelines", path: "/guidelines" },
-  { name: "Discord", path: "https://discord.gg/mysys", isExternal: true },
-  { name: "mysys", path: "/feed" },
-  { name: "GitHub", path: "https://github.com/mysys", isExternal: true },
+  { name: "Discord", path: "https://discord.com/systemadminbd", isExternal: true },
+  { name: "MySys", path: "/feed" },
+  { name: "GitHub", path: "https://github.com/systemadminbd", isExternal: true },
   { name: "Support", path: "/support" },
   { name: "Status", path: "/status" },
 ];

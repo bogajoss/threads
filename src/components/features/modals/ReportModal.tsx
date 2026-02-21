@@ -72,7 +72,7 @@ const ReportModal: React.FC<ReportModalProps> = ({
               Community Safety First
             </h3>
             <p className="text-xs text-[--muted-foreground] max-w-[280px] mx-auto leading-relaxed">
-              Help us keep mysys safe by reporting content that violates our
+              Help us keep MySys safe by reporting content that violates our
               community guidelines.
             </p>
           </div>

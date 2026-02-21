@@ -17,7 +17,7 @@ const InfoLayout: React.FC = () => {
           </Link>
           <Link to="/" className="flex items-center gap-2">
             <img src="/logo.webp" alt="Logo" className="size-8 rounded-lg" />
-            <span className="text-xl font-bold tracking-tight">mysys</span>
+            <span className="text-xl font-bold tracking-tight">MySys</span>
           </Link>
           <div className="w-20" /> {/* Spacer for balance */}
         </div>
@@ -95,7 +95,7 @@ const InfoLayout: React.FC = () => {
               <ul className="mt-4 space-y-2">
                 <li>
                   <a
-                    href="https://discord.gg/mysys"
+                    href="https://discord.com/systemadminbd"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-zinc-500 hover:text-violet-500"
@@ -125,7 +125,7 @@ const InfoLayout: React.FC = () => {
                     to="/feed"
                     className="text-sm text-zinc-500 hover:text-violet-500"
                   >
-                    mysys
+                    MySys
                   </Link>
                 </li>
               </ul>
@@ -133,7 +133,7 @@ const InfoLayout: React.FC = () => {
           </div>
           <div className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
             <p className="text-sm text-zinc-500">
-              © 2026 mysys. All rights reserved. Built with passion.
+              © 2026 MySys. All rights reserved. Built with passion.
             </p>
           </div>
         </div>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sysm.app"
+    package="com.mysys.app"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -33,10 +33,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <permission
-        android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.mysys.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.sysm.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.mysys.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
         android:allowBackup="true"
@@ -47,9 +47,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true" >
         <activity
-            android:name="com.sysm.app.MainActivity"
+            android:name="com.mysys.app.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:exported="true"
             android:label="@string/title_activity_main"
@@ -60,11 +61,53 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Deep Linking - Custom URL Scheme -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="mysys" />
+            </intent-filter>
+
+            <!-- Deep Linking - HTTPS Links (Android App Links) -->
+            <intent-filter android:autoVerify="true" >
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:scheme="https" />
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:pathPrefix="/p/"
+                    android:scheme="https" />
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:pathPrefix="/r/"
+                    android:scheme="https" />
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:pathPrefix="/profile/"
+                    android:scheme="https" />
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:pathPrefix="/m/"
+                    android:scheme="https" />
+                <data
+                    android:host="feed.systemadminbd.com"
+                    android:pathPrefix="/c/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.sysm.app.fileprovider"
+            android:authorities="com.mysys.app.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data
@@ -73,7 +116,7 @@
         </provider>
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.sysm.app.androidx-startup"
+            android:authorities="com.mysys.app.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

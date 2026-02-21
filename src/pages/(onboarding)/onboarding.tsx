@@ -316,7 +316,7 @@ function HowItWorksStep({
 
       {/* Title */}
       <div className="mb-8 md:mb-12 text-center">
-        <h1 className="text-2xl md:text-4xl font-bold">Welcome to mysys</h1>
+        <h1 className="text-2xl md:text-4xl font-bold">Welcome to MySys</h1>
       </div>
 
       {/* Info Items Grid */}
@@ -381,7 +381,7 @@ function HowItWorksStep({
           {isJoining ? (
             <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
           ) : (
-            "Join mysys"
+            "Join MySys"
           )}
         </Button>
       </div>

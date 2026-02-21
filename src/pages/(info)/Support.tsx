@@ -9,7 +9,7 @@ const Support: React.FC = () => {
           Support Center
         </h1>
         <p className="text-xl text-zinc-500">
-          We're here to help you with anything on mysys.
+          We're here to help you with anything on MySys.
         </p>
       </div>
 
@@ -21,10 +21,10 @@ const Support: React.FC = () => {
             Our team typically responds within 24 hours.
           </p>
           <a
-            href="mailto:support@mysys.com"
+            href="mailto:admin@systemadminbd.com"
             className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-violet-500 hover:underline"
           >
-            support@mysys.com <ExternalLink size={14} />
+            admin@systemadminbd.com <ExternalLink size={14} />
           </a>
         </div>
 
@@ -35,7 +35,7 @@ const Support: React.FC = () => {
             Join our Discord for real-time help from the community.
           </p>
           <a
-            href="https://discord.gg/mysys"
+            href="https://discord.com/systemadminbd"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-violet-500 hover:underline"
@@ -59,10 +59,10 @@ const Support: React.FC = () => {
           </div>
           <div>
             <h3 className="font-bold text-black dark:text-white">
-              Is mysys free to use?
+              Is MySys free to use?
             </h3>
             <p className="mt-1 text-zinc-500">
-              Yes, the core features of mysys are free. We also offer a Pro
+              Yes, the core features of MySys are free. We also offer a Pro
               subscription for advanced features.
             </p>
           </div>

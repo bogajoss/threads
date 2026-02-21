@@ -77,7 +77,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           username: formData.username,
           name: formData.name,
         });
-        addToast("Confirm Your Email", "info");
+        // addToast("Confirm Your Email", "info");
         onSwitch();
       }
     } catch (err: any) {
@@ -104,7 +104,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           </div>
         </div>
         <h2 className="mb-2 text-3xl font-extrabold tracking-tight dark:text-white">
-          {type === "login" ? "Welcome back!" : "Join mysys today"}
+          {type === "login" ? "Welcome back!" : "Join MySys today"}
         </h2>
         <p className="font-medium text-zinc-500">
           The decentralized social network

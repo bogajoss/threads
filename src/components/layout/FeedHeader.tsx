@@ -20,7 +20,7 @@ const FeedHeader = () => {
 
       <div className="absolute bottom-6 left-8 text-white">
         <h1 className="mb-1 text-3xl font-black drop-shadow-lg sm:text-4xl">
-          Welcome to mysys
+          Welcome to MySys
         </h1>
         <p className="tracking-wide text-sm font-medium opacity-90 drop-shadow-md sm:text-base">
           a social network built by{" "}

@@ -100,7 +100,7 @@ export const useSettings = () => {
           email: currentUser.email,
         },
         exportDate: new Date().toISOString(),
-        note: "This is a mock export of your mysys data.",
+        note: "This is a mock export of your MySys data.",
       };
 
       const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -109,7 +109,7 @@ export const useSettings = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `mysys-data-${currentUser.handle}.json`;
+      link.download = `MySys-data-${currentUser.handle}.json`;
       link.click();
       URL.revokeObjectURL(url);
       addToast("Data export started!");
