@@ -11,7 +11,9 @@ const RegisterPage: React.FC = () => {
       <PageTransition>
         <AuthForm
           type="signup"
-          onComplete={() => {}}
+          onComplete={() => {
+            navigate("/");
+          }}
           onSwitch={() => navigate("/login")}
         />
       </PageTransition>

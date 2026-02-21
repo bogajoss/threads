@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CircularProgress from "@/components/ui/CircularProgress";
+import ProButton from "@/components/ui/ProButton";
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import {
   Dialog,
@@ -695,19 +696,31 @@ const CreatePost: React.FC = () => {
         </Select>
 
         <div className="flex items-center gap-3">
-          <Button
-            onClick={handlePublish}
-            disabled={isPostDisabled}
-            loading={loading}
-            className={cn(
-              "min-w-[90px] h-11 shadow-xl transition-all active:scale-95 text-[15px]",
-              isPostDisabled
-                ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-600 shadow-none"
-                : "shadow-[--primary]/20 bg-black text-white dark:bg-white dark:text-black",
-            )}
-          >
-            {isStory ? "Share Story" : "Post"}
-          </Button>
+          {!currentUser?.isPro && postContent.length > 500 ? (
+            <ProButton
+              label="Post"
+              hoverLabel="Go Pro!"
+              onClick={() => {
+                navigate("/pro");
+                addToast("Pro users get 2500 character limit!", "info");
+              }}
+              className="min-w-[120px] h-11"
+            />
+          ) : (
+            <Button
+              onClick={handlePublish}
+              disabled={isPostDisabled}
+              loading={loading}
+              className={cn(
+                "min-w-[90px] h-11 shadow-xl transition-all active:scale-95 text-[15px]",
+                isPostDisabled
+                  ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-600 shadow-none"
+                  : "shadow-[--primary]/20 bg-black text-white dark:bg-white dark:text-black",
+              )}
+            >
+              {isStory ? "Share Story" : "Post"}
+            </Button>
+          )}
         </div>
       </div>
 

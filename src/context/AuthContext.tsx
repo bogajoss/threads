@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchUserProfileData = useCallback(async (user: any) => {
+    setLoading(true);
     try {
       const data = await fetchUserProfile(user.id);
 
