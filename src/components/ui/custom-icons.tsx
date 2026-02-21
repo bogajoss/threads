@@ -47,6 +47,21 @@ export const VerifiedIcon: React.FC<{
   />
 );
 
+export const AdminIcon: React.FC<{
+  size?: number | string;
+  className?: string;
+  [key: string]: any;
+}> = ({ size = 24, className = "", ...props }) => (
+  <img
+    src="/admin.gif"
+    alt="Admin"
+    width={size}
+    height={size}
+    className={cn("object-contain", className)}
+    {...props}
+  />
+);
+
 export const ProIcon: React.FC<{
   size?: number | string;
   className?: string;

@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { VerifiedIcon, ProIcon, ChevronTagIcon } from "@/components/ui";
+import { VerifiedIcon, AdminIcon, ChevronTagIcon } from "@/components/ui";
 import type { User, CommunityShort } from "@/types";
 
 interface PostHeaderProps {
@@ -74,13 +74,13 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                 <span className="max-w-[150px] truncate sm:max-w-none">
                   {user.handle}
                 </span>
-                {user.verified && (
-                  <VerifiedIcon
-                    size={isDetail ? 16 : isComment ? 12 : 14}
+                {user.role === "admin" && (
+                  <AdminIcon
+                    size={isDetail ? 28 : isComment ? 22 : 24}
                   />
                 )}
-                {user.isPro && (
-                  <ProIcon
+                {user.verified && (
+                  <VerifiedIcon
                     size={isDetail ? 16 : isComment ? 12 : 14}
                   />
                 )}

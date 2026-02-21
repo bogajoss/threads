@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   VerifiedIcon,
-  ProIcon,
+  AdminIcon,
   FollowIcon,
   FollowingIcon,
 } from "@/components/ui";
@@ -88,7 +88,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   const membersCount =
     "membersCount" in profile ? (profile as any).membersCount : 0;
   const verified = "verified" in profile ? (profile as any).verified : false;
-  const isPro = "isPro" in profile ? (profile as any).isPro : false;
+  const role = "role" in profile ? (profile as any).role : "";
 
   const onButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -125,11 +125,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         <div className="flex flex-col min-w-0">
           <span className="flex items-center gap-1 truncate font-extrabold text-zinc-900 dark:text-zinc-100">
             {name}
+            {role === "admin" && (
+              <AdminIcon size={20} className="shrink-0" />
+            )}
             {verified && (
               <VerifiedIcon size={16} className="shrink-0" />
-            )}
-            {isPro && (
-              <ProIcon size={16} className="shrink-0" />
             )}
           </span>
           <span className="truncate text-sm text-zinc-500">@{handle}</span>
