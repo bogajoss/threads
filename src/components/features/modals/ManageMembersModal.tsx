@@ -142,7 +142,7 @@ export default function ManageMembersModal({
                       {m.user.name}
                     </span>
                     {m.user.is_verified && (
-                      <VerifiedIcon size={14} className="text-blue-500" />
+                      <VerifiedIcon size={14} />
                     )}
                   </div>
                   <span className="text-xs font-medium text-zinc-500">

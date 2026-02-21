@@ -1,5 +1,6 @@
 import React from "react";
 import type { LucideProps } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const SettingsIcon: React.FC<LucideProps> = ({
   size = 24,
@@ -31,32 +32,19 @@ export const SettingsIcon: React.FC<LucideProps> = ({
     />
   </svg>
 );
-export const VerifiedIcon: React.FC<LucideProps> = ({
-  size = 24,
-  className = "",
-  ...props
-}) => (
-  <svg
+export const VerifiedIcon: React.FC<{
+  size?: number | string;
+  className?: string;
+  [key: string]: any;
+}> = ({ size = 24, className = "", ...props }) => (
+  <img
+    src="/verified.gif"
+    alt="Verified"
     width={size}
     height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
+    className={cn("object-contain", className)}
     {...props}
-  >
-    <path
-      d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-      fill="currentColor"
-    />
-    <path
-      d="M15 10L11 14L9 12"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+  />
 );
 export const EditIcon: React.FC<LucideProps> = ({
   size = 24,

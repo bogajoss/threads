@@ -6,14 +6,13 @@ import {
   Search,
   Users,
   Lock,
-  Check,
   Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import Button from "@/components/ui/Button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback, VerifiedIcon } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -252,9 +251,7 @@ function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
               {user.handle}
             </span>
             {user.verified && (
-              <div className="bg-blue-500 rounded-full p-[2px] shrink-0">
-                <Check className="w-2 h-2 text-white stroke-[3px]" />
-              </div>
+              <VerifiedIcon size={12} className="shrink-0" />
             )}
           </div>
           <span className="text-zinc-500 text-xs md:text-[14px] leading-tight truncate">

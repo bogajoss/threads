@@ -77,7 +77,6 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                 {user.verified && (
                   <VerifiedIcon
                     size={isDetail ? 16 : isComment ? 12 : 14}
-                    className="text-blue-500"
                   />
                 )}
               </button>

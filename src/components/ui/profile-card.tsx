@@ -124,7 +124,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           <span className="flex items-center gap-1 truncate font-extrabold text-zinc-900 dark:text-zinc-100">
             {name}
             {verified && (
-              <VerifiedIcon size={16} className="shrink-0 text-blue-500" />
+              <VerifiedIcon size={16} className="shrink-0" />
             )}
           </span>
           <span className="truncate text-sm text-zinc-500">@{handle}</span>

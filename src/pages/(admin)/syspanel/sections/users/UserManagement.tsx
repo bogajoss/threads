@@ -3,7 +3,6 @@ import {
   Search,
   Loader2,
   Users,
-  ShieldCheck,
   ShieldX,
   Lock,
   Unlock,
@@ -27,6 +26,7 @@ import {
   DialogFooter,
   Label,
   Switch,
+  VerifiedIcon,
 } from "@/components/ui";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
@@ -186,7 +186,7 @@ const UserManagement: React.FC = () => {
                         </AvatarFallback>
                       </Avatar>
                       {user.verified && (
-                        <ShieldCheck className="absolute -bottom-2 -right-2 h-5 w-5 rounded-full bg-blue-500 p-0.5 text-white" />
+                        <VerifiedIcon size={20} className="absolute -bottom-2 -right-2 rounded-full bg-white p-0.5" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -229,7 +229,7 @@ const UserManagement: React.FC = () => {
                     {/* Verification Status */}
                     {user.verified && (
                       <div className="flex items-center gap-1.5 rounded-xl bg-blue-500/10 px-3 py-1.5">
-                        <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        <VerifiedIcon size={14} />
                         <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">
                           Verified
                         </span>
@@ -295,7 +295,7 @@ const UserManagement: React.FC = () => {
                       {user.verified ? (
                         <Unlock className="h-4 w-4" />
                       ) : (
-                        <ShieldCheck className="h-4 w-4" />
+                        <VerifiedIcon size={16} />
                       )}
                     </Button>
 
