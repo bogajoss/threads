@@ -352,20 +352,19 @@ const UserManagement: React.FC = () => {
         </p>
       </div>
 
-      <ManageUserDialog
-        user={managingUser}
-        isOpen={!!managingUser}
-        onClose={() => setManagingUser(null)}
-        actions={actions}
-      />
+      {managingUser && (
+        <ManageUserDialog
+          user={managingUser}
+          onClose={() => setManagingUser(null)}
+          actions={actions}
+        />
+      )}
     </div>
   );
 };
 
 // New Dialog Component
-const ManageUserDialog = ({ user, isOpen, onClose, actions }: { user: any, isOpen: boolean, onClose: () => void, actions: any }) => {
-  if (!isOpen) return null;
-
+const ManageUserDialog = ({ user, onClose, actions }: { user: any, onClose: () => void, actions: any }) => {
   const [role, setRole] = useState(user.roles || 'Newbie');
   const [isPro, setIsPro] = useState(user.isPro || false);
   const [proValidity, setProValidity] = useState<number>(30);
@@ -399,7 +398,7 @@ const ManageUserDialog = ({ user, isOpen, onClose, actions }: { user: any, isOpe
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] rounded-2xl">
         <DialogHeader>
           <DialogTitle>Manage {user.name}</DialogTitle>
