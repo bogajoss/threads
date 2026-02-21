@@ -46,6 +46,21 @@ export const VerifiedIcon: React.FC<{
     {...props}
   />
 );
+
+export const ProIcon: React.FC<{
+  size?: number | string;
+  className?: string;
+  [key: string]: any;
+}> = ({ size = 24, className = "", ...props }) => (
+  <img
+    src="/pro.gif"
+    alt="Pro"
+    width={size}
+    height={size}
+    className={cn("object-contain", className)}
+    {...props}
+  />
+);
 export const EditIcon: React.FC<LucideProps> = ({
   size = 24,
   className = "",

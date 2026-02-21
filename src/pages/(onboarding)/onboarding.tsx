@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import Button from "@/components/ui/Button";
-import { Avatar, AvatarImage, AvatarFallback, VerifiedIcon } from "@/components/ui";
+import { Avatar, AvatarImage, AvatarFallback, VerifiedIcon, ProIcon } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -252,6 +252,9 @@ function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
             </span>
             {user.verified && (
               <VerifiedIcon size={12} className="shrink-0" />
+            )}
+            {user.isPro && (
+              <ProIcon size={12} className="shrink-0" />
             )}
           </div>
           <span className="text-zinc-500 text-xs md:text-[14px] leading-tight truncate">

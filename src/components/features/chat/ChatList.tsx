@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/types";
 import { cn, formatTimeAgo } from "@/lib/utils";
-import { Button } from "@/components/ui";
+import { Button, VerifiedIcon, ProIcon } from "@/components/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,12 +74,20 @@ const ConversationItem = React.memo(({
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
         <div className="flex items-center justify-between">
-          <h4 className={cn(
-            "truncate text-[15px] font-semibold",
-            isSelected ? "text-violet-900 dark:text-violet-100" : "text-zinc-900 dark:text-zinc-100"
-          )}>
-            {displayName}
-          </h4>
+          <div className="flex items-center gap-1 min-w-0">
+            <h4 className={cn(
+              "truncate text-[15px] font-semibold",
+              isSelected ? "text-violet-900 dark:text-violet-100" : "text-zinc-900 dark:text-zinc-100"
+            )}>
+              {displayName}
+            </h4>
+            {!conv.isGroup && conv.user?.verified && (
+              <VerifiedIcon size={14} className="shrink-0" />
+            )}
+            {!conv.isGroup && conv.user?.isPro && (
+              <ProIcon size={14} className="shrink-0" />
+            )}
+          </div>
           <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
             {timeDisplay}
           </span>

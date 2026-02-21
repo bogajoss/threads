@@ -7,7 +7,6 @@ import {
   Lock,
   Unlock,
   Pencil,
-  Star,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Button from "@/components/ui/Button";
@@ -27,6 +26,7 @@ import {
   Label,
   Switch,
   VerifiedIcon,
+  ProIcon,
 } from "@/components/ui";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
@@ -188,6 +188,9 @@ const UserManagement: React.FC = () => {
                       {user.verified && (
                         <VerifiedIcon size={20} className="absolute -bottom-2 -right-2 rounded-full bg-white p-0.5" />
                       )}
+                      {user.isPro && (
+                        <ProIcon size={20} className="absolute -bottom-2 -left-2 rounded-full bg-white p-0.5" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="truncate font-semibold text-foreground">
@@ -219,7 +222,7 @@ const UserManagement: React.FC = () => {
                     {/* Pro Badge */}
                     {user.isPro && (
                       <div className="flex items-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5">
-                        <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                        <ProIcon size={14} />
                         <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                           PRO
                         </span>
