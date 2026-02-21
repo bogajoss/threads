@@ -19,7 +19,7 @@ export const uploadFile = async (
   let fileExt = file.name.split(".").pop();
   let posterUrl: string | null = null;
 
-  if (file.type.startsWith("image/")) {
+  if (file.type.startsWith("image/") && file.type !== "image/gif") {
     try {
       fileToUpload = await compressImage(file);
       fileExt = "webp";

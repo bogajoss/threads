@@ -22,7 +22,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   editProfileData,
   setEditProfileData,
 }) => {
-  const { updateProfile } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +38,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   ) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Pro user GIF validation
+      if (file.type === "image/gif" && !currentUser?.isPro) {
+        addToast("GIF profile pictures are only available for PRO users!", "error");
+        return;
+      }
+
       if (type === "avatar") {
         setNewAvatarFile(file);
       } else {
