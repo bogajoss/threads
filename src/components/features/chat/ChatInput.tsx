@@ -20,7 +20,6 @@ import EmojiPicker from "@/components/ui/emoji-picker";
 import { ShareIcon } from "@/components/ui";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -52,7 +51,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const textAreaRef = useAutoResizeTextArea(text);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   React.useEffect(() => {
     if (editingMessage) {
@@ -109,6 +107,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (audioBlob) {
       onSendMessage("", [], audioBlob, recordingTime);
       clearAudio();
+      setTimeout(() => {
+        textAreaRef.current?.focus();
+      }, 10);
       return;
     }
 
@@ -122,12 +123,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSendMessage(text, attachments);
     setText("");
     setAttachments([]);
+    
+    // Maintain focus for continuous chatting
     setTimeout(() => {
-      if (isDesktop) {
-        textAreaRef.current?.focus();
-      } else {
-        textAreaRef.current?.blur();
-      }
+      textAreaRef.current?.focus();
     }, 10);
   };
 
