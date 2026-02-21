@@ -40,7 +40,7 @@ import RichText from "@/components/ui/rich-text";
 import { useFollow } from "@/hooks/useFollow";
 import { useReportModal } from "@/context/ReportContext";
 import { useToast } from "@/context/ToastContext";
-import { copyToClipboard, getBaseUrl } from "@/lib/utils";
+import { copyToClipboard, getBaseUrl, getSafeImageUrl } from "@/lib/utils";
 
 interface ProfileHeaderProps {
   profile: any;
@@ -113,7 +113,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <div className="relative h-32 w-full bg-zinc-200 dark:bg-zinc-800 sm:h-48">
         {profile.cover && (
           <img
-            src={profile.cover}
+            src={getSafeImageUrl(profile.cover, profile.isPro)}
             className="h-full w-full object-cover transition-opacity duration-500"
             alt="Cover"
           />
@@ -122,7 +122,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="relative rounded-full bg-white p-1 shadow-xl ring-4 ring-white dark:bg-black dark:ring-black">
             <Avatar className="size-24 sm:size-32">
               <AvatarImage
-                src={profile.avatar}
+                src={getSafeImageUrl(profile.avatar, profile.isPro)}
                 alt={profile.handle}
                 className="object-cover"
               />

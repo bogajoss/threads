@@ -168,3 +168,26 @@ export const extractUrl = (text: string | null | undefined): string | null => {
   const match = text.match(urlRegex);
   return match ? match[0] : null;
 };
+
+/**
+ * Returns an optimized image URL. 
+ * If the image is a GIF and the user is NOT Pro, it returns a static version
+ * using Supabase Image Transformation.
+ */
+export const getSafeImageUrl = (url: string | null | undefined, isPro: boolean = false): string => {
+  if (!url) return "";
+  const lowerUrl = url.toLowerCase();
+  
+  // Only process GIFs
+  if (!lowerUrl.includes('.gif')) return url;
+  
+  // If user is Pro, show the full animated GIF
+  if (isPro) return url;
+  
+  // If not Pro, try to use Supabase Transformation to get a static frame (defaults to static if not specified otherwise)
+  if (url.includes('.supabase.co/storage/v1/object/public/')) {
+    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=400&height=400&quality=80';
+  }
+  
+  return url;
+};
