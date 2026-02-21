@@ -230,5 +230,6 @@ export const transformConversation = (
       : "",
     unread: unreadCount,
     isMuted: false,
+    members: (conv.participants || []).map((p: any) => transformUser(p.user)).filter(Boolean),
   };
 };

@@ -41,7 +41,7 @@ const Modal: React.FC<ModalProps> = ({
         onDragClose={onClose}
         aria-describedby={undefined}
         className={cn(
-          "flex max-h-[calc(100dvh-1rem)] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
+          "flex max-h-[92dvh] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
           className,
         )}
       >
@@ -56,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({
           )}
         </DialogHeader>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto custom-scrollbar">
           {children}
         </div>
 

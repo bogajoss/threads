@@ -6,10 +6,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TypingIndicator } from "@/components/ui";
 import ChatInput from "./ChatInput";
 import Message from "./Message";
+import GroupSettingsModal from "../modals/GroupSettingsModal";
+import DMSettingsModal from "../modals/DMSettingsModal";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "@/lib/api/storage";
 import { formatTimeAgo } from "@/lib/utils";
 import { useMobileViewport } from "@/hooks/useMobileViewport";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatWindowProps {
   conversation: any;
@@ -47,9 +50,11 @@ const ChatWindow = ({
   isOnline,
 }: ChatWindowProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [replyingTo, setReplyingTo] = useState<any | null>(null);
   const [editingMessage, setEditingMessage] = useState<any | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const { height: viewportHeight, keyboardOpen } = useMobileViewport();
 
   // Adjust scroll on keyboard open
@@ -116,10 +121,30 @@ const ChatWindow = ({
   };
 
   return (
-    <div
-      className="flex w-full flex-col bg-white dark:bg-[#09090b] relative overflow-hidden"
-      style={{ height: `${viewportHeight}px` }}
-    >
+    <>
+      {conversation.isGroup ? (
+        <GroupSettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          conversation={conversation}
+          onUpdate={() => {
+            queryClient.invalidateQueries({ queryKey: ["conversations", currentUser.id] });
+            queryClient.invalidateQueries({ queryKey: ["messages", conversation.id] });
+          }}
+        />
+      ) : (
+        <DMSettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          user={conversation.user}
+          conversationId={conversation.id}
+        />
+      )}
+
+      <div
+        className="flex w-full flex-col bg-white dark:bg-[#09090b] relative overflow-hidden"
+        style={{ height: `${viewportHeight}px` }}
+      >
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-zinc-800 dark:bg-[#09090b]/80 z-30">
         <div className="flex items-center gap-3">
@@ -176,7 +201,7 @@ const ChatWindow = ({
           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
             <Video size={20} />
           </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
+          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400" onClick={() => setShowSettings(true)}>
             <MoreHorizontal size={20} />
           </Button>
         </div>
@@ -261,6 +286,7 @@ const ChatWindow = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 

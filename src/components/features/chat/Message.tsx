@@ -1,7 +1,9 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Check, CheckCheck, Reply, FileText, Download } from "lucide-react";
+import { Check, CheckCheck, Reply, FileText, Download, Plus, Edit2, Trash2 } from "lucide-react";
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import EmojiPicker from "@/components/ui/emoji-picker";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import VideoPlayer from "@/components/features/post/VideoPlayer";
 import VoiceMessage from "./VoiceMessage";
@@ -26,7 +28,9 @@ const Message = ({
   onReply,
   onEdit,
   onDelete,
+  onReaction,
 }: MessageProps) => {
+  const [showReactions, setShowReactions] = React.useState(false);
   const x = useMotionValue(0);
   const swipeThreshold = -50;
   const replyIconOpacity = useTransform(x, [0, swipeThreshold], [0, 1]);
@@ -38,6 +42,15 @@ const Message = ({
       if (window.navigator.vibrate) window.navigator.vibrate(10);
     }
   };
+
+  const handleReaction = (emoji: any) => {
+    if (onReaction) {
+      onReaction(message.id, typeof emoji === 'string' ? emoji : emoji.emoji);
+    }
+    setShowReactions(false);
+  };
+
+  const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢"];
 
   const displayTime = message.time || "Just now";
 
@@ -103,6 +116,10 @@ const Message = ({
           <ContextMenu>
             <ContextMenuTrigger>
               <div
+                onContextMenu={() => {
+                  // On mobile, long press might trigger context menu and we also want reactions
+                  // We don't preventDefault here to allow the normal context menu
+                }}
                 className={cn(
                   "relative px-4 py-2 text-[15px] leading-relaxed break-words",
                   isMe
@@ -180,14 +197,52 @@ const Message = ({
                 </div>
               </div>
             </ContextMenuTrigger>
-            <ContextMenuContent className="w-48">
-              <ContextMenuItem onClick={() => onReply(message)}>Reply</ContextMenuItem>
-              {message.text && <ContextMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>Copy</ContextMenuItem>}
+            <ContextMenuContent className="w-auto p-1.5 overflow-visible">
+              <div className="flex items-center gap-1 mb-1.5 px-1">
+                {QUICK_REACTIONS.map((emoji) => (
+                  <ContextMenuItem key={emoji} asChild>
+                    <button
+                      onClick={() => handleReaction(emoji)}
+                      className="size-8 flex items-center justify-center text-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-all hover:scale-125 active:scale-90 focus:bg-zinc-100 dark:focus:bg-zinc-800 outline-none"
+                    >
+                      {emoji}
+                    </button>
+                  </ContextMenuItem>
+                ))}
+                <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+                <Popover open={showReactions} onOpenChange={setShowReactions}>
+                  <PopoverTrigger asChild>
+                    <button className="size-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-all">
+                      <Plus size={18} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0 border-none bg-transparent shadow-none" side="top" align="center">
+                    <EmojiPicker onEmojiSelect={handleReaction} className="h-[300px] w-[280px]" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={() => onReply(message)}>
+                <Reply size={16} className="mr-2" /> Reply
+              </ContextMenuItem>
+              {message.text && (
+                <ContextMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>
+                  <FileText size={16} className="mr-2" /> Copy
+                </ContextMenuItem>
+              )}
               {isMe && (
                 <>
                   <ContextMenuSeparator />
-                  {onEdit && message.type === 'text' && <ContextMenuItem onClick={() => onEdit(message)}>Edit</ContextMenuItem>}
-                  {onDelete && <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>Delete</ContextMenuItem>}
+                  {onEdit && message.type === 'text' && (
+                    <ContextMenuItem onClick={() => onEdit(message)}>
+                      <Edit2 size={16} className="mr-2" /> Edit
+                    </ContextMenuItem>
+                  )}
+                  {onDelete && (
+                    <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>
+                      <Trash2 size={16} className="mr-2" /> Delete
+                    </ContextMenuItem>
+                  )}
                 </>
               )}
             </ContextMenuContent>

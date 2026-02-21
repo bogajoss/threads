@@ -69,13 +69,13 @@ const DialogContent = React.forwardRef<
 
     React.useEffect(() => {
       if (!isDesktop) {
-        // Reset state on mount
+        // Ensure it starts from where it should be visible
         y.stop();
-        y.set(100);
+        y.set(0);
 
         controls.start({
-          y: 0,
-          transition: motionTokens.transition.sheetSpring
+          opacity: [0, 1],
+          transition: { duration: 0.2 }
         });
       }
     }, [controls, isDesktop, y]);
@@ -117,7 +117,7 @@ const DialogContent = React.forwardRef<
             animate={isDesktop ? undefined : controls}
             style={isDesktop ? undefined : { y, opacity, zIndex: overlayClassName?.includes('z-[9999]') ? 9999 : undefined }}
             className={cn(
-              "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none",
+              "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none max-sm:max-h-[92dvh]",
               className,
             )}
           >

@@ -172,6 +172,7 @@ export interface Conversation {
   time: string;
   unread: number;
   isMuted?: boolean;
+  members?: (User | null)[];
 }
 
 export interface Reaction {
