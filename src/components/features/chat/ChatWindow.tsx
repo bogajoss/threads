@@ -150,13 +150,21 @@ const ChatWindow = ({
               {displayName}
             </h3>
             <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              {conversation.isGroup
-                ? `${conversation.members?.length || 0} members`
-                : isOnline || (conversation.user?.lastSeen && (new Date().getTime() - new Date(conversation.user.lastSeen).getTime()) < 60000)
-                  ? "Active now"
-                  : conversation.user?.lastSeen
-                    ? `Last seen ${formatTimeAgo(conversation.user.lastSeen)}`
-                    : "Offline"}
+              {(() => {
+                if (conversation.isGroup) return `${conversation.members?.length || 0} members`;
+                if (isOnline) return "Active now";
+                
+                if (conversation.user?.lastSeen) {
+                  const lastSeenDate = new Date(conversation.user.lastSeen);
+                  if (!isNaN(lastSeenDate.getTime())) {
+                    const diff = new Date().getTime() - lastSeenDate.getTime();
+                    if (diff < 60000) return "Active now";
+                    return `Last seen ${formatTimeAgo(conversation.user.lastSeen)}`;
+                  }
+                }
+                
+                return "Offline";
+              })()}
             </span>
           </div>
         </div>

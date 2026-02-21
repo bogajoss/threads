@@ -87,12 +87,15 @@ export const useChatMessages = (
           replyToId,
           replyTo,
           reactions: reactions.filter((r) => r.message_id === m.id),
-          time: m.created_at
-            ? new Date(m.created_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Just now",
+          time: (() => {
+            if (!m.created_at) return "Just now";
+            const d = new Date(m.created_at);
+            if (isNaN(d.getTime())) return "Just now";
+            return d.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          })(),
           updatedAt: m.updated_at,
           isOptimistic: m.isOptimistic,
         };

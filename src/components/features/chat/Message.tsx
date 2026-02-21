@@ -39,11 +39,7 @@ const Message = ({
     }
   };
 
-  const formattedTime = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true
-  }).format(new Date(message.updatedAt));
+  const displayTime = message.time || "Just now";
 
   return (
     <motion.div
@@ -175,7 +171,7 @@ const Message = ({
                   "mt-1 flex items-center justify-end gap-1 text-[10px] opacity-70",
                   isMe ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"
                 )}>
-                  <span>{formattedTime}</span>
+                  <span>{displayTime}</span>
                   {isMe && (
                     <span>
                       {message.isRead ? <CheckCheck size={12} /> : <Check size={12} />}

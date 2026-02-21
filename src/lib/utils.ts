@@ -135,6 +135,10 @@ export const formatTimeAgo = (
 ): string => {
   if (!date) return "";
   const dateObj = typeof date === "string" ? new Date(date) : date;
+  
+  // Check for invalid date
+  if (isNaN(dateObj.getTime())) return "";
+
   const now = new Date();
   const diff = now.getTime() - dateObj.getTime();
   const seconds = Math.floor(diff / 1000);
