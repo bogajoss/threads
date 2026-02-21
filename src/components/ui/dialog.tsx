@@ -27,6 +27,7 @@ const DialogOverlay = React.forwardRef<
     overlayClassName?: string;
   }
 >(({ overlayClassName, ...props }, ref) => {
+  const isDesktop = useMediaQuery("(min-width: 640px)");
   const overlayStyle = overlayClassName?.includes('z-[9999]') 
     ? { zIndex: 9999 } 
     : undefined;
@@ -36,7 +37,8 @@ const DialogOverlay = React.forwardRef<
       ref={ref}
       style={overlayStyle}
       className={cn(
-        "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
+        "fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200",
+        isDesktop ? "bg-black/60" : "bg-black/80",
         overlayClassName,
       )}
       onClick={(e) => {
@@ -61,7 +63,6 @@ const DialogContent = React.forwardRef<
     { className, children, onDragClose, showCloseButton = true, overlayClassName, ...props },
     ref,
   ) => {
-    // ... (keep existing hook logic: isDesktop, controls, y, opacity, handleDragEnd) ...
     const isDesktop = useMediaQuery("(min-width: 640px)");
     const controls = useAnimation();
     const y = useMotionValue(0);
@@ -69,13 +70,11 @@ const DialogContent = React.forwardRef<
 
     React.useEffect(() => {
       if (!isDesktop) {
-        // Ensure it starts from where it should be visible
         y.stop();
         y.set(0);
-
         controls.start({
           opacity: [0, 1],
-          transition: { duration: 0.2 }
+          transition: { duration: 0.2 },
         });
       }
     }, [controls, isDesktop, y]);
@@ -99,6 +98,8 @@ const DialogContent = React.forwardRef<
       }
     };
 
+    const zIndexStyle = overlayClassName?.includes('z-[9999]') ? { zIndex: 9999 } : {};
+
     return (
       <DialogPortal>
         <DialogOverlay overlayClassName={overlayClassName} />
@@ -115,7 +116,7 @@ const DialogContent = React.forwardRef<
             onDragEnd={handleDragEnd}
             onClick={(e) => e.stopPropagation()}
             animate={isDesktop ? undefined : controls}
-            style={isDesktop ? undefined : { y, opacity, zIndex: overlayClassName?.includes('z-[9999]') ? 9999 : undefined }}
+            style={isDesktop ? zIndexStyle : { y, opacity, ...zIndexStyle }}
             className={cn(
               "fixed z-50 grid w-full gap-4 bg-white p-6 shadow-lg rounded-3xl dark:bg-zinc-950 sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] max-sm:bottom-0 max-sm:left-0 max-sm:rounded-b-none max-sm:max-w-none max-sm:max-h-[92dvh]",
               className,
