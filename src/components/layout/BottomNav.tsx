@@ -1,11 +1,12 @@
 import React from "react";
 import {
   HomeIcon,
-  SearchIcon,
-  MessageCircle,
-  Bell,
-  User,
-} from "lucide-react";
+  ChatIcon,
+  CommunityIcon,
+  NotificationsIcon,
+  ReelsIcon,
+} from "@/components/ui";
+import { User } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
@@ -28,9 +29,10 @@ const BottomNav: React.FC = () => {
 
   const navItems = [
     { id: "home", icon: HomeIcon, path: "/feed" },
-    { id: "explore", icon: SearchIcon, path: "/explore" },
-    { id: "notifications", icon: Bell, path: "/notifications", count: unreadNotifications },
-    { id: "messages", icon: MessageCircle, path: "/m", count: unreadMessages },
+    { id: "explore", icon: CommunityIcon, path: "/explore" },
+    { id: "reels", icon: ReelsIcon, path: "/r" },
+    { id: "messages", icon: ChatIcon, path: "/m", count: unreadMessages },
+    { id: "notifications", icon: NotificationsIcon, path: "/notifications", count: unreadNotifications },
     { id: "profile", icon: User, path: currentUser ? `/u/${currentUser.handle}` : "/login", isProfile: true },
   ];
 
