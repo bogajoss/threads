@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Check, CheckCheck, Reply, FileText, Download, Plus, Edit2, Trash2 } from "lucide-react";
-import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from "@/components/ui/context-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import EmojiPicker from "@/components/ui/emoji-picker";
 import { motion, useMotionValue, useTransform } from "framer-motion";
@@ -197,8 +197,8 @@ const Message = ({
                 </div>
               </div>
             </ContextMenuTrigger>
-            <ContextMenuContent className="w-auto p-1.5 overflow-visible">
-              <div className="flex items-center gap-1 mb-1.5 px-1">
+            <ContextMenuContent className="w-48">
+              <div className="flex items-center justify-between gap-1 mb-1.5 px-1">
                 {QUICK_REACTIONS.map((emoji) => (
                   <ContextMenuItem key={emoji} asChild>
                     <button
@@ -230,20 +230,25 @@ const Message = ({
                   <FileText size={16} className="mr-2" /> Copy
                 </ContextMenuItem>
               )}
+              {isMe && (onEdit || onDelete) && <ContextMenuSeparator />}
               {isMe && (
-                <>
-                  <ContextMenuSeparator />
-                  {onEdit && message.type === 'text' && (
-                    <ContextMenuItem onClick={() => onEdit(message)}>
-                      <Edit2 size={16} className="mr-2" /> Edit
-                    </ContextMenuItem>
-                  )}
-                  {onDelete && (
-                    <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>
-                      <Trash2 size={16} className="mr-2" /> Delete
-                    </ContextMenuItem>
-                  )}
-                </>
+                <ContextMenuSub>
+                  <ContextMenuSubTrigger>
+                    More Options
+                  </ContextMenuSubTrigger>
+                  <ContextMenuSubContent className="w-48">
+                    {onEdit && message.type === 'text' && (
+                      <ContextMenuItem onClick={() => onEdit(message)}>
+                        <Edit2 size={16} className="mr-2" /> Edit
+                      </ContextMenuItem>
+                    )}
+                    {onDelete && (
+                      <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>
+                        <Trash2 size={16} className="mr-2" /> Delete
+                      </ContextMenuItem>
+                    )}
+                  </ContextMenuSubContent>
+                </ContextMenuSub>
               )}
             </ContextMenuContent>
           </ContextMenu>

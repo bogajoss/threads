@@ -48,6 +48,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     const [likesCount, setLikesCount] = useState(reel.stats?.likes || 0);
     const [isFollowing, setIsFollowing] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const videoUrl = useMemo(() => {
@@ -58,19 +59,24 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
     useEffect(() => {
       setIsVideoLoaded(false);
+      setHasPlayedOnce(false);
       const player = playerRef.current?.plyr;
 
       if (player && typeof player.on === "function") {
         const handleLoaded = () => setIsVideoLoaded(true);
+        const handlePlaying = () => setHasPlayedOnce(true);
+
         player.on("ready", handleLoaded);
         player.on("canplay", handleLoaded);
         player.on("loadeddata", handleLoaded);
+        player.on("playing", handlePlaying);
 
         return () => {
           if (typeof player.off === "function") {
             player.off("ready", handleLoaded);
             player.off("canplay", handleLoaded);
             player.off("loadeddata", handleLoaded);
+            player.off("playing", handlePlaying);
           }
         };
       } else {
@@ -322,7 +328,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             )}
           </div>
 
-          {!isVideoLoaded && (
+          {!hasPlayedOnce && (
             <div className="absolute inset-0 z-[60] flex items-center justify-center bg-zinc-900">
               <SkeletonReel />
             </div>
