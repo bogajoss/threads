@@ -43,7 +43,7 @@ const Message = ({
     hour: 'numeric',
     minute: 'numeric',
     hour12: true
-  }).format(new Date(message.updatedAt || Date.now()));
+  }).format(new Date(message.updatedAt));
 
   return (
     <motion.div

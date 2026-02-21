@@ -46,7 +46,7 @@ const ConversationItem = React.memo(({
       if (conv.created_at) {
           timeDisplay = formatTimeAgo(conv.created_at);
       }
-  } catch (e) {
+  } catch {
       timeDisplay = "";
   } 
 

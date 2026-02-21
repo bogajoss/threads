@@ -26,7 +26,7 @@ const DialogOverlay = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & {
     overlayClassName?: string;
   }
->(({ className, overlayClassName, ...props }, ref) => {
+>(({ overlayClassName, ...props }, ref) => {
   const overlayStyle = overlayClassName?.includes('z-[9999]') 
     ? { zIndex: 9999 } 
     : undefined;

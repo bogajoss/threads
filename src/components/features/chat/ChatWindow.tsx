@@ -50,7 +50,7 @@ const ChatWindow = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [replyingTo, setReplyingTo] = useState<any | null>(null);
   const [editingMessage, setEditingMessage] = useState<any | null>(null);
-  const { height: viewportHeight, keyboardHeight: _keyboardHeight, keyboardOpen } = useMobileViewport();
+  const { height: viewportHeight, keyboardOpen } = useMobileViewport();
 
   // Adjust scroll on keyboard open
   useEffect(() => {
@@ -74,7 +74,7 @@ const ChatWindow = ({
   const displayName = conversation.isGroup ? conversation.name : conversation.user?.name;
   const displayAvatar = conversation.isGroup ? conversation.avatar : conversation.user?.avatar;
 
-  const handleSend = async (text: string, attachments: File[], audioBlob: Blob | undefined, _duration: number | undefined) => {
+  const handleSend = async (text: string, attachments: File[], audioBlob: Blob | undefined) => {
     if (editingMessage) {
       onEditMessage?.(editingMessage.id, text);
       setEditingMessage(null);

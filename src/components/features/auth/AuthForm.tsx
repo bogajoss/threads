@@ -78,7 +78,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           name: formData.name,
         });
         // addToast("Confirm Your Email", "info");
-        onSwitch();
+        // Redirect to onboarding after signup
+        window.location.href = "/onboarding";
       }
     } catch (err: any) {
       console.error("Auth error:", err);
