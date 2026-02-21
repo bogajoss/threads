@@ -46,12 +46,13 @@ interface SelectedFile {
   file: File;
 }
 
-const MAX_CHARS = 500;
-
 const CreatePost: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
+
+  const MAX_CHARS = currentUser?.isPro ? 2500 : 500;
+  
   const { addPost } = usePosts();
   const { addToast } = useToast();
   const queryClient = useQueryClient();

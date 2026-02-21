@@ -88,6 +88,26 @@ export const useAdmin = () => {
     },
   });
 
+  const adminUpdateUser = useMutation({
+    mutationFn: ({
+      userId,
+      role,
+      proValidityDays,
+    }: {
+      userId: string;
+      role: "Elite" | "Hunter" | "Newbie" | null;
+      proValidityDays: number | null;
+    }) => adminApi.adminUpdateUser(userId, role, proValidityDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast.success("User details updated successfully");
+    },
+    onError: (error: any) => {
+      console.error("User details update error:", error);
+      toast.error("Failed to update user details");
+    },
+  });
+
   const deletePost = useMutation({
     mutationFn: (postId: string) => adminApi.deletePost(postId),
     onSuccess: () => {
@@ -158,6 +178,8 @@ export const useAdmin = () => {
       toggleVerificationAsync: toggleVerification.mutateAsync,
       toggleBan: toggleBan.mutate,
       toggleBanAsync: toggleBan.mutateAsync,
+      adminUpdateUser: adminUpdateUser.mutate,
+      adminUpdateUserAsync: adminUpdateUser.mutateAsync,
       deletePost: deletePost.mutate,
       deletePostAsync: deletePost.mutateAsync,
       updateSettings: updateSettings.mutate,

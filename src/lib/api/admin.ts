@@ -46,6 +46,19 @@ export const adminApi = {
     if (error) throw error;
   },
 
+  async adminUpdateUser(
+    userId: string,
+    role: "Elite" | "Hunter" | "Newbie" | null,
+    proValidityDays: number | null,
+  ) {
+    const { error } = await (supabase.rpc as any)("admin_update_user", {
+      p_user_id: userId,
+      p_new_role: role,
+      p_pro_validity_days: proValidityDays,
+    });
+    if (error) throw error;
+  },
+
   // Content Moderation
   async getLatestPosts(limit = 50) {
     const { data, error } = await supabase

@@ -7,6 +7,8 @@ import {
   ShieldX,
   Lock,
   Unlock,
+  Pencil,
+  Star,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Button from "@/components/ui/Button";
@@ -17,6 +19,14 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Label,
+  Switch,
 } from "@/components/ui";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
@@ -33,6 +43,7 @@ const UserManagement: React.FC = () => {
     status: "all",
   });
   const { users, actions } = useAdmin();
+  const [managingUser, setManagingUser] = useState<any | null>(null);
 
   const filteredUsers = (users.data || []).filter((user) => {
     if (!user) return false;
@@ -190,13 +201,30 @@ const UserManagement: React.FC = () => {
 
                   {/* Status Badges */}
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                    {/* Role Badge */}
+                    {/* System Role Badge */}
                     <div className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-1.5 dark:bg-zinc-900">
                       <Lock className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-400" />
                       <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
                         {user.role}
                       </span>
                     </div>
+
+                    {/* User Role Badge */}
+                    <div className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-1.5 dark:bg-zinc-900">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                        {user.roles}
+                      </span>
+                    </div>
+                    
+                    {/* Pro Badge */}
+                    {user.isPro && (
+                      <div className="flex items-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5">
+                        <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                        <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                          PRO
+                        </span>
+                      </div>
+                    )}
 
                     {/* Verification Status */}
                     {user.verified && (
@@ -221,6 +249,16 @@ const UserManagement: React.FC = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 sm:justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setManagingUser(user)}
+                      title="Manage user"
+                      className="h-9 rounded-lg px-3"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  
                     <Select
                       value={user.role}
                       onValueChange={(value) =>
@@ -313,8 +351,116 @@ const UserManagement: React.FC = () => {
           users
         </p>
       </div>
+
+      <ManageUserDialog
+        user={managingUser}
+        isOpen={!!managingUser}
+        onClose={() => setManagingUser(null)}
+        actions={actions}
+      />
     </div>
   );
 };
+
+// New Dialog Component
+const ManageUserDialog = ({ user, isOpen, onClose, actions }: { user: any, isOpen: boolean, onClose: () => void, actions: any }) => {
+  if (!isOpen) return null;
+
+  const [role, setRole] = useState(user.roles || 'Newbie');
+  const [isPro, setIsPro] = useState(user.isPro || false);
+  const [proValidity, setProValidity] = useState<number>(30);
+  const [isProDirty, setIsProDirty] = useState(false);
+  const [isRoleDirty, setIsRoleDirty] = useState(false);
+
+  const handleSave = () => {
+    let proDays: number | null = null;
+    if (isProDirty) {
+      proDays = isPro ? proValidity : 0;
+    }
+
+    if (isRoleDirty || isProDirty) {
+      actions.adminUpdateUser({
+        userId: user.id,
+        role: isRoleDirty ? role : null,
+        proValidityDays: proDays,
+      });
+    }
+    onClose();
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    setRole(newRole);
+    setIsRoleDirty(true);
+  }
+
+  const handleProChange = (checked: boolean) => {
+    setIsPro(checked);
+    setIsProDirty(true);
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] rounded-2xl">
+        <DialogHeader>
+          <DialogTitle>Manage {user.name}</DialogTitle>
+          <DialogDescription>
+            Update user role and pro status. Changes are saved upon clicking 'Save changes'.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-6 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="role" className="text-right">
+              Role
+            </Label>
+            <div className="col-span-3">
+              <Select value={role} onValueChange={handleRoleChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Newbie">Newbie</SelectItem>
+                  <SelectItem value="Hunter">Hunter</SelectItem>
+                  <SelectItem value="Elite">Elite</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="is-pro" className="text-right">
+              Pro Status
+            </Label>
+            <Switch id="is-pro" checked={isPro} onCheckedChange={handleProChange} />
+          </div>
+          {isPro && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="validity" className="text-right">
+                Validity
+              </Label>
+              <div className="col-span-3">
+                 <Select value={String(proValidity)} onValueChange={(v) => { setProValidity(Number(v)); setIsProDirty(true); }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select validity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">7 days</SelectItem>
+                    <SelectItem value="15">15 days</SelectItem>
+                    <SelectItem value="30">30 days</SelectItem>
+                    <SelectItem value="90">90 days</SelectItem>
+                    <SelectItem value="365">365 days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSave}>Save changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 
 export default UserManagement;
