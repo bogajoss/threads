@@ -26,7 +26,7 @@ const PostDetails = () => {
 
   if (isError || !post) {
     return (
-      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none bg-white dark:bg-black md:rounded-xl">
+      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none bg-background md:rounded-xl">
         <NotFound
           title="Post not found"
           message="The post you are looking for doesn't exist. It may have been deleted by the author."

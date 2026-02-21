@@ -93,7 +93,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300 p-8">
+    <div className="mx-auto w-full max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300 p-8 bg-card border border-border rounded-3xl shadow-xl">
       <div className="mb-8 text-center">
         <div className="mb-4 flex justify-center">
           <div className="rounded-2xl bg-black p-3 shadow-lg text-white dark:bg-white dark:text-black">

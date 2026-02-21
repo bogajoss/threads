@@ -9,7 +9,7 @@ const LoginPage: React.FC = () => {
   const { currentUser } = useAuth();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white p-4 dark:bg-black">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <PageTransition>
         <AuthForm
           type="login"

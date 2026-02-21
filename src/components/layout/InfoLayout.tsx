@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 const InfoLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-black selection:bg-violet-500 selection:text-white">
+    <div className="min-h-screen bg-background selection:bg-violet-500 selection:text-white">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">

@@ -18,8 +18,8 @@ const HomeHeader: React.FC<any> = ({
   onAddStory,
   onStoryClick,
 }) => (
-  <div className="bg-white dark:bg-black">
-    <ScrollArea className="w-full border-b border-zinc-100 bg-white dark:bg-black dark:border-zinc-800">
+  <div className="bg-background">
+    <ScrollArea className="w-full border-b border-zinc-100 bg-background dark:border-zinc-800">
       <div className="flex w-max gap-4 px-4 py-4">
         {currentUser && (
           <StoryCircle
@@ -88,7 +88,7 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
 
   if (isPostsLoading || isStoriesLoading) {
     return (
-      <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-white dark:bg-black dark:border-zinc-800 md:rounded-xl md:border">
+      <div className="min-h-screen overflow-hidden rounded-none border-y border-zinc-100 bg-background dark:border-zinc-800 md:rounded-xl md:border">
         <ScrollArea className="w-full whitespace-nowrap border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex w-max gap-3 px-4 py-4">
             <div className="size-16 shrink-0 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-900" />
@@ -105,7 +105,7 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
   }
 
   return (
-    <div className="w-full max-w-full min-h-screen rounded-none border-zinc-100 bg-white shadow-sm dark:bg-black dark:border-zinc-800 md:rounded-xl">
+    <div className="w-full max-w-full min-h-screen rounded-none border-zinc-100 bg-background dark:border-zinc-800 md:rounded-xl">
       <Virtuoso
         useWindowScroll
         data={homePosts}

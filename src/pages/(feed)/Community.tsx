@@ -57,7 +57,7 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
 
   if (!community) {
     return (
-      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none bg-white dark:bg-black md:rounded-xl">
+      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none bg-background md:rounded-xl">
         <NotFound
           title="Community doesn't exist"
           message="Try searching for another. The community could not be found."

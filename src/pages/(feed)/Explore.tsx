@@ -48,7 +48,7 @@ const Explore: React.FC = () => {
     !usersData.length
   ) {
     return (
-      <div className="min-h-screen bg-white dark:bg-black md:rounded-xl">
+      <div className="min-h-screen bg-background md:rounded-xl">
         {activeTab === "posts"
           ? [1, 2, 3].map((i) => <SkeletonPost key={i} />)
           : [1, 2, 3, 4, 5, 6].map((i) => <SkeletonUser key={i} />)}

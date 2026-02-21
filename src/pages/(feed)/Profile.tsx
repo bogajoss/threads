@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
 
   if (!profile) {
     return (
-      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none border-zinc-100 bg-white dark:bg-black md:rounded-xl">
+      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none border-zinc-100 bg-background md:rounded-xl">
         <NotFound
           title="Account doesn't exist"
           message={`Try searching for another. The user @${handle} could not be found.`}
@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
 
   if (profile.isBanned) {
     return (
-      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none border-zinc-100 bg-white dark:bg-black md:rounded-xl">
+      <div className="flex min-h-[600px] items-center justify-center overflow-hidden rounded-none border-zinc-100 bg-background md:rounded-xl">
         <NotFound
           title="This account is banned"
           message={`The user @${handle} has been suspended for violating our community guidelines.`}
