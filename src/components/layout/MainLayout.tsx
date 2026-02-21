@@ -64,7 +64,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
 
       {/* Mobile FAB */}
       <AnimatePresence>
-        {!isNavHidden && (
+        {location.pathname === "/feed" && (
           <motion.button
             initial={{ scale: 0, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
