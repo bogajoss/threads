@@ -129,9 +129,49 @@ const ConversationItem = React.memo(({
   );
 });
 
+const UserSearchResultItem = React.memo(({
+  user,
+  onClick,
+}: {
+  user: User;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className="group relative flex w-full cursor-pointer items-center gap-3 rounded-xl p-3 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+  >
+    <div className="relative shrink-0">
+      <Avatar className="h-12 w-12 border border-zinc-200 dark:border-zinc-800">
+        <AvatarImage src={user.avatar} className="object-cover" />
+        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white text-lg font-bold">
+          {user.name[0]?.toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+    </div>
+    <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+      <div className="flex items-center gap-1 min-w-0">
+        <h4 className="truncate text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
+          {user.name}
+        </h4>
+        {user.role === "admin" && (
+          <AdminIcon size={22} className="shrink-0" />
+        )}
+        {user.verified && (
+          <VerifiedIcon size={14} className="shrink-0" />
+        )}
+      </div>
+      <p className="truncate text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+        @{user.handle}
+      </p>
+    </div>
+  </div>
+));
+
 const ChatList: React.FC<ChatListProps> = ({
   conversations,
+  userResults = [],
   onSelect,
+  onStartNew,
   selectedId,
   searchQuery,
   onSearchChange,
@@ -150,6 +190,8 @@ const ChatList: React.FC<ChatListProps> = ({
 
     return result;
   }, [conversations, filter]);
+
+  const hasSearchResults = searchQuery.length > 1 && userResults.length > 0;
 
   return (
     <div className="flex h-full w-full flex-col bg-white dark:bg-[#09090b] overflow-hidden">
@@ -196,7 +238,7 @@ const ChatList: React.FC<ChatListProps> = ({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-violet-500" />
           <input
             type="text"
-            placeholder="Search messages..."
+            placeholder="Search or start new chat..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full rounded-2xl border-none bg-zinc-100 py-2.5 pl-9 pr-4 text-sm font-medium text-zinc-900 outline-none placeholder:text-zinc-500 transition-all focus:ring-2 focus:ring-violet-500/20 dark:bg-zinc-900 dark:text-white dark:focus:bg-zinc-800"
@@ -207,41 +249,56 @@ const ChatList: React.FC<ChatListProps> = ({
       {/* List */}
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-1 p-2">
-           {conversations.length === 0 && !searchQuery && (
-              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <div className="rounded-full bg-zinc-100 p-4 dark:bg-zinc-800">
-                  <MessageSquarePlus size={24} className="text-zinc-400" />
+           {hasSearchResults ? (
+             <>
+                <p className="p-2 text-xs font-semibold text-zinc-400">New Message</p>
+                {userResults.map((user) => (
+                  <UserSearchResultItem
+                    key={user.id}
+                    user={user}
+                    onClick={() => onStartNew(user)}
+                  />
+                ))}
+             </>
+           ) : (
+            <>
+              {conversations.length === 0 && !searchQuery && (
+                  <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                    <div className="rounded-full bg-zinc-100 p-4 dark:bg-zinc-800">
+                      <MessageSquarePlus size={24} className="text-zinc-400" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">No messages yet</h3>
+                    <p className="max-w-[180px] text-xs text-zinc-500">
+                      Start a conversation with a friend or create a group.
+                    </p>
+                    <Button 
+                      size="sm" 
+                      className="mt-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white"
+                      onClick={() => navigate("/explore")} 
+                    >
+                      Start New Chat
+                    </Button>
+                  </div>
+              )}
+
+              {conversations.length > 0 && filteredConversations.length === 0 && (
+                <div className="py-8 text-center text-sm text-zinc-500">
+                  No messages found for your search.
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">No messages yet</h3>
-                <p className="max-w-[180px] text-xs text-zinc-500">
-                   Start a conversation with a friend or create a group.
-                </p>
-                <Button 
-                  size="sm" 
-                  className="mt-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white"
-                  onClick={() => navigate("/explore")} 
-                >
-                  Start New Chat
-                </Button>
-              </div>
-           )}
+              )}
 
-           {conversations.length > 0 && filteredConversations.length === 0 && (
-             <div className="py-8 text-center text-sm text-zinc-500">
-               No messages found
-             </div>
+              {filteredConversations.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  conv={conv}
+                  isSelected={selectedId === conv.id}
+                  isOnline={!conv.isGroup && conv.user && onlineUsers.has(conv.user.id)}
+                  isTyping={!!typingStatus[conv.id]}
+                  onClick={() => onSelect(conv)}
+                />
+              ))}
+            </>
            )}
-
-           {filteredConversations.map((conv) => (
-             <ConversationItem
-               key={conv.id}
-               conv={conv}
-               isSelected={selectedId === conv.id}
-               isOnline={!conv.isGroup && conv.user && onlineUsers.has(conv.user.id)}
-               isTyping={!!typingStatus[conv.id]}
-               onClick={() => onSelect(conv)}
-             />
-           ))}
         </div>
       </ScrollArea>
     </div>
