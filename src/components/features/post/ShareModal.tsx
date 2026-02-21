@@ -26,6 +26,7 @@ interface ShareModalProps {
   onClose: () => void;
   url: string;
   title?: string;
+  overlayClassName?: string;
 }
 
 const ShareModal: React.FC<ShareModalProps> = ({
@@ -33,6 +34,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   onClose,
   url,
   title = "Share",
+  overlayClassName,
 }) => {
   const [copied, setCopied] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -191,6 +193,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
       onClose={onClose}
       title={title}
       className="max-w-[420px] !p-0 overflow-hidden"
+      overlayClassName={overlayClassName}
     >
       <div className="flex h-full flex-col bg-white dark:bg-zinc-900">
         <div className="px-5 pb-2 pt-4">

@@ -915,6 +915,7 @@ const Post: React.FC<PostProps> = ({
             onClose={() => setIsShareModalOpen(false)}
             url={`${window.location.origin}/p/${id}`}
             title="Share Post"
+            overlayClassName="z-[9999]"
           />
 
           <AlertDialog

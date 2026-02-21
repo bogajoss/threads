@@ -508,6 +508,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           onClose={() => setIsShareOpen(false)}
           url={`${window.location.origin}/r/${reel.id}`}
           title="Share Reel"
+          overlayClassName="z-[9999]"
         />
       </div>
     );

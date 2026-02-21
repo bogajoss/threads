@@ -18,6 +18,7 @@ interface ModalProps {
   footer?: React.ReactNode;
   description?: string;
   className?: string;
+  overlayClassName?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -28,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({
   footer,
   description,
   className,
+  overlayClassName,
 }) => {
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -40,6 +42,7 @@ const Modal: React.FC<ModalProps> = ({
       <DialogContent
         onDragClose={onClose}
         aria-describedby={undefined}
+        overlayClassName={overlayClassName}
         className={cn(
           "flex max-h-[92dvh] flex-col gap-0 overflow-hidden bg-white p-0 sm:max-w-md dark:bg-zinc-900",
           className,
