@@ -22,6 +22,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
+
+    // Auto-reload on chunk load failure (deployment version mismatch)
+    const chunkFailedMessage = /Failed to fetch dynamically imported module|Loading chunk .* failed/;
+    if (error?.message && chunkFailedMessage.test(error.message)) {
+      console.log("Chunk load failure detected, reloading...");
+      window.location.reload();
+    }
   }
 
   public render() {
