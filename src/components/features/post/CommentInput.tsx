@@ -46,7 +46,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
   // Create stable preview URLs from files, revoke them when files change or component unmounts
   const previewUrls = useMemo(
     () => selectedFiles.map((file) => URL.createObjectURL(file)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [selectedFiles],
   );
 
