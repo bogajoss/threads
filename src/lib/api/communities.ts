@@ -8,7 +8,10 @@ export const fetchCommunities = async (
   limit: number = 10,
 ): Promise<Community[]> => {
   let query = (supabase.from("communities") as any)
-    .select("*")
+    .select(`
+      *,
+      members_count:community_members(count)
+    `)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -18,7 +21,14 @@ export const fetchCommunities = async (
 
   const { data, error } = await query;
   if (error) throw error;
-  return (data || [])
+  
+  // Transform the nested count into a flat property
+  const communities = (data || []).map((c: any) => ({
+    ...c,
+    members_count: c.members_count?.[0]?.count || 0
+  }));
+  
+  return communities
     .map(transformCommunity)
     .filter((c: Community | null): c is Community => c !== null);
 };
