@@ -368,31 +368,47 @@ const UserManagement: React.FC = () => {
 
 // New Dialog Component
 const ManageUserDialog = ({ user, onClose, actions }: { user: any, onClose: () => void, actions: any }) => {
-  const [role, setRole] = useState(user.roles || 'Newbie');
+  const [userRole, setUserRole] = useState(user.roles || 'Newbie');
+  const [systemRole, setSystemRole] = useState(user.role || 'user');
   const [isPro, setIsPro] = useState(user.isPro || false);
   const [proValidity, setProValidity] = useState<number>(30);
   const [isProDirty, setIsProDirty] = useState(false);
-  const [isRoleDirty, setIsRoleDirty] = useState(false);
+  const [isUserRoleDirty, setIsUserRoleDirty] = useState(false);
+  const [isSystemRoleDirty, setIsSystemRoleDirty] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let proDays: number | null = null;
     if (isProDirty) {
       proDays = isPro ? proValidity : 0;
     }
 
-    if (isRoleDirty || isProDirty) {
+    // Update system role (admin/moderator/user) first
+    if (isSystemRoleDirty) {
+      await actions.updateRoleAsync({
+        userId: user.id,
+        role: systemRole as "user" | "moderator" | "admin",
+      });
+    }
+
+    // Update user role (Elite/Hunter/Newbie) and pro status
+    if (isUserRoleDirty || isProDirty) {
       actions.adminUpdateUser({
         userId: user.id,
-        role: isRoleDirty ? role : null,
+        role: isUserRoleDirty ? userRole : null,
         proValidityDays: proDays,
       });
     }
     onClose();
   };
 
-  const handleRoleChange = (newRole: string) => {
-    setRole(newRole);
-    setIsRoleDirty(true);
+  const handleUserRoleChange = (newRole: string) => {
+    setUserRole(newRole);
+    setIsUserRoleDirty(true);
+  }
+
+  const handleSystemRoleChange = (newRole: string) => {
+    setSystemRole(newRole);
+    setIsSystemRoleDirty(true);
   }
 
   const handleProChange = (checked: boolean) => {
@@ -410,12 +426,32 @@ const ManageUserDialog = ({ user, onClose, actions }: { user: any, onClose: () =
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
+          {/* System Role (Admin/Moderator/User) */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="role" className="text-right">
-              Role
+            <Label htmlFor="system-role" className="text-right">
+              System Role
             </Label>
             <div className="col-span-3">
-              <Select value={role} onValueChange={handleRoleChange}>
+              <Select value={systemRole} onValueChange={handleSystemRoleChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="moderator">Moderator</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* User Role (Elite/Hunter/Newbie) */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="user-role" className="text-right">
+              User Role
+            </Label>
+            <div className="col-span-3">
+              <Select value={userRole} onValueChange={handleUserRoleChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -427,6 +463,7 @@ const ManageUserDialog = ({ user, onClose, actions }: { user: any, onClose: () =
               </Select>
             </div>
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="is-pro" className="text-right">
               Pro Status
