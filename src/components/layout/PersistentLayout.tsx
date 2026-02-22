@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useRef, useEffect, useLayoutEffect, useState } from "react";
+import React, { lazy, useRef, useEffect, useLayoutEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import PageTransition from "./PageTransition";
 
@@ -22,12 +22,24 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
   const prevPathRef = useRef(path);
   const currentScrollY = useRef(0);
 
+  // Page state - track which pages have been visited to keep them alive
+  const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set());
+
   // Active state logic
   const isFeedActive = path === "/feed" || path === "/";
   const isExploreActive = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/"));
   const isReelsActive = path === "/r" || path === "/r/";
   const isMessagesActive = path === "/m" || path === "/m/";
   const isNotificationsActive = path === "/notifications";
+
+  // Track which pages have been visited to preserve them
+  useEffect(() => {
+    if (isFeedActive) setVisitedPages(prev => new Set(prev).add("feed"));
+    else if (isExploreActive) setVisitedPages(prev => new Set(prev).add("explore"));
+    else if (isReelsActive) setVisitedPages(prev => new Set(prev).add("reels"));
+    else if (isMessagesActive) setVisitedPages(prev => new Set(prev).add("messages"));
+    else if (isNotificationsActive) setVisitedPages(prev => new Set(prev).add("notifications"));
+  }, [isFeedActive, isExploreActive, isReelsActive, isMessagesActive, isNotificationsActive]);
 
   // Continuous scroll tracker
   useEffect(() => {
@@ -60,7 +72,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
       prevPathRef.current = path;
 
-      // Restore scroll for the NEW path immediately
+      // Restore scroll for the NEW path with a small delay to ensure DOM is ready
       const getPos = (key: string) => scrollPositions.current[key] || 0;
       let newPos = 0;
 
@@ -77,8 +89,11 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       else if (newIsMessages) newPos = getPos("messages");
       else if (newIsNotifications) newPos = getPos("notifications");
 
-      window.scrollTo(0, newPos);
-      currentScrollY.current = newPos;
+      // Use requestAnimationFrame to ensure scroll happens after render
+      requestAnimationFrame(() => {
+        window.scrollTo(0, newPos);
+        currentScrollY.current = newPos;
+      });
     }
   }, [path]);
 
@@ -86,70 +101,50 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
   return (
     <div className="relative w-full">
       {/* FEED */}
-      <div className={isFeedActive ? "block min-h-[100dvh]" : "hidden"}>
-        <KeepAlive isActive={isFeedActive}>
+      {visitedPages.has("feed") && (
+        <div className={isFeedActive ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Feed onStoryClick={onStoryClick} />
           </PageTransition>
-        </KeepAlive>
-      </div>
+        </div>
+      )}
 
       {/* EXPLORE */}
-      <div className={isExploreActive ? "block min-h-[100dvh]" : "hidden"}>
-        <KeepAlive isActive={isExploreActive}>
+      {visitedPages.has("explore") && (
+        <div className={isExploreActive ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Explore />
           </PageTransition>
-        </KeepAlive>
-      </div>
+        </div>
+      )}
 
       {/* REELS */}
-      <div className={isReelsActive ? "block min-h-[100dvh]" : "hidden bg-black"}>
-        <KeepAlive isActive={isReelsActive}>
+      {visitedPages.has("reels") && (
+        <div className={isReelsActive ? "block min-h-[100dvh]" : "hidden bg-black"}>
           <PageTransition mode="none">
             <Reels />
           </PageTransition>
-        </KeepAlive>
-      </div>
+        </div>
+      )}
 
       {/* MESSAGES */}
-      <div className={isMessagesActive ? "block min-h-[100dvh]" : "hidden"}>
-        <KeepAlive isActive={isMessagesActive}>
+      {visitedPages.has("messages") && (
+        <div className={isMessagesActive ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Messages />
           </PageTransition>
-        </KeepAlive>
-      </div>
+        </div>
+      )}
 
       {/* NOTIFICATIONS */}
-      <div className={isNotificationsActive ? "block min-h-[100dvh]" : "hidden"}>
-        <KeepAlive isActive={isNotificationsActive}>
+      {visitedPages.has("notifications") && (
+        <div className={isNotificationsActive ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Notifications />
           </PageTransition>
-        </KeepAlive>
-      </div>
+        </div>
+      )}
     </div>
-  );
-};
-
-function KeepAlive({ isActive, children }: { isActive: boolean; children: React.ReactNode }) {
-  const [shouldRender, setShouldRender] = useState(isActive);
-
-  // If component becomes active but state is false, update it during render
-  // This is safe because it only happens when props change (isActive becomes true)
-  // and terminates immediately.
-  if (isActive && !shouldRender) {
-    setShouldRender(true);
-  }
-
-  // If it's not active and never was active (shouldRender is false), return null.
-  if (!shouldRender) return null;
-
-  return (
-    <Suspense fallback={<div className="h-screen w-full bg-black" />}>
-      {children}
-    </Suspense>
   );
 }
 

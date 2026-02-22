@@ -159,6 +159,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setAttachments((prev) => [...prev, ...files]);
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const files = e.clipboardData.files;
+    if (files && files.length > 0) {
+      const imageVideoFiles = Array.from(files).filter((file) =>
+        file.type.startsWith("image/") || file.type.startsWith("video/"),
+      );
+      if (imageVideoFiles.length > 0) {
+        e.preventDefault();
+        setAttachments((prev) => [...prev, ...imageVideoFiles]);
+      }
+    }
+  };
+
   return (
     <div className="shrink-0 p-2 md:p-3 relative z-50 bg-white dark:bg-[#09090b]">
       <AnimatePresence>
@@ -331,6 +344,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ref={textAreaRef}
                 value={text}
                 onChange={handleTextChange}
+                onPaste={handlePaste}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();

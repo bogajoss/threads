@@ -173,6 +173,41 @@ const CreatePost: React.FC = () => {
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const files = e.clipboardData.files;
+    if (files && files.length > 0) {
+      const imageFiles = Array.from(files).filter((file) =>
+        file.type.startsWith("image/") || file.type.startsWith("video/"),
+      );
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        const newFiles: SelectedFile[] = imageFiles.map((file) => ({
+          id: Math.random().toString(36).substring(2, 11),
+          file,
+        }));
+
+        setSelectedFiles((prev) => [...prev, ...newFiles]);
+
+        for (const fileObj of newFiles) {
+          if (fileObj.file.type.startsWith("video/")) {
+            try {
+              const thumb = await generateVideoThumbnail(fileObj.file);
+              if (thumb) {
+                setGeneratedThumbnails((prev) => ({
+                  ...prev,
+                  [fileObj.id]: thumb,
+                }));
+              }
+            } catch (err) {
+              console.error("Thumbnail generation failed", err);
+            }
+          }
+        }
+        addToast(`Added ${newFiles.length} image(s) from clipboard!`, "success");
+      }
+    }
+  };
+
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !activeCoverFileId) return;
     const file = e.target.files[0];
@@ -421,6 +456,7 @@ const CreatePost: React.FC = () => {
                 placeholder={isStory ? "Add a caption... (optional)" : "What's new?"}
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
+                onPaste={handlePaste}
                 className={cn(
                   "w-full bg-transparent text-[--foreground] placeholder-neutral-500 outline-none resize-none text-[16px] leading-relaxed min-h-[44px] mb-1 transition-colors",
                   charsLeft < 0 && "text-rose-500",

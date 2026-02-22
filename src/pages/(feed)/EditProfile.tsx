@@ -17,6 +17,7 @@ import { useToast } from "@/context/ToastContext";
 import { uploadFile } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PageTransition } from "@/components/layout";
+import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
 
 const EditProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const EditProfile: React.FC = () => {
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const bioTextareaRef = useAutoResizeTextArea(editProfileData?.bio || "", 80, 300);
 
   useEffect(() => {
     if (currentUser) {
@@ -83,12 +85,15 @@ const EditProfile: React.FC = () => {
           const url = new URL(
             /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
           );
-          return url.hostname.replace(/^www\./i, "");
+          // Keep the full path, just remove www. from hostname
+          const hostname = url.hostname.replace(/^www\./i, "");
+          const pathname = url.pathname === "/" ? "" : url.pathname;
+          return hostname + pathname;
         } catch {
+          // Fallback: only remove protocol and www, keep the rest
           return trimmed
             .replace(/^https?:\/\//i, "")
-            .replace(/^www\./i, "")
-            .replace(/\/.*$/, "");
+            .replace(/^www\./i, "");
         }
       };
 
@@ -272,14 +277,13 @@ const EditProfile: React.FC = () => {
                     isWarning={bioWarn}
                   />
                 </div>
-                <Input
-                  textarea={true}
+                <textarea
+                  ref={bioTextareaRef}
                   value={editProfileData?.bio || ""}
-                  className="min-h-[80px] bg-transparent p-0 text-base font-medium resize-none placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none"
+                  className="min-h-[80px] max-h-[400px] w-full bg-transparent p-0 text-base font-medium resize-none placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none outline-none"
+                  placeholder="Tell others about yourself..."
                   onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
+                    e: React.ChangeEvent<HTMLTextAreaElement>,
                   ) => {
                     const raw = e.target.value;
                     const words = raw.trim().split(/\s+/).filter(Boolean);
