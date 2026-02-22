@@ -91,7 +91,7 @@ export default function Mysys() {
                 path="/r/:id"
                 element={
                   <PageTransition>
-                    <Reels />
+                    <Reels key="reels-page" />
                   </PageTransition>
                 }
               />

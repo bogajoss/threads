@@ -98,19 +98,27 @@ export const useReels = () => {
     };
 
     const callback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute("data-id");
-          if (id) setActiveReelId(id);
-        }
-      });
+      // Find the entry with the highest intersection ratio
+      const visibleEntry = entries.reduce((max, entry) => {
+        return entry.intersectionRatio > max.intersectionRatio ? entry : max;
+      }, entries[0]);
+
+      // Only set the most visible reel as active
+      if (visibleEntry?.isIntersecting) {
+        const id = visibleEntry.target.getAttribute("data-id");
+        if (id) setActiveReelId(id);
+      }
     };
 
     const observer = new IntersectionObserver(callback, options);
 
     reelRefs.current.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      // Clear active reel when observer is disconnected (page unmount)
+      setActiveReelId(null);
+    };
   }, [reels.length]);
 
   useEffect(() => {

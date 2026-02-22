@@ -52,7 +52,7 @@ export const VideoPlaybackProvider: React.FC<VideoPlaybackProviderProps> = ({
       }
 
       let bestCandidateId: string | null = null;
-      let maxRatio = 0.5;
+      let maxRatio = 0.3; // Lowered threshold for better feed experience
 
       for (const [key, value] of registryResults.current.entries()) {
         if (value.ratio > maxRatio) {

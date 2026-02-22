@@ -36,7 +36,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
         const ratio = dataSaver ? 0 : entry.intersectionRatio;
         reportVisibility(id, ratio, controls);
       },
-      { threshold: [0, 0.6] },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }, // More granular thresholds
     );
 
     const currentElement = playerRef.current?.elements?.container;

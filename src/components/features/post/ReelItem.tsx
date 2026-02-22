@@ -29,6 +29,14 @@ interface ReelItemProps {
 
 import { motion, AnimatePresence } from "motion/react";
 
+// Global lock to ensure only one reel plays at a time
+let currentlyPlayingPlayer: any = null;
+
+// Export function to reset global lock (used when leaving Reels page)
+export const resetCurrentlyPlayingPlayer = () => {
+  currentlyPlayingPlayer = null;
+};
+
 const ReelItem: React.FC<ReelItemProps> = React.memo(
   ({ reel, isActive, volume, shouldLoad = true }) => {
     const { currentUser } = useAuth();
@@ -108,23 +116,43 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       if (!player || !isVideoLoaded) return;
 
       if (isActive) {
+        // Small delay to ensure smooth transition
         playTimeoutRef.current = setTimeout(() => {
           playTimeoutRef.current = null;
           const p = playerRef.current?.plyr;
           if (p && typeof p.play === "function") {
+            // Pause any currently playing video first (global lock)
+            if (currentlyPlayingPlayer && currentlyPlayingPlayer !== p) {
+              currentlyPlayingPlayer.pause();
+              if (typeof currentlyPlayingPlayer.currentTime !== "undefined") {
+                currentlyPlayingPlayer.currentTime = 0;
+              }
+            }
+            
             p.play().catch(() => {
               const p2 = playerRef.current?.plyr;
               if (p2) {
                 p2.muted = true;
                 p2.play().catch(() => { });
               }
+            }).then(() => {
+              // Update global lock
+              currentlyPlayingPlayer = p;
             });
           }
-        }, 100);
+        }, 50); // Reduced timeout for faster response
       } else {
-        // Pause immediately when not active
+        // Pause immediately when not active - ensure video is fully stopped
         if (typeof player.pause === "function") {
           player.pause();
+          // Reset to beginning to prevent audio from continuing
+          if (typeof player.currentTime !== "undefined") {
+            player.currentTime = 0;
+          }
+          // Clear global lock if this was the playing video
+          if (currentlyPlayingPlayer === player) {
+            currentlyPlayingPlayer = null;
+          }
         }
       }
 
@@ -138,6 +166,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         const p = playerRef.current?.plyr;
         if (p && typeof p.pause === "function") {
           p.pause();
+          if (typeof p.currentTime !== "undefined") {
+            p.currentTime = 0;
+          }
+          // Clear global lock if this was the playing video
+          if (currentlyPlayingPlayer === p) {
+            currentlyPlayingPlayer = null;
+          }
         }
       };
     }, [isActive, isVideoLoaded]);
@@ -147,11 +182,22 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       return () => {
         if (playTimeoutRef.current) {
           clearTimeout(playTimeoutRef.current);
+          playTimeoutRef.current = null;
         }
         const p = playerRef.current?.plyr;
-        if (p && typeof p.pause === "function") {
+        if (p) {
           p.pause();
+          // Reset video to beginning to ensure clean state
+          p.currentTime = 0;
+          // Clear global lock if this was the playing video
+          if (currentlyPlayingPlayer === p) {
+            currentlyPlayingPlayer = null;
+          }
         }
+        // Reset all local states
+        setIsVideoLoaded(false);
+        setHasPlayedOnce(false);
+        setProgress(0);
       };
     }, []);
 
@@ -325,8 +371,9 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           loop: { active: true },
           clickToPlay: false,
           ratio: "9:16",
-          autoplay: true,
+          autoplay: false, // Disabled - we control playback manually
           playsinline: true,
+          muted: true, // Start muted to allow autoplay
         },
       }),
       [videoUrl],
@@ -552,7 +599,8 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     return (
       prevProps.isActive === nextProps.isActive &&
       prevProps.reel.id === nextProps.reel.id &&
-      prevProps.volume === nextProps.volume
+      prevProps.volume === nextProps.volume &&
+      prevProps.shouldLoad === nextProps.shouldLoad
     );
   },
 );
