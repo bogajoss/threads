@@ -1,5 +1,5 @@
 -- ============================================================
--- Admin role setter function (SAFE VERSION with set_config)
+-- Working admin role setter - uses direct users.role update
 -- ============================================================
 
 DROP FUNCTION IF EXISTS public.admin_set_user_role(UUID, TEXT);
@@ -16,10 +16,7 @@ AS $func$
 DECLARE
   v_caller_is_admin BOOLEAN;
 BEGIN
-  -- enable secure bypass
-  PERFORM set_config('app.settings.is_secure', 'true', true);
-
-  -- verify caller is admin
+  -- Verify caller is admin
   SELECT EXISTS (
     SELECT 1
     FROM public.admins
@@ -32,15 +29,18 @@ BEGIN
     RAISE EXCEPTION 'Insufficient permissions: Only administrators can change user roles.';
   END IF;
 
-  -- validate role
+  -- Validate role
   IF p_new_role NOT IN ('user','moderator','admin') THEN
     RAISE EXCEPTION 'Invalid role. Must be: user, moderator, or admin.';
   END IF;
 
-  -- apply role change
+  -- Apply role change - update admins table AND users.role directly
   IF p_new_role = 'user' THEN
     DELETE FROM public.admins
     WHERE user_id = p_user_id;
+    
+    -- Also update users.role directly
+    UPDATE public.users SET role = 'user' WHERE id = p_user_id;
   ELSE
     IF EXISTS (
       SELECT 1 FROM public.admins WHERE user_id = p_user_id
@@ -52,6 +52,9 @@ BEGIN
       INSERT INTO public.admins (user_id, role)
       VALUES (p_user_id, p_new_role);
     END IF;
+    
+    -- Also update users.role directly
+    UPDATE public.users SET role = p_new_role WHERE id = p_user_id;
   END IF;
 END;
 $func$;

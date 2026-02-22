@@ -7,8 +7,9 @@ CREATE OR REPLACE FUNCTION public.protect_role_column()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
-AS $$
+AS $func$
 BEGIN
+  -- Check for secure context set by admin_set_user_role
   IF current_setting('app.settings.is_secure', TRUE) = 'true' THEN
     RETURN NEW;
   END IF;
@@ -26,4 +27,4 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$func$;

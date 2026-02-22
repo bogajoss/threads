@@ -382,23 +382,28 @@ const ManageUserDialog = ({ user, onClose, actions }: { user: any, onClose: () =
       proDays = isPro ? proValidity : 0;
     }
 
-    // Update system role (admin/moderator/user) first
-    if (isSystemRoleDirty) {
-      await actions.updateRoleAsync({
-        userId: user.id,
-        role: systemRole as "user" | "moderator" | "admin",
-      });
-    }
+    try {
+      // Update system role (admin/moderator/user) first
+      if (isSystemRoleDirty) {
+        await actions.updateRoleAsync({
+          userId: user.id,
+          role: systemRole as "user" | "moderator" | "admin",
+        });
+      }
 
-    // Update user role (Elite/Hunter/Newbie) and pro status
-    if (isUserRoleDirty || isProDirty) {
-      actions.adminUpdateUser({
-        userId: user.id,
-        role: isUserRoleDirty ? userRole : null,
-        proValidityDays: proDays,
-      });
+      // Update user role (Elite/Hunter/Newbie) and pro status
+      if (isUserRoleDirty || isProDirty) {
+        await actions.adminUpdateUserAsync({
+          userId: user.id,
+          role: isUserRoleDirty ? userRole : null,
+          proValidityDays: proDays,
+        });
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('Failed to update user:', error);
     }
-    onClose();
   };
 
   const handleUserRoleChange = (newRole: string) => {
