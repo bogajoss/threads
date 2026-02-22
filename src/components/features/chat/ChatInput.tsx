@@ -10,7 +10,7 @@ import {
   X,
   Trash2,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Popover,
   PopoverContent,
@@ -123,7 +123,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onSendMessage(text, attachments);
     setText("");
     setAttachments([]);
-    
+
     // Maintain focus for continuous chatting
     setTimeout(() => {
       textAreaRef.current?.focus();

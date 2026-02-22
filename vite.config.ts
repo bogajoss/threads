@@ -57,7 +57,7 @@ export default defineConfig({
               return "query";
             }
             if (
-              /node_modules\/(framer-motion|motion-dom|motion-utils)/.test(id)
+              /node_modules\/(motion|motion-dom|motion-utils)/.test(id)
             ) {
               return "animations";
             }
@@ -91,7 +91,7 @@ export default defineConfig({
       "@supabase/supabase-js",
       "@tanstack/react-query",
       "lucide-react",
-      "framer-motion",
+      "motion",
       "plyr",
       "wavesurfer.js",
       "@dnd-kit/core",

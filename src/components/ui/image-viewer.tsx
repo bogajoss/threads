@@ -15,7 +15,7 @@ interface ImageViewerProps {
   onNavigate: (index: number) => void;
 }
 
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 
 const ImageViewer: React.FC<ImageViewerProps> = ({
   media,
@@ -217,8 +217,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
                     onNavigate(idx);
                   }}
                   className={`size-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all active:scale-90 ${idx === currentIndex
-                      ? "scale-110 border-white shadow-lg shadow-white/20"
-                      : "border-transparent opacity-40 hover:opacity-100"
+                    ? "scale-110 border-white shadow-lg shadow-white/20"
+                    : "border-transparent opacity-40 hover:opacity-100"
                     }`}
                 >
                   <img src={thumb} className="size-full object-cover" alt="" />

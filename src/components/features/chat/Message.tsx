@@ -4,7 +4,7 @@ import { Check, CheckCheck, Reply, FileText, Download, Plus, Edit2, Trash2 } fro
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from "@/components/ui/context-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import EmojiPicker from "@/components/ui/emoji-picker";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "motion/react";
 import VideoPlayer from "@/components/features/post/VideoPlayer";
 import VoiceMessage from "./VoiceMessage";
 import RichText from "@/components/ui/rich-text";

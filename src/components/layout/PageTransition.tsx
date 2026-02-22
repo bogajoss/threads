@@ -1,5 +1,5 @@
 import React from "react";
-import { motion, useIsPresent } from "framer-motion";
+import { motion, useIsPresent } from "motion/react";
 import { useMediaQuery } from "@/hooks";
 import { motionTokens } from "@/config/motion";
 

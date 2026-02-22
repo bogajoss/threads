@@ -6,7 +6,7 @@ import {
   useAnimation,
   useMotionValue,
   useTransform,
-} from "framer-motion";
+} from "motion/react";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -28,10 +28,10 @@ const DialogOverlay = React.forwardRef<
   }
 >(({ overlayClassName, ...props }, ref) => {
   const isDesktop = useMediaQuery("(min-width: 640px)");
-  const overlayStyle = overlayClassName?.includes('z-[9999]') 
-    ? { zIndex: 9999 } 
+  const overlayStyle = overlayClassName?.includes('z-[9999]')
+    ? { zIndex: 9999 }
     : undefined;
-    
+
   return (
     <DialogPrimitive.Overlay
       ref={ref}

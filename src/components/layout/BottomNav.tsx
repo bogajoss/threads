@@ -14,7 +14,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useConversations";
 import { cn } from "@/lib/utils";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const BottomNav: React.FC = () => {
   const { currentUser } = useAuth();

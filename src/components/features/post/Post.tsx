@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Trash,
   Repeat2,
@@ -154,79 +154,79 @@ const PostActionsMenu = ({
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <div className="cursor-pointer outline-none">{trigger}</div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
+          <DropdownMenuContent
+            align="end"
             className="w-56"
             onClick={(e) => e.stopPropagation()}
           >
             {!isComment && (
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard(`${getBaseUrl()}/p/${id}`)
+                    .then(() => {
+                      addToast("Link copied");
+                      setIsOpen(false);
+                    })
+                    .catch(() => {
+                      addToast("Failed to copy link", "error");
+                    });
+                }}
+              >
+                <Share className="mr-2 h-4 w-4" />
+                <span>Copy link</span>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                copyToClipboard(`${getBaseUrl()}/p/${id}`)
-                  .then(() => {
-                    addToast("Link copied");
-                    setIsOpen(false);
-                  })
-                  .catch(() => {
-                    addToast("Failed to copy link", "error");
-                  });
-              }}
-            >
-              <Share className="mr-2 h-4 w-4" />
-              <span>Copy link</span>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={(e) => {
-              e.stopPropagation();
-              openReport("post", id);
-              setIsOpen(false);
-            }}
-          >
-            <Flag className="mr-2 h-4 w-4" />
-            <span>Report {isComment ? "comment" : "post"}</span>
-          </DropdownMenuItem>
-          {!isCurrentUser && (
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                openReport("user", user.id);
+                openReport("post", id);
                 setIsOpen(false);
               }}
             >
-              <UserMinus className="mr-2 h-4 w-4" />
-              <span>Report @{user.handle}</span>
+              <Flag className="mr-2 h-4 w-4" />
+              <span>Report {isComment ? "comment" : "post"}</span>
             </DropdownMenuItem>
-          )}
-          {isCurrentUser && (
-            <>
-              <DropdownMenuSeparator />
+            {!isCurrentUser && (
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEdit();
+                  openReport("user", user.id);
                   setIsOpen(false);
                 }}
               >
-                <Pencil className="mr-2 h-4 w-4" />
-                <span>Edit {isComment ? "Comment" : "Post"}</span>
+                <UserMinus className="mr-2 h-4 w-4" />
+                <span>Report @{user.handle}</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-red-500 focus:text-red-500"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                  setIsOpen(false);
-                }}
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                <span>Delete {isComment ? "comment" : "post"}</span>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            )}
+            {isCurrentUser && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                    setIsOpen(false);
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Edit {isComment ? "Comment" : "Post"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-500 focus:text-red-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                    setIsOpen(false);
+                  }}
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  <span>Delete {isComment ? "comment" : "post"}</span>
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
@@ -723,11 +723,10 @@ const Post: React.FC<PostProps> = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
       ref={viewRef}
       onClick={onClick}
-      className={`px-5 transition-all ${
-        isComment
+      className={`px-5 transition-all ${isComment
           ? "py-3 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
           : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
-      } ${onClick ? "cursor-pointer" : ""}`}
+        } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (
         <div className="mb-2.5 ml-1 flex items-center space-x-1.5 text-[13px] font-semibold text-zinc-600">
@@ -768,19 +767,19 @@ const Post: React.FC<PostProps> = ({
           </div>
           {((!isComment && localStats.comments > 0) ||
             (isComment && !parent_id && localStats.comments > 0)) && (
-            <>
-              <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
-              {!isComment && (
-                <ReplyAvatars
-                  avatars={
-                    commenterAvatars.length > 0
-                      ? commenterAvatars
-                      : (comments || []).slice(0, 3).map((c) => c.user.avatar)
-                  }
-                />
-              )}
-            </>
-          )}
+              <>
+                <div className="mt-2 w-0.5 flex-1 rounded-full bg-zinc-100 dark:bg-zinc-800" />
+                {!isComment && (
+                  <ReplyAvatars
+                    avatars={
+                      commenterAvatars.length > 0
+                        ? commenterAvatars
+                        : (comments || []).slice(0, 3).map((c) => c.user.avatar)
+                    }
+                  />
+                )}
+              </>
+            )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <PostHeader

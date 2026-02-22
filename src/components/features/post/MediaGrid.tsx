@@ -10,7 +10,7 @@ interface MediaGridProps {
   items?: Media[] | Media;
 }
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 const GridImage = ({
   item,
@@ -22,10 +22,10 @@ const GridImage = ({
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <motion.div 
+    <motion.div
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="relative size-full overflow-hidden" 
+      className="relative size-full overflow-hidden"
       onClick={onClick}
     >
       {!loaded && (
@@ -74,8 +74,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
     <div className="mt-2 space-y-2">
       {media.length > 0 && (
         <div
-          className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 dark:border-zinc-800 ${
-            media.length === 1
+          className={`grid gap-2 overflow-hidden rounded-2xl border border-zinc-100 dark:border-zinc-800 ${media.length === 1
               ? "grid-cols-1"
               : media.length === 2
                 ? hasVideo
@@ -84,14 +83,13 @@ const MediaGrid: React.FC<MediaGridProps> = ({ items = [] }) => {
                 : media.length === 3
                   ? "aspect-[16/9] grid-cols-2 grid-rows-2"
                   : "aspect-[16/9] grid-cols-2 grid-rows-2"
-          }`}
+            }`}
         >
           {media.map((item, idx) => (
             <div
               key={idx}
-              className={`relative cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${
-                media.length === 3 && idx === 0 ? "row-span-2" : ""
-              }`}
+              className={`relative cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900 ${media.length === 3 && idx === 0 ? "row-span-2" : ""
+                }`}
             >
               {item.type === "video" ? (
                 <Suspense

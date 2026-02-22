@@ -1,6 +1,6 @@
 import React from "react";
 import type { LucideIcon, LucideProps } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface ActionButtonProps {

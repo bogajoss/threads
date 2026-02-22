@@ -29,7 +29,7 @@ interface ReelItemProps {
   shouldLoad?: boolean;
 }
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
   ({ reel, isActive, isMuted, shouldLoad = true }) => {

@@ -24,7 +24,7 @@ interface StoryViewerProps {
   onClose: (storyId?: string) => void;
 }
 
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 
 const StoryViewer: React.FC<StoryViewerProps> = ({
   story: storyGroup,

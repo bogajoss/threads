@@ -7,7 +7,7 @@ import FeedHeader from "./FeedHeader";
 import PersistentLayout from "./PersistentLayout";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Plus } from "lucide-react";
 
 interface MainLayoutProps {
