@@ -9,6 +9,7 @@ interface ProfileCardProps {
     avatar?: string | null;
     bio?: string | null;
     member_count?: number;
+    membersCount?: number;
   };
   onUserClick?: (handle: string) => void;
   isCommunity?: boolean;
@@ -22,7 +23,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   const handle = profile.handle ?? "";
   const title = profile.name || handle || "Unknown";
   const subtitle = isCommunity
-    ? `${profile.member_count ?? 0} members`
+    ? `${profile.membersCount ?? profile.member_count ?? 0} members`
     : `@${handle}`;
 
   return (
