@@ -14,21 +14,12 @@ export const adminApi = {
   },
 
   async updateUserRole(userId: string, role: "user" | "admin" | "moderator") {
-    if (role === "user") {
-      // Remove from admins table — sync_admin_role trigger auto-sets users.role = 'user'
-      const { error } = await supabase
-        .from("admins")
-        .delete()
-        .eq("user_id", userId);
-      if (error) throw error;
-    } else {
-      // Upsert into admins table — sync_admin_role trigger auto-sets users.role
-      const { error } = await supabase.from("admins").upsert({
-        user_id: userId,
-        role: role,
-      });
-      if (error) throw error;
-    }
+    // Use the new RPC function that properly handles permissions
+    const { error } = await (supabase.rpc as any)("admin_set_user_role", {
+      p_user_id: userId,
+      p_new_role: role,
+    });
+    if (error) throw error;
   },
 
   async toggleUserVerification(userId: string, isVerified: boolean) {
