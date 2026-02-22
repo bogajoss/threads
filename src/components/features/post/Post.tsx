@@ -11,6 +11,7 @@ import {
   Pencil,
   X,
 } from "lucide-react";
+import { generatePostUrl } from "@/lib/config";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import {
@@ -912,7 +913,7 @@ const Post: React.FC<PostProps> = ({
           <ShareModal
             isOpen={isShareModalOpen}
             onClose={() => setIsShareModalOpen(false)}
-            url={`${window.location.origin}/p/${id}`}
+            url={generatePostUrl(id)}
             title="Share Post"
             overlayClassName="z-[9999]"
           />

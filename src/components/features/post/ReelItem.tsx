@@ -18,6 +18,7 @@ import {
   ChatIcon,
 } from "@/components/ui";
 import { Flag } from "lucide-react";
+import { generateReelUrl } from "@/lib/config";
 
 interface ReelItemProps {
   reel: any;
@@ -588,7 +589,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         <ShareModal
           isOpen={isShareOpen}
           onClose={() => setIsShareOpen(false)}
-          url={`${window.location.origin}/r/${reel.id}`}
+          url={generateReelUrl(reel.id)}
           title="Share Reel"
           overlayClassName="z-[9999]"
         />

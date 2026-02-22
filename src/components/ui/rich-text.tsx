@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Linkify from "linkify-react";
 import { linkifyOptions } from "@/lib/linkify";
 import { cn } from "@/lib/utils";
+import { getBaseUrl } from "@/lib/config";
 
 interface RichTextProps {
     content: string;
@@ -30,7 +31,7 @@ const RichText: React.FC<RichTextProps> = ({ content, className, onClick }) => {
                     ...linkifyOptions,
                     render: ({ attributes, content: linkContent }) => {
                         const { href, ...props } = attributes;
-                        const origin = window.location.origin;
+                        const origin = getBaseUrl();
 
                         // Handle Hashtags (intercepted via fake URL)
                         if (href.includes("internal.tag/")) {
