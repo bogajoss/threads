@@ -1,5 +1,6 @@
--- Fix: Allow admins to update user system role (admin/moderator/user)
--- This bypasses the protect_role_column trigger issue
+-- ============================================================================
+-- PART 1: Run this first - Create admin_set_user_role function
+-- ============================================================================
 
 CREATE OR REPLACE FUNCTION public.admin_set_user_role(
   p_user_id UUID,
@@ -38,23 +39,25 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 GRANT EXECUTE ON FUNCTION public.admin_set_user_role(UUID, TEXT) TO authenticated;
 
--- Also fix protect_role_column to allow SECURITY DEFINER functions
-CREATE OR REPLACE FUNCTION public.protect_role_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Allow updates from SECURITY DEFINER functions (like sync_admin_role)
-  -- Check if this is a secure context by checking pg_settings
-  IF current_setting('app.settings.is_secure', TRUE) = 'true' THEN
-    RETURN NEW;
-  END IF;
-
-  -- If role is being changed
-  IF NEW.role IS DISTINCT FROM OLD.role THEN
-    -- Check if the current user is an admin
-    IF NOT EXISTS (SELECT 1 FROM public.admins WHERE user_id = auth.uid() AND role = 'admin') THEN
-       RAISE EXCEPTION 'You are not authorized to change role.';
-    END IF;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- ============================================================================
+-- PART 2: Run this separately - Fix protect_role_column function
+-- ============================================================================
+-- 
+-- CREATE OR REPLACE FUNCTION public.protect_role_column()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   -- Allow updates from SECURITY DEFINER functions
+--   IF current_setting('app.settings.is_secure', TRUE) = 'true' THEN
+--     RETURN NEW;
+--   END IF;
+--
+--   -- If role is being changed
+--   IF NEW.role IS DISTINCT FROM OLD.role THEN
+--     -- Check if the current user is an admin
+--     IF NOT EXISTS (SELECT 1 FROM public.admins WHERE user_id = auth.uid() AND role = 'admin') THEN
+--        RAISE EXCEPTION 'You are not authorized to change role.';
+--     END IF;
+--   END IF;
+--   RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql SECURITY DEFINER;
