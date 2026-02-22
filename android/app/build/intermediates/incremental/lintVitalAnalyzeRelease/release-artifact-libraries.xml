@@ -93,10 +93,10 @@
       proguardRules="proguard.txt"/>
   <library
       name=":@@:capacitor-cordova-android-plugins::release"
-      jars="/home/codespace/.gradle/caches/8.14.3/transforms/b3d3f7dcb9a0fdafb0320026d35819d4/transformed/out/jars/classes.jar:/home/codespace/.gradle/caches/8.14.3/transforms/b3d3f7dcb9a0fdafb0320026d35819d4/transformed/out/jars/libs/R.jar"
+      jars="/home/codespace/.gradle/caches/8.14.3/transforms/f50c5b5696779736b639ab303c9d5159/transformed/out/jars/classes.jar:/home/codespace/.gradle/caches/8.14.3/transforms/f50c5b5696779736b639ab303c9d5159/transformed/out/jars/libs/R.jar"
       resolved="android:capacitor-cordova-android-plugins:unspecified"
       partialResultsDir="/workspaces/codespaces-blank/threads/android/capacitor-cordova-android-plugins/build/intermediates/lint_vital_partial_results/release/lintVitalAnalyzeRelease/out"
-      folder="/home/codespace/.gradle/caches/8.14.3/transforms/b3d3f7dcb9a0fdafb0320026d35819d4/transformed/out"
+      folder="/home/codespace/.gradle/caches/8.14.3/transforms/f50c5b5696779736b639ab303c9d5159/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
