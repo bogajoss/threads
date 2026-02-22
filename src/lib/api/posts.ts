@@ -12,6 +12,7 @@ import { isValidUUID } from "@/lib/utils";
 export const fetchPosts = async (
   cursor: string | null = null,
   limit: number = POSTS_PER_PAGE,
+  seed: string = "default",
 ): Promise<Post[]> => {
   let lastItemId = null;
   let lastItemScore = null;
@@ -31,6 +32,7 @@ export const fetchPosts = async (
 
   const params: any = {
     limit_val: limit,
+    random_seed: seed,
   };
 
   if (lastItemId && isValidUUID(lastItemId)) params.last_item_id = lastItemId;
@@ -586,6 +588,7 @@ export const fetchCommunityExplorePosts = async (
 export const fetchReels = async (
   cursor: string | null = null,
   limit: number = REELS_PER_PAGE,
+  seed: string = "default",
 ): Promise<Post[]> => {
   let lastReelId = null;
   let lastReelScore = null;
@@ -602,6 +605,7 @@ export const fetchReels = async (
     limit_val: limit,
     last_reel_id: lastReelId || undefined,
     last_reel_score: lastReelScore || undefined,
+    random_seed: seed,
   });
 
   if (error) throw error;

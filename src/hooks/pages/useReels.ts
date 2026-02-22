@@ -24,10 +24,12 @@ export const useReels = () => {
     setVolume(newVolume);
   }, []);
 
+  const [reelsSeed] = useState(() => Math.random().toString(36).substring(7));
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
-      queryKey: ["reels"],
-      queryFn: ({ pageParam }) => fetchReels(pageParam, 10),
+      queryKey: ["reels", reelsSeed],
+      queryFn: ({ pageParam }) => fetchReels(pageParam, 10, reelsSeed),
       initialPageParam: null as string | null,
       getNextPageParam: (lastPage) => {
         if (!lastPage || lastPage.length < 10) return undefined;

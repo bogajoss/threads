@@ -40,6 +40,8 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   const queryClient = useQueryClient();
   const { currentUser } = useAuth();
 
+  const [feedSeed, setFeedSeed] = React.useState(() => Math.random().toString(36).substring(7));
+
   const {
     data,
     fetchNextPage,
@@ -48,8 +50,8 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     isLoading,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["posts", "feed"],
-    queryFn: ({ pageParam }) => fetchPosts(pageParam, 20),
+    queryKey: ["posts", "feed", feedSeed],
+    queryFn: ({ pageParam }) => fetchPosts(pageParam, 20, feedSeed),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < 20) return undefined;
@@ -248,7 +250,10 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     [posts],
   );
 
-  const refreshPosts = useCallback(() => refetch(), [refetch]);
+  const refreshPosts = useCallback(() => {
+    setFeedSeed(Math.random().toString(36).substring(7));
+    refetch();
+  }, [refetch]);
 
   const value = useMemo(
     () => ({
