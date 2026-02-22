@@ -7,7 +7,6 @@ import {
   Flag,
   Ban,
   Gavel,
-  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -34,7 +33,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import { useMediaQuery } from "@/hooks";
-import { getOrCreateConversation } from "@/lib/api";
 import RichText from "@/components/ui/rich-text";
 
 import { useFollow } from "@/hooks/useFollow";
@@ -66,7 +64,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const { addToast } = useToast();
   const navigate = useNavigate();
   const { openReport } = useReportModal();
-  const [isStartingChat, setIsStartingChat] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -90,22 +87,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   if (!profile) return <ProfileSkeleton />;
 
-  const handleMessageClick = async () => {
+  const handleMessageClick = () => {
     if (!currentUser) {
       addToast("Please sign in to message users", "info");
       return;
     }
-
-    setIsStartingChat(true);
-    try {
-      const convId = await getOrCreateConversation(currentUser.id, profile.id);
-      navigate(`/m/${convId}`);
-    } catch (error) {
-      console.error("Failed to start conversation:", error);
-      addToast("Failed to open chat", "error");
-    } finally {
-      setIsStartingChat(false);
-    }
+    // Navigate to messages page with ?with=userId — conversation is only created when first message is sent
+    navigate(`/m?with=${profile.id}`);
   };
 
   return (
@@ -161,15 +149,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <>
                 <button
                   onClick={handleMessageClick}
-                  disabled={isStartingChat}
-                  className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900 flex items-center justify-center min-w-[36px]"
+                  className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900 flex items-center justify-center min-w-[36px]"
                   aria-label="Message"
                 >
-                  {isStartingChat ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Mail size={20} />
-                  )}
+                  <Mail size={20} />
                 </button>
                 <button
                   className="rounded-full border border-zinc-200 p-2 text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
