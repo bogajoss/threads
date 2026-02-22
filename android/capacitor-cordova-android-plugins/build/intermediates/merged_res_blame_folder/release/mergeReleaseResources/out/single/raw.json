@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "capacitor.cordova.android.plugins.capacitor-cordova-android-plugins-release-40:/raw/firebase_common_keep.xml",
+        "source": "capacitor.cordova.android.plugins.capacitor-cordova-android-plugins-firebase-common-20.4.2-23:/raw/firebase_common_keep.xml"
+    },
+    {
+        "merged": "capacitor.cordova.android.plugins.capacitor-cordova-android-plugins-release-40:/raw/consumer_onesignal_keep.xml",
+        "source": "capacitor.cordova.android.plugins.capacitor-cordova-android-plugins-notifications-5.6.1-26:/raw/consumer_onesignal_keep.xml"
+    }
+]

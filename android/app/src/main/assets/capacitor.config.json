@@ -1,0 +1,25 @@
+{
+	"appId": "com.mysys.app",
+	"appName": "mysys",
+	"webDir": "dist",
+	"server": {
+		"url": "https://feed.systemadminbd.com",
+		"cleartext": true
+	},
+	"plugins": {
+		"App": {
+			"appId": "com.mysys.app",
+			"appName": "mysys",
+			"url": "mysys://",
+			"iosUniversalLinkDomains": [
+				"feed.systemadminbd.com"
+			],
+			"androidAppLinks": {
+				"enabled": true,
+				"host": "feed.systemadminbd.com",
+				"pathPrefix": "/",
+				"scheme": "https"
+			}
+		}
+	}
+}
