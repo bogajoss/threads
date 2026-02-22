@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, MoreHorizontal, Phone, Video } from "lucide-react";
+import { ArrowLeft, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -195,12 +195,6 @@ const ChatWindow = ({
         </div>
 
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
-            <Phone size={20} />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400">
-            <Video size={20} />
-          </Button>
           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400" onClick={() => setShowSettings(true)}>
             <MoreHorizontal size={20} />
           </Button>
