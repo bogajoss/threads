@@ -60,7 +60,7 @@ const CreatePost: React.FC = () => {
   const { currentUser } = useAuth();
 
   const MAX_CHARS = currentUser?.isPro ? 2500 : 500;
-  
+
   const { addPost } = usePosts();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
@@ -342,7 +342,7 @@ const CreatePost: React.FC = () => {
     setCroppingFileId(null);
   };
 
-  const handlePublish = async () => {
+  const handlePublish = async (asReel: boolean = false) => {
     if (!currentUser) return;
     if (!postContent.trim() && selectedFiles.length === 0) return;
     if (postContent.length > MAX_CHARS) return;
@@ -382,8 +382,8 @@ const CreatePost: React.FC = () => {
         finalContent += `\n\n${tagList}`;
       }
 
-      let finalType = "text";
-      if (uploadedMedia.length > 0) {
+      let finalType = asReel ? "reel" : "text";
+      if (!asReel && uploadedMedia.length > 0) {
         finalType = uploadedMedia[0].type === "video" ? "video" : "image";
       }
       // else if (poll) {
@@ -414,7 +414,7 @@ const CreatePost: React.FC = () => {
           userId: currentUser.id,
           communityId: selectedCommunity?.id || null,
         });
-        addToast("Post published!");
+        addToast(asReel ? "Reel published!" : "Post published!");
       }
 
       if (draftStorageKey) {
@@ -803,7 +803,22 @@ const CreatePost: React.FC = () => {
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {!isStory && selectedFiles.some(f => f.file.type.startsWith("video/")) && (
+            <Button
+              onClick={() => handlePublish(true)}
+              disabled={isPostDisabled}
+              loading={loading}
+              variant="secondary"
+              className={cn(
+                "min-w-[90px] h-11 shadow-xl transition-all active:scale-95 text-[15px] border-zinc-200 dark:border-zinc-800 font-bold",
+                isPostDisabled && "opacity-50"
+              )}
+            >
+              Reel
+            </Button>
+          )}
+
           {!currentUser?.isPro && postContent.length > 500 ? (
             <ProButton
               label="Post"
@@ -816,7 +831,7 @@ const CreatePost: React.FC = () => {
             />
           ) : (
             <Button
-              onClick={handlePublish}
+              onClick={() => handlePublish(false)}
               disabled={isPostDisabled}
               loading={loading}
               className={cn(

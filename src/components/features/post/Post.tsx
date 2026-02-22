@@ -391,7 +391,7 @@ const Post: React.FC<PostProps> = ({
   });
 
   useEffect(() => {
-    if (inView && !isComment) {
+    if (inView && !isComment && id && !id.startsWith("temp-")) {
       const timer = setTimeout(() => {
         incrementPostViews(id).catch(console.error);
       }, 1500);
@@ -724,8 +724,8 @@ const Post: React.FC<PostProps> = ({
       ref={viewRef}
       onClick={onClick}
       className={`px-5 transition-all ${isComment
-          ? "py-3 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-          : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
+        ? "py-3 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
+        : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
         } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (

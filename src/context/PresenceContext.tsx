@@ -63,13 +63,9 @@ export const PresenceProvider: React.FC<PresenceProviderProps> = ({
         updateLastSeen(currentUser.id);
       }
 
-      // Delay removal to allow socket to finish establishing if it was just created
-      // This prevents the "WebSocket is closed before the connection is established" error
-      setTimeout(() => {
-        supabase.removeChannel(channel).catch(() => {
-          // Silent catch
-        });
-      }, 500);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
 
       setOnlineUsers(new Set());
     };

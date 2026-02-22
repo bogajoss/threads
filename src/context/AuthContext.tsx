@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
@@ -36,8 +37,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const fetchUserProfileData = useCallback(async (user: any) => {
-    setLoading(true);
+  const fetchUserProfileData = useCallback(async (user: any, isInitial: boolean = false) => {
+    if (isInitial) setLoading(true);
     try {
       const data = await fetchUserProfile(user.id);
 
@@ -64,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (err) {
       console.error("Error fetching user profile:", err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   }, []);
 
@@ -95,23 +96,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, [currentUser?.id]);
 
+  // Track if we've already performed the initial load
+  const hasLoadedRef = useRef(false);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        fetchUserProfileData(session.user);
+        fetchUserProfileData(session.user, true);
+        hasLoadedRef.current = true;
       } else {
         setLoading(false);
+        hasLoadedRef.current = true;
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        fetchUserProfileData(session.user);
+        // Only show loading if we haven't finished the initial session check
+        // or if explicitly signing in without a current session.
+        const shouldShowLoading = !hasLoadedRef.current || (event === 'SIGNED_IN' && !currentUser);
+        fetchUserProfileData(session.user, shouldShowLoading);
+        if (shouldShowLoading) hasLoadedRef.current = true;
       } else {
         setCurrentUser(null);
         setLoading(false);
+        hasLoadedRef.current = true;
       }
     });
 

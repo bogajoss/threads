@@ -39,7 +39,7 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
 
   const loadComments = useCallback(
     async (isLoadMore = false) => {
-      if (!reelId) return;
+      if (!reelId || reelId.startsWith("temp-")) return;
       if (isLoadMore) setIsFetchingMore(true);
       else setLoading(true);
 

@@ -41,7 +41,7 @@ export const useComments = (
     initialData: initialData
       ? { pages: [initialData], pageParams: [null] }
       : undefined,
-    enabled: !!postId,
+    enabled: !!postId && !postId.startsWith("temp-"),
   });
 
   const comments = useMemo(() => {

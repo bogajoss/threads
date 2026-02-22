@@ -6,7 +6,7 @@ import {
   NotificationsIcon,
   ReelsIcon,
 } from "@/components/ui";
-import { User } from "lucide-react";
+import { User, Plus } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
@@ -31,6 +31,7 @@ const BottomNav: React.FC = () => {
     { id: "home", icon: HomeIcon, path: "/feed" },
     { id: "explore", icon: CommunityIcon, path: "/explore" },
     { id: "reels", icon: ReelsIcon, path: "/r" },
+    { id: "create", icon: Plus, path: "/create" },
     { id: "messages", icon: ChatIcon, path: "/m", count: unreadMessages },
     { id: "notifications", icon: NotificationsIcon, path: "/notifications", count: unreadNotifications },
     { id: "profile", icon: User, path: currentUser ? `/u/${currentUser.handle}` : "/login", isProfile: true },
@@ -67,6 +68,24 @@ const BottomNav: React.FC = () => {
               </motion.div>
             </NavLink>
           )
+        }
+
+        if (item.id === "create") {
+          return (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              aria-label={item.id}
+              className="flex items-center justify-center transition-all active:scale-90"
+            >
+              <motion.div
+                whileTap={{ scale: 0.9 }}
+                className="flex items-center justify-center rounded-xl bg-zinc-950 p-2 text-white shadow-lg dark:bg-white dark:text-zinc-950"
+              >
+                <item.icon size={26} strokeWidth={2.5} />
+              </motion.div>
+            </NavLink>
+          );
         }
 
         return (

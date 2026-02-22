@@ -41,11 +41,9 @@ export const useNotifications = (currentUser: User | null) => {
 
     return () => {
       mounted = false;
-      setTimeout(() => {
-        supabase.removeChannel(channel).catch(() => {
-          // Silent catch
-        });
-      }, 500);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [currentUser?.id, queryClient]);
 

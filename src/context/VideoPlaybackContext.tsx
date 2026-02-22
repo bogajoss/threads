@@ -80,6 +80,11 @@ export const VideoPlaybackProvider: React.FC<VideoPlaybackProviderProps> = ({
 
   const unregister = useCallback(
     (id: string) => {
+      // Pause the video being unregistered before removing it
+      const entry = registryResults.current.get(id);
+      if (entry && typeof entry.pause === "function") {
+        entry.pause();
+      }
       registryResults.current.delete(id);
       if (activeVideoId === id) {
         setActiveVideoId(null);

@@ -11,7 +11,18 @@ export const useReels = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [activeReelId, setActiveReelId] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem("reel-volume");
+    return saved ? JSON.parse(saved) : 1;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("reel-volume", JSON.stringify(volume));
+  }, [volume]);
+
+  const handleSetVolume = useCallback((newVolume: number) => {
+    setVolume(newVolume);
+  }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -55,10 +66,6 @@ export const useReels = () => {
       }
     }
   }, [reels.length, targetId]);
-
-  const toggleMute = useCallback(() => {
-    setIsMuted((prev) => !prev);
-  }, []);
 
   const scrollToNext = useCallback(() => {
     if (reels.length === 0) return;
@@ -125,10 +132,6 @@ export const useReels = () => {
           e.preventDefault();
           scrollToNext();
           break;
-        case "m":
-        case "M":
-          toggleMute();
-          break;
         case " ": {
           e.preventDefault();
           const activeElement = reelRefs.current.get(activeReelId || "");
@@ -147,7 +150,7 @@ export const useReels = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeReelId, scrollToNext, scrollToPrev, toggleMute]);
+  }, [activeReelId, scrollToNext, scrollToPrev]);
 
   const setReelRef = (id: string, el: HTMLDivElement | null) => {
     if (el) {
@@ -180,11 +183,11 @@ export const useReels = () => {
     loadingMore: isFetchingNextPage,
     activeReelId,
     hasMore: hasNextPage,
-    isMuted,
+    volume,
+    setVolume: handleSetVolume,
     containerRef,
     setReelRef,
     navigate,
-    toggleMute,
     scrollToNext,
     scrollToPrev,
     loadReels: fetchNextPage,

@@ -1,9 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Music, Play, Pause } from "lucide-react";
-const Plyr = React.lazy(() =>
-  import("plyr-react").then((m) => ({ default: m.Plyr })),
-);
+import { Plyr } from "plyr-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import RichText from "@/components/ui/rich-text";
 import { useAuth } from "@/context/AuthContext";
@@ -24,15 +22,15 @@ import { Flag } from "lucide-react";
 interface ReelItemProps {
   reel: any;
   isActive: boolean;
-  isMuted: boolean;
-  onToggleMute?: () => void;
+  volume: number;
+  onVolumeChange?: (volume: number) => void;
   shouldLoad?: boolean;
 }
 
 import { motion, AnimatePresence } from "motion/react";
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
-  ({ reel, isActive, isMuted, shouldLoad = true }) => {
+  ({ reel, isActive, volume, shouldLoad = true }) => {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
     const { openReport } = useReportModal();
@@ -71,7 +69,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         player.on("loadeddata", handleLoaded);
         player.on("playing", handlePlaying);
 
+        // Safety timeout to hide skeleton if events don't fire
+        const safetyTimeout = setTimeout(() => {
+          if (!hasPlayedOnce && isActive) setHasPlayedOnce(true);
+        }, 3000);
+
         return () => {
+          clearTimeout(safetyTimeout);
           if (typeof player.off === "function") {
             player.off("ready", handleLoaded);
             player.off("canplay", handleLoaded);
@@ -81,45 +85,75 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         };
       } else {
         // Fallback if player API is not available (e.g. during initialization)
-        const timer = setTimeout(() => setIsVideoLoaded(true), 1000);
+        const timer = setTimeout(() => {
+          setIsVideoLoaded(true);
+          if (isActive) setHasPlayedOnce(true);
+        }, 1500);
         return () => clearTimeout(timer);
       }
-    }, [videoUrl]);
+    }, [videoUrl, isActive]);
+
+    // Ref to track the pending play timeout so we can cancel it
+    const playTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-      let timeoutId: ReturnType<typeof setTimeout>;
       const player = playerRef.current?.plyr;
 
-      if (player && isVideoLoaded) {
-        if (isActive) {
-          timeoutId = setTimeout(() => {
-            if (typeof player.play === "function") {
-              const playPromise = player.play();
-              if (playPromise !== undefined) {
-                playPromise.catch(() => {
-                  if (player) {
-                    player.muted = true;
-                    player.play().catch(() => { });
-                  }
-                });
+      // Always cancel any pending play call first
+      if (playTimeoutRef.current) {
+        clearTimeout(playTimeoutRef.current);
+        playTimeoutRef.current = null;
+      }
+
+      if (!player || !isVideoLoaded) return;
+
+      if (isActive) {
+        playTimeoutRef.current = setTimeout(() => {
+          playTimeoutRef.current = null;
+          const p = playerRef.current?.plyr;
+          if (p && typeof p.play === "function") {
+            p.play().catch(() => {
+              const p2 = playerRef.current?.plyr;
+              if (p2) {
+                p2.muted = true;
+                p2.play().catch(() => { });
               }
-            }
-          }, 100);
-        } else {
-          if (typeof player.pause === "function") {
-            player.pause();
+            });
           }
+        }, 100);
+      } else {
+        // Pause immediately when not active
+        if (typeof player.pause === "function") {
+          player.pause();
         }
       }
 
       return () => {
-        if (timeoutId) clearTimeout(timeoutId);
-        // Ensure video pauses when component unmounts or isActive changes
-        if (player && typeof player.pause === "function") {
-          player.pause();
+        // Cancel any pending play call
+        if (playTimeoutRef.current) {
+          clearTimeout(playTimeoutRef.current);
+          playTimeoutRef.current = null;
+        }
+        // Immediately pause when cleanup runs (isActive changed or unmount)
+        const p = playerRef.current?.plyr;
+        if (p && typeof p.pause === "function") {
+          p.pause();
         }
       };
     }, [isActive, isVideoLoaded]);
+
+    // Dedicated unmount cleanup — ensures video always stops when component leaves DOM
+    useEffect(() => {
+      return () => {
+        if (playTimeoutRef.current) {
+          clearTimeout(playTimeoutRef.current);
+        }
+        const p = playerRef.current?.plyr;
+        if (p && typeof p.pause === "function") {
+          p.pause();
+        }
+      };
+    }, []);
 
     useEffect(() => {
       if (!currentUser?.id || !isActive) return;
@@ -141,10 +175,12 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     }, [reel.id, currentUser?.id, isActive, reel.user?.id]);
 
     useEffect(() => {
-      if (playerRef.current?.plyr) {
-        playerRef.current.plyr.muted = isMuted;
+      const player = playerRef.current?.plyr;
+      if (player) {
+        player.muted = volume === 0;
+        player.volume = volume;
       }
-    }, [isMuted]);
+    }, [volume, isVideoLoaded]); // Re-sync when video is loaded or volume changes
 
     useEffect(() => {
       const player = playerRef.current?.plyr;
@@ -290,7 +326,6 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           clickToPlay: false,
           ratio: "9:16",
           autoplay: true,
-          muted: true,
           playsinline: true,
         },
       }),
@@ -306,13 +341,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         <div className="relative flex h-full w-full max-w-[450px] items-center justify-center">
           <div className="w-full">
             {shouldLoad ? (
-              <React.Suspense
-                fallback={
-                  <div className="aspect-[9/16] w-full bg-zinc-900 animate-pulse" />
-                }
-              >
-                <Plyr ref={playerRef} {...plyrProps} />
-              </React.Suspense>
+              <Plyr ref={playerRef} {...plyrProps} />
             ) : (
               <div className="aspect-[9/16] w-full bg-zinc-900">
                 <img
@@ -329,7 +358,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           </div>
 
           {!hasPlayedOnce && (
-            <div className="absolute inset-0 z-[60] flex items-center justify-center bg-zinc-900">
+            <div className="absolute inset-0 z-[60] flex items-center justify-center bg-zinc-900 pointer-events-none">
               <SkeletonReel />
             </div>
           )}
@@ -523,7 +552,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     return (
       prevProps.isActive === nextProps.isActive &&
       prevProps.reel.id === nextProps.reel.id &&
-      prevProps.isMuted === nextProps.isMuted
+      prevProps.volume === nextProps.volume
     );
   },
 );
