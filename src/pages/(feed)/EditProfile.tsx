@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
@@ -46,6 +46,18 @@ const EditProfile: React.FC = () => {
   const hasRestoredDraftRef = useRef(false);
   const isDirtyRef = useRef(false);
   const bioTextareaRef = useAutoResizeTextArea(editProfileData?.bio || "", 80, 300);
+
+  // Create stable preview URLs from file objects, revoke them when files change or on unmount
+  const coverPreviewUrl = useMemo(
+    () => (newCoverFile ? URL.createObjectURL(newCoverFile) : null),
+    [newCoverFile],
+  );
+  const avatarPreviewUrl = useMemo(
+    () => (newAvatarFile ? URL.createObjectURL(newAvatarFile) : null),
+    [newAvatarFile],
+  );
+  useEffect(() => () => { if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl); }, [coverPreviewUrl]);
+  useEffect(() => () => { if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl); }, [avatarPreviewUrl]);
 
   const setEditProfileDataDirty = (nextData: any) => {
     isDirtyRef.current = true;
@@ -249,11 +261,7 @@ const EditProfile: React.FC = () => {
               >
                 {(newCoverFile || editProfileData?.cover) && (
                   <img
-                    src={
-                      newCoverFile
-                        ? URL.createObjectURL(newCoverFile)
-                        : editProfileData.cover
-                    }
+                    src={coverPreviewUrl ?? editProfileData.cover}
                     className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-60"
                     alt=""
                   />
@@ -276,11 +284,7 @@ const EditProfile: React.FC = () => {
                 >
                   <Avatar className="size-full rounded-none">
                     <AvatarImage
-                      src={
-                        newAvatarFile
-                          ? URL.createObjectURL(newAvatarFile)
-                          : editProfileData.avatar
-                      }
+                      src={avatarPreviewUrl ?? editProfileData.avatar}
                       className="object-cover transition-opacity group-hover:opacity-60"
                     />
                     <AvatarFallback>

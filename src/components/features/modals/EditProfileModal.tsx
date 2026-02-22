@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -31,6 +31,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  // Stable preview URLs — revoke when file changes or modal unmounts
+  const coverPreviewUrl = useMemo(
+    () => (newCoverFile ? URL.createObjectURL(newCoverFile) : null),
+    [newCoverFile],
+  );
+  const avatarPreviewUrl = useMemo(
+    () => (newAvatarFile ? URL.createObjectURL(newAvatarFile) : null),
+    [newAvatarFile],
+  );
+  useEffect(() => () => { if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl); }, [coverPreviewUrl]);
+  useEffect(() => () => { if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl); }, [avatarPreviewUrl]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -146,11 +158,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           >
             {(newCoverFile || editProfileData?.cover) && (
               <img
-                src={
-                  newCoverFile
-                    ? URL.createObjectURL(newCoverFile)
-                    : editProfileData.cover
-                }
+                src={coverPreviewUrl ?? editProfileData.cover}
                 className="h-full w-full object-cover opacity-60"
                 alt=""
               />
@@ -170,11 +178,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               {(newAvatarFile || editProfileData?.avatar) && (
                 <Avatar className="size-full rounded-none opacity-60">
                   <AvatarImage
-                    src={
-                      newAvatarFile
-                        ? URL.createObjectURL(newAvatarFile)
-                        : editProfileData.avatar
-                    }
+                    src={avatarPreviewUrl ?? editProfileData.avatar}
                     className="object-cover"
                   />
                   <AvatarFallback>

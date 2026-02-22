@@ -86,6 +86,15 @@ export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
     initialTimeRef.current = initialTime;
   }, [props.src]);
 
+  // Ensure video always stops when this component leaves the DOM (e.g., navigation)
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    };
+  }, []);
+
   const handleMouseOver = () => {
     videoRef.current?.play();
   };

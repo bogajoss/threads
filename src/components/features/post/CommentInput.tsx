@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { Paperclip, X } from "lucide-react";
 import { MediaIcon, ShareIcon } from "@/components/ui";
 import Button from "@/components/ui/Button";
@@ -42,6 +42,19 @@ const CommentInput: React.FC<CommentInputProps> = ({
       setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     }
   };
+
+  // Create stable preview URLs from files, revoke them when files change or component unmounts
+  const previewUrls = useMemo(
+    () => selectedFiles.map((file) => URL.createObjectURL(file)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedFiles],
+  );
+
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
 
   const handlePaste = (e: React.ClipboardEvent) => {
     const files = e.clipboardData.files;
@@ -100,7 +113,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
                 >
                   {file.type.startsWith("image/") ? (
                     <img
-                      src={URL.createObjectURL(file)}
+                      src={previewUrls[idx]}
                       className="size-full object-cover"
                       alt=""
                     />

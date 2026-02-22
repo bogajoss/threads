@@ -153,6 +153,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
   }, [audioBlob]);
 
+  // Ensure audio always stops when the component unmounts (e.g., navigation away from chat)
+  React.useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);

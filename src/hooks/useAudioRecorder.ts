@@ -24,9 +24,12 @@ export const useAudioRecorder = (): AudioRecorderHook => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerIntervalRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
@@ -34,6 +37,8 @@ export const useAudioRecorder = (): AudioRecorderHook => {
         mediaRecorderRef.current &&
         mediaRecorderRef.current.state !== "inactive"
       ) {
+        // Detach onstop before stopping to prevent state update on unmount
+        mediaRecorderRef.current.onstop = null;
         mediaRecorderRef.current.stop();
         mediaRecorderRef.current.stream
           .getTracks()
@@ -72,6 +77,7 @@ export const useAudioRecorder = (): AudioRecorderHook => {
       };
 
       mediaRecorder.onstop = () => {
+        if (!isMountedRef.current) return; // Guard against unmounted component
         const blob = new Blob(chunksRef.current, {
           type: "audio/webm;codecs=opus",
         });
