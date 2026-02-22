@@ -3,8 +3,6 @@ import { Modal } from "@/components/ui";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import {
-  Copy,
-  Check,
   Twitter,
   Facebook,
   Linkedin,
@@ -191,28 +189,36 @@ const ShareModal: React.FC<ShareModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
-      className="max-w-[420px] !p-0 overflow-hidden"
+      className="max-w-[360px] overflow-hidden rounded-[32px] border border-black/10 bg-white/75 p-0 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/75 sm:max-w-[380px]"
       overlayClassName={overlayClassName}
     >
-      <div className="flex h-full flex-col bg-white dark:bg-zinc-900">
-        <div className="px-5 pb-2 pt-4">
+      <div className="flex h-full flex-col">
+        {/* Header Title */}
+        <div className="flex items-center justify-center pt-6 pb-2">
+          <h2 className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-50">
+            {title}
+          </h2>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 py-3">
           <div className="group relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-violet-500" />
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-violet-500" />
             <input
               type="text"
               placeholder="Search people..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border-none bg-zinc-100 py-2.5 pl-10 pr-4 text-sm transition-all focus:ring-2 focus:ring-violet-500/20 outline-none dark:bg-zinc-800/50"
+              className="w-full rounded-2xl border border-black/5 bg-black/5 py-3 pl-11 pr-4 text-[15px] outline-none transition-all focus:bg-white/50 focus:ring-4 focus:ring-violet-500/10 dark:border-white/5 dark:bg-white/5 dark:focus:bg-black/50"
             />
           </div>
         </div>
 
-        <div className="no-scrollbar flex min-h-[100px] items-center gap-4 overflow-x-auto px-5 py-4">
+        {/* Friends Row */}
+        <div className="no-scrollbar flex min-h-[110px] items-center gap-4 overflow-x-auto px-5 py-4">
           {loadingFriends ? (
             <div className="flex flex-1 justify-center">
-              <span className="animate-pulse font-bold text-zinc-400">
+              <span className="animate-pulse text-[13px] font-medium text-zinc-400">
                 Loading...
               </span>
             </div>
@@ -222,14 +228,14 @@ const ShareModal: React.FC<ShareModalProps> = ({
                 key={friend.id}
                 onClick={() => handleSendToFriend(friend)}
                 disabled={sendingTo !== null}
-                className="group flex shrink-0 flex-col items-center gap-1.5 disabled:opacity-50"
+                className="group flex shrink-0 flex-col items-center gap-2 transition-transform active:scale-95 disabled:opacity-50"
               >
                 <div className="relative">
-                  <div className="size-14 overflow-hidden rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-105 bg-zinc-100 dark:bg-zinc-800 dark:border-zinc-900">
+                  <div className="size-16 overflow-hidden rounded-full border-2 border-white/50 shadow-sm dark:border-zinc-800/50 bg-zinc-100 dark:bg-zinc-800">
                     <img
                       src={
                         friend.avatar ||
-                        `https://i.pravatar.cc/150?u=${friend.id}`
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.handle}`
                       }
                       alt={friend.handle}
                       className="size-full object-cover"
@@ -237,13 +243,11 @@ const ShareModal: React.FC<ShareModalProps> = ({
                   </div>
                   {sendingTo === friend.id && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                      <span className="animate-pulse text-white font-bold">
-                        ...
-                      </span>
+                      <span className="animate-pulse text-white font-bold">...</span>
                     </div>
                   )}
                 </div>
-                <span className="max-w-[60px] truncate text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                <span className="max-w-[70px] truncate text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
                   {friend.name?.split(" ")[0] || friend.handle}
                 </span>
               </button>
@@ -255,80 +259,69 @@ const ShareModal: React.FC<ShareModalProps> = ({
           )}
         </div>
 
-        <div className="mx-5 h-px bg-zinc-100 dark:bg-zinc-800" />
+        <div className="mx-5 h-px bg-black/5 dark:bg-white/5" />
 
-        <div className="grid grid-cols-5 gap-2 px-5 py-6">
+        {/* Social Grid */}
+        <div className="grid grid-cols-5 gap-3 px-5 py-6">
           {shareOptions.map((option) => (
             <a
               key={option.name}
               href={option.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col items-center gap-2"
+              className="group flex flex-col items-center gap-2.5"
             >
               <div
-                className={`size-12 ${option.color} flex items-center justify-center rounded-2xl shadow-md transition-all group-hover:-translate-y-1 group-hover:scale-110 group-hover:shadow-lg`}
+                className={`size-12 ${option.color} flex items-center justify-center rounded-[18px] shadow-sm ring-1 ring-black/5 transition-all group-hover:-translate-y-1 group-hover:scale-105 group-hover:shadow-lg dark:ring-white/5`}
               >
-                <option.icon size={20} strokeWidth={2.5} />
+                <option.icon size={22} strokeWidth={2.5} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-tighter text-zinc-500 dark:text-zinc-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500/80 dark:text-zinc-400/80">
                 {option.name}
               </span>
             </a>
           ))}
           <button
             onClick={handleNativeShare}
-            className="group flex flex-col items-center gap-2"
+            className="group flex flex-col items-center gap-2.5"
           >
-            <div className="flex size-12 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-100 text-zinc-600 shadow-sm transition-all group-hover:-translate-y-1 group-hover:scale-110 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              <MoreHorizontal size={20} strokeWidth={2.5} />
+            <div className="flex size-12 items-center justify-center rounded-[18px] border border-black/10 bg-white/50 text-zinc-600 shadow-sm transition-all group-hover:-translate-y-1 group-hover:scale-105 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+              <MoreHorizontal size={22} strokeWidth={2.5} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-tighter text-zinc-500 dark:text-zinc-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500/80 dark:text-zinc-400/80">
               More
             </span>
           </button>
         </div>
 
+        {/* Copy Link Section */}
         <div className="px-5 pb-6">
-          <div className="group relative">
+          <div className="group relative flex items-center overflow-hidden rounded-2xl border border-black/10 bg-white/40 dark:border-white/10 dark:bg-black/20">
             <input
               type="text"
               readOnly
               value={url}
-              className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 py-3.5 pl-4 pr-14 text-sm font-medium transition-colors focus:outline-none group-hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:group-hover:border-zinc-700"
+              className="w-full bg-transparent py-4 pl-4 pr-16 text-[14px] font-medium text-zinc-600 outline-none dark:text-zinc-300"
             />
             <button
               onClick={handleCopy}
-              className={`absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold shadow-sm transition-all active:scale-95 ${
-                copied
-                  ? "bg-emerald-500 text-white"
-                  : "bg-zinc-900 text-white hover:opacity-90 dark:bg-white dark:text-zinc-900"
-              }`}
+              className={`absolute right-1 text-[13px] font-bold active:scale-95 transition-all px-4 h-10 rounded-xl leading-none ${copied
+                ? "text-emerald-500"
+                : "text-violet-600 hover:text-violet-700 dark:text-violet-400"
+                }`}
             >
-              {copied ? (
-                <>
-                  <Check size={14} strokeWidth={3} />
-                  <span>Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={14} strokeWidth={3} />
-                  <span>Copy</span>
-                </>
-              )}
+              {copied ? "Copied" : "Copy"}
             </button>
           </div>
         </div>
 
-        <div className="px-5 pb-5">
+        {/* Close Button (Actionsheet style) */}
+        <div className="border-t border-black/10 dark:border-white/10">
           <button
             onClick={onClose}
-            className="group relative flex w-full items-center justify-center overflow-hidden rounded-2xl bg-zinc-900 py-4 font-bold text-white transition-all hover:shadow-xl hover:shadow-zinc-900/10 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:shadow-white/10"
+            className="flex h-16 w-full items-center justify-center text-[19px] font-medium text-zinc-500 transition-colors active:bg-black/5 dark:text-zinc-400 dark:active:bg-white/5"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-zinc-500 to-zinc-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="relative flex items-center gap-2">
-              <span>Close</span>
-            </div>
+            Close
           </button>
         </div>
       </div>
