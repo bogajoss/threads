@@ -4,7 +4,7 @@
     "type": "MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.antigravity.app",
+  "applicationId": "com.mysys.app",
   "variantName": "release",
   "elements": [
     {

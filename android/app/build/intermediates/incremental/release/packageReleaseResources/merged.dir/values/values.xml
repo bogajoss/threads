@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
-    <string name="app_name">AntiGravity</string>
-    <string name="custom_url_scheme">com.antigravity.app</string>
-    <string name="package_name">com.antigravity.app</string>
-    <string name="title_activity_main">AntiGravity</string>
+    <string name="app_name">mysys</string>
+    <string name="custom_url_scheme">com.mysys.app</string>
+    <string name="package_name">com.mysys.app</string>
+    <string name="title_activity_main">mysys</string>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         
         <item name="colorPrimary">@color/colorPrimary</item>

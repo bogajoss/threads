@@ -212,7 +212,7 @@ const Profile: React.FC = () => {
                   <ProfileCard
                     key={user.id}
                     profile={user}
-                    onUserClick={(h) => {
+                    onUserClick={(h: string) => {
                       setIsFollowModalOpen(false);
                       navigate(`/u/${h}`);
                     }}

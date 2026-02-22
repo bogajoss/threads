@@ -27,22 +27,41 @@ Intent filters added for:
 
 ## Required Steps 🔧
 
-### Step 1: Get SHA256 Fingerprints
+### Step 1: Configure release signing (one-time)
 
-You need SHA256 fingerprints from your keystore(s):
+Release signing now uses:
+- Keystore file: `android/app/release-key.jks`
+- Config file: `android/keystore.properties`
+
+If `android/keystore.properties` exists, `assembleRelease` will produce a properly signed release APK.
+
+### Step 2: Get SHA256 Fingerprints
+
+Use the helper script (recommended):
+
+```bash
+chmod +x get_sha256.sh
+./get_sha256.sh
+```
+
+This script will:
+- Read debug SHA256 from `~/.android/debug.keystore`
+- Read release SHA256 from `android/keystore.properties` + configured keystore
+- Update `android/app/src/main/assets/.well-known/assetlinks.json`
+
+Manual commands if needed:
 
 **For Debug Build:**
 ```bash
-cd android
-keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 ```
 
 **For Production Build:**
 ```bash
-keytool -list -v -keystore /path/to/your/production.keystore -alias your_alias -storepass your_password
+keytool -list -v -keystore android/app/release-key.jks -alias mysys_release
 ```
 
-### Step 2: Create assetlinks.json
+### Step 3: Create/Update assetlinks.json
 
 Update the file at: `android/app/src/main/assets/.well-known/assetlinks.json`
 
@@ -63,7 +82,7 @@ Example:
 }]
 ```
 
-### Step 3: Host assetlinks.json on Your Server
+### Step 4: Host assetlinks.json on Your Server
 
 **IMPORTANT:** You must host the assetlinks.json file on your web server.
 
@@ -76,7 +95,7 @@ You can verify it works by visiting:
 https://feed.systemadminbd.com/.well-known/assetlinks.json
 ```
 
-### Step 4: Build and Sign Your APK
+### Step 5: Build and Sign Your APK
 
 **Debug APK:**
 ```bash
@@ -89,14 +108,18 @@ Output: `android/app/build/outputs/apk/debug/app-debug.apk`
 
 **Release APK (Production):**
 ```bash
-pnpm build
-npx cap sync android
+pnpm apk
 cd android
 ./gradlew assembleRelease
 ```
 Output: `android/app/build/outputs/apk/release/app-release.apk`
 
-### Step 5: Verify App Links
+Verify signing:
+```bash
+keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk | grep SHA256
+```
+
+### Step 6: Verify App Links
 
 After installing the app on your device:
 
@@ -180,8 +203,7 @@ adb shell am start -W -a android.intent.action.VIEW \
 
 ## Next Steps
 
-1. Get your SHA256 fingerprints
-2. Update `assetlinks.json` with correct fingerprints
-3. Host `assetlinks.json` on your server
-4. Build and test your APK
-5. Verify app links work on your device
+1. Run `./get_sha256.sh` and upload generated assetlinks.json to server
+2. Build signed release with `./gradlew assembleRelease`
+3. Install APK and test app links on device
+4. Keep `android/keystore.properties` and `android/app/release-key.jks` backed up securely

@@ -1,81 +1,108 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Script to get SHA256 fingerprints for Android App Links
-# Run this script to get the fingerprints needed for assetlinks.json
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANDROID_DIR="$ROOT_DIR/android"
+APP_DIR="$ANDROID_DIR/app"
+ANDROID_ASSETLINKS_PATH="$APP_DIR/src/main/assets/.well-known/assetlinks.json"
+PUBLIC_ASSETLINKS_PATH="$ROOT_DIR/public/.well-known/assetlinks.json"
+KEYSTORE_PROPS="$ANDROID_DIR/keystore.properties"
+PACKAGE_NAME="com.mysys.app"
 
 echo "======================================"
 echo "Android App Links - SHA256 Generator"
 echo "======================================"
-echo ""
 
-# Check if we're in the right directory
-if [ ! -d "android/app" ]; then
-    echo "Error: Please run this script from the project root directory"
+if [[ ! -d "$APP_DIR" ]]; then
+    echo "Error: android/app not found. Run from project root."
     exit 1
 fi
 
-echo "Getting DEBUG keystore SHA256 fingerprint..."
-echo ""
+extract_sha() {
+    local keystore_path="$1"
+    local alias_name="$2"
+    local store_password="$3"
+    local key_password="$4"
 
-# Try to get debug keystore fingerprint
-if [ -f "android/app/debug.keystore" ]; then
-    DEBUG_SHA256=$(keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android 2>/dev/null | grep "SHA256:" | awk '{print $2}')
-    if [ ! -z "$DEBUG_SHA256" ]; then
-        echo "✓ Debug SHA256: $DEBUG_SHA256"
-    else
-        echo "✗ Could not get debug SHA256"
-        DEBUG_SHA256="YOUR_DEBUG_SHA256_HERE"
-    fi
-else
-    echo "✗ Debug keystore not found. Building the app first..."
-    cd android && ./gradlew assembleDebug && cd ..
-    DEBUG_SHA256=$(keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android 2>/dev/null | grep "SHA256:" | awk '{print $2}')
-    if [ ! -z "$DEBUG_SHA256" ]; then
-        echo "✓ Debug SHA256: $DEBUG_SHA256"
-    else
-        DEBUG_SHA256="YOUR_DEBUG_SHA256_HERE"
+    keytool -list -v \
+        -keystore "$keystore_path" \
+        -alias "$alias_name" \
+        -storepass "$store_password" \
+        -keypass "$key_password" 2>/dev/null | awk '/SHA256:/{print $2; exit}'
+}
+
+DEBUG_KEYSTORE="$HOME/.android/debug.keystore"
+if [[ ! -f "$DEBUG_KEYSTORE" ]]; then
+    echo "Debug keystore not found. Generating by assembling debug once..."
+    (cd "$ANDROID_DIR" && ./gradlew assembleDebug >/dev/null)
+fi
+
+DEBUG_SHA256="$(extract_sha "$DEBUG_KEYSTORE" "androiddebugkey" "android" "android" || true)"
+if [[ -z "$DEBUG_SHA256" ]]; then
+    echo "Failed to read debug SHA256 fingerprint."
+    exit 1
+fi
+
+RELEASE_SHA256=""
+if [[ -f "$KEYSTORE_PROPS" ]]; then
+    source "$KEYSTORE_PROPS"
+    RELEASE_KEYSTORE_PATH="$ANDROID_DIR/${storeFile}"
+    if [[ -f "$RELEASE_KEYSTORE_PATH" ]]; then
+        RELEASE_SHA256="$(extract_sha "$RELEASE_KEYSTORE_PATH" "$keyAlias" "$storePassword" "$keyPassword" || true)"
     fi
 fi
 
-echo ""
-echo "======================================"
-echo "For PRODUCTION builds:"
-echo "======================================"
-echo "You need to use your production keystore."
-echo "Run:"
-echo "keytool -list -v -keystore /path/to/your/production.keystore -alias your_alias -storepass your_password"
-echo ""
-echo "======================================"
-echo "Updating assetlinks.json..."
-echo "======================================"
+mkdir -p "$(dirname "$ANDROID_ASSETLINKS_PATH")"
+mkdir -p "$(dirname "$PUBLIC_ASSETLINKS_PATH")"
 
-# Create or update assetlinks.json
-mkdir -p android/app/src/main/assets/.well-known
+write_assetlinks() {
+    local output_path="$1"
 
-cat > android/app/src/main/assets/.well-known/assetlinks.json << EOF
+    if [[ -n "$RELEASE_SHA256" ]]; then
+        cat > "$output_path" <<EOF
 [{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.mysys.app",
-    "sha256_cert_fingerprints": [
-      "$DEBUG_SHA256"
-    ]
-  }
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+        "namespace": "android_app",
+        "package_name": "$PACKAGE_NAME",
+        "sha256_cert_fingerprints": [
+            "$DEBUG_SHA256",
+            "$RELEASE_SHA256"
+        ]
+    }
 }]
 EOF
+    else
+        cat > "$output_path" <<EOF
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+        "namespace": "android_app",
+        "package_name": "$PACKAGE_NAME",
+        "sha256_cert_fingerprints": [
+            "$DEBUG_SHA256"
+        ]
+    }
+}]
+EOF
+    fi
+}
 
-echo "✓ assetlinks.json updated with debug fingerprint"
+write_assetlinks "$ANDROID_ASSETLINKS_PATH"
+write_assetlinks "$PUBLIC_ASSETLINKS_PATH"
+
 echo ""
-echo "File location: android/app/src/main/assets/.well-known/assetlinks.json"
+echo "Debug SHA256:   $DEBUG_SHA256"
+if [[ -n "$RELEASE_SHA256" ]]; then
+    echo "Release SHA256: $RELEASE_SHA256"
+else
+    echo "Release SHA256: Not found (configure android/keystore.properties first)"
+fi
 echo ""
-echo "======================================"
-echo "IMPORTANT: You must also host this file on your server!"
-echo "Upload to: https://feed.systemadminbd.com/.well-known/assetlinks.json"
-echo "======================================"
+echo "assetlinks.json updated:"
+echo "- $ANDROID_ASSETLINKS_PATH"
+echo "- $PUBLIC_ASSETLINKS_PATH"
 echo ""
-echo "Content to upload:"
-echo "--------------------------------------"
-cat android/app/src/main/assets/.well-known/assetlinks.json
-echo ""
-echo "--------------------------------------"
+echo "Deploy from public path to server URL:"
+echo "https://feed.systemadminbd.com/.well-known/assetlinks.json"

@@ -15,4 +15,3 @@ export { default as ReelItem } from "./ReelItem";
 export { default as ReelCommentsModal } from "./ReelCommentsModal";
 export { default as VideoPlayer } from "./VideoPlayer";
 export { default as FileCard } from "./FileCard";
-export { default as ImageAttachment } from "./ImageAttachment";
