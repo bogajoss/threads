@@ -47,6 +47,13 @@ interface SelectedFile {
   file: File;
 }
 
+interface CreatePostDraft {
+  postContent: string;
+  hashtags: string;
+  replySetting: string;
+  selectedCommunityId: string | null;
+}
+
 const CreatePost: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,6 +67,10 @@ const CreatePost: React.FC = () => {
 
   const initialCommunity = location.state?.initialCommunity;
   const isStory = location.state?.isStory || false;
+  const draftStorageKey = currentUser
+    ? `create-post-draft:${currentUser.id}:${isStory ? "story" : "post"}`
+    : null;
+  const hasRestoredDraftRef = useRef(false);
 
   const [postContent, setPostContent] = useState("");
   const [hashtags, setHashtags] = useState("");
@@ -106,6 +117,62 @@ const CreatePost: React.FC = () => {
       navigate("/login");
     }
   }, [currentUser, navigate]);
+
+  useEffect(() => {
+    if (!draftStorageKey || hasRestoredDraftRef.current) return;
+
+    const rawDraft = sessionStorage.getItem(draftStorageKey);
+    if (!rawDraft) {
+      hasRestoredDraftRef.current = true;
+      return;
+    }
+
+    try {
+      const parsedDraft = JSON.parse(rawDraft) as CreatePostDraft;
+      setPostContent(parsedDraft.postContent || "");
+      setHashtags(parsedDraft.hashtags || "");
+      setReplySetting(parsedDraft.replySetting || "anyone");
+
+      if (parsedDraft.selectedCommunityId) {
+        setSelectedCommunity({ id: parsedDraft.selectedCommunityId });
+      }
+    } catch (error) {
+      console.error("Failed to restore create post draft", error);
+      sessionStorage.removeItem(draftStorageKey);
+    } finally {
+      hasRestoredDraftRef.current = true;
+    }
+  }, [draftStorageKey]);
+
+  useEffect(() => {
+    if (!draftStorageKey || !hasRestoredDraftRef.current) return;
+
+    const draft: CreatePostDraft = {
+      postContent,
+      hashtags,
+      replySetting,
+      selectedCommunityId: selectedCommunity?.id || null,
+    };
+
+    const isEmptyDraft =
+      !draft.postContent.trim() &&
+      !draft.hashtags.trim() &&
+      !draft.selectedCommunityId &&
+      draft.replySetting === "anyone";
+
+    if (isEmptyDraft) {
+      sessionStorage.removeItem(draftStorageKey);
+      return;
+    }
+
+    sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+  }, [
+    draftStorageKey,
+    hashtags,
+    postContent,
+    replySetting,
+    selectedCommunity?.id,
+  ]);
 
   const generateVideoThumbnail = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -349,6 +416,11 @@ const CreatePost: React.FC = () => {
         });
         addToast("Post published!");
       }
+
+      if (draftStorageKey) {
+        sessionStorage.removeItem(draftStorageKey);
+      }
+
       navigate("/feed");
     } catch (err) {
       console.error("Failed to create post:", err);

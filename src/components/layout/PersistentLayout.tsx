@@ -8,14 +8,45 @@ const Explore = lazy(() => import("@/pages/(feed)/Explore"));
 const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
+const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
+const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 
 interface PersistentLayoutProps {
   onStoryClick?: (story: any) => void;
 }
 
+type PersistentTabKey =
+  | "feed"
+  | "explore"
+  | "reels"
+  | "messages"
+  | "notifications"
+  | "create"
+  | "editProfile";
+
+const normalizePath = (pathname: string): string =>
+  pathname.length > 1 && pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname;
+
+const getPersistentTabKey = (pathname: string): PersistentTabKey | null => {
+  const path = normalizePath(pathname);
+
+  if (path === "/" || path === "/feed" || path === "/home") return "feed";
+  if (path === "/explore") return "explore";
+  if (path === "/r") return "reels";
+  if (path === "/m") return "messages";
+  if (path === "/notifications") return "notifications";
+  if (path === "/create") return "create";
+  if (path === "/edit-profile") return "editProfile";
+
+  return null;
+};
+
 const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => {
   const location = useLocation();
-  const path = location.pathname;
+  const path = normalizePath(location.pathname);
+  const activeTabKey = getPersistentTabKey(path);
   const scrollPositions = useRef<Record<string, number>>({});
 
   // Track the *previous* path to know what to save
@@ -23,23 +54,24 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
   const currentScrollY = useRef(0);
 
   // Page state - track which pages have been visited to keep them alive
-  const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set());
+  const [visitedPages, setVisitedPages] = useState<Set<PersistentTabKey>>(() => {
+    const initialSet = new Set<PersistentTabKey>();
+    if (activeTabKey) initialSet.add(activeTabKey);
+    return initialSet;
+  });
 
-  // Active state logic
-  const isFeedActive = path === "/feed" || path === "/";
-  const isExploreActive = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/"));
-  const isReelsActive = path === "/r" || path === "/r/";
-  const isMessagesActive = path === "/m" || path === "/m/";
-  const isNotificationsActive = path === "/notifications";
-
-  // Track which pages have been visited to preserve them
   useEffect(() => {
-    if (isFeedActive) setVisitedPages(prev => new Set(prev).add("feed"));
-    else if (isExploreActive) setVisitedPages(prev => new Set(prev).add("explore"));
-    else if (isReelsActive) setVisitedPages(prev => new Set(prev).add("reels"));
-    else if (isMessagesActive) setVisitedPages(prev => new Set(prev).add("messages"));
-    else if (isNotificationsActive) setVisitedPages(prev => new Set(prev).add("notifications"));
-  }, [isFeedActive, isExploreActive, isReelsActive, isMessagesActive, isNotificationsActive]);
+    if (!activeTabKey) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVisitedPages(prev => {
+      if (prev.has(activeTabKey)) return prev;
+
+      const newSet = new Set(prev);
+      newSet.add(activeTabKey);
+      return newSet;
+    });
+  }, [activeTabKey]);
 
   // Continuous scroll tracker
   useEffect(() => {
@@ -55,39 +87,23 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
     // If path has changed
     if (prevPathRef.current !== path) {
       const prev = prevPathRef.current;
-      const wasFeed = prev === "/feed" || prev === "/";
-      const wasExplore = prev === "/explore" || (prev.startsWith("/explore/") && prev.split("/").length === 3);
-      const wasReels = prev === "/r" || prev === "/r/";
-      const wasMessages = prev === "/m" || prev === "/m/";
-      const wasNotifications = prev === "/notifications";
+      const previousTabKey = getPersistentTabKey(prev);
 
       const lastScrollY = currentScrollY.current;
 
       // Save the last known scroll position to the outgoing tab
-      if (wasFeed) scrollPositions.current["feed"] = lastScrollY;
-      else if (wasExplore) scrollPositions.current["explore"] = lastScrollY;
-      else if (wasReels) scrollPositions.current["reels"] = lastScrollY;
-      else if (wasMessages) scrollPositions.current["messages"] = lastScrollY;
-      else if (wasNotifications) scrollPositions.current["notifications"] = lastScrollY;
+      if (previousTabKey) {
+        scrollPositions.current[previousTabKey] = lastScrollY;
+      }
 
       prevPathRef.current = path;
 
-      // Restore scroll for the NEW path with a small delay to ensure DOM is ready
-      const getPos = (key: string) => scrollPositions.current[key] || 0;
-      let newPos = 0;
+      const nextTabKey = getPersistentTabKey(path);
 
-      // Determine new active 
-      const newIsFeed = path === "/feed" || path === "/";
-      const newIsExplore = path === "/explore" || (path.startsWith("/explore/") && path.split("/").length === 3 && !path.includes("/tags/"));
-      const newIsReels = path === "/r" || path === "/r/";
-      const newIsMessages = path === "/m" || path === "/m/";
-      const newIsNotifications = path === "/notifications";
+      // Restore scroll only for persistent tab routes
+      if (!nextTabKey) return;
 
-      if (newIsFeed) newPos = getPos("feed");
-      else if (newIsExplore) newPos = getPos("explore");
-      else if (newIsReels) newPos = getPos("reels");
-      else if (newIsMessages) newPos = getPos("messages");
-      else if (newIsNotifications) newPos = getPos("notifications");
+      const newPos = scrollPositions.current[nextTabKey] || 0;
 
       // Use requestAnimationFrame to ensure scroll happens after render
       requestAnimationFrame(() => {
@@ -102,7 +118,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
     <div className="relative w-full">
       {/* FEED */}
       {visitedPages.has("feed") && (
-        <div className={isFeedActive ? "block min-h-[100dvh]" : "hidden"}>
+        <div className={activeTabKey === "feed" ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Feed onStoryClick={onStoryClick} />
           </PageTransition>
@@ -111,7 +127,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
       {/* EXPLORE */}
       {visitedPages.has("explore") && (
-        <div className={isExploreActive ? "block min-h-[100dvh]" : "hidden"}>
+        <div className={activeTabKey === "explore" ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Explore />
           </PageTransition>
@@ -120,7 +136,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
       {/* REELS */}
       {visitedPages.has("reels") && (
-        <div className={isReelsActive ? "block min-h-[100dvh]" : "hidden bg-black"}>
+        <div className={activeTabKey === "reels" ? "block min-h-[100dvh]" : "hidden bg-black"}>
           <PageTransition mode="none">
             <Reels />
           </PageTransition>
@@ -129,7 +145,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
       {/* MESSAGES */}
       {visitedPages.has("messages") && (
-        <div className={isMessagesActive ? "block min-h-[100dvh]" : "hidden"}>
+        <div className={activeTabKey === "messages" ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Messages />
           </PageTransition>
@@ -138,9 +154,27 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
 
       {/* NOTIFICATIONS */}
       {visitedPages.has("notifications") && (
-        <div className={isNotificationsActive ? "block min-h-[100dvh]" : "hidden"}>
+        <div className={activeTabKey === "notifications" ? "block min-h-[100dvh]" : "hidden"}>
           <PageTransition mode="none">
             <Notifications />
+          </PageTransition>
+        </div>
+      )}
+
+      {/* CREATE POST */}
+      {visitedPages.has("create") && (
+        <div className={activeTabKey === "create" ? "block min-h-[100dvh]" : "hidden"}>
+          <PageTransition mode="none">
+            <CreatePost />
+          </PageTransition>
+        </div>
+      )}
+
+      {/* EDIT PROFILE */}
+      {visitedPages.has("editProfile") && (
+        <div className={activeTabKey === "editProfile" ? "block min-h-[100dvh]" : "hidden"}>
+          <PageTransition mode="none">
+            <EditProfile />
           </PageTransition>
         </div>
       )}

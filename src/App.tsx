@@ -31,10 +31,8 @@ const Community = lazy(() => import("@/pages/(feed)/Community"));
 const PostDetails = lazy(() => import("@/pages/(feed)/PostDetails"));
 const Settings = lazy(() => import("@/pages/(feed)/Settings"));
 const HashtagFeed = lazy(() => import("@/pages/(feed)/HashtagFeed"));
-const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
 const CreateCommunity = lazy(() => import("@/pages/(feed)/CreateCommunity"));
 const CreateGroup = lazy(() => import("@/pages/(feed)/CreateGroup"));
-const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
@@ -109,14 +107,7 @@ export default function Mysys() {
               />
 
               <Route path="/p/:id" element={<PageTransition><PostDetails /></PageTransition>} />
-              <Route
-                path="/create"
-                element={
-                  <PageTransition>
-                    <CreatePost />
-                  </PageTransition>
-                }
-              />
+              <Route path="/create" element={null} />
               <Route
                 path="/create-community"
                 element={
@@ -161,14 +152,7 @@ export default function Mysys() {
                   </PageTransition>
                 }
               />
-              <Route
-                path="/edit-profile"
-                element={
-                  <PageTransition>
-                    <EditProfile />
-                  </PageTransition>
-                }
-              />
+              <Route path="/edit-profile" element={null} />
               
               {/* Correctly nest MarketplaceLayout */}
               <Route element={<MarketplaceLayout />}>

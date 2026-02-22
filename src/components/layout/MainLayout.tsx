@@ -19,7 +19,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
   const { darkMode } = useTheme();
   const navigate = useNavigate();
 
-  const isHomePage = location.pathname === "/" || location.pathname === "/feed";
+  const isHomePage =
+    location.pathname === "/" ||
+    location.pathname === "/feed" ||
+    location.pathname === "/home";
   const isReelsPage = location.pathname.startsWith("/r");
 
   const isNavHidden =

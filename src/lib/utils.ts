@@ -46,19 +46,25 @@ export const getBaseUrl = (): string => {
 export const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
-    // List of routes that are handled by PersistentLayout
-    // When navigating BETWEEN these routes, we want to maintain scroll position (or restore it)
-    // rather than resetting to top.
-    
-    const persistentRoutes = ["/", "/feed", "/explore", "/notifications", "/r", "/m"];
-    const isPersistent = persistentRoutes.includes(pathname) || 
-                         pathname.startsWith("/r/") || 
-                         pathname.startsWith("/m/") ||
-                         pathname.startsWith("/explore/");
-    
-    // Only scroll to top if we are NOT on a persistent route.
-    // This allows PersistentLayout to handle scroll restoration for its tabs.
-    // And for detail pages (like /p/:id), this will scroll to top as desired.
+    const normalizedPath =
+      pathname.length > 1 && pathname.endsWith("/")
+        ? pathname.slice(0, -1)
+        : pathname;
+
+    const persistentRoutes = new Set([
+      "/",
+      "/feed",
+      "/home",
+      "/explore",
+      "/notifications",
+      "/r",
+      "/m",
+      "/create",
+      "/edit-profile",
+    ]);
+
+    const isPersistent = persistentRoutes.has(normalizedPath);
+
     if (!isPersistent) {
       window.scrollTo(0, 0);
     }

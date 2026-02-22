@@ -19,10 +19,20 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PageTransition } from "@/components/layout";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
 
+interface EditProfileDraft {
+  name?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+}
+
 const EditProfile: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, updateProfile } = useAuth();
   const { addToast } = useToast();
+  const draftStorageKey = currentUser?.id
+    ? `edit-profile-draft:${currentUser.id}`
+    : null;
 
   const [loading, setLoading] = useState(false);
   const [editProfileData, setEditProfileData] = useState<any>(
@@ -33,13 +43,69 @@ const EditProfile: React.FC = () => {
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const hasRestoredDraftRef = useRef(false);
+  const isDirtyRef = useRef(false);
   const bioTextareaRef = useAutoResizeTextArea(editProfileData?.bio || "", 80, 300);
 
+  const setEditProfileDataDirty = (nextData: any) => {
+    isDirtyRef.current = true;
+    setEditProfileData(nextData);
+  };
+
   useEffect(() => {
-    if (currentUser) {
+    if (!currentUser || hasRestoredDraftRef.current) return;
+
+    if (draftStorageKey) {
+      const rawDraft = sessionStorage.getItem(draftStorageKey);
+      if (rawDraft) {
+        try {
+          const parsedDraft = JSON.parse(rawDraft) as EditProfileDraft;
+          setEditProfileData({ ...currentUser, ...parsedDraft });
+          isDirtyRef.current = true;
+        } catch (error) {
+          console.error("Failed to restore edit profile draft", error);
+          sessionStorage.removeItem(draftStorageKey);
+          setEditProfileData(currentUser);
+        }
+      } else {
+        setEditProfileData(currentUser);
+      }
+    } else {
       setEditProfileData(currentUser);
     }
-  }, [currentUser]);
+
+    hasRestoredDraftRef.current = true;
+  }, [currentUser, draftStorageKey]);
+
+  useEffect(() => {
+    if (!draftStorageKey || !hasRestoredDraftRef.current) return;
+
+    const draft: EditProfileDraft = {
+      name: editProfileData?.name || "",
+      bio: editProfileData?.bio || "",
+      location: editProfileData?.location || "",
+      website: editProfileData?.website || "",
+    };
+
+    const isEmptyDraft =
+      !draft.name?.trim() &&
+      !draft.bio?.trim() &&
+      !draft.location?.trim() &&
+      !draft.website?.trim();
+
+    if (isEmptyDraft) {
+      sessionStorage.removeItem(draftStorageKey);
+      return;
+    }
+
+    sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+  }, [
+    draftStorageKey,
+    editProfileData?.bio,
+    editProfileData?.location,
+    editProfileData?.name,
+    editProfileData?.website,
+  ]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -105,6 +171,11 @@ const EditProfile: React.FC = () => {
         cover: coverUrl,
         website: cleanedWebsite,
       });
+
+      if (draftStorageKey) {
+        sessionStorage.removeItem(draftStorageKey);
+      }
+      isDirtyRef.current = false;
 
       setNewAvatarFile(null);
       setNewCoverFile(null);
@@ -253,7 +324,7 @@ const EditProfile: React.FC = () => {
                       HTMLInputElement | HTMLTextAreaElement
                     >,
                   ) =>
-                    setEditProfileData({
+                    setEditProfileDataDirty({
                       ...editProfileData,
                       name: e.target.value,
                     })
@@ -289,9 +360,9 @@ const EditProfile: React.FC = () => {
                     const words = raw.trim().split(/\s+/).filter(Boolean);
                     if (words.length > 60) {
                       const trimmed = words.slice(0, 60).join(" ");
-                      setEditProfileData({ ...editProfileData, bio: trimmed });
+                      setEditProfileDataDirty({ ...editProfileData, bio: trimmed });
                     } else {
-                      setEditProfileData({ ...editProfileData, bio: raw });
+                      setEditProfileDataDirty({ ...editProfileData, bio: raw });
                     }
                   }}
                 />
@@ -321,7 +392,7 @@ const EditProfile: React.FC = () => {
                       HTMLInputElement | HTMLTextAreaElement
                     >,
                   ) =>
-                    setEditProfileData({
+                    setEditProfileDataDirty({
                       ...editProfileData,
                       location: e.target.value,
                     })
@@ -345,7 +416,7 @@ const EditProfile: React.FC = () => {
                       HTMLInputElement | HTMLTextAreaElement
                     >,
                   ) =>
-                    setEditProfileData({
+                    setEditProfileDataDirty({
                       ...editProfileData,
                       website: e.target.value,
                     })
