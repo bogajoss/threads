@@ -162,6 +162,7 @@ export default function Mysys() {
             </Route>
             
             <Route path="/syspanel" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
+              <Route index element={<UserManagement />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="reports" element={<ReportsManagement />} />
             </Route>
