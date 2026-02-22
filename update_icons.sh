@@ -1,5 +1,5 @@
 #!/bin/bash
-SOURCE="/workspaces/codespaces-blank/threads/public/logo.webp"
+SOURCE="/workspaces/codespaces-blank/threads/public/logo.png"
 RES_DIR="/workspaces/codespaces-blank/threads/android/app/src/main/res"
 
 # Function to resize and copy
