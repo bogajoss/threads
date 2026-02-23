@@ -9,6 +9,7 @@ import {
   SignupCard,
   ScrollArea,
   ScrollBar,
+  PullToRefresh,
 } from "@/components/ui";
 import { useHome } from "@/hooks";
 
@@ -84,6 +85,7 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
     fetchNextPage,
     handlePostClick,
     handleUserClick,
+    refreshPosts,
   } = useHome();
 
   if (isPostsLoading || isStoriesLoading) {
@@ -105,51 +107,53 @@ const Home: React.FC<any> = ({ onStoryClick }) => {
   }
 
   return (
-    <div className="w-full max-w-full min-h-screen rounded-none border-zinc-100 bg-background dark:border-zinc-800 md:rounded-xl">
-      <Virtuoso
-        useWindowScroll
-        data={homePosts}
-        overscan={400}
-        increaseViewportBy={200}
-        components={{
-          Header: () => (
-            <HomeHeader
-              currentUser={currentUser}
-              groupedStories={groupedStories}
-              onAddStory={() =>
-                navigate("/create", { state: { isStory: true } })
-              }
-              onStoryClick={onStoryClick}
-            />
-          ),
-          Footer: () => (
-            <HomeFooter
-              isFetchingNextPage={isFetchingNextPage}
-              hasMore={hasMore}
-              hasPosts={homePosts.length > 0}
-            />
-          ),
-        }}
-        endReached={() => {
-          if (hasMore && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        itemContent={(index, post) => (
-          <>
-            <Post
-              key={post.feed_id || post.id}
-              {...post}
-              currentUser={currentUser}
-              onClick={() => handlePostClick(post.id)}
-              onUserClick={handleUserClick}
-            />
-            {(index === 4 || (index > 4 && (index - 4) % 25 === 0)) && (
-              <ReelsRow index={Math.floor((index + 1) / 5)} />
-            )}
-          </>
-        )}
-      />
+    <div className="w-full max-full min-h-screen rounded-none border-zinc-100 bg-background dark:border-zinc-800 md:rounded-xl">
+      <PullToRefresh onRefresh={refreshPosts}>
+        <Virtuoso
+          useWindowScroll
+          data={homePosts}
+          overscan={400}
+          increaseViewportBy={200}
+          components={{
+            Header: () => (
+              <HomeHeader
+                currentUser={currentUser}
+                groupedStories={groupedStories}
+                onAddStory={() =>
+                  navigate("/create", { state: { isStory: true } })
+                }
+                onStoryClick={onStoryClick}
+              />
+            ),
+            Footer: () => (
+              <HomeFooter
+                isFetchingNextPage={isFetchingNextPage}
+                hasMore={hasMore}
+                hasPosts={homePosts.length > 0}
+              />
+            ),
+          }}
+          endReached={() => {
+            if (hasMore && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          itemContent={(index, post) => (
+            <>
+              <Post
+                key={post.feed_id || post.id}
+                {...post}
+                currentUser={currentUser}
+                onClick={() => handlePostClick(post.id)}
+                onUserClick={handleUserClick}
+              />
+              {(index === 4 || (index > 4 && (index - 4) % 25 === 0)) && (
+                <ReelsRow index={Math.floor((index + 1) / 5)} />
+              )}
+            </>
+          )}
+        />
+      </PullToRefresh>
     </div>
   );
 };

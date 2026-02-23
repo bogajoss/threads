@@ -7,7 +7,7 @@ import {
   useNavigate
 } from "react-router-dom";
 
-import { useAuth } from "@/context/AuthContext";
+
 import { useLightbox } from "@/context/LightboxContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
@@ -59,7 +59,6 @@ const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 
 export default function Mysys() {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
 
@@ -74,108 +73,108 @@ export default function Mysys() {
 
       <Suspense fallback={null}>
         <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            
-            <Route element={currentUser ? <MainLayout onStoryClick={setViewingStory} /> : <MainLayout onStoryClick={setViewingStory} />}>
-              <Route path="/" element={null} />
-              <Route path="/feed" element={null} />
-              <Route path="/home" element={null} />
-              <Route path="/explore" element={null} />
-              <Route path="/r" element={null} />
-              <Route path="/m" element={null} />
-              <Route path="/notifications" element={null} />
-              
-              <Route
-                path="/r/:id"
-                element={
-                  <PageTransition>
-                    <Reels key="reels-page" />
-                  </PageTransition>
-                }
-              />
-              <Route path="/m/:id" element={<PageTransition><Messages /></PageTransition>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/onboarding" element={<Onboarding />} />
 
-              <Route
-                path="/settings"
-                element={
-                  <PageTransition>
-                    <Settings />
-                  </PageTransition>
-                }
-              />
+          <Route element={<MainLayout onStoryClick={setViewingStory} />}>
+            <Route path="/" element={null} />
+            <Route path="/feed" element={null} />
+            <Route path="/home" element={null} />
+            <Route path="/explore" element={null} />
+            <Route path="/r" element={null} />
+            <Route path="/m" element={null} />
+            <Route path="/notifications" element={null} />
 
-              <Route path="/p/:id" element={<PageTransition><PostDetails /></PageTransition>} />
-              <Route path="/create" element={null} />
-              <Route
-                path="/create-community"
-                element={
-                  <PageTransition>
-                    <CreateCommunity />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/create-group"
-                element={
-                  <PageTransition>
-                    <CreateGroup />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/c/:handle"
-                element={
-                  <PageTransition>
-                    <Community
-                      onPostInCommunity={(c: any) => {
-                        navigate("/create", { state: { initialCommunity: c } });
-                      }}
-                    />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/tags/:tag"
-                element={
-                  <PageTransition>
-                    <HashtagFeed />
-                  </PageTransition>
-                }
-              />
-              <Route
-                path="/u/:handle"
-                element={
-                  <PageTransition>
-                    <Profile />
-                  </PageTransition>
-                }
-              />
-              <Route path="/edit-profile" element={null} />
-              
-              {/* Correctly nest MarketplaceLayout */}
-              <Route element={<MarketplaceLayout />}>
-                 <Route path="/pro" element={<ProPage />} />
-              </Route>
+            <Route
+              path="/r/:id"
+              element={
+                <PageTransition>
+                  <Reels key="reels-page" />
+                </PageTransition>
+              }
+            />
+            <Route path="/m/:id" element={<PageTransition><Messages /></PageTransition>} />
 
-            </Route>
-            
-            <Route path="/syspanel" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
-              <Route index element={<UserManagement />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="reports" element={<ReportsManagement />} />
+            <Route
+              path="/settings"
+              element={
+                <PageTransition>
+                  <Settings />
+                </PageTransition>
+              }
+            />
+
+            <Route path="/p/:id" element={<PageTransition><PostDetails /></PageTransition>} />
+            <Route path="/create" element={null} />
+            <Route
+              path="/create-community"
+              element={
+                <PageTransition>
+                  <CreateCommunity />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/create-group"
+              element={
+                <PageTransition>
+                  <CreateGroup />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/c/:handle"
+              element={
+                <PageTransition>
+                  <Community
+                    onPostInCommunity={(c: any) => {
+                      navigate("/create", { state: { initialCommunity: c } });
+                    }}
+                  />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/tags/:tag"
+              element={
+                <PageTransition>
+                  <HashtagFeed />
+                </PageTransition>
+              }
+            />
+            <Route
+              path="/u/:handle"
+              element={
+                <PageTransition>
+                  <Profile />
+                </PageTransition>
+              }
+            />
+            <Route path="/edit-profile" element={null} />
+
+            {/* Correctly nest MarketplaceLayout */}
+            <Route element={<MarketplaceLayout />}>
+              <Route path="/pro" element={<ProPage />} />
             </Route>
 
-            <Route path="/info" element={<InfoLayout />}>
-              <Route path="terms" element={<Terms />} />
-              <Route path="privacy" element={<Privacy />} />
-              <Route path="guidelines" element={<Guidelines />} />
-              <Route path="support" element={<Support />} />
-              <Route path="status" element={<Status />} />
-            </Route>
+          </Route>
 
-            <Route path="*" element={<NotFoundPage />} />
+          <Route path="/syspanel" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<UserManagement />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="reports" element={<ReportsManagement />} />
+          </Route>
+
+          <Route path="/info" element={<InfoLayout />}>
+            <Route path="terms" element={<Terms />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="guidelines" element={<Guidelines />} />
+            <Route path="support" element={<Support />} />
+            <Route path="status" element={<Status />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
 

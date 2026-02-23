@@ -31,3 +31,4 @@ export * from "./custom-icons";
 export * from "./row";
 export * from "./label";
 export * from "./switch";
+export { default as PullToRefresh } from "./PullToRefresh";

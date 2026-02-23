@@ -1,4 +1,4 @@
-import React, { lazy, useRef, useEffect, useLayoutEffect, useState } from "react";
+import React, { lazy, Suspense, useRef, useEffect, useLayoutEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import PageTransition from "./PageTransition";
 
@@ -119,63 +119,77 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
       {/* FEED */}
       {visitedPages.has("feed") && (
         <div className={activeTabKey === "feed" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <Feed onStoryClick={onStoryClick} />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <Feed onStoryClick={onStoryClick} />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* EXPLORE */}
       {visitedPages.has("explore") && (
         <div className={activeTabKey === "explore" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <Explore />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <Explore />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* REELS */}
       {visitedPages.has("reels") && (
         <div className={activeTabKey === "reels" ? "block min-h-[100dvh]" : "hidden bg-black"}>
-          <PageTransition mode="none">
-            <Reels />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <Reels />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* MESSAGES */}
       {visitedPages.has("messages") && (
         <div className={activeTabKey === "messages" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <Messages />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <Messages />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* NOTIFICATIONS */}
       {visitedPages.has("notifications") && (
         <div className={activeTabKey === "notifications" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <Notifications />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <Notifications />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* CREATE POST */}
       {visitedPages.has("create") && (
         <div className={activeTabKey === "create" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <CreatePost />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <CreatePost />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
 
       {/* EDIT PROFILE */}
       {visitedPages.has("editProfile") && (
         <div className={activeTabKey === "editProfile" ? "block min-h-[100dvh]" : "hidden"}>
-          <PageTransition mode="none">
-            <EditProfile />
-          </PageTransition>
+          <Suspense fallback={null}>
+            <PageTransition mode="none">
+              <EditProfile />
+            </PageTransition>
+          </Suspense>
         </div>
       )}
     </div>
