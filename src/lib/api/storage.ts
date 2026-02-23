@@ -8,6 +8,7 @@ export interface UploadResult {
   name: string;
   type: "image" | "video" | "file" | "audio";
   size: number;
+  duration?: string;
 }
 
 export const uploadFile = async (
@@ -18,6 +19,7 @@ export const uploadFile = async (
   let fileToUpload = file;
   let fileExt = file.name.split(".").pop();
   let posterUrl: string | null = null;
+  let videoDuration: string | undefined;
 
   if (file.type.startsWith("image/") && file.type !== "image/gif") {
     try {
@@ -34,9 +36,10 @@ export const uploadFile = async (
         const thumbRes = await uploadFile(customPoster, bucket);
         posterUrl = thumbRes.url;
       } else {
-        const thumbnailFile = await generateVideoThumbnail(file);
+        const { thumbnail: thumbnailFile, duration } = await generateVideoThumbnail(file);
         const thumbRes = await uploadFile(thumbnailFile, bucket);
         posterUrl = thumbRes.url;
+        videoDuration = duration;
       }
     } catch (err) {
       console.error("Failed to handle video poster:", err);
@@ -68,6 +71,7 @@ export const uploadFile = async (
           ? "audio"
           : "file",
     size: fileToUpload.size,
+    duration: videoDuration,
   };
 };
 

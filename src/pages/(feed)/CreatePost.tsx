@@ -14,6 +14,7 @@ import {
   Globe,
   Lock,
   UserCheck,
+  Play as PlayIcon,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
@@ -22,6 +23,7 @@ import { uploadFile, fetchUserCommunities, addStory } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ImageCropper from "@/components/ui/image-cropper";
 import { cn } from "@/lib/utils";
+import { generateVideoThumbnail } from "@/lib/video";
 import Button from "@/components/ui/Button";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
 import {
@@ -82,6 +84,7 @@ const CreatePost: React.FC = () => {
   const [customThumbnails, setCustomThumbnails] = useState<
     Record<string, File>
   >({});
+  const [durations, setDurations] = useState<Record<string, string>>({});
   // const [showPoll, setShowPoll] = useState(false); // Disabled - Coming Soon
   // const [pollData, setPollData] = useState({
   //   options: ["", ""],
@@ -175,46 +178,6 @@ const CreatePost: React.FC = () => {
     selectedCommunity?.id,
   ]);
 
-  const generateVideoThumbnail = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const video = document.createElement("video");
-      video.preload = "auto";
-      video.src = URL.createObjectURL(file);
-      video.muted = true;
-      video.playsInline = true;
-
-      video.onloadeddata = () => {
-        // Seek to 1 second or middle
-        const seekTime = Math.min(1, video.duration / 2);
-        video.currentTime = seekTime;
-      };
-
-      video.onseeked = () => {
-        // Small delay to ensure the frame is actually rendered
-        setTimeout(() => {
-          try {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext("2d");
-            ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumb = canvas.toDataURL("image/jpeg", 0.7);
-            resolve(thumb);
-          } catch (e) {
-            console.error("Error capturing thumbnail:", e);
-            resolve("");
-          } finally {
-            video.remove();
-          }
-        }, 150);
-      };
-
-      video.onerror = () => {
-        resolve("");
-      };
-    });
-  };
-
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles: SelectedFile[] = Array.from(e.target.files).map((file) => ({
@@ -227,13 +190,16 @@ const CreatePost: React.FC = () => {
     for (const fileObj of newFiles) {
       if (fileObj.file.type.startsWith("video/")) {
         try {
-          const thumb = await generateVideoThumbnail(fileObj.file);
-          if (thumb) {
-            setGeneratedThumbnails((prev) => ({
-              ...prev,
-              [fileObj.id]: thumb,
-            }));
-          }
+          const { thumbnail, duration } = await generateVideoThumbnail(fileObj.file);
+          const thumbUrl = URL.createObjectURL(thumbnail);
+          setGeneratedThumbnails((prev) => ({
+            ...prev,
+            [fileObj.id]: thumbUrl,
+          }));
+          setDurations((prev) => ({
+            ...prev,
+            [fileObj.id]: duration,
+          }));
         } catch (err) {
           console.error("Thumbnail generation failed", err);
         }
@@ -259,13 +225,16 @@ const CreatePost: React.FC = () => {
         for (const fileObj of newFiles) {
           if (fileObj.file.type.startsWith("video/")) {
             try {
-              const thumb = await generateVideoThumbnail(fileObj.file);
-              if (thumb) {
-                setGeneratedThumbnails((prev) => ({
-                  ...prev,
-                  [fileObj.id]: thumb,
-                }));
-              }
+              const { thumbnail, duration } = await generateVideoThumbnail(fileObj.file);
+              const thumbUrl = URL.createObjectURL(thumbnail);
+              setGeneratedThumbnails((prev) => ({
+                ...prev,
+                [fileObj.id]: thumbUrl,
+              }));
+              setDurations((prev) => ({
+                ...prev,
+                [fileObj.id]: duration,
+              }));
             } catch (err) {
               console.error("Thumbnail generation failed", err);
             }
@@ -614,7 +583,7 @@ const CreatePost: React.FC = () => {
                         )}
 
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-4 transition-all duration-300">
-                          <div className="flex items-center justify-start">
+                          <div className="flex items-center justify-between">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -627,6 +596,13 @@ const CreatePost: React.FC = () => {
                               <ImagePlus size={14} />
                               <span>Change Cover</span>
                             </button>
+
+                            {durations[file.id] && (
+                              <div className="flex items-center gap-1.5 rounded-lg bg-black/60 px-2 py-1.5 text-[10px] font-bold text-white backdrop-blur-md border border-white/10 shadow-lg">
+                                <PlayIcon size={10} className="fill-white" strokeWidth={0} />
+                                <span className="tabular-nums tracking-wider">{durations[file.id]}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </>

@@ -1,7 +1,9 @@
+import { formatDuration } from "./utils";
+
 export const generateVideoThumbnail = (
   file: File,
   seekTo: number = 1,
-): Promise<File> => {
+): Promise<{ thumbnail: File; duration: string }> => {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
 
@@ -58,7 +60,10 @@ export const generateVideoThumbnail = (
               type: "image/webp",
             });
             cleanup();
-            resolve(thumbnailFile);
+            resolve({
+              thumbnail: thumbnailFile,
+              duration: formatDuration(video.duration),
+            });
           },
           "image/webp",
           0.7,

@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   X,
   ChevronLeft,
   ChevronRight,
   Download,
   RotateCcw,
+  Lock,
 } from "lucide-react";
 import type { Media } from "@/types";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 interface ImageViewerProps {
   media?: (string | Media)[];
@@ -25,6 +28,8 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
   onClose,
   onNavigate,
 }) => {
+  const { currentUser } = useAuth();
+  const { addToast } = useToast();
   const [scale, setScale] = useState(1);
   const dragY = useMotionValue(0);
   const opacity = useTransform(dragY, [-200, 0, 200], [0.5, 1, 0.5]);
@@ -65,14 +70,55 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     typeof currentItem === "string" ? currentItem : currentItem.url;
   const hasMultiple = media.length > 1;
 
-  const handleDownload = (e: React.MouseEvent) => {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const link = document.createElement("a");
-    link.href = currentUrl;
-    link.download = `threads-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    if (!currentUser?.isPro) {
+      addToast("Upgrade to Pro to download media", "error");
+      return;
+    }
+
+    if (downloading) return;
+
+    try {
+      setDownloading(true);
+      const response = await fetch(currentUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `threads-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback for CORS issues
+      const link = document.createElement("a");
+      link.href = currentUrl;
+      link.target = "_blank";
+      link.download = `threads-${Date.now()}${isVideo ? ".mp4" : ".jpg"}`;
+      link.click();
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const plyrRef = useRef<any>(null);
+
+  const handleVideoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (plyrRef.current?.plyr) {
+      const player = plyrRef.current.plyr;
+      if (player.playing) {
+        player.pause();
+      } else {
+        player.play();
+      }
+    }
   };
 
   const plyrProps = {
@@ -95,7 +141,6 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
       ratio: "16:9",
       autoplay: true,
       clickToPlay: true,
-      hideControls: true,
       resetOnEnd: true,
     },
   };
@@ -136,9 +181,20 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           )}
           <button
             onClick={handleDownload}
-            className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
+            disabled={downloading}
+            className={`rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90 ${downloading ? "animate-pulse opacity-50" : ""
+              }`}
           >
-            <Download size={20} />
+            {downloading ? (
+              <RotateCcw size={20} className="animate-spin" />
+            ) : currentUser?.isPro ? (
+              <Download size={20} />
+            ) : (
+              <div className="relative">
+                <Download size={20} className="opacity-50" />
+                <Lock size={10} className="absolute -right-1 -top-1 text-zinc-400" strokeWidth={3} />
+              </div>
+            )}
           </button>
           <button
             onClick={onClose}
@@ -196,9 +252,9 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               }}
             >
               {isVideo ? (
-                <div className="flex size-full items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                  <div className="relative w-full max-w-[95vw] max-h-[85vh] overflow-hidden rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/40 backdrop-blur-sm border border-white/5">
-                    <Plyr {...plyrProps} />
+                <div className="flex size-full items-center justify-center" onClick={handleVideoClick}>
+                  <div className="relative w-full max-w-[95vw] max-h-[85vh] overflow-hidden rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/40 backdrop-blur-sm border border-white/5 pointer-events-auto">
+                    <Plyr ref={plyrRef} {...plyrProps} />
                   </div>
                 </div>
               ) : (

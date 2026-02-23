@@ -141,7 +141,7 @@ export const formatTimeAgo = (
 ): string => {
   if (!date) return "";
   const dateObj = typeof date === "string" ? new Date(date) : date;
-  
+
   // Check for invalid date
   if (isNaN(dateObj.getTime())) return "";
 
@@ -161,6 +161,17 @@ export const formatTimeAgo = (
     month: "2-digit",
     year: "2-digit",
   });
+};
+
+export const formatDuration = (seconds: number): string => {
+  if (isNaN(seconds) || seconds === Infinity || seconds < 0) return "0:00";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  }
+  return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
 export const isBangla = (text: unknown): boolean => {
@@ -183,17 +194,17 @@ export const extractUrl = (text: string | null | undefined): string | null => {
 export const getSafeImageUrl = (url: string | null | undefined, isPro: boolean = false): string => {
   if (!url) return "";
   const lowerUrl = url.toLowerCase();
-  
+
   // Only process GIFs
   if (!lowerUrl.includes('.gif')) return url;
-  
+
   // If user is Pro, show the full animated GIF
   if (isPro) return url;
-  
+
   // If not Pro, try to use Supabase Transformation to get a static frame (defaults to static if not specified otherwise)
   if (url.includes('.supabase.co/storage/v1/object/public/')) {
     return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=400&height=400&quality=80';
   }
-  
+
   return url;
 };
