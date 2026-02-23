@@ -177,10 +177,16 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
-              initial={{ opacity: 0, x: 50, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -50, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 30,
+                mass: 0.8,
+                filter: { duration: 0.2 }
+              }}
               className="flex h-full w-full items-center justify-center p-4"
               drag={scale === 1 ? "x" : false}
               dragConstraints={{ left: 0, right: 0 }}
