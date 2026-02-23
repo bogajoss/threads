@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   X,
   ImagePlus,
+  Crop,
   Users,
   Globe,
   Lock,
@@ -614,12 +615,27 @@ const CreatePost: React.FC = () => {
                         className="w-full h-full object-cover"
                       />
                     )}
-                    <button
-                      onClick={() => handleRemoveFile(file.id)}
-                      className="absolute top-3.5 right-3.5 bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-rose-500 transition-all z-10 shadow-xl group-hover:scale-110 active:scale-90"
-                    >
-                      <X size={18} />
-                    </button>
+                    <div className="absolute top-3.5 right-3.5 flex items-center gap-2 z-10">
+                      {!file.file.type.startsWith("video/") && (
+                        <button
+                          onClick={() => {
+                            setTempCropImage(URL.createObjectURL(file.file));
+                            setCroppingFileId(file.id);
+                          }}
+                          className="bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-[--primary] transition-all shadow-xl group-hover:scale-110 active:scale-90"
+                          title="Crop Image"
+                        >
+                          <Crop size={18} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRemoveFile(file.id)}
+                        className="bg-black/50 backdrop-blur-lg text-white rounded-full p-2 hover:bg-rose-500 transition-all shadow-xl group-hover:scale-110 active:scale-90"
+                        title="Remove"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <input

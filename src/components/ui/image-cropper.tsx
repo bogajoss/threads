@@ -66,7 +66,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="overflow-hidden bg-white p-0 sm:max-w-2xl dark:bg-zinc-900">
+      <DialogContent disableDrag={true} className="overflow-hidden bg-white p-0 sm:max-w-2xl dark:bg-zinc-900">
         <DialogHeader className="shrink-0 p-4">
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>

@@ -57,10 +57,11 @@ const DialogContent = React.forwardRef<
     onDragClose?: () => void;
     showCloseButton?: boolean;
     overlayClassName?: string;
+    disableDrag?: boolean;
   }
 >(
   (
-    { className, children, onDragClose, showCloseButton = true, overlayClassName, ...props },
+    { className, children, onDragClose, showCloseButton = true, overlayClassName, disableDrag = false, ...props },
     ref,
   ) => {
     const isDesktop = useMediaQuery("(min-width: 640px)");
@@ -110,7 +111,7 @@ const DialogContent = React.forwardRef<
           {...props}
         >
           <motion.div
-            drag={isDesktop ? false : "y"}
+            drag={isDesktop || disableDrag ? false : "y"}
             dragConstraints={{ top: 0, bottom: 1000 }}
             dragElastic={{ top: 0.1, bottom: 0.6 }}
             onDragEnd={handleDragEnd}
