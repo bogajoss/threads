@@ -129,7 +129,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 currentlyPlayingPlayer.currentTime = 0;
               }
             }
-            
+
             p.play().catch(() => {
               const p2 = playerRef.current?.plyr;
               if (p2) {
@@ -436,9 +436,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 1.5, opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center"
+                className="absolute inset-0 z-50 flex items-center justify-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTogglePlay();
+                }}
               >
-                <div className="rounded-full border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
+                <div className="rounded-full border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md cursor-pointer hover:bg-white/20 transition-colors">
                   {showPlayPauseIcon === "play" ? (
                     <Play
                       size={50}

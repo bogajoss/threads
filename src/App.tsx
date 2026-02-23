@@ -22,7 +22,7 @@ import {
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { GlobalModals } from "@/components/features/modals";
 import StoryViewer from "@/components/features/story/StoryViewer";
-import { ImageViewer } from "@/components/ui";
+import { MediaViewer } from "@/components/ui";
 import { ScrollToTop } from "@/lib/utils";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
@@ -179,7 +179,7 @@ export default function Mysys() {
       </Suspense>
 
       {isOpen && (
-        <ImageViewer
+        <MediaViewer
           media={images}
           currentIndex={currentIndex}
           onClose={closeLightbox}

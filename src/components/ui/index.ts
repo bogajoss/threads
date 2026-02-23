@@ -6,7 +6,7 @@ export * from "./dialog";
 export * from "./dropdown-menu";
 export { default as EmojiPicker } from "./emoji-picker";
 export { default as ImageCropper } from "./image-cropper";
-export { default as ImageViewer } from "./image-viewer";
+export { default as MediaViewer } from "./media-viewer/MediaViewer";
 export { default as Input } from "./Input";
 export { default as Modal } from "./Modal";
 export { default as NotFound } from "./not-found";
