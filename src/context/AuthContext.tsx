@@ -15,7 +15,6 @@ import {
   fetchUserProfile,
   updateLastSeen,
 } from "@/lib/api";
-import { clearOneSignalUser, syncOneSignalUser } from "@/lib/onesignal";
 import type { User } from "@/types/index";
 
 interface AuthContextType {
@@ -69,13 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (isInitial) setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    void syncOneSignalUser(currentUser);
-    if (!currentUser) {
-      void clearOneSignalUser();
-    }
-  }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -169,7 +161,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
-    await clearOneSignalUser();
     setCurrentUser(null);
   }, []);
 

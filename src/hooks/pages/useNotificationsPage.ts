@@ -46,7 +46,7 @@ export const useNotificationsPage = () => {
       .on(
         "postgres_changes" as any,
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "notifications",
           filter: `recipient_id=eq.${currentUserId}`,
@@ -55,14 +55,15 @@ export const useNotificationsPage = () => {
           queryClient.invalidateQueries({
             queryKey: ["notifications", currentUserId],
           });
+          queryClient.invalidateQueries({
+            queryKey: ["unread_notifications_count", currentUserId],
+          });
         },
       )
       .subscribe();
 
     return () => {
-      setTimeout(() => {
-        supabase.removeChannel(channel).catch(() => {});
-      }, 500);
+      void supabase.removeChannel(channel);
     };
   }, [currentUser?.id, queryClient]);
 
@@ -104,6 +105,9 @@ export const useNotificationsPage = () => {
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["notifications", currentUser?.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["unread_notifications_count", currentUser?.id],
       });
     },
   });

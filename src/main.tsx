@@ -12,9 +12,6 @@ import { ReportProvider } from "@/context/ReportContext";
 import "plyr/dist/plyr.css";
 import "@/index.css";
 import App from "@/App";
-import { initOneSignal } from "@/lib/onesignal";
-
-void initOneSignal();
 
 const queryClient = new QueryClient({
   defaultOptions: {
