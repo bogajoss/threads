@@ -993,7 +993,9 @@ export type Database = {
         | "follow"
         | "repost"
         | "comment"
-        | "report";
+        | "report"
+        | "report_resolved"
+        | "report_declined";
       post_type:
         | "text"
         | "image"
@@ -1142,6 +1144,8 @@ export const Constants = {
         "repost",
         "comment",
         "report",
+        "report_resolved",
+        "report_declined",
       ],
       post_type: ["text", "image", "video", "poll", "repost", "file", "reel"],
     },

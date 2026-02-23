@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, AtSign, Layers, MessageSquare } from "lucide-react";
+import { Heart, AtSign, Layers, MessageSquare, ShieldCheck, ShieldX } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatTimeAgo } from "@/lib/utils";
 import Button from "@/components/ui/Button";
@@ -30,6 +30,10 @@ const Notifications: React.FC = () => {
         return <MessageSquare className="h-4 w-4 text-blue-500" />;
       case "follow":
         return <FollowingIcon className="h-4 w-4 text-zinc-500" />;
+      case "report_resolved":
+        return <ShieldCheck className="h-4 w-4 text-emerald-500" />;
+      case "report_declined":
+        return <ShieldX className="h-4 w-4 text-amber-500" />;
       default:
         return null;
     }
@@ -47,6 +51,10 @@ const Notifications: React.FC = () => {
         return "replied to your post";
       case "follow":
         return "started following you";
+      case "report_resolved":
+        return "reviewed your report and resolved it";
+      case "report_declined":
+        return "reviewed your report and declined it";
       default:
         return "interacted with you";
     }
@@ -91,7 +99,7 @@ const Notifications: React.FC = () => {
               <div className="flex flex-1 flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <div className="text-sm dark:text-zinc-100">
-                    <span className="font-bold">@{notif.user}</span>{" "}
+                    <span className="font-bold">{notif.user ? `@${notif.user}` : "System"}</span>{" "}
                     {renderNotificationContent(notif)}
                   </div>
                   <span className="text-xs text-zinc-500">
