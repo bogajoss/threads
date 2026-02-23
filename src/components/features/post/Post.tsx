@@ -91,7 +91,7 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
   const displayAvatars = avatars.slice(0, 3);
 
   return (
-    <div className="relative mt-2 h-7 w-7">
+    <div className="relative mt-2.5 h-8 w-8">
       {displayAvatars.map((avatar, i) => {
         let positionClass: string;
         let sizeClass: string;
@@ -100,22 +100,32 @@ const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
           positionClass = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
           sizeClass = "size-5";
         } else if (displayAvatars.length === 2) {
-          sizeClass = "size-4";
+          sizeClass = "size-4.5";
           positionClass = i === 0 ? "top-0 right-0" : "bottom-0 left-0";
         } else {
-          sizeClass = i === 0 ? "size-3.5" : "size-3";
-          if (i === 0) positionClass = "top-0 right-0";
-          else if (i === 1) positionClass = "bottom-0 right-0";
-          else positionClass = "top-1/2 left-0 -translate-y-1/2";
+          // 3 Avatars - Triangular Layout
+          sizeClass = i === 0 ? "size-4.5" : "size-3.5";
+          if (i === 0) {
+            positionClass = "top-0 left-1/2 -translate-x-1/2";
+          } else if (i === 1) {
+            positionClass = "bottom-0.5 left-0";
+          } else {
+            positionClass = "bottom-0.5 right-0";
+          }
         }
 
         return (
           <div
             key={i}
-            className={`absolute rounded-full border border-white bg-zinc-100 dark:border-black dark:bg-zinc-800 overflow-hidden shadow-sm ${positionClass} ${sizeClass}`}
+            className={`absolute rounded-full border-2 border-white bg-zinc-100 dark:border-black dark:bg-zinc-800 overflow-hidden shadow-md transition-transform hover:scale-110 ${positionClass} ${sizeClass}`}
             style={{ zIndex: 10 - i }}
           >
-            <img src={avatar} alt="" className="h-full w-full object-cover" />
+            <img
+              src={avatar}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
           </div>
         );
       })}
