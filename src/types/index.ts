@@ -25,6 +25,7 @@ export interface Media {
   type: "image" | "video" | "file" | "audio";
   aspect_ratio?: number;
   poster?: string | null;
+  duration?: string;
   name?: string;
   size?: number;
 }

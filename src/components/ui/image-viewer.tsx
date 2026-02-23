@@ -17,6 +17,8 @@ interface ImageViewerProps {
 
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 
+import { Plyr } from "plyr-react";
+
 const ImageViewer: React.FC<ImageViewerProps> = ({
   media,
   currentIndex = 0,
@@ -71,6 +73,31 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const plyrProps = {
+    source: {
+      type: "video" as const,
+      sources: [{ src: currentUrl, type: "video/mp4" }],
+      poster: (typeof currentItem !== "string" ? currentItem.poster : undefined) ?? undefined,
+    },
+    options: {
+      controls: [
+        "play-large",
+        "play",
+        "progress",
+        "current-time",
+        "mute",
+        "volume",
+        "fullscreen",
+      ],
+      settings: ["quality", "speed"],
+      ratio: "16:9",
+      autoplay: true,
+      clickToPlay: true,
+      hideControls: true,
+      resetOnEnd: true,
+    },
   };
 
   return (
@@ -163,13 +190,11 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
               }}
             >
               {isVideo ? (
-                <video
-                  src={currentUrl}
-                  controls
-                  autoPlay
-                  onClick={(e) => e.stopPropagation()}
-                  className="max-h-full max-w-full rounded-lg shadow-2xl"
-                />
+                <div className="flex size-full items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                  <div className="relative w-full max-w-[95vw] max-h-[85vh] overflow-hidden rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/40 backdrop-blur-sm border border-white/5">
+                    <Plyr {...plyrProps} />
+                  </div>
+                </div>
               ) : (
                 <motion.img
                   src={currentUrl}
