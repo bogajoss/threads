@@ -496,7 +496,16 @@ const CreatePost: React.FC = () => {
                   value={selectedCommunity?.id || "none"}
                 >
                   <SelectTrigger className="h-7 px-3 py-0 border-none bg-neutral-100 dark:bg-neutral-900 text-[12px] font-bold rounded-full w-auto gap-1.5 focus:ring-0 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
-                    <Users size={12} className="text-neutral-500" />
+                    {selectedCommunity ? (
+                      <Avatar className="w-4 h-4 mr-0.5">
+                        <AvatarImage src={selectedCommunity.avatar} />
+                        <AvatarFallback className="text-[8px]">
+                          {selectedCommunity.name?.[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <Users size={12} className="text-neutral-500" />
+                    )}
                     <SelectValue placeholder="Anyone" />
                   </SelectTrigger>
                   <SelectContent
@@ -507,7 +516,12 @@ const CreatePost: React.FC = () => {
                       value="none"
                       className="text-xs font-medium py-2.5"
                     >
-                      Public (Anyone)
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                          <Globe size={12} className="text-neutral-500" />
+                        </div>
+                        <span>Public (Anyone)</span>
+                      </div>
                     </SelectItem>
                     {userCommunities.map((comm: any) => (
                       <SelectItem
@@ -515,7 +529,15 @@ const CreatePost: React.FC = () => {
                         value={comm.id}
                         className="text-xs font-medium py-2.5"
                       >
-                        {comm.name}
+                        <div className="flex items-center gap-2">
+                          <Avatar className="w-5 h-5">
+                            <AvatarImage src={comm.avatar} />
+                            <AvatarFallback className="text-[8px]">
+                              {comm.name?.[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{comm.name}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
