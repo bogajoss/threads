@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.mysys.app",
-  appName: "mysys",
+  appName: "MySys",
   webDir: "dist",
   // server: {
   //   url: "https://feed.systemadminbd.com",
@@ -12,7 +12,7 @@ const config: CapacitorConfig = {
     App: {
       // Deep link configuration
       appId: "com.mysys.app",
-      appName: "mysys",
+      appName: "MySys",
       // URL schemes to handle
       url: "mysys://",
       // Associated domains for iOS

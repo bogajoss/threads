@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "816240945119",
+    "project_id": "studio-8933053282-afc40",
+    "storage_bucket": "studio-8933053282-afc40.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816240945119:android:732f842cbf01aab154c66a",
+        "android_client_info": {
+          "package_name": "com.mysys.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaBuodqXAMuHuAtZ6c_TDcADnI2V3Xguo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

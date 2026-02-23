@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.mysys.app-mergeReleaseResources-42:/values-cs/values-cs.xml",
+            "outputFile": "com.mysys.app-mergeReleaseResources-43:/values-cs/values-cs.xml",
             "map": [
                 {
                     "source": "/home/codespace/.gradle/caches/8.14.3/transforms/92d9a635b0b7d69af46e25e3ae554908/transformed/browser-1.3.0/res/values-cs/values-cs.xml",

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.mysys.app-mergeReleaseResources-42:/values-kn/values-kn.xml",
+            "outputFile": "com.mysys.app-mergeReleaseResources-43:/values-kn/values-kn.xml",
             "map": [
                 {
                     "source": "/home/codespace/.gradle/caches/8.14.3/transforms/7f2505e3010de7df824517cfed968b98/transformed/play-services-basement-18.1.0/res/values-kn/values.xml",

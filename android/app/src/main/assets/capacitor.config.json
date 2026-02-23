@@ -1,11 +1,11 @@
 {
 	"appId": "com.mysys.app",
-	"appName": "mysys",
+	"appName": "MySys",
 	"webDir": "dist",
 	"plugins": {
 		"App": {
 			"appId": "com.mysys.app",
-			"appName": "mysys",
+			"appName": "MySys",
 			"url": "mysys://",
 			"iosUniversalLinkDomains": [
 				"feed.systemadminbd.com"
