@@ -68,7 +68,7 @@ export const useSettings = () => {
       const { error } = await supabase.auth.resetPasswordForEmail(
         currentUser.email,
         {
-          redirectTo: `${window.location.origin}/settings?type=recovery`,
+          redirectTo: `${window.location.origin}/verify-otp?email=${encodeURIComponent(currentUser.email)}&type=recovery`,
         },
       );
       if (error) throw error;

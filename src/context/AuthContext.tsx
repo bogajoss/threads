@@ -24,6 +24,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string) => Promise<void>;
+  verifyOtp: (email: string, token: string, type: "signup" | "recovery") => Promise<any>;
   updateProfile: (updatedFields: Partial<User>) => Promise<void>;
   loading: boolean;
 }
@@ -178,6 +179,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (error) throw error;
   }, []);
 
+  const verifyOtp = useCallback(
+    async (email: string, token: string, type: "signup" | "recovery") => {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type,
+      });
+      if (error) throw error;
+      return data;
+    },
+    [],
+  );
+
   const handleUpdateProfile = useCallback(
     async (updatedFields: Partial<User>) => {
       if (!currentUser) return;
@@ -202,6 +216,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       logout,
       forgotPassword,
       resetPassword,
+      verifyOtp,
       updateProfile: handleUpdateProfile,
       loading,
     }),
@@ -212,6 +227,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       logout,
       forgotPassword,
       resetPassword,
+      verifyOtp,
       handleUpdateProfile,
       loading,
     ],

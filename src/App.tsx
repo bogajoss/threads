@@ -37,6 +37,7 @@ const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
 const ForgotPassword = lazy(() => import("@/pages/(auth)/forgot-password/page"));
 const ResetPassword = lazy(() => import("@/pages/(auth)/reset-password/page"));
+const VerifyOTP = lazy(() => import("@/pages/(auth)/verify-otp/page"));
 const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 
@@ -79,6 +80,7 @@ export default function Mysys() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/onboarding" element={<Onboarding />} />
 
           <Route element={<MainLayout onStoryClick={setViewingStory} />}>

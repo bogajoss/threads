@@ -77,8 +77,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           username: formData.username,
           name: formData.name,
         });
-        addToast("Account created successfully!");
-        onComplete();
+        addToast("Account created! Please verify your email.");
+        window.location.href = `/verify-otp?email=${encodeURIComponent(formData.email)}&type=signup`;
       }
     } catch (err: any) {
       console.error("Auth error:", err);
