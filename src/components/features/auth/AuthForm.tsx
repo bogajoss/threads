@@ -178,6 +178,21 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onComplete, onSwitch }) => {
           required
         />
 
+        {type === "login" && (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                // Navigate to forgot password page
+                window.location.href = "/forgot-password";
+              }}
+              className="text-xs font-medium text-zinc-500 hover:text-black hover:underline dark:hover:text-white"
+            >
+              Forgot password?
+            </button>
+          </div>
+        )}
+
         <Button
           type="submit"
           className="mt-6 w-full justify-center py-3 text-lg"

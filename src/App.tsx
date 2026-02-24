@@ -35,6 +35,8 @@ const CreateCommunity = lazy(() => import("@/pages/(feed)/CreateCommunity"));
 const CreateGroup = lazy(() => import("@/pages/(feed)/CreateGroup"));
 const Login = lazy(() => import("@/pages/(auth)/login/page"));
 const Register = lazy(() => import("@/pages/(auth)/register/page"));
+const ForgotPassword = lazy(() => import("@/pages/(auth)/forgot-password/page"));
+const ResetPassword = lazy(() => import("@/pages/(auth)/reset-password/page"));
 const Onboarding = lazy(() => import("@/pages/(onboarding)/onboarding"));
 const ProPage = lazy(() => import("@/pages/(marketplace)/pro/page"));
 
@@ -75,6 +77,8 @@ export default function Mysys() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/onboarding" element={<Onboarding />} />
 
           <Route element={<MainLayout onStoryClick={setViewingStory} />}>

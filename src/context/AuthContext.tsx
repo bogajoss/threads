@@ -22,6 +22,8 @@ interface AuthContextType {
   login: (credentials: any) => Promise<any>;
   signup: (credentials: any) => Promise<any>;
   logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (password: string) => Promise<void>;
   updateProfile: (updatedFields: Partial<User>) => Promise<void>;
   loading: boolean;
 }
@@ -164,6 +166,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setCurrentUser(null);
   }, []);
 
+  const forgotPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  }, []);
+
+  const resetPassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+  }, []);
+
   const handleUpdateProfile = useCallback(
     async (updatedFields: Partial<User>) => {
       if (!currentUser) return;
@@ -186,10 +200,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       login,
       signup,
       logout,
+      forgotPassword,
+      resetPassword,
       updateProfile: handleUpdateProfile,
       loading,
     }),
-    [currentUser, login, signup, logout, handleUpdateProfile, loading],
+    [
+      currentUser,
+      login,
+      signup,
+      logout,
+      forgotPassword,
+      resetPassword,
+      handleUpdateProfile,
+      loading,
+    ],
   );
 
   return (
