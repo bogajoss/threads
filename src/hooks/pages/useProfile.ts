@@ -69,14 +69,9 @@ export const useProfile = () => {
         (p) => p.community_id === null && p.parent_id === null,
       );
     }
-    if (activeProfileTab === "media") {
+    if (activeProfileTab === "reels") {
       return userPosts.filter(
-        (p) =>
-          p.community_id === null &&
-          p.parent_id === null &&
-          (p.type === "video" ||
-            p.type === "image" ||
-            (p.media && p.media.length > 0)),
+        (p) => p.type === "reel",
       );
     }
     if (activeProfileTab === "collections") {

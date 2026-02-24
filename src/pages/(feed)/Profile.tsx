@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Search, UserX, Ban } from "lucide-react";
+import { ArrowLeft, Search, UserX, Ban, Play } from "lucide-react";
 import ProfileHeader from "@/components/features/profile/ProfileHeader";
 import { Post } from "@/components/features/post";
 import {
@@ -14,6 +14,13 @@ import {
   SkeletonPost,
   SkeletonUser,
 } from "@/components/ui";
+import {
+  StoryVideo,
+  StoryOverlay,
+  StoryAuthor,
+  StoryAuthorImage,
+  StoryAuthorName,
+} from "@/components/ui/row";
 import ProfileSkeleton from "@/components/features/profile/skeleton-profile";
 import { useProfile } from "@/hooks/pages/useProfile";
 import type { Post as PostType } from "@/types";
@@ -74,6 +81,69 @@ const Profile: React.FC = () => {
   }
 
   const displayProfile = profile;
+
+  const renderReels = () => {
+    if (loadingPosts) {
+      return (
+        <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 md:grid-cols-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div
+              key={i}
+              className="aspect-[9/16] animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (filteredPosts.length > 0) {
+      return (
+        <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 md:grid-cols-4">
+          {filteredPosts.map((reel: PostType) => (
+            <div
+              key={reel.id}
+              className="group relative aspect-[9/16] overflow-hidden rounded-xl bg-zinc-900 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
+              onClick={() => handlePostClick(reel.id)}
+            >
+              <StoryVideo
+                src={reel.media?.[0]?.url || ""}
+                poster={reel.media?.[0]?.poster || ""}
+              />
+              <StoryOverlay />
+              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/20 px-2.5 py-1 backdrop-blur-md">
+                <Play size={12} fill="white" className="text-white" />
+                <span className="text-xs font-bold text-white">
+                  {reel.stats?.views || 0}
+                </span>
+              </div>
+              <StoryAuthor className="p-3">
+                <StoryAuthorImage
+                  name={reel.user?.handle}
+                  src={reel.user?.avatar}
+                  className="size-6"
+                />
+                <StoryAuthorName className="text-xs">
+                  {reel.user?.handle}
+                </StoryAuthorName>
+              </StoryAuthor>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex animate-in fade-in flex-col items-center gap-4 p-20 text-center text-zinc-500 duration-500">
+        <div className="mb-2 rounded-full bg-zinc-50 p-6 ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-800">
+          <Play size={40} className="text-zinc-300 dark:text-zinc-700" />
+        </div>
+        <h3 className="text-xl font-bold dark:text-white">No reels yet</h3>
+        <p className="max-w-[250px] text-sm text-zinc-500 dark:text-zinc-400">
+          When @{displayProfile.handle} shares reels, they will appear here.
+        </p>
+      </div>
+    );
+  };
 
   const renderPosts = (hideEmpty = false) => {
     if (loadingPosts) {
@@ -166,7 +236,7 @@ const Profile: React.FC = () => {
         >
           <div className="sticky top-[60px] z-10 border-b border-zinc-100 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-black/90 md:top-0">
             <TabsList className="hide-scrollbar h-auto w-full justify-start overflow-x-auto rounded-none bg-transparent p-0 px-2">
-              {["feed", "media"].map((tab) => (
+              {["feed", "reels"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
@@ -181,8 +251,8 @@ const Profile: React.FC = () => {
           <TabsContent value="feed" className="m-0 border-none">
             {renderPosts()}
           </TabsContent>
-          <TabsContent value="media" className="m-0 border-none">
-            {renderPosts()}
+          <TabsContent value="reels" className="m-0 border-none">
+            {renderReels()}
           </TabsContent>
         </Tabs>
       </div>
