@@ -81,6 +81,8 @@ export interface Post {
   sort_timestamp?: string;
   sortTimestamp?: string;
   score?: number; // Added for algorithmic feed cursor
+  is_pinned?: boolean;
+  pinned_at?: string | null;
 }
 
 export interface Comment {

@@ -95,6 +95,8 @@ export const transformPost = (post: any): Post | null => {
         : null,
     commenterAvatars: post.commenter_avatars || [],
     timeAgo: formatTimeAgo(post.created_at),
+    is_pinned: post.is_pinned || false,
+    pinned_at: post.pinned_at || null,
   };
 };
 

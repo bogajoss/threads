@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  Trash,
-  Repeat2,
+  Trash,  Repeat2,
   MoreHorizontal,
   Share,
   Flag,
   UserMinus,
   Pencil,
   X,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { generatePostUrl } from "@/lib/config";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -83,6 +85,7 @@ interface PostProps {
   parent_id?: string | null;
   post_id?: string;
   commenterAvatars?: string[];
+  is_pinned?: boolean;
 }
 
 const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
@@ -138,8 +141,10 @@ interface PostActionsMenuProps {
   user: { handle: string; id: string };
   isCurrentUser: boolean;
   isComment?: boolean;
+  isPinned?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onTogglePin?: () => void;
   addToast: (msg: string, type?: any) => void;
   trigger: React.ReactNode;
 }
@@ -149,8 +154,10 @@ const PostActionsMenu = ({
   user,
   isCurrentUser,
   isComment,
+  isPinned,
   onEdit,
   onDelete,
+  onTogglePin,
   addToast,
   trigger,
 }: PostActionsMenuProps) => {
@@ -213,6 +220,27 @@ const PostActionsMenu = ({
             {isCurrentUser && (
               <>
                 <DropdownMenuSeparator />
+                {!isComment && onTogglePin && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTogglePin();
+                      setIsOpen(false);
+                    }}
+                  >
+                    {isPinned ? (
+                      <>
+                        <PinOff className="mr-2 h-4 w-4" />
+                        <span>Unpin from profile</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pin className="mr-2 h-4 w-4" />
+                        <span>Pin to profile</span>
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
@@ -295,6 +323,18 @@ const PostActionsMenu = ({
               Report @{user.handle}
             </ActionsheetItem>
           )}
+          {isCurrentUser && !isComment && onTogglePin && (
+            <ActionsheetItem
+              icon={isPinned ? <PinOff size={18} /> : <Pin size={18} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin();
+                setIsOpen(false);
+              }}
+            >
+              {isPinned ? "Unpin from profile" : "Pin to profile"}
+            </ActionsheetItem>
+          )}
           {isCurrentUser && (
             <ActionsheetItem
               icon={<Pencil size={18} />}
@@ -350,9 +390,13 @@ const Post: React.FC<PostProps> = ({
   parent_id,
   post_id,
   commenterAvatars = [],
+  is_pinned = false,
 }) => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
+  const [pinned, setPinned] = useState(is_pinned);
+
   const {
     liked,
     reposted,
@@ -363,6 +407,25 @@ const Post: React.FC<PostProps> = ({
   } = usePostInteraction(post_id || id, stats, currentUser);
 
   const { deletePost, updatePost } = usePosts();
+
+  const handleTogglePin = async () => {
+    try {
+      const newPinned = !pinned;
+      await updatePost(id, {
+        is_pinned: newPinned,
+        pinned_at: newPinned ? new Date().toISOString() : null,
+      });
+      setPinned(newPinned);
+      
+      // Invalidate profile queries to refresh order
+      queryClient.invalidateQueries({ queryKey: ["posts", "user", user.id] });
+      
+      addToast(newPinned ? "Post pinned to profile" : "Post unpinned");
+    } catch (err) {
+      console.error("Failed to toggle pin:", err);
+      addToast("Failed to update pin status");
+    }
+  };
 
   const {
     comments,
@@ -549,14 +612,17 @@ const Post: React.FC<PostProps> = ({
             onUserClick={onUserClick}
             isDetail={true}
             showAvatar={true}
+            isPinned={pinned}
             actionsMenu={
               <PostActionsMenu
                 id={id}
                 user={user}
                 isCurrentUser={isCurrentUser}
                 isComment={isComment}
+                isPinned={pinned}
                 onEdit={() => setIsEditing(true)}
                 onDelete={() => setIsDeleteDialogOpen(true)}
+                onTogglePin={handleTogglePin}
                 addToast={addToast}
                 trigger={
                   <button
@@ -799,14 +865,17 @@ const Post: React.FC<PostProps> = ({
             community={community}
             onUserClick={onUserClick}
             isComment={isComment}
+            isPinned={pinned}
             actionsMenu={
               <PostActionsMenu
                 id={id}
                 user={user}
                 isCurrentUser={isCurrentUser}
                 isComment={isComment}
+                isPinned={pinned}
                 onEdit={() => setIsEditing(true)}
                 onDelete={() => setIsDeleteDialogOpen(true)}
+                onTogglePin={handleTogglePin}
                 addToast={addToast}
                 trigger={
                   <button

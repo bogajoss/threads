@@ -13,7 +13,10 @@ interface PostHeaderProps {
   isComment?: boolean;
   isDetail?: boolean;
   showAvatar?: boolean;
+  isPinned?: boolean;
 }
+
+import { Pin } from "lucide-react";
 
 const PostHeader: React.FC<PostHeaderProps> = ({
   user,
@@ -24,6 +27,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
   isComment,
   isDetail,
   showAvatar = false,
+  isPinned = false,
 }) => {
   const navigate = useNavigate();
 
@@ -119,6 +123,12 @@ const PostHeader: React.FC<PostHeaderProps> = ({
         </div>
       </div>
       <div className="-mt-1 flex items-center gap-2.5">
+        {isPinned && !isComment && (
+          <div className="flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+            <Pin size={10} className="fill-violet-600 text-violet-600" />
+            <span className="text-[10px] font-black uppercase text-violet-600">Pinned</span>
+          </div>
+        )}
         <span className="whitespace-nowrap text-[12px] text-zinc-500 dark:text-zinc-400">
           {timeAgo || "Recent"}
         </span>
