@@ -28,8 +28,14 @@ export const useProfile = () => {
     isFetchingNextPage: isFetchingMorePosts,
     isLoading: loadingPosts,
   } = useInfiniteQuery({
-    queryKey: ["posts", "user", profile?.id],
-    queryFn: ({ pageParam }) => fetchPostsByUserId(profile!.id, pageParam, 20),
+    queryKey: ["posts", "user", profile?.id, activeProfileTab],
+    queryFn: ({ pageParam }) =>
+      fetchPostsByUserId(
+        profile!.id,
+        pageParam,
+        20,
+        activeProfileTab === "reels" ? "reel" : null,
+      ),
     enabled: !!profile?.id,
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
@@ -64,19 +70,14 @@ export const useProfile = () => {
   };
 
   const filteredPosts = useMemo(() => {
+    // Since we now filter at the RPC level for Reels vs Posts,
+    // we just need to handle the community/parent filtering for the main feed
     if (activeProfileTab === "feed") {
       return userPosts.filter(
         (p) => p.community_id === null && p.parent_id === null,
       );
     }
-    if (activeProfileTab === "reels") {
-      return userPosts.filter(
-        (p) => p.type === "reel",
-      );
-    }
-    if (activeProfileTab === "collections") {
-      return [];
-    }
+    // Reels are already filtered by the RPC
     return userPosts;
   }, [userPosts, activeProfileTab]);
 

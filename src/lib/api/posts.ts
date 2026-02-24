@@ -105,11 +105,13 @@ export const fetchPostsByUserId = async (
   userId: string,
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,
+  type: string | null = null,
 ): Promise<Post[]> => {
   const { data, error } = await supabase.rpc("get_profile_feed", {
     target_user_id: userId,
     limit_val: limit,
     last_item_time: lastTimestamp || undefined,
+    p_type: type || undefined,
   });
 
   if (error) throw error;
