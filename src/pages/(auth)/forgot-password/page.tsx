@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
@@ -13,13 +13,11 @@ const ForgotPasswordPage: React.FC = () => {
     const { addToast } = useToast();
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
 
         try {
             await forgotPassword(email);
@@ -27,7 +25,6 @@ const ForgotPasswordPage: React.FC = () => {
             addToast("Password reset link sent!");
         } catch (err: any) {
             console.error("Forgot password error:", err);
-            setError(err.message || "Failed to send reset link.");
             addToast("Failed to send reset link", "error");
         } finally {
             setLoading(false);
