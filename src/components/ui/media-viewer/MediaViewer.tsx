@@ -30,6 +30,7 @@ const MediaViewer: React.FC<MediaViewerProps> = ({
     const { currentUser } = useAuth();
     const { addToast } = useToast();
     const [scale, setScale] = useState(1);
+    const [downloading, setDownloading] = useState(false);
     const dragY = useMotionValue(0);
     const opacity = useTransform(dragY, [-200, 0, 200], [0.5, 1, 0.5]);
     const viewScale = useTransform(dragY, [-200, 0, 200], [0.8, 1, 0.8]);
@@ -66,8 +67,6 @@ const MediaViewer: React.FC<MediaViewerProps> = ({
     const isVideo = typeof currentItem !== "string" && currentItem.type === "video";
     const currentUrl = typeof currentItem === "string" ? currentItem : currentItem.url;
     const hasMultiple = media.length > 1;
-
-    const [downloading, setDownloading] = useState(false);
 
     const handleDownload = async (e: React.MouseEvent) => {
         e.stopPropagation();

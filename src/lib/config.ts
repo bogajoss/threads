@@ -17,7 +17,7 @@ export const APP_CONFIG = {
  */
 export const getBaseUrl = (): string => {
   // Check if running in Capacitor/Android
-  if (window.hasOwnProperty('Capacitor')) {
+  if ('Capacitor' in window) {
     // For APK, always use production URL
     return APP_CONFIG.BASE_URL;
   }

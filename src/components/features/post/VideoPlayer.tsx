@@ -40,12 +40,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
     );
 
     const currentElement = playerRef.current?.elements?.container;
+    const currentPlayer = playerRef.current;
     if (currentElement) {
       observer.observe(currentElement);
     }
     return () => {
       // Explicitly pause video before unregistering (handles navigation away)
-      playerRef.current?.plyr?.pause();
+      currentPlayer?.plyr?.pause();
       unregister(id);
       if (currentElement) {
         observer.unobserve(currentElement);

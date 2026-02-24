@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchUserProfileData]);
+  }, [fetchUserProfileData, currentUser]);
 
   const login = useCallback(async ({ email, password }: any) => {
     const { data, error } = await supabase.auth.signInWithPassword({

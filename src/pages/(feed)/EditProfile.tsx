@@ -262,14 +262,14 @@ const EditProfile: React.FC = () => {
                 {(newCoverFile || editProfileData?.cover) && (
                   <img
                     src={coverPreviewUrl ?? editProfileData.cover}
-                    className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-60"
+                    className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-70"
                     alt=""
                   />
                 )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
                   <div className="flex flex-col items-center gap-1 text-white">
                     <Camera size={24} />
-                    <span className="text-xs font-bold uppercase">
+                    <span className="text-[10px] font-black uppercase tracking-wider">
                       Change Cover
                     </span>
                   </div>
@@ -285,13 +285,13 @@ const EditProfile: React.FC = () => {
                   <Avatar className="size-full rounded-none">
                     <AvatarImage
                       src={avatarPreviewUrl ?? editProfileData.avatar}
-                      className="object-cover transition-opacity group-hover:opacity-60"
+                      className="object-cover transition-opacity group-hover:opacity-70"
                     />
                     <AvatarFallback>
                       {editProfileData?.handle?.[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
                     <Camera size={20} className="text-white" />
                   </div>
                 </div>

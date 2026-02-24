@@ -11,7 +11,8 @@ import { useLocation } from "react-router-dom";
 
 import SkeletonReel from "@/components/features/reels/skeleton-reel";
 
-import ReelItem, { resetCurrentlyPlayingPlayer } from "@/components/features/post/ReelItem";
+import ReelItem from "@/components/features/post/ReelItem";
+import { resetCurrentlyPlayingPlayer } from "@/lib/video-state";
 import { useReels } from "@/hooks/pages/useReels";
 
 const Reels = () => {

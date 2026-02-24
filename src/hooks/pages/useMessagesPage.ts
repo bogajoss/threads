@@ -48,7 +48,9 @@ export const useMessagesPage = () => {
   // When ?with= param is present, fetch the target user and prepare a virtual pending conversation
   useEffect(() => {
     if (!withUserId || !currentUser) {
-      setPendingUser(null);
+      if (pendingUser) {
+        setTimeout(() => setPendingUser(null), 0);
+      }
       pendingUserIdRef.current = null;
       return;
     }
@@ -73,7 +75,7 @@ export const useMessagesPage = () => {
       .catch(() => {
         navigate("/m", { replace: true });
       });
-  }, [withUserId, currentUser, conversations, navigate]);
+  }, [withUserId, currentUser, conversations, navigate, pendingUser]);
 
   // Lazily create the real conversation on first send, then call the real sendMessage
   const sendMessage = useCallback(

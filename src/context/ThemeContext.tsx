@@ -33,7 +33,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [fontSize, setFontSize] = useState<"small" | "base" | "large">(() => {
     return (
       (localStorage.getItem("font-size") as "small" | "base" | "large") ||
-      "base"
+      "small"
     );
   });
 

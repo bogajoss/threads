@@ -9,7 +9,7 @@ import { useToast } from "@/context/ToastContext";
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
 import { useReportModal } from "@/context/ReportContext";
 import SkeletonReel from "@/components/features/reels/skeleton-reel";
-import { toggleLike, checkIfLiked } from "@/lib/api/posts";
+import { toggleLike, checkIfLiked, incrementPostViews } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
 import {
   ShareIcon,
@@ -29,14 +29,10 @@ interface ReelItemProps {
 }
 
 import { motion, AnimatePresence } from "motion/react";
-
-// Global lock to ensure only one reel plays at a time
-let currentlyPlayingPlayer: any = null;
-
-// Export function to reset global lock (used when leaving Reels page)
-export const resetCurrentlyPlayingPlayer = () => {
-  currentlyPlayingPlayer = null;
-};
+import {
+  getCurrentlyPlayingPlayer,
+  setCurrentlyPlayingPlayer,
+} from "@/lib/video-state";
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
   ({ reel, isActive, volume, shouldLoad = true }) => {
@@ -57,6 +53,16 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     const [progress, setProgress] = useState(0);
     const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Track views
+    useEffect(() => {
+      if (isActive && reel.id && !reel.id.toString().startsWith("temp-")) {
+        const timer = setTimeout(() => {
+          incrementPostViews(reel.id).catch(console.error);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
+    }, [isActive, reel.id]);
 
     const videoUrl = useMemo(() => {
       return Array.isArray(reel.media)
@@ -100,13 +106,14 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         }, 1500);
         return () => clearTimeout(timer);
       }
-    }, [videoUrl, isActive]);
+    }, [videoUrl, isActive, hasPlayedOnce]);
 
     // Ref to track the pending play timeout so we can cancel it
     const playTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-      const player = playerRef.current?.plyr;
+      const currentPlayer = playerRef.current;
+      const player = currentPlayer?.plyr;
 
       // Always cancel any pending play call first
       if (playTimeoutRef.current) {
@@ -123,10 +130,11 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           const p = playerRef.current?.plyr;
           if (p && typeof p.play === "function") {
             // Pause any currently playing video first (global lock)
-            if (currentlyPlayingPlayer && currentlyPlayingPlayer !== p) {
-              currentlyPlayingPlayer.pause();
-              if (typeof currentlyPlayingPlayer.currentTime !== "undefined") {
-                currentlyPlayingPlayer.currentTime = 0;
+            const globalPlaying = getCurrentlyPlayingPlayer();
+            if (globalPlaying && globalPlaying !== p) {
+              globalPlaying.pause();
+              if (typeof globalPlaying.currentTime !== "undefined") {
+                globalPlaying.currentTime = 0;
               }
             }
 
@@ -138,7 +146,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
               }
             }).then(() => {
               // Update global lock
-              currentlyPlayingPlayer = p;
+              setCurrentlyPlayingPlayer(p);
             });
           }
         }, 50); // Reduced timeout for faster response
@@ -151,8 +159,8 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             player.currentTime = 0;
           }
           // Clear global lock if this was the playing video
-          if (currentlyPlayingPlayer === player) {
-            currentlyPlayingPlayer = null;
+          if (getCurrentlyPlayingPlayer() === player) {
+            setCurrentlyPlayingPlayer(null);
           }
         }
       }
@@ -164,15 +172,15 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           playTimeoutRef.current = null;
         }
         // Immediately pause when cleanup runs (isActive changed or unmount)
-        const p = playerRef.current?.plyr;
+        const p = currentPlayer?.plyr;
         if (p && typeof p.pause === "function") {
           p.pause();
           if (typeof p.currentTime !== "undefined") {
             p.currentTime = 0;
           }
           // Clear global lock if this was the playing video
-          if (currentlyPlayingPlayer === p) {
-            currentlyPlayingPlayer = null;
+          if (getCurrentlyPlayingPlayer() === p) {
+            setCurrentlyPlayingPlayer(null);
           }
         }
       };
@@ -180,19 +188,20 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
     // Dedicated unmount cleanup — ensures video always stops when component leaves DOM
     useEffect(() => {
+      const currentPlayer = playerRef.current;
       return () => {
         if (playTimeoutRef.current) {
           clearTimeout(playTimeoutRef.current);
           playTimeoutRef.current = null;
         }
-        const p = playerRef.current?.plyr;
+        const p = currentPlayer?.plyr;
         if (p) {
           p.pause();
           // Reset video to beginning to ensure clean state
           p.currentTime = 0;
           // Clear global lock if this was the playing video
-          if (currentlyPlayingPlayer === p) {
-            currentlyPlayingPlayer = null;
+          if (getCurrentlyPlayingPlayer() === p) {
+            setCurrentlyPlayingPlayer(null);
           }
         }
         // Reset all local states
