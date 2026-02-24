@@ -11,6 +11,17 @@ resize_icon() {
   convert "$SOURCE" -resize ${size}x${size} "$RES_DIR/$dest_dir/$name"
 }
 
+# Function for foreground icons with padding (to prevent overscaling)
+resize_foreground() {
+  local size=$1
+  local dest_dir=$2
+  local name=$3
+  # Use 65% of the total size for the logo to stay in safe zone
+  local logo_size=$((size * 65 / 100))
+  mkdir -p "$RES_DIR/$dest_dir"
+  convert "$SOURCE" -resize ${logo_size}x${logo_size} -background none -gravity center -extent ${size}x${size} "$RES_DIR/$dest_dir/$name"
+}
+
 resize_splash() {
   local w=$1
   local h=$2
@@ -36,11 +47,11 @@ resize_icon 144 "mipmap-xxhdpi" "ic_launcher_round.png"
 resize_icon 192 "mipmap-xxxhdpi" "ic_launcher_round.png"
 
 # Foreground Icons (Adaptive)
-resize_icon 108 "mipmap-mdpi" "ic_launcher_foreground.png"
-resize_icon 162 "mipmap-hdpi" "ic_launcher_foreground.png"
-resize_icon 216 "mipmap-xhdpi" "ic_launcher_foreground.png"
-resize_icon 324 "mipmap-xxhdpi" "ic_launcher_foreground.png"
-resize_icon 432 "mipmap-xxxhdpi" "ic_launcher_foreground.png"
+resize_foreground 108 "mipmap-mdpi" "ic_launcher_foreground.png"
+resize_foreground 162 "mipmap-hdpi" "ic_launcher_foreground.png"
+resize_foreground 216 "mipmap-xhdpi" "ic_launcher_foreground.png"
+resize_foreground 324 "mipmap-xxhdpi" "ic_launcher_foreground.png"
+resize_foreground 432 "mipmap-xxxhdpi" "ic_launcher_foreground.png"
 
 echo "Generating Splash Screens..."
 # Portrait

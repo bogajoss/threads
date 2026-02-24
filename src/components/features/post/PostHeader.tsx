@@ -124,9 +124,8 @@ const PostHeader: React.FC<PostHeaderProps> = ({
       </div>
       <div className="-mt-1 flex items-center gap-2.5">
         {isPinned && !isComment && (
-          <div className="flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
-            <Pin size={10} className="fill-violet-600 text-violet-600" />
-            <span className="text-[10px] font-black uppercase text-violet-600">Pinned</span>
+          <div className="flex items-center justify-center p-1 opacity-80">
+            <Pin size={14} className="fill-zinc-400 text-zinc-400 dark:fill-zinc-500 dark:text-zinc-500" />
           </div>
         )}
         <span className="whitespace-nowrap text-[12px] text-zinc-500 dark:text-zinc-400">
