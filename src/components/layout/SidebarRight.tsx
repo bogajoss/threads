@@ -63,6 +63,10 @@ const SidebarRight = () => {
     }
   };
 
+  const safeTrendingHashtags = (trendingHashtags || []).filter(
+    (topic: any) => typeof topic?.name === "string" && topic.name.trim().length > 0,
+  );
+
   const themeToggleBtn = (
     <button
       onClick={toggleDarkMode}
@@ -93,26 +97,27 @@ const SidebarRight = () => {
             What's happening
           </h3>
           <div className="flex flex-col">
-            {trendingHashtags.map((topic: any) => (
-              <div
-                key={topic.id}
-                onClick={() =>
-                  navigate(`/tags/${topic.name.replace(/^#/, "")}`)
-                }
-                className="group cursor-pointer px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
-              >
-                <div className="text-[13px] font-medium text-zinc-500 dark:text-zinc-400">
-                  Trending
+            {safeTrendingHashtags.map((topic: any, index: number) => {
+              const normalizedTag = topic.name.replace(/^#/, "");
+              return (
+                <div
+                  key={topic.id ?? `${normalizedTag}-${index}`}
+                  onClick={() => navigate(`/tags/${normalizedTag}`)}
+                  className="group cursor-pointer px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                >
+                  <div className="text-[13px] font-medium text-zinc-500 dark:text-zinc-400">
+                    Trending
+                  </div>
+                  <div className="text-[15px] font-bold text-[--foreground] group-hover:text-violet-500 transition-colors">
+                    #{normalizedTag}
+                  </div>
+                  <div className="text-[13px] text-zinc-500 dark:text-zinc-400">
+                    {topic.usage_count ?? 0} posts
+                  </div>
                 </div>
-                <div className="text-[15px] font-bold text-[--foreground] group-hover:text-violet-500 transition-colors">
-                  #{topic.name.replace(/^#/, "")}
-                </div>
-                <div className="text-[13px] text-zinc-500 dark:text-zinc-400">
-                  {topic.usage_count} posts
-                </div>
-              </div>
-            ))}
-            {trendingHashtags.length === 0 && (
+              );
+            })}
+            {safeTrendingHashtags.length === 0 && (
               <p className="px-4 py-6 text-sm text-zinc-500 text-center">
                 No trends yet
               </p>
