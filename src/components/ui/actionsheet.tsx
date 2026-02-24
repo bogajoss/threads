@@ -35,8 +35,9 @@ const Actionsheet: React.FC<ActionsheetProps> = ({
             Menu
           </DialogPrimitive.Title>
         )}
-        <div className="w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+16px)] duration-300 transition-transform">
+        <div className="w-full px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
           <div className="relative overflow-hidden rounded-[32px] border border-black/10 bg-white/75 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/75">
+
             {(title || description) && (
               <div className="relative z-10 flex min-h-14 w-full items-center justify-center border-b border-black/10 px-4 text-sm text-black/55 dark:border-white/10 dark:text-white/55">
                 <div className="text-center leading-tight">
