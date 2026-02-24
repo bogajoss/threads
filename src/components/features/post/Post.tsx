@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { copyToClipboard, getBaseUrl } from "@/lib/utils";
+import { copyToClipboard } from "@/lib/utils";
 import { useToast } from "@/context/ToastContext";
 import ShareModal from "./ShareModal";
 import PostContent from "./PostContent";
@@ -181,7 +181,7 @@ const PostActionsMenu = ({
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  copyToClipboard(`${getBaseUrl()}/p/${id}`)
+                  copyToClipboard(generatePostUrl(id))
                     .then(() => {
                       addToast("Link copied");
                       setIsOpen(false);
@@ -288,7 +288,7 @@ const PostActionsMenu = ({
               icon={<Share size={18} />}
               onClick={(e) => {
                 e.stopPropagation();
-                copyToClipboard(`${getBaseUrl()}/p/${id}`)
+                copyToClipboard(generatePostUrl(id))
                   .then(() => {
                     addToast("Link copied");
                     setIsOpen(false);
