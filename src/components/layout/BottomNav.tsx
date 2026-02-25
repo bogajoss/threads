@@ -37,6 +37,12 @@ const BottomNav: React.FC = () => {
     { id: "profile", icon: User, path: currentUser ? `/u/${currentUser.handle}` : "/login", isProfile: true },
   ];
 
+  const handleNavClick = (path: string) => {
+    if (location.pathname === path || (path === "/feed" && location.pathname === "/")) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-start justify-around border-t border-zinc-200 bg-white/95 backdrop-blur-md px-2 pt-3 pb-[env(safe-area-inset-bottom)] dark:border-zinc-800 dark:bg-black/95 transition-transform duration-300 md:hidden print:hidden touch-manipulation">
       {navItems.map((item) => {
@@ -48,6 +54,7 @@ const BottomNav: React.FC = () => {
               key={item.id}
               to={item.path}
               aria-label={item.id}
+              onClick={() => handleNavClick(item.path)}
               className={({ isActive }) =>
                 cn(
                   "relative flex flex-col items-center justify-center transition-all active:scale-90",
@@ -76,6 +83,7 @@ const BottomNav: React.FC = () => {
               key={item.id}
               to={item.path}
               aria-label={item.id}
+              onClick={() => handleNavClick(item.path)}
               className="flex items-center justify-center transition-all active:scale-90"
             >
               <motion.div
@@ -93,6 +101,7 @@ const BottomNav: React.FC = () => {
             key={item.id}
             to={item.path}
             aria-label={item.id}
+            onClick={() => handleNavClick(item.path)}
             className={({ isActive }) =>
               cn(
                 "relative flex flex-col items-center justify-center p-2 transition-colors active:scale-90",
