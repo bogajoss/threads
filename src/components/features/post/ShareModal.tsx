@@ -58,15 +58,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (isOpen && currentUser) {
-      loadInitialFriends();
-    } else {
-      setSearchTerm("");
-      setFriends([]);
-    }
-  }, [isOpen, currentUser, loadInitialFriends]);
-
   const handleSearch = useCallback(async () => {
     if (!currentUser) return;
     setLoadingFriends(true);
@@ -89,16 +80,22 @@ const ShareModal: React.FC<ShareModalProps> = ({
   }, [searchTerm, currentUser]);
 
   useEffect(() => {
+    if (!isOpen || !currentUser) {
+      setSearchTerm("");
+      setFriends([]);
+      return;
+    }
+
     const timer = setTimeout(() => {
-      if (searchTerm.trim() && isOpen) {
+      if (searchTerm.trim()) {
         handleSearch();
-      } else if (!searchTerm.trim() && isOpen) {
+      } else {
         loadInitialFriends();
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, isOpen, handleSearch, loadInitialFriends]);
+  }, [searchTerm, isOpen, currentUser, handleSearch, loadInitialFriends]);
 
   const handleCopy = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
