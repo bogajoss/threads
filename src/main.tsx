@@ -16,8 +16,8 @@ import App from "@/App";
 // Handle "Failed to fetch dynamically imported module" errors
 // This happens when a new version is deployed and old chunks are missing
 window.addEventListener("error", (e) => {
-  if (e.message.includes("Failed to fetch dynamically imported module") ||
-    e.message.includes("Importing a prohibited module")) {
+  if (e.message && (e.message.includes("Failed to fetch dynamically imported module") ||
+    e.message.includes("Importing a prohibited module"))) {
     console.warn("Chunk load error detected, reloading page...");
     window.location.reload();
   }

@@ -106,7 +106,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         }, 1500);
         return () => clearTimeout(timer);
       }
-    }, [videoUrl, isActive, hasPlayedOnce]);
+    }, [videoUrl, isActive]);
 
     // Ref to track the pending play timeout so we can cancel it
     const playTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -131,7 +131,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           if (p && typeof p.play === "function") {
             // Pause any currently playing video first (global lock)
             const globalPlaying = getCurrentlyPlayingPlayer();
-            if (globalPlaying && globalPlaying !== p) {
+            if (globalPlaying && globalPlaying !== p && typeof globalPlaying.pause === "function") {
               globalPlaying.pause();
               if (typeof globalPlaying.currentTime !== "undefined") {
                 globalPlaying.currentTime = 0;
@@ -141,8 +141,9 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             p.play().catch(() => {
               const p2 = playerRef.current?.plyr;
               if (p2) {
-                p2.muted = true;
-                p2.play().catch(() => { });
+                if (typeof p2.play === "function") {
+                  p2.play().catch(() => { });
+                }
               }
             }).then(() => {
               // Update global lock
@@ -195,7 +196,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           playTimeoutRef.current = null;
         }
         const p = currentPlayer?.plyr;
-        if (p) {
+        if (p && typeof p.pause === "function") {
           p.pause();
           // Reset video to beginning to ensure clean state
           p.currentTime = 0;
@@ -232,11 +233,11 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
     useEffect(() => {
       const player = playerRef.current?.plyr;
-      if (player) {
+      if (player && isActive) {
         player.muted = volume === 0;
         player.volume = volume;
       }
-    }, [volume, isVideoLoaded]); // Re-sync when video is loaded or volume changes
+    }, [volume, isVideoLoaded, isActive]); // Re-sync when video is loaded, volume changes or becomes active
 
     useEffect(() => {
       const player = playerRef.current?.plyr;
@@ -307,10 +308,14 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       const player = playerRef.current?.plyr;
       if (player) {
         if (player.paused) {
-          player.play().catch(() => { });
+          if (typeof player.play === "function") {
+            player.play().catch(() => { });
+          }
           setShowPlayPauseIcon("play");
         } else {
-          player.pause();
+          if (typeof player.pause === "function") {
+            player.pause();
+          }
           setShowPlayPauseIcon("pause");
         }
         setTimeout(() => setShowPlayPauseIcon(null), 800);

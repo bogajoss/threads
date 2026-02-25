@@ -24,7 +24,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
         }
       },
       pause: () => {
-        playerRef.current?.plyr?.pause();
+        const p = playerRef.current?.plyr;
+        if (p && typeof p.pause === "function") {
+          p.pause();
+        }
       },
     }),
     [],
@@ -46,7 +49,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
     }
     return () => {
       // Explicitly pause video before unregistering (handles navigation away)
-      currentPlayer?.plyr?.pause();
+      const p = currentPlayer?.plyr;
+      if (p && typeof p.pause === "function") {
+        p.pause();
+      }
       unregister(id);
       if (currentElement) {
         observer.unobserve(currentElement);

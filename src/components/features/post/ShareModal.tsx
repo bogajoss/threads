@@ -78,7 +78,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
           (u): u is User =>
             u !== null &&
             (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              u.handle.toLowerCase().includes(searchTerm.toLowerCase())),
+              u.handle?.toLowerCase().includes(searchTerm.toLowerCase())),
         );
       setFriends(users);
     } catch (err) {

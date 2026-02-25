@@ -49,8 +49,8 @@ const UserManagement: React.FC = () => {
     if (!user) return false;
 
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.handle.toLowerCase().includes(searchTerm.toLowerCase());
+      (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+      (user.handle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
 
     const matchesRole = filters.role === "all" || user.role === filters.role;
 
