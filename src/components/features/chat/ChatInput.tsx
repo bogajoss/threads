@@ -332,6 +332,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
+                    onPointerDown={(e) => e.preventDefault()}
                     className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors"
                   >
                     <Smile size={24} />
@@ -369,6 +370,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
+                onPointerDown={(e) => e.preventDefault()}
                 className="p-2 text-zinc-400 hover:text-violet-500 dark:text-[#aaaaaa] dark:hover:text-[#8774e1] transition-colors"
               >
                 <Paperclip size={24} className="-rotate-45" />
@@ -380,6 +382,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         {text.trim() || attachments.length > 0 || audioBlob ? (
           <button
             onClick={handleSend}
+            onPointerDown={(e) => e.preventDefault()}
             className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-[#8774e1] text-white shadow-md hover:scale-105 transition-transform"
           >
             <ShareIcon size={24} />
@@ -387,6 +390,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ) : isRecording ? (
           <button
             onClick={stopRecording}
+            onPointerDown={(e) => e.preventDefault()}
             className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:scale-105 transition-transform"
           >
             <Square size={20} fill="currentColor" />
@@ -394,6 +398,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ) : (
           <button
             onClick={startRecording}
+            onPointerDown={(e) => e.preventDefault()}
             className="size-[50px] shrink-0 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-[#212121] text-zinc-500 dark:text-[#aaaaaa] shadow-md hover:scale-105 transition-transform"
           >
             <Mic size={24} />
