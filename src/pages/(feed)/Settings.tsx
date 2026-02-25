@@ -13,6 +13,7 @@ import {
   Info,
   Zap,
   Trash,
+  Download,
 } from "lucide-react";
 import {
   Button,
@@ -22,8 +23,10 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  Switch,
 } from "@/components/ui";
 import { useSettings } from "@/hooks";
+import { cn } from "@/lib/utils";
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -52,290 +55,247 @@ const Settings: React.FC = () => {
   if (!currentUser) {
     return (
       <div className="flex flex-col items-center justify-center p-10 text-center">
-        <p className="text-zinc-500">Please login to view settings.</p>
+        <p className="text-muted-foreground">Please login to view settings.</p>
       </div>
     );
   }
 
+  const SettingRow = ({
+    icon: Icon,
+    label,
+    children,
+    onClick,
+    showChevron = true,
+    className,
+  }: {
+    icon: any;
+    label: string;
+    children?: React.ReactNode;
+    onClick?: () => void;
+    showChevron?: boolean;
+    className?: string;
+  }) => (
+    <div
+      onClick={onClick}
+      className={cn(
+        "flex min-h-[56px] w-full items-center gap-3 px-4 py-3 transition-colors active:bg-accent/50",
+        onClick && "cursor-pointer",
+        className,
+      )}
+    >
+      <div className="flex size-7 items-center justify-center text-foreground/70">
+        <Icon size={20} strokeWidth={2} />
+      </div>
+      <span className="flex-1 text-[16px] font-medium tracking-tight text-foreground">
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        {children}
+        {showChevron && !children && (
+          <ChevronRight size={18} className="text-muted-foreground/50" />
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen flex-col border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:rounded-xl md:border">
-      <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/80 p-4 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="rounded-full p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <h2 className="text-xl font-bold dark:text-white">Settings</h2>
-        </div>
+    <div className="flex min-h-screen flex-col bg-muted/30 md:rounded-2xl md:border md:border-border">
+      {/* iOS Translucent Header using theme variables */}
+      <div className="sticky top-0 z-20 flex items-center gap-4 border-b border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex size-9 items-center justify-center rounded-full transition-all active:scale-90 active:bg-accent"
+        >
+          <ChevronLeft size={24} strokeWidth={2.5} className="text-foreground" />
+        </button>
+        <h2 className="text-[20px] font-black tracking-tight text-foreground">Settings</h2>
       </div>
 
-      <div className="mx-auto mt-4 w-full max-w-2xl space-y-6 p-4 pb-20">
-        <section className="space-y-4" aria-label="Account Security Settings">
-          <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
+      <div className="mx-auto w-full max-w-2xl space-y-8 p-4 pb-32">
+        {/* Account Security */}
+        <section className="space-y-2">
+          <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Account Security
           </h3>
-
-          <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-            <button
+          <div className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+            <SettingRow
+              icon={Lock}
+              label="Change Password"
               onClick={() => setIsChangingPassword(!isChangingPassword)}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-expanded={isChangingPassword}
-              aria-label="Change Password"
-            >
-              <Lock size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Change Password
-              </span>
-              <ChevronRight size={16} className="text-zinc-400" />
-            </button>
-
+            />
+            
             {isChangingPassword && (
-              <form
-                onSubmit={handlePasswordChange}
-                className="animate-in fade-in slide-in-from-top-2 space-y-3 bg-white p-4 dark:bg-black"
-              >
-                <Input
-                  type="password"
-                  placeholder="New Password"
-                  value={passwordData.newPassword}
-                  onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
-                  ) =>
-                    setPasswordData({
-                      ...passwordData,
-                      newPassword: e.target.value,
-                    })
-                  }
-                  aria-label="New Password"
-                />
-                <Input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={passwordData.confirmPassword}
-                  onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
-                  ) =>
-                    setPasswordData({
-                      ...passwordData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  aria-label="Confirm Password"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setIsChangingPassword(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" loading={loading}>
-                    Update Password
-                  </Button>
-                </div>
-              </form>
+              <div className="animate-in fade-in slide-in-from-top-2 border-t border-border bg-muted/20 p-4">
+                <form onSubmit={handlePasswordChange} className="space-y-3">
+                  <Input
+                    type="password"
+                    placeholder="New Password"
+                    className="h-12 rounded-xl border-border bg-background font-medium shadow-sm"
+                    value={passwordData.newPassword}
+                    onChange={(e) =>
+                      setPasswordData({ ...passwordData, newPassword: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Confirm Password"
+                    className="h-12 rounded-xl border-border bg-background font-medium shadow-sm"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                    }
+                  />
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="rounded-full font-bold text-foreground"
+                      onClick={() => setIsChangingPassword(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      loading={loading}
+                      className="rounded-full bg-primary px-6 font-bold text-primary-foreground"
+                    >
+                      Update
+                    </Button>
+                  </div>
+                </form>
+              </div>
             )}
 
-            <button
+            <div className="mx-4 border-t border-border" />
+            
+            <SettingRow
+              icon={ShieldCheck}
+              label="Reset via Email"
               onClick={handlePasswordReset}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label="Reset Password via Email"
-            >
-              <ShieldCheck size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Reset via Email
-              </span>
-              <ChevronRight size={16} className="text-zinc-400" />
-            </button>
+            />
           </div>
         </section>
 
-        <section
-          className="space-y-4"
-          aria-label="Display and Typography Settings"
-        >
-          <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
+        {/* Display & Typography */}
+        <section className="space-y-2">
+          <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Display & Typography
           </h3>
-          <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-            <button
-              onClick={toggleDarkMode}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label={`Toggle Dark Mode ${darkMode ? "Off" : "On"}`}
-              aria-pressed={darkMode}
+          <div className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+            <SettingRow
+              icon={darkMode ? Moon : Sun}
+              label="Dark Mode"
+              showChevron={false}
             >
-              {darkMode ? (
-                <Moon size={20} className="text-violet-500" />
-              ) : (
-                <Sun size={20} className="text-amber-500" />
-              )}
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Dark Mode
-              </span>
-              <div
-                className={`relate h-6 w-10 rounded-full transition-colors ${darkMode ? "bg-violet-600" : "bg-zinc-300"}`}
-              >
-                <div
-                  className={`absolute top-1 size-4 rounded-full bg-white transition-all ${darkMode ? "left-5" : "left-1"}`}
-                />
-              </div>
-            </button>
+              <Switch checked={darkMode} onCheckedChange={toggleDarkMode} />
+            </SettingRow>
 
-            <div className="flex items-center justify-between gap-3 px-4 py-4">
-              <div className="flex items-center gap-3">
-                <Smartphone size={20} className="text-zinc-500" />
-                <span className="font-medium dark:text-zinc-200">
-                  Font Size
-                </span>
-              </div>
-              <Select
-                value={fontSize}
-                onValueChange={(val: string) => setFontSize(val as any)}
-                aria-label="Select Font Size"
-              >
-                <SelectTrigger
-                  className="w-[140px] border-none bg-zinc-100 font-bold capitalize text-violet-600 transition-all hover:bg-zinc-200 dark:bg-zinc-800 dark:text-violet-400 dark:hover:bg-zinc-700"
-                  aria-label="Font Size"
-                >
+            <div className="mx-4 border-t border-border" />
+
+            <SettingRow
+              icon={Smartphone}
+              label="Font Size"
+              showChevron={false}
+            >
+              <Select value={fontSize} onValueChange={(val) => setFontSize(val as any)}>
+                <SelectTrigger className="h-8 w-28 border-none bg-accent text-[13px] font-bold text-foreground">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-zinc-100 bg-white p-1 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-                  <SelectItem
-                    value="small"
-                    className="cursor-pointer rounded-lg py-2.5 font-medium focus:bg-zinc-50 focus:text-violet-600 dark:focus:bg-zinc-800"
-                  >
-                    Small
-                  </SelectItem>
-                  <SelectItem
-                    value="base"
-                    className="cursor-pointer rounded-lg py-2.5 font-medium focus:bg-zinc-50 focus:text-violet-600 dark:focus:bg-zinc-800"
-                  >
-                    Default
-                  </SelectItem>
-                  <SelectItem
-                    value="large"
-                    className="cursor-pointer rounded-lg py-2.5 font-medium focus:bg-zinc-50 focus:text-violet-600 dark:focus:bg-zinc-800"
-                  >
-                    Large
-                  </SelectItem>
+                <SelectContent className="rounded-2xl border-border bg-popover/80 backdrop-blur-xl">
+                  <SelectItem value="small" className="font-bold text-popover-foreground">Small</SelectItem>
+                  <SelectItem value="base" className="font-bold text-popover-foreground">Default</SelectItem>
+                  <SelectItem value="large" className="font-bold text-popover-foreground">Large</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </SettingRow>
           </div>
         </section>
 
-        <section className="space-y-4" aria-label="Data and Storage Settings">
-          <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
+        {/* Data & Storage */}
+        <section className="space-y-2">
+          <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Data & Storage
           </h3>
-          <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-            <button
-              onClick={() => setDataSaver(!dataSaver)}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label={`Toggle Data Saver ${dataSaver ? "Off" : "On"}`}
-              aria-pressed={dataSaver}
+          <div className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+            <SettingRow
+              icon={Zap}
+              label="Data Saver"
+              showChevron={false}
             >
-              <Zap size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Data Saver
-              </span>
-              <div
-                className={`relate h-6 w-10 rounded-full transition-colors ${dataSaver ? "bg-emerald-600" : "bg-zinc-300"}`}
-              >
-                <div
-                  className={`absolute top-1 size-4 rounded-full bg-white transition-all ${dataSaver ? "left-5" : "left-1"}`}
-                />
-              </div>
-            </button>
+              <Switch checked={dataSaver} onCheckedChange={(val) => setDataSaver(val)} />
+            </SettingRow>
 
-            <button
+            <div className="mx-4 border-t border-border" />
+
+            <SettingRow
+              icon={Trash}
+              label="Clear Local Cache"
               onClick={handleClearCache}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label="Clear Local Cache"
-            >
-              <Trash size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Clear Local Cache
-              </span>
-              <ChevronRight size={16} className="text-zinc-400" />
-            </button>
+            />
 
-            <button
+            <div className="mx-4 border-t border-border" />
+
+            <SettingRow
+              icon={Download}
+              label="Export My Data"
               onClick={handleDownloadData}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label="Download My Data"
-            >
-              <Info size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Download My Data (Export)
-              </span>
-              <ChevronRight size={16} className="text-zinc-400" />
-            </button>
+            />
           </div>
         </section>
 
-        <section className="space-y-4" aria-label="Support Settings">
-          <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
+        {/* Support */}
+        <section className="space-y-2">
+          <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
             Support
           </h3>
-          <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-            <button
+          <div className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+            <SettingRow
+              icon={Bell}
+              label="Report a Bug"
               onClick={handleReportBug}
-              className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              aria-label="Report a Bug"
-            >
-              <Bell size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Report a Bug
-              </span>
-              <ChevronRight size={16} className="text-zinc-400" />
-            </button>
+            />
 
-            <div
-              className="flex items-center gap-3 px-4 py-4"
-              aria-label="Application Version"
+            <div className="mx-4 border-t border-border" />
+
+            <SettingRow
+              icon={Info}
+              label="Version"
+              showChevron={false}
             >
-              <Info size={20} className="text-zinc-500" />
-              <span className="flex-1 font-medium dark:text-zinc-200">
-                Version
-              </span>
-              <span className="text-zinc-500">1.0.0 (Beta)</span>
-            </div>
+              <span className="text-[14px] font-bold text-muted-foreground">1.0.0 (Beta)</span>
+            </SettingRow>
           </div>
         </section>
 
-        <section className="space-y-4 pt-4" aria-label="Danger Zone">
+        {/* Danger Zone */}
+        <section className="space-y-4 pt-4">
           <div className="flex flex-col gap-3">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-100 p-4 font-bold text-zinc-900 shadow-sm transition-colors hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              aria-label="Log Out"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-card font-bold text-foreground shadow-sm border border-border transition-all active:scale-[0.98] active:bg-accent"
             >
-              <LogOut size={20} />
+              <LogOut size={20} className="text-muted-foreground" />
               Log Out
             </button>
 
             <button
               onClick={handleDeleteAccount}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-100 bg-rose-50 p-4 font-bold text-rose-600 transition-colors hover:bg-rose-100 dark:border-rose-900/20 dark:bg-rose-900/10 dark:text-rose-500 dark:hover:bg-rose-900/40"
-              aria-label="Delete Account Permanently"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-destructive/10 bg-destructive/5 font-bold text-destructive transition-all active:scale-[0.98] active:bg-destructive/10"
             >
               <Trash size={20} />
               Delete Account Permanently
             </button>
           </div>
+          
+          <div className="pt-4 text-center">
+            <p className="text-[12px] font-bold text-muted-foreground">
+              MySys © 2026
+            </p>
+            <p className="mt-1 text-[10px] font-medium text-muted-foreground/60 uppercase tracking-widest">
+              Decentralized & Open Source
+            </p>
+          </div>
         </section>
-
-        <div className="py-4 pb-10 text-center text-xs text-zinc-400">
-          MySys © 2026. Decentralized & Open Source.
-        </div>
       </div>
     </div>
   );

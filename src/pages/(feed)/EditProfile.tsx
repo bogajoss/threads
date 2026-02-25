@@ -8,8 +8,8 @@ import {
   MapPin,
   Globe,
   Save,
+  Loader2,
 } from "lucide-react";
-import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import CircularProgress from "@/components/ui/CircularProgress";
 import { useAuth } from "@/context/AuthContext";
@@ -18,6 +18,7 @@ import { uploadFile } from "@/lib/api";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PageTransition } from "@/components/layout";
 import { useAutoResizeTextArea } from "@/hooks/useAutoResizeTextArea";
+import { cn } from "@/lib/utils";
 
 interface EditProfileDraft {
   name?: string;
@@ -207,28 +208,43 @@ const EditProfile: React.FC = () => {
   const wordCount = getWordCount(editProfileData?.bio);
   const bioWarn = wordCount >= 50;
 
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
+
   if (!currentUser) {
-    navigate("/login");
     return null;
   }
 
   return (
     <PageTransition>
-      <div className="flex min-h-screen flex-col border-zinc-100 bg-white dark:border-zinc-800 dark:bg-black md:rounded-xl md:border">
-        {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-zinc-100 bg-white/80 p-4 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
+      <div className="flex min-h-screen flex-col bg-muted/30 md:rounded-2xl md:border md:border-border">
+        {/* iOS Translucent Header */}
+        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="rounded-full p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="flex size-9 items-center justify-center rounded-full transition-all active:scale-90 active:bg-accent"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} strokeWidth={2.5} className="text-foreground" />
             </button>
-            <h2 className="text-xl font-bold dark:text-white">Edit Profile</h2>
+            <h2 className="text-[20px] font-black tracking-tight text-foreground">Edit Profile</h2>
           </div>
+          <button
+            onClick={handleUpdateProfile}
+            disabled={loading}
+            className={cn(
+              "text-[16px] font-bold text-primary transition-all active:scale-95 disabled:opacity-50",
+              loading && "animate-pulse"
+            )}
+          >
+            {loading ? "Saving..." : "Done"}
+          </button>
         </div>
 
-        <div className="mx-auto mt-4 w-full max-w-2xl space-y-8 p-4 pb-24">
+        <div className="mx-auto w-full max-w-2xl space-y-8 p-4 pb-32">
           <input
             type="file"
             ref={coverInputRef}
@@ -248,86 +264,85 @@ const EditProfile: React.FC = () => {
             }
           />
 
-          {/* Media Section */}
-          <section className="space-y-4">
-            <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
-              Media
+          {/* Media Group */}
+          <section className="space-y-2">
+            <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
+              Profile Media
             </h3>
-            <div className="overflow-hidden rounded-2xl bg-zinc-50 dark:bg-zinc-900">
-              {/* Cover */}
+            <div className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+              {/* Cover Photo */}
               <div
-                className="group relative h-40 cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-800"
+                className="group relative h-44 cursor-pointer overflow-hidden bg-muted/50 transition-colors hover:bg-muted"
                 onClick={() => coverInputRef.current?.click()}
               >
                 {(newCoverFile || editProfileData?.cover) && (
                   <img
                     src={coverPreviewUrl ?? editProfileData.cover}
-                    className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-70"
+                    className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
                     alt=""
                   />
                 )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
-                  <div className="flex flex-col items-center gap-1 text-white">
-                    <Camera size={24} />
-                    <span className="text-[10px] font-black uppercase tracking-wider">
-                      Change Cover
-                    </span>
+                
+                {/* Minimal Camera Icon for Cover */}
+                <div className="absolute bottom-3 right-3 z-10">
+                  <div className="rounded-full bg-black/20 p-2 text-white/90 backdrop-blur-md transition-all active:scale-90 active:bg-black/40 shadow-sm border border-white/10">
+                    <Camera size={18} strokeWidth={2} />
                   </div>
                 </div>
               </div>
 
-              {/* Avatar Row */}
-              <div className="flex items-center gap-6 p-4">
+              {/* Avatar Item */}
+              <div className="flex items-center gap-4 border-t border-border p-4">
                 <div
-                  className="group relative size-24 cursor-pointer overflow-hidden rounded-full ring-4 ring-white shadow-lg dark:ring-zinc-800"
+                  className="group relative size-20 shrink-0 cursor-pointer overflow-hidden rounded-full ring-2 ring-background shadow-md"
                   onClick={() => avatarInputRef.current?.click()}
                 >
                   <Avatar className="size-full rounded-none">
                     <AvatarImage
                       src={avatarPreviewUrl ?? editProfileData.avatar}
-                      className="object-cover transition-opacity group-hover:opacity-70"
+                      className="object-cover transition-opacity group-hover:opacity-80"
                     />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-muted text-xl font-bold text-muted-foreground">
                       {editProfileData?.handle?.[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
-                    <Camera size={20} className="text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Camera size={18} className="text-white" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold dark:text-zinc-200">
-                    Profile Picture
+                  <h4 className="text-[15px] font-bold text-foreground">Profile Picture</h4>
+                  <p className="text-[12px] font-medium text-muted-foreground">
+                    GIFs enabled for PRO users
                   </p>
-                  <p className="text-xs text-zinc-500">
-                    Recommended size: 400x400px
-                  </p>
+                  <button
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="mt-1 text-[13px] font-bold text-primary active:opacity-60"
+                  >
+                    Change Photo
+                  </button>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Basic Info */}
-          <section className="space-y-4">
-            <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
-              Basic Info
+          {/* Basic Info Group */}
+          <section className="space-y-2">
+            <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
+              Personal Information
             </h3>
-            <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-              <div className="flex flex-col gap-2 p-4">
-                <div className="flex items-center gap-2 text-zinc-500">
-                  <User size={16} />
-                  <label className="text-xs font-bold uppercase tracking-tight">
-                    Display Name
+            <div className="divide-y divide-border overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+              <div className="flex flex-col gap-1 p-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <User size={14} strokeWidth={2.5} className="text-muted-foreground/70" />
+                  <label className="text-[11px] font-bold uppercase tracking-widest">
+                    Name
                   </label>
                 </div>
                 <Input
                   value={editProfileData?.name || ""}
-                  className="h-auto bg-transparent p-0 text-base font-medium placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none"
-                  onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
-                  ) =>
+                  className="h-auto border-none bg-transparent p-0 text-[16px] font-medium text-foreground shadow-none focus-visible:ring-0"
+                  onChange={(e) =>
                     setEditProfileDataDirty({
                       ...editProfileData,
                       name: e.target.value,
@@ -336,18 +351,18 @@ const EditProfile: React.FC = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2 p-4">
+              <div className="flex flex-col gap-1 p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-zinc-500">
-                    <FileText size={16} />
-                    <label className="text-xs font-bold uppercase tracking-tight">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <FileText size={14} strokeWidth={2.5} className="text-muted-foreground/70" />
+                    <label className="text-[11px] font-bold uppercase tracking-widest">
                       Bio
                     </label>
                   </div>
                   <CircularProgress
                     current={wordCount}
                     max={60}
-                    size={20}
+                    size={16}
                     strokeWidth={3}
                     isWarning={bioWarn}
                   />
@@ -355,11 +370,9 @@ const EditProfile: React.FC = () => {
                 <textarea
                   ref={bioTextareaRef}
                   value={editProfileData?.bio || ""}
-                  className="min-h-[80px] max-h-[400px] w-full bg-transparent p-0 text-base font-medium resize-none placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none outline-none"
-                  placeholder="Tell others about yourself..."
-                  onChange={(
-                    e: React.ChangeEvent<HTMLTextAreaElement>,
-                  ) => {
+                  className="min-h-[60px] max-h-[400px] w-full resize-none border-none bg-transparent p-0 text-[16px] font-medium text-foreground outline-none shadow-none focus-visible:ring-0"
+                  placeholder="Bio..."
+                  onChange={(e) => {
                     const raw = e.target.value;
                     const words = raw.trim().split(/\s+/).filter(Boolean);
                     if (words.length > 60) {
@@ -374,28 +387,24 @@ const EditProfile: React.FC = () => {
             </div>
           </section>
 
-          {/* Extras */}
-          <section className="space-y-4">
-            <h3 className="px-2 text-sm font-bold uppercase tracking-wider text-zinc-500">
+          {/* Social Details Group */}
+          <section className="space-y-2">
+            <h3 className="px-4 text-[12px] font-bold uppercase tracking-widest text-muted-foreground">
               Public Details
             </h3>
-            <div className="divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-zinc-50 dark:divide-zinc-800 dark:bg-zinc-900">
-              <div className="flex flex-col gap-2 p-4">
-                <div className="flex items-center gap-2 text-zinc-500">
-                  <MapPin size={16} />
-                  <label className="text-xs font-bold uppercase tracking-tight">
+            <div className="divide-y divide-border overflow-hidden rounded-[20px] border border-border bg-card shadow-sm">
+              <div className="flex flex-col gap-1 p-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin size={14} strokeWidth={2.5} className="text-muted-foreground/70" />
+                  <label className="text-[11px] font-bold uppercase tracking-widest">
                     Location
                   </label>
                 </div>
                 <Input
-                  placeholder="Where are you based?"
+                  placeholder="Based in..."
                   value={editProfileData?.location || ""}
-                  className="h-auto bg-transparent p-0 text-base font-medium placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none"
-                  onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
-                  ) =>
+                  className="h-auto border-none bg-transparent p-0 text-[16px] font-medium text-foreground shadow-none focus-visible:ring-0"
+                  onChange={(e) =>
                     setEditProfileDataDirty({
                       ...editProfileData,
                       location: e.target.value,
@@ -404,22 +413,18 @@ const EditProfile: React.FC = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2 p-4">
-                <div className="flex items-center gap-2 text-zinc-500">
-                  <Globe size={16} />
-                  <label className="text-xs font-bold uppercase tracking-tight">
+              <div className="flex flex-col gap-1 p-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Globe size={14} strokeWidth={2.5} className="text-muted-foreground/70" />
+                  <label className="text-[11px] font-bold uppercase tracking-widest">
                     Website
                   </label>
                 </div>
                 <Input
                   placeholder="yoursite.com"
                   value={editProfileData?.website || ""}
-                  className="h-auto bg-transparent p-0 text-base font-medium placeholder:text-zinc-400 focus-visible:ring-0 dark:text-zinc-100 shadow-none"
-                  onChange={(
-                    e: React.ChangeEvent<
-                      HTMLInputElement | HTMLTextAreaElement
-                    >,
-                  ) =>
+                  className="h-auto border-none bg-transparent p-0 text-[16px] font-medium text-foreground shadow-none focus-visible:ring-0"
+                  onChange={(e) =>
                     setEditProfileDataDirty({
                       ...editProfileData,
                       website: e.target.value,
@@ -430,26 +435,34 @@ const EditProfile: React.FC = () => {
             </div>
           </section>
 
-          <div className="flex gap-4 pt-4">
-            <Button
-              variant="secondary"
-              className="flex-1 rounded-2xl p-4 font-bold"
-              onClick={() => navigate(-1)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1 rounded-2xl p-4 font-bold bg-violet-600 hover:bg-violet-700 text-white"
+          <div className="flex flex-col gap-3 pt-4">
+            <button
               onClick={handleUpdateProfile}
-              loading={loading}
+              disabled={loading}
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              <Save size={18} className="mr-2" />
-              Save Changes
-            </Button>
+              {loading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <>
+                  <Save size={20} />
+                  Save Changes
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={() => navigate(-1)}
+              className="flex h-14 w-full items-center justify-center font-bold text-muted-foreground transition-all active:scale-95 active:text-foreground"
+            >
+              Discard Changes
+            </button>
           </div>
 
-          <div className="py-10 text-center text-xs text-zinc-400">
-            Your profile changes will be visible to everyone on MySys.
+          <div className="pt-10 text-center">
+            <p className="text-[12px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+              MySys Profile Management
+            </p>
           </div>
         </div>
       </div>
