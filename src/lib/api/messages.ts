@@ -7,40 +7,13 @@ export const getOrCreateConversation = async (
   userId: string,
   targetUserId: string,
 ): Promise<string> => {
-  const { data: myParticipants } = await (
-    supabase.from("conversation_participants") as any
-  )
-    .select("conversation_id, conversation:conversations!inner(is_group)")
-    .eq("user_id", userId)
-    .eq("conversation.is_group", false);
+  const { data, error } = await (supabase.rpc as any)("get_or_create_dm", {
+    p_user_id: userId,
+    p_target_id: targetUserId,
+  });
 
-  const myDMConvIds = (myParticipants || []).map((p: any) => p.conversation_id);
-
-  const { data: existing } = await (
-    supabase.from("conversation_participants") as any
-  )
-    .select("conversation_id")
-    .eq("user_id", targetUserId)
-    .in("conversation_id", myDMConvIds)
-    .maybeSingle();
-
-  if (existing) return existing.conversation_id;
-
-  const { data: newConv, error: convError } = await (
-    supabase.from("conversations") as any
-  )
-    .insert({ is_group: false, creator_id: userId })
-    .select()
-    .single();
-
-  if (convError) throw convError;
-
-  await (supabase.from("conversation_participants") as any).insert([
-    { conversation_id: (newConv as any).id, user_id: userId },
-    { conversation_id: (newConv as any).id, user_id: targetUserId },
-  ]);
-
-  return (newConv as any).id;
+  if (error) throw error;
+  return data as string;
 };
 
 export const createGroupConversation = async (
@@ -171,17 +144,33 @@ export const fetchConversations = async (
 
   if (error) throw error;
 
-  return (data || [])
+  const transformed = (data || [])
     .map((item) => transformConversation(item, userId))
-    .filter((c): c is Conversation => c !== null)
-    .sort((a, b) => {
-      if (!a.lastMessageAt) return 1;
-      if (!b.lastMessageAt) return -1;
-      return (
-        new Date(b.lastMessageAt).getTime() -
-        new Date(a.lastMessageAt).getTime()
-      );
-    });
+    .filter((c): c is Conversation => c !== null);
+
+  // Client-side deduplication for DMs
+  // If we have multiple conversations with the same user, keep only the most recent one
+  const uniqueConversations: Conversation[] = [];
+  const dmUserIds = new Set<string>();
+
+  // Sort by last activity first so we keep the most recent one
+  const sorted = [...transformed].sort((a, b) => {
+    const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+    const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  for (const conv of sorted) {
+    if (!conv.isGroup && conv.user?.id) {
+      if (dmUserIds.has(conv.user.id)) {
+        continue; // Skip duplicate DM
+      }
+      dmUserIds.add(conv.user.id);
+    }
+    uniqueConversations.push(conv);
+  }
+
+  return uniqueConversations;
 };
 
 export const fetchMessages = async (

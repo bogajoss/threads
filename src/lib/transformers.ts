@@ -194,7 +194,7 @@ export const transformConversation = (
 
   const otherParticipant = !conv.is_group
     ? conv.participants?.find((p: any) => p.user?.id !== currentUserId) ||
-      conv.participants?.[0]
+      conv.participants?.find((p: any) => p.user?.id === currentUserId)
     : null;
 
   const messages = conv.messages || [];

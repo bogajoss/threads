@@ -278,7 +278,7 @@ const Message = ({
                         </ContextMenuItem>
                       )}
                       {onDelete && (
-                        <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message)}>
+                        <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onDelete(message.id)}>
                           <Trash2 size={16} className="mr-2" /> Delete
                         </ContextMenuItem>
                       )}
@@ -444,7 +444,7 @@ const Message = ({
                         variant="destructive"
                         icon={<Trash2 size={18} />}
                         onClick={() => {
-                          onDelete(message);
+                          onDelete(message.id);
                           setIsActionsheetOpen(false);
                         }}
                       >
