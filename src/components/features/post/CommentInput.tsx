@@ -1,5 +1,5 @@
-import React, { useRef, useMemo, useEffect } from "react";
-import { Paperclip, X, Mic, Square, Trash2 } from "lucide-react";
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { Paperclip, X, Mic, Square, Trash2, Play } from "lucide-react";
 import { MediaIcon, ShareIcon } from "@/components/ui";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -37,6 +37,41 @@ const CommentInput: React.FC<CommentInputProps> = ({
     audioUrl,
     clearAudio,
   } = useAudioRecorder();
+
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const togglePreviewPlay = () => {
+    if (!audioUrl) return;
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onended = () => setIsPreviewPlaying(false);
+    }
+
+    if (isPreviewPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPreviewPlaying(!isPreviewPlaying);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!audioBlob && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPreviewPlaying(false);
+    }
+  }, [audioBlob]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -134,14 +169,31 @@ const CommentInput: React.FC<CommentInputProps> = ({
               </button>
             </div>
           ) : audioUrl ? (
-            <div className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 rounded-xl px-4 py-3">
-              <div className="flex items-center gap-3 text-zinc-600 dark:text-zinc-400">
-                <Mic size={18} />
-                <span className="text-sm font-bold">Voice comment ready</span>
+            <div className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 rounded-xl px-3 py-2">
+               <div className="flex items-center gap-3">
+                 <button
+                    type="button"
+                    onClick={togglePreviewPlay}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full bg-violet-500 text-white transition-all hover:bg-violet-600"
+                  >
+                    {isPreviewPlaying ? (
+                      <Square size={16} fill="currentColor" />
+                    ) : (
+                      <Play size={20} fill="currentColor" className="ml-0.5" />
+                    )}
+                  </button>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                      Voice Message
+                    </span>
+                    <span className="text-sm font-bold text-zinc-900 dark:text-white">
+                      {formatTime(recordingTime)}
+                    </span>
+                  </div>
               </div>
               <button 
                 onClick={clearAudio}
-                className="text-rose-500 hover:scale-110 transition-transform"
+                className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10"
               >
                 <Trash2 size={18} />
               </button>
