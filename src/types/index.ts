@@ -93,6 +93,8 @@ export interface Comment {
   media: Media[] | null;
   created_at: string;
   parent_id?: string | null;
+  type?: string;
+  duration?: number;
   stats: {
     likes: number;
     comments?: number;

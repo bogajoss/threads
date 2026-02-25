@@ -86,7 +86,11 @@ interface PostProps {
   post_id?: string;
   commenterAvatars?: string[];
   is_pinned?: boolean;
+  type?: string;
+  duration?: number;
 }
+
+import VoiceMessage from "@/components/features/chat/VoiceMessage";
 
 const ReplyAvatars = ({ avatars }: { avatars: string[] }) => {
   if (!avatars || avatars.length === 0) return null;
@@ -391,6 +395,8 @@ const Post: React.FC<PostProps> = ({
   post_id,
   commenterAvatars = [],
   is_pinned = false,
+  type = "text",
+  duration,
 }) => {
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -404,7 +410,12 @@ const Post: React.FC<PostProps> = ({
     setLocalStats,
     handleLike,
     handleRepost,
-  } = usePostInteraction(post_id || id, stats, currentUser);
+  } = usePostInteraction(
+    post_id || id,
+    stats,
+    currentUser,
+    isComment ? id : undefined
+  );
 
   const { deletePost, updatePost } = usePosts();
 
@@ -542,17 +553,30 @@ const Post: React.FC<PostProps> = ({
     }
   };
 
-  const handleSubmitComment = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if ((!newComment.trim() && selectedFiles.length === 0) || !currentUser)
+  const handleSubmitComment = async (e?: React.MouseEvent, audioData?: { blob: Blob; duration: number }) => {
+    e?.preventDefault();
+    if ((!newComment.trim() && selectedFiles.length === 0 && !audioData) || !currentUser)
       return;
 
     setIsUploading(true);
     try {
-      const uploadedMedia = [];
-      for (const file of selectedFiles) {
-        const res = await uploadFile(file);
-        uploadedMedia.push(res);
+      let uploadedMedia = [];
+      let commentType = "text";
+      let voiceDuration: number | undefined = undefined;
+
+      // Handle voice comment
+      if (audioData) {
+        const audioFile = new File([audioData.blob], "voice-comment.webm", { type: "audio/webm" });
+        const res = await uploadFile(audioFile);
+        uploadedMedia = [res];
+        commentType = "voice";
+        voiceDuration = audioData.duration;
+      } else {
+        // Handle regular media
+        for (const file of selectedFiles) {
+          const res = await uploadFile(file);
+          uploadedMedia.push(res);
+        }
       }
 
       await submitComment({
@@ -560,6 +584,8 @@ const Post: React.FC<PostProps> = ({
         content: newComment,
         media: uploadedMedia,
         replyToId: replyTo?.id,
+        type: commentType,
+        duration: voiceDuration,
       });
 
       setNewComment("");
@@ -569,7 +595,7 @@ const Post: React.FC<PostProps> = ({
         ...prev,
         comments: (prev.comments || 0) + 1,
       }));
-      addToast("Reply posted!");
+      addToast(commentType === "voice" ? "Voice reply posted!" : "Reply posted!");
     } catch (err) {
       console.error("Failed to post comment:", err);
       addToast("Failed to post reply.");
@@ -652,6 +678,16 @@ const Post: React.FC<PostProps> = ({
             isUpdating={isUpdating}
             contentClass={contentClass}
           />
+
+          {type === "voice" && media?.[0] && (
+            <div className="mt-4 max-w-[300px]">
+              <VoiceMessage 
+                url={media[0].url} 
+                duration={duration || 0} 
+                isMe={isCurrentUser}
+              />
+            </div>
+          )}
 
           {extractUrl(content) && <LinkPreview url={extractUrl(content)!} />}
 
@@ -904,6 +940,16 @@ const Post: React.FC<PostProps> = ({
             isUpdating={isUpdating}
             contentClass={contentClass}
           />
+
+          {type === "voice" && media?.[0] && (
+            <div className="mt-3 max-w-[280px]">
+              <VoiceMessage 
+                url={media[0].url} 
+                duration={duration || 0} 
+                isMe={isCurrentUser}
+              />
+            </div>
+          )}
 
           {extractUrl(content) && <LinkPreview url={extractUrl(content)!} />}
           <PostMedia

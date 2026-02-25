@@ -14,6 +14,7 @@ export const usePostInteraction = (
   postId: string,
   initialStats: PostStats,
   currentUser: User | null,
+  commentId?: string
 ) => {
   const queryClient = useQueryClient();
   const { addToast } = useToast();
@@ -28,40 +29,37 @@ export const usePostInteraction = (
     setLocalStats((prev) => ({ ...prev, ...initialStats }));
   }
 
+  // Generate a unique key based on whether we are interacting with a post or a comment
+  const interactionKey = commentId
+    ? ["comment", commentId, "interaction", currentUser?.id]
+    : ["post", postId, "interaction", currentUser?.id];
+
   const { data: isLiked = false } = useQuery({
-    queryKey: ["post", postId, "liked", currentUser?.id],
-    queryFn: () => checkIfLiked(postId, currentUser!.id),
+    queryKey: [...interactionKey, "liked"],
+    queryFn: () => checkIfLiked(currentUser!.id, postId, commentId),
     enabled:
-      !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
+      !!currentUser && (isValidUUID(postId) || (commentId ? isValidUUID(commentId) : false)) && isValidUUID(currentUser.id),
     staleTime: 1000 * 60 * 10,
   });
 
   const { data: isReposted = false } = useQuery({
-    queryKey: ["post", postId, "reposted", currentUser?.id],
-    queryFn: () => checkIfReposted(postId, currentUser!.id),
+    queryKey: [...interactionKey, "reposted"],
+    queryFn: () => checkIfReposted(currentUser!.id, postId, commentId),
     enabled:
-      !!currentUser && isValidUUID(postId) && isValidUUID(currentUser.id),
+      !!currentUser && (isValidUUID(postId) || (commentId ? isValidUUID(commentId) : false)) && isValidUUID(currentUser.id),
     staleTime: 1000 * 60 * 10,
   });
 
   const likeMutation = useMutation({
-    mutationFn: () => toggleLike(postId, currentUser!.id),
+    mutationFn: () => toggleLike(currentUser!.id, postId, commentId),
     onMutate: async () => {
-      const currentUserId = currentUser!.id;
       await queryClient.cancelQueries({
-        queryKey: ["post", postId, "liked", currentUserId],
+        queryKey: [...interactionKey, "liked"],
       });
-      const previousLiked = queryClient.getQueryData<boolean>([
-        "post",
-        postId,
-        "liked",
-        currentUserId,
-      ]);
+      const previousLiked = queryClient.getQueryData<boolean>([...interactionKey, "liked"]);
 
-      queryClient.setQueryData(
-        ["post", postId, "liked", currentUserId],
-        !previousLiked,
-      );
+      queryClient.setQueryData([...interactionKey, "liked"], !previousLiked);
+
       setLocalStats((prev) => ({
         ...prev,
         likes: !previousLiked ? (prev.likes || 0) + 1 : (prev.likes || 0) - 1,
@@ -71,10 +69,7 @@ export const usePostInteraction = (
     },
     onError: (_err, _variables, context) => {
       if (context?.previousLiked !== undefined) {
-        queryClient.setQueryData(
-          ["post", postId, "liked", currentUser!.id],
-          context.previousLiked,
-        );
+        queryClient.setQueryData([...interactionKey, "liked"], context.previousLiked);
         setLocalStats((prev) => ({
           ...prev,
           likes: context.previousLiked
@@ -86,29 +81,21 @@ export const usePostInteraction = (
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["post", postId, "liked", currentUser?.id],
+        queryKey: [...interactionKey, "liked"],
       });
     },
   });
 
   const repostMutation = useMutation({
-    mutationFn: () => toggleRepost(postId, currentUser!.id),
+    mutationFn: () => toggleRepost(currentUser!.id, postId, commentId),
     onMutate: async () => {
-      const currentUserId = currentUser!.id;
       await queryClient.cancelQueries({
-        queryKey: ["post", postId, "reposted", currentUserId],
+        queryKey: [...interactionKey, "reposted"],
       });
-      const previousReposted = queryClient.getQueryData<boolean>([
-        "post",
-        postId,
-        "reposted",
-        currentUserId,
-      ]);
+      const previousReposted = queryClient.getQueryData<boolean>([...interactionKey, "reposted"]);
 
-      queryClient.setQueryData(
-        ["post", postId, "reposted", currentUserId],
-        !previousReposted,
-      );
+      queryClient.setQueryData([...interactionKey, "reposted"], !previousReposted);
+      
       setLocalStats((prev) => ({
         ...prev,
         reposts: !previousReposted
@@ -123,10 +110,7 @@ export const usePostInteraction = (
     },
     onError: (_err, _variables, context) => {
       if (context?.previousReposted !== undefined) {
-        queryClient.setQueryData(
-          ["post", postId, "reposted", currentUser!.id],
-          context.previousReposted,
-        );
+        queryClient.setQueryData([...interactionKey, "reposted"], context.previousReposted);
         setLocalStats((prev) => ({
           ...prev,
           reposts: context.previousReposted
@@ -141,7 +125,7 @@ export const usePostInteraction = (
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["post", postId, "reposted", currentUser?.id],
+        queryKey: [...interactionKey, "reposted"],
       });
     },
     onSuccess: (newItemState) => {
@@ -152,7 +136,6 @@ export const usePostInteraction = (
   const handleLike = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!currentUser) return addToast("Please login to like!", "error");
-    if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return;
     if (likeMutation.isPending) return;
     likeMutation.mutate();
   };
@@ -160,7 +143,6 @@ export const usePostInteraction = (
   const handleRepost = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!currentUser) return addToast("Please login to repost!", "error");
-    if (!isValidUUID(postId) || !isValidUUID(currentUser.id)) return;
     repostMutation.mutate();
   };
 

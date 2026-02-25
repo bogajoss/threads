@@ -1,15 +1,16 @@
 import React, { useRef, useMemo, useEffect } from "react";
-import { Paperclip, X } from "lucide-react";
+import { Paperclip, X, Mic, Square, Trash2 } from "lucide-react";
 import { MediaIcon, ShareIcon } from "@/components/ui";
 import Button from "@/components/ui/Button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { User } from "@/types";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 
 interface CommentInputProps {
   currentUser: User | null;
   newComment: string;
   setNewComment: (val: string) => void;
-  handleSubmitComment: (e: React.MouseEvent) => void;
+  handleSubmitComment: (e?: React.MouseEvent, audioData?: { blob: Blob; duration: number }) => void;
   loading: boolean;
   selectedFiles?: File[];
   setSelectedFiles?: React.Dispatch<React.SetStateAction<File[]>>;
@@ -27,6 +28,15 @@ const CommentInput: React.FC<CommentInputProps> = ({
   isUploading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    isRecording,
+    recordingTime,
+    startRecording,
+    stopRecording,
+    audioBlob,
+    audioUrl,
+    clearAudio,
+  } = useAudioRecorder();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -71,6 +81,21 @@ const CommentInput: React.FC<CommentInputProps> = ({
     }
   };
 
+  const handleSend = (e: React.MouseEvent) => {
+    if (audioBlob) {
+      handleSubmitComment(e, { blob: audioBlob, duration: recordingTime });
+      clearAudio();
+    } else {
+      handleSubmitComment(e);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
   if (!currentUser) {
     return (
       <div className="border-y border-zinc-100 bg-zinc-50/30 p-6 text-center dark:border-zinc-800 dark:bg-zinc-900/10">
@@ -95,14 +120,42 @@ const CommentInput: React.FC<CommentInputProps> = ({
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <textarea
-            id="comment-input"
-            className="min-h-[60px] w-full resize-none bg-transparent text-base outline-none placeholder:text-zinc-500 dark:text-white"
-            placeholder="Post your reply..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onPaste={handlePaste}
-          />
+          {isRecording ? (
+            <div className="flex items-center justify-between bg-violet-50 dark:bg-violet-900/20 rounded-xl px-4 py-3 animate-pulse">
+              <div className="flex items-center gap-3 text-violet-600">
+                <div className="size-2 rounded-full bg-red-500 animate-ping" />
+                <span className="font-mono font-bold">{formatTime(recordingTime)}</span>
+              </div>
+              <button 
+                onClick={stopRecording}
+                className="text-violet-600 hover:scale-110 transition-transform"
+              >
+                <Square size={20} fill="currentColor" />
+              </button>
+            </div>
+          ) : audioUrl ? (
+            <div className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 text-zinc-600 dark:text-zinc-400">
+                <Mic size={18} />
+                <span className="text-sm font-bold">Voice comment ready</span>
+              </div>
+              <button 
+                onClick={clearAudio}
+                className="text-rose-500 hover:scale-110 transition-transform"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          ) : (
+            <textarea
+              id="comment-input"
+              className="min-h-[60px] w-full resize-none bg-transparent text-base outline-none placeholder:text-zinc-500 dark:text-white"
+              placeholder="Post your reply..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onPaste={handlePaste}
+            />
+          )}
 
           {selectedFiles.length > 0 && (
             <div className="mt-2 mb-2 flex flex-wrap gap-2">
@@ -138,11 +191,28 @@ const CommentInput: React.FC<CommentInputProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="rounded-full p-2 text-violet-600 transition-colors hover:bg-violet-50 dark:hover:bg-zinc-800"
+                disabled={isRecording || !!audioUrl}
+                className="rounded-full p-2 text-violet-600 transition-colors hover:bg-violet-50 dark:hover:bg-zinc-800 disabled:opacity-30"
                 title="Attach media"
               >
                 <MediaIcon size={20} />
               </button>
+              
+              {!audioUrl && (
+                <button
+                  type="button"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`rounded-full p-2 transition-colors ${
+                    isRecording 
+                      ? "bg-red-50 text-red-600 animate-pulse" 
+                      : "text-violet-600 hover:bg-violet-50 dark:hover:bg-zinc-800"
+                  }`}
+                  title={isRecording ? "Stop recording" : "Record voice comment"}
+                >
+                  <Mic size={20} className={isRecording ? "fill-current" : ""} />
+                </button>
+              )}
+
               <input
                 type="file"
                 ref={fileInputRef}
@@ -156,9 +226,9 @@ const CommentInput: React.FC<CommentInputProps> = ({
               variant={loading || isUploading ? "primary" : "animated"}
               icon={!(loading || isUploading) && <ShareIcon size={20} />}
               className="min-w-[70px] !w-auto"
-              onClick={handleSubmitComment}
+              onClick={handleSend}
               loading={loading || isUploading}
-              disabled={!newComment.trim() && selectedFiles.length === 0}
+              disabled={( !newComment.trim() && selectedFiles.length === 0 && !audioBlob) || isRecording}
             >
               Reply
             </Button>

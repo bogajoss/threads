@@ -80,18 +80,29 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
     }
   }, [isOpen, reelId, loadComments]);
 
-  const handleSubmitComment = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if ((!newComment.trim() && selectedFiles.length === 0) || !currentUser)
+  const handleSubmitComment = async (e?: React.MouseEvent, audioData?: { blob: Blob; duration: number }) => {
+    e?.preventDefault();
+    if ((!newComment.trim() && selectedFiles.length === 0 && !audioData) || !currentUser)
       return;
 
     setSubmitting(true);
     setIsUploading(true);
     try {
-      const uploadedMedia = [];
-      for (const file of selectedFiles) {
-        const res = await uploadFile(file);
-        uploadedMedia.push(res);
+      let uploadedMedia = [];
+      let commentType = "text";
+      let voiceDuration = null;
+
+      if (audioData) {
+        const audioFile = new File([audioData.blob], "voice-comment.webm", { type: "audio/webm" });
+        const res = await uploadFile(audioFile);
+        uploadedMedia = [res];
+        commentType = "voice";
+        voiceDuration = audioData.duration;
+      } else {
+        for (const file of selectedFiles) {
+          const res = await uploadFile(file);
+          uploadedMedia.push(res);
+        }
       }
 
       await addComment(
@@ -100,11 +111,13 @@ const ReelCommentsModal: React.FC<ReelCommentsModalProps> = ({
         newComment,
         uploadedMedia,
         replyTo?.id,
+        commentType,
+        voiceDuration,
       );
       setNewComment("");
       setSelectedFiles([]);
       setReplyTo(null);
-      if (showToast) showToast("Reply posted!");
+      if (showToast) showToast(commentType === "voice" ? "Voice reply posted!" : "Reply posted!");
       loadComments();
     } catch (err) {
       console.error("Failed to post comment:", err);

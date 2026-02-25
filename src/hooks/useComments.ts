@@ -54,14 +54,18 @@ export const useComments = (
       content,
       media,
       replyToId,
+      type = "text",
+      duration,
     }: {
       userId: string;
       content: string;
       media: Media[];
       replyToId?: string;
+      type?: string;
+      duration?: number;
     }) => {
       if (!currentUser) throw new Error("User not authenticated");
-      return addComment(postId, userId, content, media, replyToId);
+      return addComment(postId, userId, content, media, replyToId, type, duration);
     },
     onMutate: async (newCommentData) => {
       if (!currentUser) return;

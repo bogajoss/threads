@@ -341,6 +341,8 @@ export const addComment = async (
   content: string,
   media: Media[] = [],
   parentId: string | null = null,
+  type: string = "text",
+  duration: number | null = null,
 ): Promise<Comment | null> => {
   const { data, error } = await (supabase.from("comments") as any)
     .insert([
@@ -350,6 +352,8 @@ export const addComment = async (
         content,
         media,
         parent_id: parentId,
+        type,
+        duration,
       },
     ])
     .select(
@@ -370,40 +374,68 @@ export const addComment = async (
 };
 
 export const toggleLike = async (
-  postId: string,
   userId: string,
+  postId?: string | null,
+  commentId?: string | null,
 ): Promise<boolean> => {
-  if (!postId || !userId) return false;
+  if (!userId) return false;
+
+  // Ensure we send only one ID to the backend
+  const p_post_id = commentId ? null : (postId || null);
+  const p_comment_id = commentId || null;
 
   try {
     const { data, error } = await (supabase.rpc as any)("toggle_like", {
-      p_post_id: postId,
       p_user_id: userId,
+      p_post_id: p_post_id,
+      p_comment_id: p_comment_id,
     });
 
     if (error && (error.code === "PGRST202" || (error as any).status === 404)) {
-      // Fallback if RPC is missing
-      const { data: existing } = await supabase
-        .from("likes")
-        .select("post_id")
-        .eq("post_id", postId)
-        .eq("user_id", userId)
-        .maybeSingle();
+      // Fallback if RPC is missing or fails (though updated RPC should handle this)
+       if (commentId) {
+         const { data: existing } = await supabase
+           .from("comment_likes")
+           .select("comment_id") 
+           .eq("comment_id", commentId)
+           .eq("user_id", userId)
+           .maybeSingle();
 
-      if (existing) {
-        await supabase
-          .from("likes")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", userId);
-        return false;
-      } else {
-        const { error: insErr } = await (supabase.from("likes") as any).insert([
-          { post_id: postId, user_id: userId },
-        ]);
-        if (insErr && insErr.code === "23505") return false; // Conflict handled
-        return true;
-      }
+         if (existing) {
+           await supabase
+             .from("comment_likes")
+             .delete()
+             .eq("comment_id", commentId)
+             .eq("user_id", userId);
+           return false;
+         } else {
+            await (supabase.from("comment_likes") as any).insert([
+             { comment_id: commentId, user_id: userId },
+           ]);
+           return true; 
+         }
+       } else if (postId) {
+          const { data: existing } = await supabase
+            .from("likes")
+            .select("post_id")
+            .eq("post_id", postId)
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          if (existing) {
+            await supabase
+              .from("likes")
+              .delete()
+              .eq("post_id", postId)
+              .eq("user_id", userId);
+            return false;
+          } else {
+             await (supabase.from("likes") as any).insert([
+              { post_id: postId, user_id: userId },
+            ]);
+            return true;
+          }
+       }
     }
 
     if (error) throw error;
@@ -415,14 +447,20 @@ export const toggleLike = async (
 };
 
 export const checkIfLiked = async (
-  postId: string,
   userId: string,
+  postId?: string | null,
+  commentId?: string | null,
 ): Promise<boolean> => {
-  if (!userId || !postId) return false;
+  if (!userId || (!postId && !commentId)) return false;
+
+  const table = commentId ? "comment_likes" : "likes";
+  const idColumn = commentId ? "comment_id" : "post_id";
+  const targetId = commentId || postId;
+
   const { data, error } = await supabase
-    .from("likes")
-    .select("post_id")
-    .eq("post_id", postId)
+    .from(table)
+    .select(idColumn)
+    .eq(idColumn, targetId)
     .eq("user_id", userId)
     .limit(1);
 
@@ -434,40 +472,68 @@ export const checkIfLiked = async (
 };
 
 export const toggleRepost = async (
-  postId: string,
   userId: string,
+  postId?: string | null,
+  commentId?: string | null,
 ): Promise<boolean> => {
-  if (!postId || !userId) return false;
+  if (!userId) return false;
+
+  // Ensure we send only one ID to the backend
+  const p_post_id = commentId ? null : (postId || null);
+  const p_comment_id = commentId || null;
 
   try {
-    const { data, error } = await (supabase.rpc as any)("toggle_repost", {
-      p_post_id: postId,
+     const { data, error } = await (supabase.rpc as any)("toggle_repost", {
       p_user_id: userId,
+      p_post_id: p_post_id,
+      p_comment_id: p_comment_id,
     });
 
     if (error && (error.code === "PGRST202" || (error as any).status === 404)) {
-      // Fallback if RPC is missing
-      const { data: existing } = await supabase
-        .from("reposts")
-        .select("post_id")
-        .eq("post_id", postId)
-        .eq("user_id", userId)
-        .maybeSingle();
+       // Fallback logic
+       if (commentId) {
+          const { data: existing } = await supabase
+            .from("reposts")
+            .select("comment_id")
+            .eq("comment_id", commentId)
+            .eq("user_id", userId)
+            .maybeSingle();
+            
+          if (existing) {
+            await supabase
+              .from("reposts")
+              .delete()
+              .eq("comment_id", commentId)
+              .eq("user_id", userId);
+            return false;
+          } else {
+             await (supabase.from("reposts") as any).insert([
+               { comment_id: commentId, user_id: userId }
+             ]);
+             return true;
+          }
+       } else if (postId) {
+          const { data: existing } = await supabase
+            .from("reposts")
+            .select("post_id")
+            .eq("post_id", postId)
+            .eq("user_id", userId)
+            .maybeSingle();
 
-      if (existing) {
-        await supabase
-          .from("reposts")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", userId);
-        return false;
-      } else {
-        const { error: insErr } = await (
-          supabase.from("reposts") as any
-        ).insert([{ post_id: postId, user_id: userId }]);
-        if (insErr && insErr.code === "23505") return false;
-        return true;
-      }
+          if (existing) {
+            await supabase
+              .from("reposts")
+              .delete()
+              .eq("post_id", postId)
+              .eq("user_id", userId);
+            return false;
+          } else {
+            await (supabase.from("reposts") as any).insert([
+              { post_id: postId, user_id: userId }
+            ]);
+            return true;
+          }
+       }
     }
 
     if (error) throw error;
@@ -479,14 +545,20 @@ export const toggleRepost = async (
 };
 
 export const checkIfReposted = async (
-  postId: string,
   userId: string,
+  postId?: string | null,
+  commentId?: string | null
 ): Promise<boolean> => {
-  if (!userId || !postId) return false;
+  if (!userId || (!postId && !commentId)) return false;
+
+  const table = commentId ? "reposts" : "reposts"; // Both reposts now (with columns)
+  const idCol = commentId ? "comment_id" : "post_id";
+  const targetId = commentId || postId;
+
   const { data, error } = await supabase
-    .from("reposts")
-    .select("post_id")
-    .eq("post_id", postId)
+    .from(table)
+    .select(idCol)
+    .eq(idCol, targetId)
     .eq("user_id", userId)
     .limit(1);
 

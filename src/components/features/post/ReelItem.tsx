@@ -218,7 +218,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       const checkStatus = async () => {
         try {
           const [liked, following] = await Promise.all([
-            checkIfLiked(reel.id, currentUser.id),
+            checkIfLiked(currentUser.id, reel.id),
             checkIfFollowing(currentUser.id, reel.user?.id),
           ]);
           setIsLiked(liked);
@@ -332,7 +332,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         setIsLiked(true);
         setLikesCount((prev: number) => prev + 1);
         try {
-          await toggleLike(reel.id, currentUser.id);
+          await toggleLike(currentUser.id, reel.id);
         } catch {
           setIsLiked(false);
           setLikesCount((prev: number) => prev - 1);
@@ -349,7 +349,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       setLikesCount((prev: number) => (newLiked ? prev + 1 : prev - 1));
 
       try {
-        await toggleLike(reel.id, currentUser.id);
+        await toggleLike(currentUser.id, reel.id);
       } catch {
         setIsLiked(!newLiked);
         setLikesCount((prev: number) => (!newLiked ? prev + 1 : prev - 1));
