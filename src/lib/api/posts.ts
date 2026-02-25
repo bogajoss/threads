@@ -455,7 +455,7 @@ export const checkIfLiked = async (
 
   const table = commentId ? "comment_likes" : "likes";
   const idColumn = commentId ? "comment_id" : "post_id";
-  const targetId = commentId || postId;
+  const targetId = (commentId || postId) as string;
 
   const { data, error } = await supabase
     .from(table)
@@ -553,7 +553,7 @@ export const checkIfReposted = async (
 
   const table = commentId ? "reposts" : "reposts"; // Both reposts now (with columns)
   const idCol = commentId ? "comment_id" : "post_id";
-  const targetId = commentId || postId;
+  const targetId = (commentId || postId) as string;
 
   const { data, error } = await supabase
     .from(table)
