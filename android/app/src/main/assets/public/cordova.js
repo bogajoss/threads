@@ -153,7 +153,7 @@
       }
     };
 
-    /* eslint-disable no-undef */
+     
     var cordova = {
       define: define,
       require: require,
@@ -161,7 +161,7 @@
       platformVersion: PLATFORM_VERSION_BUILD_LABEL,
       platformId: platform.id,
 
-      /* eslint-enable no-undef */
+       
 
       /**
        * Methods to add/remove your own addEventListener hijacking on document + window.
@@ -390,7 +390,7 @@
     };
 
     base64.toArrayBuffer = function (str) {
-      var decodedStr = typeof atob !== 'undefined' ? atob(str) : Buffer.from(str, 'base64').toString('binary'); // eslint-disable-line no-undef
+      var decodedStr = typeof atob !== 'undefined' ? atob(str) : Buffer.from(str, 'base64').toString('binary');  
       var arrayBuffer = new ArrayBuffer(decodedStr.length);
       var array = new Uint8Array(arrayBuffer);
       for (var i = 0, len = decodedStr.length; i < len; i++) {
@@ -638,14 +638,14 @@
         }
         if (!len) h();
       },
-      /* eslint-disable no-return-assign */
+       
       create: function (type) {
         return (channel[type] = new Channel(type, false));
       },
       createSticky: function (type) {
         return (channel[type] = new Channel(type, true));
       },
-      /* eslint-enable no-return-assign */
+       
       /**
        * cordova Channels that must fire before "deviceready" is fired.
        */
@@ -765,7 +765,7 @@
      * Calls all functions subscribed to this channel.
      */
     Channel.prototype.fire = function (e) {
-      var fail = false; // eslint-disable-line no-unused-vars
+      var fail = false;  
       var fireArgs = Array.prototype.slice.call(arguments);
       // Apply stickiness.
       if (this.state === 1) {
@@ -873,7 +873,7 @@
           return ret.buffer;
         };
         var base64ToArrayBuffer = function (b64) {
-          return stringToArrayBuffer(atob(b64)); // eslint-disable-line no-undef
+          return stringToArrayBuffer(atob(b64));  
         };
         message = base64ToArrayBuffer(message.data);
       }
@@ -914,7 +914,7 @@
         callbackId = 'INVALID';
       } else {
         throw new Error(
-          'The old format of this exec call has been removed (deprecated since 2.1). Change to: ' + // eslint-disable-line
+          'The old format of this exec call has been removed (deprecated since 2.1). Change to: ' +  
             "cordova.exec(null, null, 'Service', 'action', [ arg1, arg2 ]);",
         );
       }
@@ -1032,7 +1032,7 @@
       var success = status === 0 || status === 1;
       var args = convertMessageToArgsNativeToJs(message);
       Promise.resolve().then(function () {
-        cordova.callbackFromNative(callbackId, success, status, args, keepCallback); // eslint-disable-line
+        cordova.callbackFromNative(callbackId, success, status, args, keepCallback);  
       });
     };
 
@@ -1219,7 +1219,7 @@
   // file: src/common/modulemapper.js
   define('cordova/modulemapper', function (require, exports, module) {
     var builder = require('cordova/builder');
-    var moduleMap = define.moduleMap; // eslint-disable-line no-undef
+    var moduleMap = define.moduleMap;  
     var symbolList;
     var deprecationMap;
 
@@ -1262,7 +1262,7 @@
       var parts = symbolPath.split('.');
       var cur = context;
       for (var i = 0, part; (part = parts[i]); ++i) {
-        // eslint-disable-line no-cond-assign
+         
         cur = cur[part] = cur[part] || {};
       }
       return cur;
@@ -1335,7 +1335,7 @@
       console.log('onscript loading complete');
       // Loop through all the plugins and then through their clobbers and merges.
       for (var i = 0, module; (module = moduleList[i]); i++) {
-        // eslint-disable-line no-cond-assign
+         
         if (module.clobbers && module.clobbers.length) {
           for (var j = 0; j < module.clobbers.length; j++) {
             modulemapper.clobbers(module.id, module.clobbers[j]);
@@ -1477,7 +1477,7 @@
         // custom protocol activation case on Windows Phone 8.1 causing "No such interface supported" exception
         // on cloning.
         if ((!(i in retVal) || retVal[i] !== obj[i]) && typeof obj[i] !== 'undefined' && typeof obj[i] !== 'unknown') {
-          // eslint-disable-line valid-typeof
+           
           retVal[i] = utils.clone(obj[i]);
         }
       }

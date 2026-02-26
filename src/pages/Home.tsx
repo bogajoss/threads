@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { motion } from 'motion/react';
 import { Twitter, Github, MessageSquare, Shield, Lock, EyeOff, Server, ArrowRight, type LucideIcon } from 'lucide-react';
 
@@ -483,6 +485,19 @@ const Footer = () => (
 // --- Main App Component ---
 
 export default function App() {
+  const navigate = useNavigate();
+  const { currentUser, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && currentUser) {
+      navigate('/feed', { replace: true });
+    }
+  }, [currentUser, loading, navigate]);
+
+  if (loading || currentUser) {
+    return null;
+  }
+
   return (
     <div className="font-sans bg-[#050505] min-h-screen text-[#e0e0e0] selection:bg-[#01f4cb] selection:text-[#050505]">
       <GlobalStyles />
