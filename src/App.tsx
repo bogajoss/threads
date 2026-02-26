@@ -196,7 +196,20 @@ export default function Mysys() {
       {viewingStory && (
         <StoryViewer
           story={viewingStory}
-          onClose={() => setViewingStory(null)}
+          onClose={(userId) => {
+            if (userId) {
+              const seenStories = JSON.parse(
+                localStorage.getItem("seenStories") || "[]"
+              );
+              if (typeof userId === 'string' && !seenStories.includes(userId)) {
+                localStorage.setItem(
+                  "seenStories",
+                  JSON.stringify([...seenStories, userId])
+                );
+              }
+            }
+            setViewingStory(null);
+          }}
         />
       )}
 
