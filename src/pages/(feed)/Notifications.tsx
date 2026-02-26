@@ -34,6 +34,8 @@ const Notifications: React.FC = () => {
         return <ShieldCheck className="h-4 w-4 text-emerald-500" />;
       case "report_declined":
         return <ShieldX className="h-4 w-4 text-amber-500" />;
+      case "content_removed":
+        return <ShieldX className="h-4 w-4 text-red-500" />;
       default:
         return null;
     }
@@ -55,6 +57,8 @@ const Notifications: React.FC = () => {
         return "reviewed your report and resolved it";
       case "report_declined":
         return "reviewed your report and declined it";
+      case "content_removed":
+        return "Your content was removed for violating community guidelines";
       default:
         return "interacted with you";
     }

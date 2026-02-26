@@ -1186,6 +1186,7 @@ export const Constants = {
         "report",
         "report_resolved",
         "report_declined",
+        "content_removed",
       ],
       post_type: ["text", "image", "video", "poll", "repost", "file", "reel"],
     },

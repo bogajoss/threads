@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useMemo, useId } from "react";
+import React, { useRef, useEffect, useMemo, useId, useState } from "react";
 import { Plyr } from "plyr-react";
 import { useVideoPlayback } from "@/context/VideoPlaybackContext";
 import { useTheme } from "@/context/ThemeContext";
+import { cn } from "@/lib/utils";
 
 interface VideoPlayerProps {
   src: string;
@@ -13,6 +14,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
   const { reportVisibility, unregister } = useVideoPlayback();
   const { dataSaver } = useTheme();
   const id = useId();
+  const [isReady, setIsReady] = useState(false);
 
   const controls = useMemo(
     () => ({
@@ -47,7 +49,26 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
     if (currentElement) {
       observer.observe(currentElement);
     }
+
+    // Reliable way to check for plyr ready state
+    let checkInterval: any;
+    const setupPlyr = () => {
+      const plyr = playerRef.current?.plyr;
+      if (plyr) {
+        if (plyr.ready) {
+          setIsReady(true);
+        } else if (typeof plyr.on === 'function') {
+          plyr.on('ready', () => setIsReady(true));
+        }
+        clearInterval(checkInterval);
+      }
+    };
+
+    checkInterval = setInterval(setupPlyr, 50);
+    setupPlyr();
+
     return () => {
+      clearInterval(checkInterval);
       // Explicitly pause video before unregistering (handles navigation away)
       const p = currentPlayer?.plyr;
       if (p && typeof p.pause === "function") {
@@ -85,8 +106,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, poster }) => {
   };
 
   return (
-    <div className="w-full bg-black" onClick={(e) => e.stopPropagation()}>
-      <Plyr ref={playerRef} {...plyrProps} />
+    <div className="relative w-full bg-zinc-900 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      {!isReady && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-zinc-900">
+           <div className="size-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+        </div>
+      )}
+      <div className={cn("transition-opacity duration-500", isReady ? "opacity-100" : "opacity-0")}>
+        <Plyr ref={playerRef} {...plyrProps} />
+      </div>
     </div>
   );
 };

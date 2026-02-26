@@ -5,7 +5,7 @@ import type {
   HTMLAttributes,
   VideoHTMLAttributes,
 } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Carousel,
@@ -69,6 +69,7 @@ const tRegex = /t=(\d+(?:\.\d+)?)/;
 export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const initialTimeRef = useRef<number>(0);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const src = (props.src ?? "") as string;
@@ -118,25 +119,40 @@ export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
     }
   };
 
+  const handleCanPlay = () => {
+    setIsReady(true);
+  };
+
   return (
-    <video
-      className={cn(
-        "absolute inset-0 size-full object-cover",
-        "transition-opacity duration-200",
-        "group-hover:opacity-90",
-        className,
+    <div className="absolute inset-0 size-full bg-zinc-900 overflow-hidden">
+      {!isReady && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="size-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+        </div>
       )}
-      loop
-      muted
-      onBlur={handleBlur}
-      onFocus={handleFocus}
-      onMouseOut={handleMouseOut}
-      onMouseOver={handleMouseOver}
-      preload="metadata"
-      ref={videoRef}
-      tabIndex={0}
-      {...props}
-    />
+      <video
+        className={cn(
+          "absolute inset-0 size-full object-cover",
+          "transition-opacity duration-500",
+          isReady ? "opacity-100" : "opacity-0",
+          "group-hover:opacity-90",
+          className,
+        )}
+        loop
+        muted
+        playsInline
+        webkit-playsinline="true"
+        onBlur={handleBlur}
+        onFocus={handleFocus}
+        onMouseOut={handleMouseOut}
+        onMouseOver={handleMouseOver}
+        onCanPlay={handleCanPlay}
+        preload="metadata"
+        ref={videoRef}
+        tabIndex={0}
+        {...props}
+      />
+    </div>
   );
 };
 

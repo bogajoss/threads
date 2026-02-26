@@ -576,9 +576,10 @@ const CreatePost: React.FC = () => {
                         ) : (
                           <video
                             src={URL.createObjectURL(file.file)}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover bg-zinc-900"
                             muted
                             playsInline
+                            webkit-playsinline="true"
                           />
                         )}
 
