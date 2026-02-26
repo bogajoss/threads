@@ -34,7 +34,7 @@ BEGIN
       p.created_at as sort_time,
       -- Base Rank Score (Gravity + Engagement)
       ( p.engagement_score / POWER( (EXTRACT(EPOCH FROM (NOW() - p.created_at))/3600) + 2, 1.8) )::NUMERIC as base_score,
-      u.id as u_id, u.username as u_name, u.avatar_url as u_avatar, u.roles as u_roles, u.is_pro as u_pro,
+      u.id as u_id, u.username as u_name, u.avatar_url as u_avatar, u.roles as u_roles, u.is_pro as u_pro, u.is_verified as u_verified,
       p.content, p.media, p.likes_count, p.comments_count, p.mirrors_count, p.views_count,
       p.community_id,
       CASE WHEN p.community_id IS NOT NULL THEN (
@@ -58,7 +58,7 @@ BEGIN
       p.id as p_id,
       r.created_at as sort_time,
       ( p.engagement_score / POWER( (EXTRACT(EPOCH FROM (NOW() - r.created_at))/3600) + 2, 1.8) )::NUMERIC as base_score,
-      u.id as u_id, u.username as u_name, u.avatar_url as u_avatar, u.roles as u_roles, u.is_pro as u_pro,
+      u.id as u_id, u.username as u_name, u.avatar_url as u_avatar, u.roles as u_roles, u.is_pro as u_pro, u.is_verified as u_verified,
       p.content, p.media, p.likes_count, p.comments_count, p.mirrors_count, p.views_count,
       p.community_id,
       CASE WHEN p.community_id IS NOT NULL THEN (
@@ -89,7 +89,7 @@ BEGIN
     s.p_id AS post_id,
     s.sort_time AS created_at,
     s.rank_score AS score,
-    jsonb_build_object('username', s.u_name, 'avatar_url', s.u_avatar, 'roles', s.u_roles, 'is_pro', s.u_pro) AS author_data,
+    jsonb_build_object('username', s.u_name, 'avatar_url', s.u_avatar, 'roles', s.u_roles, 'is_pro', s.u_pro, 'is_verified', s.u_verified) AS author_data,
     s.community_data,
     s.content,
     s.media,
