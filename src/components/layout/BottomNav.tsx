@@ -44,7 +44,7 @@ const BottomNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-start justify-around border-t border-zinc-200 bg-white/95 backdrop-blur-md px-2 pt-3 pb-[env(safe-area-inset-bottom)] dark:border-zinc-800 dark:bg-black/95 transition-transform duration-300 md:hidden print:hidden touch-manipulation">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[calc(60px+env(safe-area-inset-bottom))] w-full items-center justify-around border-t border-zinc-200 bg-white/95 backdrop-blur-md px-2 pb-[env(safe-area-inset-bottom)] dark:border-zinc-800 dark:bg-black/95 transition-transform duration-300 md:hidden print:hidden touch-manipulation">
       {navItems.map((item) => {
         const isActive = location.pathname === item.path || (item.path !== '/' && item.path !== '/login' && location.pathname.startsWith(item.path));
 
@@ -55,26 +55,33 @@ const BottomNav: React.FC = () => {
               to={item.path}
               aria-label={item.id}
               onClick={() => handleNavClick(item.path)}
-              className={({ isActive }) =>
-                cn(
-                  "relative flex flex-col items-center justify-center transition-all active:scale-90",
-                  isActive
-                    ? "ring-2 ring-black dark:ring-white ring-offset-2 ring-offset-white dark:ring-offset-black rounded-full"
-                    : ""
-                )
-              }
+              className="relative flex flex-col items-center justify-center p-2 transition-all active:scale-90"
             >
-              <motion.div
-                animate={isActive ? { scale: 1.1 } : { scale: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-800">
-                  <AvatarImage src={currentUser?.avatar} alt={currentUser?.handle} className="object-cover" />
-                  <AvatarFallback>{currentUser?.handle?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
-              </motion.div>
+              {({ isActive }) => (
+                <motion.div
+                  animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className={cn(
+                    "rounded-full transition-all",
+                    isActive
+                      ? "ring-2 ring-black dark:ring-white ring-offset-1 ring-offset-white dark:ring-offset-black"
+                      : ""
+                  )}
+                >
+                  <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-800">
+                    <AvatarImage
+                      src={currentUser?.avatar}
+                      alt={currentUser?.handle}
+                      className="object-cover"
+                    />
+                    <AvatarFallback>
+                      {currentUser?.handle?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </motion.div>
+              )}
             </NavLink>
-          )
+          );
         }
 
         if (item.id === "create") {

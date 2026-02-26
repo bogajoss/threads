@@ -832,13 +832,14 @@ const Post: React.FC<PostProps> = ({
     <motion.article
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 0.995 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       ref={viewRef}
       onClick={onClick}
       className={`px-5 transition-all ${isComment
         ? "py-3 bg-transparent hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20"
-        : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.02]"
+        : "py-5 bg-white hover:bg-zinc-50/30 dark:bg-black dark:hover:bg-white/[0.01] active:scale-[0.98]"
         } ${onClick ? "cursor-pointer" : ""}`}
     >
       {repostedBy && (

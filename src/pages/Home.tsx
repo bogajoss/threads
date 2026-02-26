@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'motion/react';
 import { Twitter, Github, MessageSquare, Shield, Lock, EyeOff, Server, ArrowRight, type LucideIcon } from 'lucide-react';
@@ -292,32 +292,39 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navItems = [
+    { label: 'Messenger', path: '/m' },
+    { label: 'Feed', path: '/feed' },
+    { label: 'Explore', path: '/explore' },
+    { label: 'Reels', path: '/r' },
+  ];
+
   return (
     <nav className={`glass-nav fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'py-4 shadow-2xl' : 'py-6 border-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-lg border border-[#01f4cb]/50 flex items-center justify-center text-[#01f4cb] font-bold text-xl group-hover:bg-[#01f4cb] group-hover:text-[#050505] transition-all duration-300 shadow-[0_0_15px_rgba(1,244,203,0.15)]">
             M
           </div>
           <span className="font-semibold tracking-widest text-lg hidden sm:block text-[#e0e0e0]">MySYs</span>
-        </a>
+        </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {['Messenger', 'Feed', 'Vault', 'Protocol'].map((item) => (
-            <a key={item} href="#" className="text-[#a0a0a0] hover:text-[#01f4cb] transition-colors duration-200 text-sm font-medium tracking-wide">
-              {item}
-            </a>
+          {navItems.map((item) => (
+            <Link key={item.label} to={item.path} className="text-[#a0a0a0] hover:text-[#01f4cb] transition-colors duration-200 text-sm font-medium tracking-wide">
+              {item.label}
+            </Link>
           ))}
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6">
           <div className="hidden lg:flex items-center gap-5 text-[#666]">
-            <a href="#" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
           </div>
-          <a href="#" className="bg-transparent border border-[#01f4cb]/50 text-[#01f4cb] hover:bg-[#01f4cb] hover:text-[#050505] transition-all duration-300 px-5 py-2 sm:px-6 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(1,244,203,0.1)] hover:shadow-[0_0_25px_rgba(1,244,203,0.3)] whitespace-nowrap">
+          <Link to="/register" className="bg-transparent border border-[#01f4cb]/50 text-[#01f4cb] hover:bg-[#01f4cb] hover:text-[#050505] transition-all duration-300 px-5 py-2 sm:px-6 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(1,244,203,0.1)] hover:shadow-[0_0_25px_rgba(1,244,203,0.3)] whitespace-nowrap">
             Claim Handle
-          </a>
+          </Link>
         </div>
       </div>
     </nav>
@@ -354,12 +361,12 @@ const HeroSection = () => {
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-            <a href="#" className="w-full sm:w-auto bg-[#01f4cb] text-[#050505] font-bold text-base px-8 py-3.5 rounded-lg hover:bg-[#02e0bb] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(1,244,203,0.3)] flex items-center justify-center gap-2">
+            <Link to="/register" className="w-full sm:w-auto bg-[#01f4cb] text-[#050505] font-bold text-base px-8 py-3.5 rounded-lg hover:bg-[#02e0bb] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(1,244,203,0.3)] flex items-center justify-center gap-2">
               Get Started <ArrowRight className="w-4 h-4" />
-            </a>
-            <a href="#" className="w-full sm:w-auto bg-transparent text-[#e0e0e0] border border-[#333] font-medium text-base px-8 py-3.5 rounded-lg hover:bg-[#111] hover:border-[#555] transition-all duration-300 flex items-center justify-center">
-              Read Whitepaper
-            </a>
+            </Link>
+            <Link to="/login" className="w-full sm:w-auto bg-transparent text-[#e0e0e0] border border-[#333] font-medium text-base px-8 py-3.5 rounded-lg hover:bg-[#111] hover:border-[#555] transition-all duration-300 flex items-center justify-center">
+              Login to Account
+            </Link>
           </motion.div>
         </motion.div>
         
@@ -428,9 +435,9 @@ const GlobeCTA = () => (
       <p className="text-base sm:text-lg md:text-xl text-[#a0a0a0] mb-10 max-w-2xl mx-auto">
         Stop being the product. Join the network where your data remains encrypted, local, and completely in your hands.
       </p>
-      <a href="#" className="inline-block bg-[#01f4cb] text-[#050505] font-bold text-base sm:text-lg px-8 py-3.5 sm:px-12 sm:py-4 rounded-xl hover:bg-[#02e0bb] hover:-translate-y-1 transition-all duration-300 shadow-[0_0_30px_rgba(1,244,203,0.2)] hover:shadow-[0_0_50px_rgba(1,244,203,0.5)] whitespace-nowrap">
+      <Link to="/register" className="inline-block bg-[#01f4cb] text-[#050505] font-bold text-base sm:text-lg px-8 py-3.5 sm:px-12 sm:py-4 rounded-xl hover:bg-[#02e0bb] hover:-translate-y-1 transition-all duration-300 shadow-[0_0_30px_rgba(1,244,203,0.2)] hover:shadow-[0_0_50px_rgba(1,244,203,0.5)] whitespace-nowrap">
         Create Secure Account
-      </a>
+      </Link>
     </div>
   </motion.section>
 );
@@ -441,8 +448,13 @@ const Footer = () => (
       
       <div className="flex flex-col gap-4 md:gap-5">
         <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Platform</h3>
-        {['Messenger', 'Feed', 'Vault', 'Nodes'].map(link => (
-          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        {[
+          { label: 'Messenger', path: '/m' },
+          { label: 'Feed', path: '/feed' },
+          { label: 'Explore', path: '/explore' },
+          { label: 'Reels', path: '/r' }
+        ].map(item => (
+          <Link key={item.label} to={item.path} className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{item.label}</Link>
         ))}
       </div>
       <div className="flex flex-col gap-4 md:gap-5">
@@ -459,8 +471,12 @@ const Footer = () => (
       </div>
       <div className="flex flex-col gap-4 md:gap-5">
         <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Legal</h3>
-        {['Privacy Policy', 'Terms of Service', 'Transparency Report'].map(link => (
-          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        {[
+          { label: 'Privacy Policy', path: '/info/privacy' },
+          { label: 'Terms of Service', path: '/info/terms' },
+          { label: 'Guidelines', path: '/info/guidelines' }
+        ].map(item => (
+          <Link key={item.label} to={item.path} className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{item.label}</Link>
         ))}
       </div>
 
@@ -474,9 +490,9 @@ const Footer = () => (
         <span className="text-sm tracking-wide">&copy; {new Date().getFullYear()} MySYs INC. All rights reserved.</span>
       </div>
       <div className="flex items-center gap-6">
-        <a href="#" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
-        <a href="#" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
-        <a href="#" className="hover:text-[#01f4cb] transition-colors"><MessageSquare className="w-5 h-5" /></a>
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
+        <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#01f4cb] transition-colors"><MessageSquare className="w-5 h-5" /></a>
       </div>
     </div>
   </footer>
