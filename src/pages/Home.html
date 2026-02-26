@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZERO - The Everything App</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#121212',
+                        darker: '#0a0a0a',
+                        cyan: { DEFAULT: '#01f4cb', hover: '#02e0bb' },
+                        light: '#e0e0e0',
+                        gray: '#a0a0a0',
+                        borderDark: '#383838'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Spline 3D Viewer -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.52/build/spline-viewer.js"></script>
+
+    <!-- Framer Motion (Vanilla JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.global.js"></script>
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom scrollbar matching the dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #383838;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .glass-nav {
+            background: rgba(18, 18, 18, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(56, 56, 56, 0.5);
+        }
+        
+        .spline-container {
+            width: 100%;
+            height: 60vh;
+            min-height: 400px;
+            max-height: 700px;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan selection:text-dark">
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-8 h-8 rounded bg-cyan flex items-center justify-center text-dark font-bold text-xl group-hover:scale-105 transition-transform duration-300">
+                    Z
+                </div>
+                <span class="font-semibold tracking-wider text-lg hidden sm:block">ZERO</span>
+            </a>
+
+            <!-- Desktop Links -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#" class="text-gray hover:text-light transition-colors duration-200 text-sm font-medium">Messenger</a>
+                <a href="#" class="text-gray hover:text-light transition-colors duration-200 text-sm font-medium">Social</a>
+                <a href="#" class="text-gray hover:text-light transition-colors duration-200 text-sm font-medium">ID</a>
+                <a href="#" class="text-gray hover:text-light transition-colors duration-200 text-sm font-medium">Whitepaper</a>
+            </div>
+
+            <!-- Action & Socials -->
+            <div class="flex items-center gap-6">
+                <div class="hidden lg:flex items-center gap-4 text-gray">
+                    <a href="https://twitter.com" target="_blank" class="hover:text-cyan transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    <a href="https://github.com" target="_blank" class="hover:text-cyan transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                    <a href="https://discord.com" target="_blank" class="hover:text-cyan transition-colors"><i data-lucide="message-square" class="w-5 h-5"></i></a>
+                </div>
+                <a href="https://zos.zero.tech/" target="_blank" class="bg-cyan/10 border border-cyan/30 text-cyan hover:bg-cyan hover:text-dark transition-all duration-300 px-6 py-2.5 rounded text-sm font-medium">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 flex flex-col items-center text-center max-w-7xl mx-auto motion-fade">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
+            <span class="text-light">Make</span> <span class="text-cyan">internet money.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-12">
+            Built to protect your inalienable digital rights. A platform designed with unrelenting elegance and precision.
+        </p>
+        
+        <!-- Spline 3D Embed -->
+        <div class="spline-container relative z-10 w-full max-w-4xl mx-auto rounded-2xl overflow-hidden motion-slide-up">
+            <spline-viewer url="https://prod.spline.design/Yu-Xnq7fkXYLjvBj/scene.splinecode"></spline-viewer>
+        </div>
+    </section>
+
+    <!-- Section 1: The everything app -->
+    <section class="py-24 md:py-40 px-6 max-w-7xl mx-auto flex flex-col items-center text-center motion-section">
+        <h2 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            <span class="text-light">The</span> <span class="text-cyan">everything app.</span>
+        </h2>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-16">
+            A new messenger, social, and financial network designed for creators.
+        </p>
+        
+        <div class="w-full max-w-5xl rounded-2xl border border-borderDark overflow-hidden bg-darker shadow-2xl">
+            <video src="https://framerusercontent.com/assets/xVAkF5jVsNSqGv9yKZFZlDhpM.mp4" loop autoplay muted playsinline class="w-full object-cover"></video>
+        </div>
+    </section>
+
+    <!-- Section 2: Create content -->
+    <section class="py-24 md:py-40 px-6 max-w-7xl mx-auto flex flex-col items-center text-center motion-section">
+        <h2 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-light">
+            Create content. <br class="hidden md:block"/> 
+            Get <span class="text-cyan">rewarded.</span>
+        </h2>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-16">
+            Turn your ideas into money with a platform that rewards creativity.
+        </p>
+        <div class="relative w-full max-w-sm md:max-w-md mx-auto aspect-[0.7] rounded-3xl overflow-hidden border border-borderDark shadow-2xl group">
+            <img src="https://framerusercontent.com/images/jxsVA3NMFVxc5UeWa9URttwOAQk.webp" alt="Create Content Interface" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+        </div>
+    </section>
+
+    <!-- Section 3: Securely chat -->
+    <section class="py-24 md:py-40 px-6 max-w-7xl mx-auto flex flex-col items-center text-center motion-section">
+        <h2 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-light">
+            <span class="text-cyan">Securely chat</span> <br class="hidden md:block"/>
+            with friends and family.
+        </h2>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-16">
+            Stay connected with those who matter most, without compromise.
+        </p>
+        <div class="relative w-full max-w-sm md:max-w-md mx-auto aspect-[0.7] rounded-3xl overflow-hidden border border-borderDark shadow-2xl group">
+            <img src="https://framerusercontent.com/images/b7Frb5pR2UHGTWEt5y8WUGK2XQ.webp" alt="Secure Chat Interface" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+        </div>
+    </section>
+
+    <!-- Section 4: Buy, sell -->
+    <section class="py-24 md:py-40 px-6 max-w-7xl mx-auto flex flex-col items-center text-center motion-section">
+        <h2 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-cyan">
+            Buy, sell, and swap <br class="hidden md:block"/>
+            <span class="text-light">millions of coins.</span>
+        </h2>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-16">
+            Seamless, secure trading with deep liquidity and instant execution.
+        </p>
+        <div class="relative w-full max-w-sm md:max-w-md mx-auto aspect-[0.7] rounded-3xl overflow-hidden border border-borderDark shadow-2xl group">
+            <img src="https://framerusercontent.com/images/mdqEPF22FrNVp0RUmCw125owAw.webp" alt="Trading Interface" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+        </div>
+    </section>
+
+    <!-- Section 5: Work for yourself -->
+    <section class="py-24 md:py-40 px-6 max-w-7xl mx-auto flex flex-col items-center text-center motion-section">
+        <h2 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-cyan">
+            <span class="text-light">Work for yourself,</span> <br class="hidden md:block"/>
+            earn without limits.
+        </h2>
+        <p class="text-lg md:text-xl text-gray max-w-2xl mb-16">
+            No bosses, no boundaries. Just your work, your rewards.
+        </p>
+        <div class="relative w-full max-w-sm md:max-w-md mx-auto aspect-[0.7] rounded-3xl overflow-hidden border border-borderDark shadow-2xl group">
+            <img src="https://framerusercontent.com/images/wnQYNbXJj7iijAhUdBx8Qi8JBg0.webp" alt="Earn Interface" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+        </div>
+    </section>
+
+    <!-- Section 6: Built for freedom -->
+    <section class="relative py-40 md:py-64 px-6 flex flex-col items-center text-center overflow-hidden border-t border-borderDark motion-section">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0 opacity-40">
+            <img src="https://framerusercontent.com/images/ms9LFA3w7xthbMIicGGDTe8PlU.webp" alt="Globe" class="w-full h-full object-cover object-center"/>
+            <div class="absolute inset-0 bg-gradient-to-b from-dark via-transparent to-dark"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <h2 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight text-light">
+                Built for <span class="text-cyan">freedom.</span>
+            </h2>
+            <p class="text-xl md:text-3xl text-gray">
+                Private. Sovereign. Decentralized.
+            </p>
+        </div>
+    </section>
+
+    <!-- Call to Action Footer -->
+    <section class="py-32 px-6 flex flex-col items-center text-center bg-darker motion-section">
+        <h2 class="text-4xl md:text-5xl font-bold mb-10 text-light tracking-tight">Join ZERO</h2>
+        <a href="https://zos.zero.tech/" target="_blank" class="bg-cyan text-dark font-semibold text-lg px-10 py-4 rounded hover:bg-cyan-hover hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(1,244,203,0.3)] hover:shadow-[0_0_50px_rgba(1,244,203,0.5)]">
+            Start Earning
+        </a>
+    </section>
+
+    <!-- Footer Links -->
+    <footer class="border-t border-borderDark pt-20 pb-10 px-6 bg-dark">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 mb-16 motion-section">
+            
+            <!-- Column 1 -->
+            <div class="flex flex-col gap-5">
+                <h3 class="text-light font-semibold tracking-widest uppercase text-xs">Resources</h3>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Zine</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Whitepaper</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Press Kit</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Deck</a>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="flex flex-col gap-5">
+                <h3 class="text-light font-semibold tracking-widest uppercase text-xs">Audits</h3>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Z Token</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Z NS</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Z FI</a>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="flex flex-col gap-5">
+                <h3 class="text-light font-semibold tracking-widest uppercase text-xs">Products</h3>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Messenger</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Social</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Zero ID</a>
+            </div>
+
+            <!-- Column 4 -->
+            <div class="flex flex-col gap-5">
+                <h3 class="text-light font-semibold tracking-widest uppercase text-xs">Legal</h3>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">Privacy Policy</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">T&C</a>
+                <a href="#" class="text-sm text-gray hover:text-cyan transition-colors">EULA</a>
+            </div>
+
+        </div>
+
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between border-t border-borderDark pt-8 text-gray motion-section">
+            <div class="flex items-center gap-2 mb-4 md:mb-0">
+                <div class="w-6 h-6 rounded bg-cyan flex items-center justify-center text-dark font-bold text-xs">Z</div>
+                <span class="text-sm">&copy; 2026 ZERO Systems Inc.</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="#" class="hover:text-cyan transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                <a href="#" class="hover:text-cyan transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                <a href="#" class="hover:text-cyan transition-colors"><i data-lucide="message-square" class="w-5 h-5"></i></a>
+                <a href="#" class="hover:text-cyan transition-colors"><i data-lucide="send" class="w-5 h-5"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialization Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Initialize Framer Motion animations
+        document.addEventListener("DOMContentLoaded", () => {
+            const { animate, inView, stagger } = window.Motion;
+
+            // Hero section immediate animations
+            animate(".motion-fade", { opacity: [0, 1] }, { duration: 1.2, easing: "ease-out" });
+            animate(".motion-slide-up", { opacity: [0, 1], y: [40, 0] }, { duration: 1, delay: 0.2, easing: "ease-out" });
+
+            // Scroll animations for sections
+            document.querySelectorAll(".motion-section").forEach((section) => {
+                inView(section, (info) => {
+                    animate(
+                        info.target, 
+                        { opacity: [0, 1], y: [50, 0] }, 
+                        { duration: 0.8, easing: [0.17, 0.55, 0.55, 1] } // Custom cubic-bezier for a smooth feel
+                    );
+                }, { margin: "-100px" }); // Trigger slightly before it comes into full view
+            });
+            
+            // Add slight transparency to nav on scroll down
+            const nav = document.querySelector('nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    nav.classList.add('shadow-lg');
+                } else {
+                    nav.classList.remove('shadow-lg');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -15,7 +15,6 @@ import { useDeepLinks } from "@/hooks/useDeepLinks";
 import {
   MainLayout,
   PageTransition,
-  MarketplaceLayout,
   InfoLayout,
   AdminLayout,
 } from "@/components/layout";
@@ -59,6 +58,11 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
+const Feed = lazy(() => import("@/pages/(feed)/Feed"));
+const Explore = lazy(() => import("@/pages/(feed)/Explore"));
+const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
+const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
+const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 
 export default function Mysys() {
   const navigate = useNavigate();
@@ -83,14 +87,14 @@ export default function Mysys() {
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/onboarding" element={<Onboarding />} />
 
-          <Route element={<MainLayout onStoryClick={setViewingStory} />}>
-            <Route path="/" element={null} />
-            <Route path="/feed" element={null} />
-            <Route path="/home" element={null} />
-            <Route path="/explore" element={null} />
-            <Route path="/r" element={null} />
-            <Route path="/m" element={null} />
-            <Route path="/notifications" element={null} />
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
+            <Route path="/feed" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
+            <Route path="/home" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
+            <Route path="/explore" element={<PageTransition><Explore /></PageTransition>} />
+            <Route path="/r" element={<PageTransition><Reels /></PageTransition>} />
+            <Route path="/m" element={<PageTransition><Messages /></PageTransition>} />
+            <Route path="/notifications" element={<PageTransition><Notifications /></PageTransition>} />
 
             <Route
               path="/r/:id"
@@ -112,7 +116,7 @@ export default function Mysys() {
             />
 
             <Route path="/p/:id" element={<PageTransition><PostDetails /></PageTransition>} />
-            <Route path="/create" element={null} />
+            <Route path="/create" element={<PageTransition><CreatePost /></PageTransition>} />
             <Route
               path="/create-community"
               element={
@@ -157,12 +161,8 @@ export default function Mysys() {
                 </PageTransition>
               }
             />
-            <Route path="/edit-profile" element={null} />
-
-            {/* Correctly nest MarketplaceLayout */}
-            <Route element={<MarketplaceLayout />}>
-              <Route path="/pro" element={<ProPage />} />
-            </Route>
+            <Route path="/edit-profile" element={<PageTransition><EditProfile /></PageTransition>} />
+            <Route path="/pro" element={<PageTransition><ProPage /></PageTransition>} />
 
           </Route>
 

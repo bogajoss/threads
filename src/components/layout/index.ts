@@ -5,7 +5,6 @@ export { default as CreateActionMenu } from "./CreateActionMenu";
 export { default as FeedHeader } from "./FeedHeader";
 export { default as InfoLayout } from "./InfoLayout";
 export { default as MainLayout } from "./MainLayout";
-export { default as MarketplaceLayout } from "./MarketplaceLayout";
 export { default as PageTransition } from "./PageTransition";
 export { default as PersistentLayout } from "./PersistentLayout";
 export { default as SidebarLeft } from "./SidebarLeft";

@@ -4,15 +4,12 @@ import SidebarLeft from "./SidebarLeft";
 import SidebarRight from "./SidebarRight";
 import BottomNav from "./BottomNav";
 import FeedHeader from "./FeedHeader";
-import PersistentLayout from "./PersistentLayout";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
-interface MainLayoutProps {
-  onStoryClick?: (story: any) => void;
-}
+interface MainLayoutProps {}
 
-const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
+const MainLayout: React.FC<MainLayoutProps> = () => {
   const location = useLocation();
   const { darkMode } = useTheme();
 
@@ -51,7 +48,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ onStoryClick }) => {
             )}
 
             <div className="w-full min-w-0 relative">
-              <PersistentLayout onStoryClick={onStoryClick} />
               <Outlet />
             </div>
           </div>
