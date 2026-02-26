@@ -58,9 +58,9 @@ const Home: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group z-50">
               <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl group-hover:scale-105 transition-transform duration-300">
-                Z
+                M
               </div>
-              <span className="font-semibold tracking-wider text-lg hidden sm:block">ZERO</span>
+              <span className="font-semibold tracking-wider text-lg hidden sm:block">MYSYS</span>
             </Link>
 
             {/* Desktop Links */}
@@ -155,7 +155,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
           >
-            <span>Make</span> <span className="text-primary">internet money.</span>
+            <span>The Social Network</span> <br/> <span className="text-primary font-black uppercase">YOU Own.</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 sm:mb-12"
           >
-            Built to protect your inalienable digital rights. A platform designed with unrelenting elegance and precision.
+            No tracking. No censorship. Just community. Experience high-fidelity communication on a platform built for its users.
           </motion.p>
           
           {/* Spline 3D Embed */}
@@ -173,7 +173,7 @@ const Home: React.FC = () => {
             transition={{ duration: 1, delay: 0.4 }}
             className="relative z-10 w-full max-w-4xl mx-auto rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-video min-h-[300px] sm:min-h-[400px] max-h-[700px] bg-card border border-border/50 shadow-2xl"
           >
-            <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground animate-pulse">Loading Experience...</div>}>
+            <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground animate-pulse">Initializing Secure Layer...</div>}>
               <Spline scene="https://prod.spline.design/Yu-Xnq7fkXYLjvBj/scene.splinecode" />
             </Suspense>
           </motion.div>
@@ -185,15 +185,15 @@ const Home: React.FC = () => {
           className="py-16 sm:py-32 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center text-center"
         >
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-            <span>The</span> <span className="text-primary">everything app.</span>
+            <span>The</span> <span className="text-primary">privacy-first network.</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 sm:mb-16">
-            A new messenger, social, and financial network designed for creators.
+            A unified space for messenger, social feeds, and creative expression—where your data never leaves your hands.
           </p>
           
           <div className="w-full max-w-5xl rounded-3xl border border-border overflow-hidden bg-card shadow-2xl">
             <video 
-              src="https://framerusercontent.com/assets/xVAkF5jVsNSqGv9yKZFZlDhpM.mp4" 
+              src="/assets/hero-video.mp4" 
               loop 
               autoPlay 
               muted 
@@ -206,24 +206,24 @@ const Home: React.FC = () => {
         {/* Feature Sections */}
         {[
           {
-            title: <>Create content. <br className="hidden sm:block"/> Get <span className="text-primary">rewarded.</span></>,
-            desc: "Turn your ideas into money with a platform that rewards creativity.",
-            img: "https://framerusercontent.com/images/jxsVA3NMFVxc5UeWa9URttwOAQk.webp"
+            title: <>Unfiltered expression. <br className="hidden sm:block"/> Total <span className="text-primary">anonymity.</span></>,
+            desc: "Share your life without being tracked. MySys ensures your posts reach your friends, not data brokers or advertisers.",
+            img: "/assets/feature-1.webp"
           },
           {
-            title: <><span className="text-primary">Securely chat</span> <br className="hidden sm:block"/> with friends and family.</>,
-            desc: "Stay connected with those who matter most, without compromise.",
-            img: "https://framerusercontent.com/images/b7Frb5pR2UHGTWEt5y8WUGK2XQ.webp"
+            title: <><span className="text-primary">Messaging</span> <br className="hidden sm:block"/> without a trace.</>,
+            desc: "End-to-end encrypted chats that keep your conversations between you and your circle. No metadata mining, no exceptions.",
+            img: "/assets/feature-2.webp"
           },
           {
-            title: <><span className="text-primary">Buy, sell, and swap</span> <br className="hidden sm:block"/> <span>millions of coins.</span></>,
-            desc: "Seamless, secure trading with deep liquidity and instant execution.",
-            img: "https://framerusercontent.com/images/mdqEPF22FrNVp0RUmCw125owAw.webp"
+            title: <><span className="text-primary">Communities</span> <br className="hidden sm:block"/> <span>on your terms.</span></>,
+            desc: "Find your tribe in a decentralized landscape where interests matter more than invasive profiling algorithms.",
+            img: "/assets/feature-3.webp"
           },
           {
-            title: <><span>Work for yourself,</span> <br className="hidden sm:block"/> earn without limits.</>,
-            desc: "No bosses, no boundaries. Just your work, your rewards.",
-            img: "https://framerusercontent.com/images/wnQYNbXJj7iijAhUdBx8Qi8JBg0.webp"
+            title: <><span>Own your content,</span> <br className="hidden sm:block"/> own your data.</>,
+            desc: "Monetize your creativity directly through secure, peer-to-peer support, skipping the ad-tech surveillance machine.",
+            img: "/assets/feature-4.webp"
           }
         ].map((feature, i) => (
           <motion.section 
@@ -255,7 +255,7 @@ const Home: React.FC = () => {
           {/* Background Image */}
           <div className="absolute inset-0 z-0 opacity-20 sm:opacity-40">
             <img 
-              src="https://framerusercontent.com/images/ms9LFA3w7xthbMIicGGDTe8PlU.webp" 
+              src="/assets/globe.webp" 
               alt="Globe" 
               className="w-full h-full object-cover object-center"
             />
@@ -264,10 +264,10 @@ const Home: React.FC = () => {
           
           <div className="relative z-10 max-w-4xl mx-auto">
             <h2 className="text-4xl sm:text-7xl lg:text-8xl font-bold mb-6 tracking-tight">
-              Built for <span className="text-primary">freedom.</span>
+              Privacy is <span className="text-primary">a right.</span>
             </h2>
             <p className="text-lg sm:text-3xl text-muted-foreground">
-              Private. Sovereign. Decentralized.
+              Secure. Sovereign. Yours.
             </p>
           </div>
         </motion.section>
@@ -277,14 +277,14 @@ const Home: React.FC = () => {
           {...sectionVariants}
           className="py-24 sm:py-32 px-4 sm:px-6 flex flex-col items-center text-center bg-card"
         >
-          <h2 className="text-3xl sm:text-5xl font-bold mb-10 tracking-tight">Join ZERO</h2>
+          <h2 className="text-3xl sm:text-5xl font-bold mb-10 tracking-tight">Take Control of Your Data</h2>
           <a 
             href="https://zos.zero.tech/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="bg-primary text-primary-foreground font-bold text-lg px-10 py-5 rounded-full hover:scale-105 transition-all duration-300 shadow-xl shadow-primary/20"
           >
-            Start Earning
+            Start Your Private Journey
           </a>
         </motion.section>
 
@@ -303,7 +303,7 @@ const Home: React.FC = () => {
             {/* Column 2 */}
             <div className="flex flex-col gap-4 sm:gap-5">
               <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Audits</h3>
-              {["Z Token", "Z NS", "Z FI"].map(link => (
+              {["M Token", "M NS", "M FI"].map(link => (
                 <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
               ))}
             </div>
@@ -311,7 +311,7 @@ const Home: React.FC = () => {
             {/* Column 3 */}
             <div className="flex flex-col gap-4 sm:gap-5">
               <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Products</h3>
-              {["Messenger", "Social", "Zero ID"].map(link => (
+              {["Messenger", "Social", "MySys ID"].map(link => (
                 <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
               ))}
             </div>
@@ -328,8 +328,8 @@ const Home: React.FC = () => {
 
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between border-t border-border/50 pt-10 text-muted-foreground">
             <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">Z</div>
-              <span className="text-sm font-medium">&copy; 2026 ZERO Systems Inc.</span>
+              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">M</div>
+              <span className="text-sm font-medium">&copy; 2026 MySys Inc.</span>
             </div>
             <div className="flex items-center gap-6 sm:gap-8">
               <a href="#" className="hover:text-primary transition-colors"><Twitter size={20} /></a>
