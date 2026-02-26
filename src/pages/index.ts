@@ -1,6 +1,7 @@
 export { default as Community } from "./(feed)/Community";
 export { default as Explore } from "./(feed)/Explore";
-export { default as Home } from "./(feed)/Feed";
+export { default as Feed } from "./(feed)/Feed";
+export { default as Home } from "./Home";
 export { default as Messages } from "./(feed)/Messages";
 export { default as Notifications } from "./(feed)/Notifications";
 export { default as PostDetails } from "./(feed)/PostDetails";

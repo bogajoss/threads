@@ -55,6 +55,7 @@ const Guidelines = lazy(() => import("@/pages/(info)/Guidelines"));
 const Support = lazy(() => import("@/pages/(info)/Support"));
 const Status = lazy(() => import("@/pages/(info)/Status"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+const Home = lazy(() => import("@/pages/Home"));
 
 const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
@@ -80,6 +81,7 @@ export default function Mysys() {
 
       <Suspense fallback={null}>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -88,7 +90,6 @@ export default function Mysys() {
           <Route path="/onboarding" element={<Onboarding />} />
 
           <Route element={<MainLayout />}>
-            <Route path="/" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
             <Route path="/feed" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
             <Route path="/home" element={<PageTransition><Feed onStoryClick={setViewingStory} /></PageTransition>} />
             <Route path="/explore" element={<PageTransition><Explore /></PageTransition>} />
