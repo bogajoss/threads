@@ -935,6 +935,7 @@ export type Database = {
         };
         Returns: {
           author_data: Json;
+          community_data: Json;
           comments_count: number;
           content: string;
           created_at: string;

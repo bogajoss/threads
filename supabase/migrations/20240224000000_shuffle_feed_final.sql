@@ -1,10 +1,15 @@
--- Dynamic Feed Shuffling
+-- Dynamic Feed Shuffling - FIXED VERSION
 -- Adds deterministic jitter to scores based on a random seed from the frontend
+-- Includes community_data for community posts
+
+-- Drop existing functions first
+DROP FUNCTION IF EXISTS public.get_posts_feed(INTEGER, UUID, NUMERIC, TEXT);
+DROP FUNCTION IF EXISTS public.get_reels_feed(INTEGER, UUID, NUMERIC, TEXT);
 
 -- 1. Update Posts Feed with Random Seed
 CREATE OR REPLACE FUNCTION public.get_posts_feed(
-  limit_val INTEGER DEFAULT 20, 
-  last_item_id UUID DEFAULT NULL, 
+  limit_val INTEGER DEFAULT 20,
+  last_item_id UUID DEFAULT NULL,
   last_item_score NUMERIC DEFAULT NULL,
   random_seed TEXT DEFAULT 'default'
 )
@@ -112,8 +117,8 @@ $$ LANGUAGE plpgsql STABLE;
 
 -- 2. Update Reels Feed with Random Seed
 CREATE OR REPLACE FUNCTION public.get_reels_feed(
-  limit_val INTEGER DEFAULT 20, 
-  last_reel_id UUID DEFAULT NULL, 
+  limit_val INTEGER DEFAULT 20,
+  last_reel_id UUID DEFAULT NULL,
   last_reel_score NUMERIC DEFAULT NULL,
   random_seed TEXT DEFAULT 'default'
 )
@@ -131,7 +136,7 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   WITH raw_reels AS (
-    SELECT 
+    SELECT
       p.id,
       p.created_at,
       -- Base Score
@@ -144,7 +149,7 @@ BEGIN
       p.views_count
     FROM public.posts p
     JOIN public.users u ON p.user_id = u.id
-    WHERE 
+    WHERE
       p.type = 'reel' AND
       u.is_banned = FALSE AND
       p.created_at > (NOW() - INTERVAL '30 days')

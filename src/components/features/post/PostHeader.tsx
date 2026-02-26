@@ -108,13 +108,13 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                     }`}
                     onClick={handleCommunityClick}
                   >
-                    <Avatar className="size-3.5 shrink-0 border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+                    <Avatar className="size-5 shrink-0">
                       <AvatarImage
                         src={community.avatar}
                         alt={community.name}
                         className="object-cover"
                       />
-                      <AvatarFallback className="text-[6px] font-bold text-zinc-500">
+                      <AvatarFallback className="text-[8px] font-bold text-zinc-500">
                         {community.name?.[0]?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
