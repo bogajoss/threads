@@ -391,7 +391,7 @@ const CreatePost: React.FC = () => {
         sessionStorage.removeItem(draftStorageKey);
       }
 
-      navigate("/feed");
+      navigate("/");
     } catch (err) {
       console.error("Failed to create post:", err);
       addToast("Failed to publish content.", "error");

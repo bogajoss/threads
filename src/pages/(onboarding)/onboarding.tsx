@@ -49,11 +49,11 @@ export default function OnboardingPage() {
     if (!currentUser) return;
     try {
       await updateProfile(currentUser.id, { onboarding_completed: true });
-      navigate("/feed");
+      navigate("/");
     } catch (error) {
       console.error("Failed to update onboarding status", error);
       addToast("Failed to complete onboarding, skipping layout...", "error");
-      navigate("/feed"); // Navigate anyway
+      navigate("/"); // Navigate anyway
     }
   };
 

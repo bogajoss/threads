@@ -13,7 +13,7 @@ const footerLinks = [
   { name: "Privacy", path: "/privacy" },
   { name: "Guidelines", path: "/guidelines" },
   { name: "Discord", path: "https://discord.com/systemadminbd", isExternal: true },
-  { name: "MySys", path: "/feed" },
+  { name: "MySys", path: "/" },
   { name: "GitHub", path: "https://github.com/systemadminbd", isExternal: true },
   { name: "Support", path: "/support" },
   { name: "Status", path: "/status" },

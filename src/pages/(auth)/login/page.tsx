@@ -10,7 +10,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading && currentUser) {
-      navigate("/feed", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [currentUser, loading, navigate]);
 
@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
         <AuthForm
           type="login"
           onComplete={() => {
-            navigate("/feed");
+            navigate("/");
           }}
           onSwitch={() => navigate("/register")}
         />

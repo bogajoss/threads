@@ -9,7 +9,7 @@ const InfoLayout: React.FC = () => {
       <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-black/80">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <Link
-            to="/feed"
+            to="/"
             className="flex items-center gap-2 text-zinc-500 transition-colors hover:text-black dark:hover:text-white"
           >
             <ArrowLeft size={20} />
@@ -122,7 +122,7 @@ const InfoLayout: React.FC = () => {
               <ul className="mt-4 space-y-2">
                 <li>
                   <Link
-                    to="/feed"
+                    to="/"
                     className="text-sm text-zinc-500 hover:text-violet-500"
                   >
                     MySys

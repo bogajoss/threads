@@ -28,7 +28,7 @@ const BottomNav: React.FC = () => {
   const unreadMessages = conversations?.unreadCount || 0;
 
   const navItems = [
-    { id: "home", icon: HomeIcon, path: "/feed" },
+    { id: "home", icon: HomeIcon, path: "/" },
     { id: "explore", icon: CommunityIcon, path: "/explore" },
     { id: "reels", icon: ReelsIcon, path: "/r" },
     { id: "create", icon: Plus, path: "/create" },
@@ -38,7 +38,7 @@ const BottomNav: React.FC = () => {
   ];
 
   const handleNavClick = (path: string) => {
-    if (location.pathname === path || (path === "/feed" && location.pathname === "/")) {
+    if (location.pathname === path || (path === "/" && location.pathname === "/feed")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };

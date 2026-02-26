@@ -19,7 +19,7 @@ const SidebarLeft: React.FC<Record<string, never>> = () => {
   const { unreadCount: messagesCount } = useConversations(currentUser);
 
   const navItems = [
-    { id: "home", icon: HomeIcon, path: "/feed" },
+    { id: "home", icon: HomeIcon, path: "/" },
     { id: "explore", icon: CommunityIcon, path: "/explore" },
     { id: "reels", icon: ReelsIcon, path: "/r" },
     { id: "messages", icon: ChatIcon, path: "/m" },

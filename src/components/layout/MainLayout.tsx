@@ -13,10 +13,7 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
   const location = useLocation();
   const { darkMode } = useTheme();
 
-  const isHomePage =
-    location.pathname === "/" ||
-    location.pathname === "/feed" ||
-    location.pathname === "/home";
+  const isHomePage = location.pathname === "/";
   const isReelsPage = location.pathname.startsWith("/r");
 
   const isNavHidden =

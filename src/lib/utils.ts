@@ -97,8 +97,6 @@ export const ScrollToTop = () => {
 
     const persistentRoutes = new Set([
       "/",
-      "/feed",
-      "/home",
       "/explore",
       "/notifications",
       "/r",

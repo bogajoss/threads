@@ -27,7 +27,7 @@ const NotFoundPage: React.FC = () => {
 
       <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
         <Link
-          to="/feed"
+          to="/"
           className="flex items-center justify-center gap-2 rounded-full bg-black px-8 py-3 font-bold text-white transition-transform hover:scale-105 active:scale-95 dark:bg-white dark:text-black"
         >
           <Home size={20} />
