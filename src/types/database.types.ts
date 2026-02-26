@@ -931,6 +931,7 @@ export type Database = {
           last_item_id?: string;
           last_item_score?: number;
           limit_val?: number;
+          random_seed?: string;
         };
         Returns: {
           author_data: Json;
@@ -974,6 +975,7 @@ export type Database = {
           last_reel_id?: string;
           last_reel_score?: number;
           limit_val?: number;
+          random_seed?: string;
         };
         Returns: {
           author_data: Json;

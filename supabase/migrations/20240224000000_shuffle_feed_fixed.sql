@@ -3,8 +3,8 @@
 
 -- 1. Update Posts Feed with Random Seed
 CREATE OR REPLACE FUNCTION public.get_posts_feed(
-  limit_val INTEGER DEFAULT 20, 
-  last_item_id UUID DEFAULT NULL, 
+  limit_val INTEGER DEFAULT 20,
+  last_item_id UUID DEFAULT NULL,
   last_item_score NUMERIC DEFAULT NULL,
   random_seed TEXT DEFAULT 'default'
 )
@@ -27,7 +27,7 @@ BEGIN
   RETURN QUERY
   WITH feed_items AS (
     -- 1. ORIGINAL POSTS
-    SELECT 
+    SELECT
       p.id as f_id,
       p.id as p_id,
       p.created_at as sort_time,
@@ -39,7 +39,7 @@ BEGIN
       NULL::jsonb as reposter_json
     FROM public.posts p
     JOIN public.users u ON p.user_id = u.id
-    WHERE 
+    WHERE
       p.type != 'reel' AND
       u.is_banned = FALSE AND
       p.created_at > (NOW() - INTERVAL '7 days')
@@ -47,7 +47,7 @@ BEGIN
     UNION ALL
 
     -- 2. REPOSTS
-    SELECT 
+    SELECT
       r.post_id as f_id,
       p.id as p_id,
       r.created_at as sort_time,
@@ -58,9 +58,9 @@ BEGIN
       jsonb_build_object('username', ru.username, 'avatar_url', ru.avatar_url) as reposter_json
     FROM public.reposts r
     JOIN public.posts p ON r.post_id = p.id
-    JOIN public.users u ON p.user_id = u.id 
+    JOIN public.users u ON p.user_id = u.id
     JOIN public.users ru ON r.user_id = ru.id
-    WHERE 
+    WHERE
       p.type != 'reel' AND
       u.is_banned = FALSE AND ru.is_banned = FALSE AND
       r.created_at > (NOW() - INTERVAL '7 days')
@@ -69,7 +69,7 @@ BEGIN
     SELECT
       f.*,
       -- Apply deterministic Jitter based on seed + ID
-      -- Using 'x' prefix for proper hex to bit conversion (range: -0.1 to +0.1)
+      -- Using substring to skip '0x' and convert hex to int properly
       (f.base_score + ((((('x' || left(md5(random_seed || f.f_id::text), 8))::bit(32)::int)::float / 2147483647.0) * 0.2) - 0.1))::NUMERIC as rank_score
     FROM feed_items f
   )
@@ -100,8 +100,8 @@ $$ LANGUAGE plpgsql STABLE;
 
 -- 2. Update Reels Feed with Random Seed
 CREATE OR REPLACE FUNCTION public.get_reels_feed(
-  limit_val INTEGER DEFAULT 20, 
-  last_reel_id UUID DEFAULT NULL, 
+  limit_val INTEGER DEFAULT 20,
+  last_reel_id UUID DEFAULT NULL,
   last_reel_score NUMERIC DEFAULT NULL,
   random_seed TEXT DEFAULT 'default'
 )
@@ -119,7 +119,7 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   WITH raw_reels AS (
-    SELECT 
+    SELECT
       p.id,
       p.created_at,
       -- Base Score
@@ -132,7 +132,7 @@ BEGIN
       p.views_count
     FROM public.posts p
     JOIN public.users u ON p.user_id = u.id
-    WHERE 
+    WHERE
       p.type = 'reel' AND
       u.is_banned = FALSE AND
       p.created_at > (NOW() - INTERVAL '30 days')
