@@ -20,9 +20,6 @@ const GridImage = ({
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="group relative size-full overflow-hidden"
       onClick={onClick}
     >
@@ -34,7 +31,7 @@ const GridImage = ({
         initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
         animate={loaded ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+        className="size-full object-cover"
         alt=""
         loading="lazy"
         onLoad={() => setLoaded(true)}
@@ -57,9 +54,6 @@ const VideoPreview = ({
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="group relative size-full overflow-hidden"
       onClick={onClick}
     >
@@ -72,7 +66,7 @@ const VideoPreview = ({
           initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
           animate={loaded ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="size-full object-cover"
           alt=""
           loading="lazy"
           onLoad={() => setLoaded(true)}
