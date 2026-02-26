@@ -1,355 +1,538 @@
-import React, { useEffect, useState, Suspense } from "react";
-import { motion, type HTMLMotionProps, AnimatePresence } from "motion/react";
-import { 
-  Twitter, 
-  Github, 
-  MessageSquare, 
-  Send,
-  Menu,
-  X
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { PageTransition } from "@/components/layout";
-import Spline from '@splinetool/react-spline';
+import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { Twitter, Github, MessageSquare, Shield, Lock, EyeOff, Server, ArrowRight, type LucideIcon } from 'lucide-react';
 
-const Home: React.FC = () => {
-  const [isNavScrolled, setIsNavScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+// --- Global Styles ---
+const GlobalStyles = () => (
+  <style>{`
+    body {
+      background-color: #050505;
+      color: #e0e0e0;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050505;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #222;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #01f4cb;
+    }
+    .glass-nav {
+      background: rgba(5, 5, 5, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .text-glow {
+      text-shadow: 0 0 30px rgba(1, 244, 203, 0.4);
+    }
+    .bg-grid {
+      background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+  `}</style>
+);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsNavScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+// --- Animation Variants ---
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1
+    }
+  }
+} as const;
 
-  const sectionVariants: HTMLMotionProps<"section"> = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    },
-    viewport: { once: true, margin: "-50px" }
-  };
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring" as const, stiffness: 80, damping: 20 } 
+  }
+} as const;
 
-  const navLinks = [
-    { name: "Messenger", href: "#" },
-    { name: "Social", href: "#" },
-    { name: "ID", href: "#" },
-    { name: "Whitepaper", href: "#" },
-  ];
+const drawLine = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: { 
+    pathLength: 1, 
+    opacity: 1, 
+    transition: { duration: 2, ease: "easeInOut" as const, delay: 0.5 } 
+  }
+} as const;
 
+const floatAnimation = {
+  y: [-8, 8, -8],
+  transition: {
+    duration: 5,
+    repeat: Infinity,
+    ease: "easeInOut" as const
+  }
+};
+
+// --- Custom Isometric SVG Hero Graphic ---
+const IsometricHero = () => {
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
-        
-        {/* Navigation */}
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          isNavScrolled || isMobileMenuOpen 
-            ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg" 
-            : "bg-transparent border-b border-transparent"
-        }`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group z-50">
-              <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl group-hover:scale-105 transition-transform duration-300">
-                M
-              </div>
-              <span className="font-semibold tracking-wider text-lg hidden sm:block">MYSYS</span>
-            </Link>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
+      className="w-full aspect-square md:aspect-auto md:h-[600px] lg:h-[700px] relative flex items-center justify-center overflow-visible"
+    >
+      {/* Centered Viewbox eliminates translation bugs and scales perfectly */}
+      <svg viewBox="-350 -350 700 700" className="w-full h-full max-w-2xl absolute z-10 overflow-visible">
+        <defs>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
 
-            {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((item) => (
-                <a 
-                  key={item.name} 
-                  href={item.href} 
-                  className="text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-6">
-              <div className="flex items-center gap-4 text-muted-foreground">
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  <Twitter size={18} />
-                </a>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  <Github size={18} />
-                </a>
-                <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  <MessageSquare size={18} />
-                </a>
-              </div>
-              <a 
-                href="https://zos.zero.tech/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 px-5 py-2 rounded-full text-sm font-medium"
-              >
-                Get Started
-              </a>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button 
-              className="md:hidden p-2 text-foreground z-50"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-
-          {/* Mobile Menu Overlay */}
-          <AnimatePresence>
-            {isMobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="md:hidden bg-background border-b border-border overflow-hidden"
-              >
-                <div className="px-4 py-8 flex flex-col gap-6">
-                  {navLinks.map((item) => (
-                    <a 
-                      key={item.name} 
-                      href={item.href} 
-                      className="text-xl font-semibold hover:text-primary transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                    </a>
-                  ))}
-                  <div className="h-px bg-border/50 my-2" />
-                  <div className="flex items-center gap-8 text-muted-foreground">
-                    <a href="#" className="hover:text-primary transition-colors"><Twitter size={24} /></a>
-                    <a href="#" className="hover:text-primary transition-colors"><Github size={24} /></a>
-                    <a href="#" className="hover:text-primary transition-colors"><MessageSquare size={24} /></a>
-                  </div>
-                  <a 
-                    href="https://zos.zero.tech/" 
-                    className="w-full bg-primary text-primary-foreground text-center py-4 rounded-xl font-bold text-lg"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Get Started
-                  </a>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </nav>
-
-        {/* Hero Section */}
-        <section className="relative pt-24 pb-12 sm:pt-48 sm:pb-32 px-4 sm:px-6 flex flex-col items-center text-center max-w-7xl mx-auto overflow-hidden">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
-          >
-            <span>The Social Network</span> <br/> <span className="text-primary font-black uppercase">YOU Own.</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 sm:mb-12"
-          >
-            No tracking. No censorship. Just community. Experience high-fidelity communication on a platform built for its users.
-          </motion.p>
+        <g transform="scale(1, 0.577) rotate(-45)">
           
-          {/* Spline 3D Embed */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="relative z-10 w-full max-w-4xl mx-auto rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-video min-h-[300px] sm:min-h-[400px] max-h-[700px] bg-card border border-border/50 shadow-2xl"
-          >
-            <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-muted-foreground animate-pulse">Initializing Secure Layer...</div>}>
-              <Spline scene="https://prod.spline.design/Yu-Xnq7fkXYLjvBj/scene.splinecode" />
-            </Suspense>
-          </motion.div>
-        </section>
+          {/* --- Connections (Lines) --- */}
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M -120 -80 L -240 -80 L -240 -120" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M -120 0 L -200 0 L -200 60" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M -120 120 L -200 120 L -200 180" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M 120 -80 L 220 -80 L 220 -120" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M 120 40 L 220 40 L 220 100" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
+          <motion.path variants={drawLine} initial="hidden" animate="visible" d="M 120 160 L 220 160 L 220 220" fill="none" stroke="#333" strokeWidth="2" strokeLinejoin="round" />
 
-        {/* Section 1: The everything app */}
-        <motion.section 
-          {...sectionVariants}
-          className="py-16 sm:py-32 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center text-center"
-        >
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-            <span>The</span> <span className="text-primary">privacy-first network.</span>
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 sm:mb-16">
-            A unified space for messenger, social feeds, and creative expression—where your data never leaves your hands.
-          </p>
+          {/* --- Phone Base (Shadow/Depth) --- */}
+          <rect x="-120" y="-240" width="240" height="480" rx="32" fill="#000" stroke="#1a1a1a" strokeWidth="2" transform="translate(0, 30)" />
+          <path d="M -120 -208 L -120 -240 Q -120 -270 -88 -270 L 88 -270 Q 120 -270 120 -240 L 120 -208" fill="none" stroke="#1a1a1a" strokeWidth="2" transform="translate(0, 30)"/>
           
-          <div className="w-full max-w-5xl rounded-3xl border border-border overflow-hidden bg-card shadow-2xl">
-            <video 
-              src="/assets/hero-video.mp4" 
-              loop 
-              autoPlay 
-              muted 
-              playsInline 
-              className="w-full object-cover"
-            />
-          </div>
-        </motion.section>
-
-        {/* Feature Sections */}
-        {[
-          {
-            title: <>Unfiltered expression. <br className="hidden sm:block"/> Total <span className="text-primary">anonymity.</span></>,
-            desc: "Share your life without being tracked. MySys ensures your posts reach your friends, not data brokers or advertisers.",
-            img: "/assets/feature-1.webp"
-          },
-          {
-            title: <><span className="text-primary">Messaging</span> <br className="hidden sm:block"/> without a trace.</>,
-            desc: "End-to-end encrypted chats that keep your conversations between you and your circle. No metadata mining, no exceptions.",
-            img: "/assets/feature-2.webp"
-          },
-          {
-            title: <><span className="text-primary">Communities</span> <br className="hidden sm:block"/> <span>on your terms.</span></>,
-            desc: "Find your tribe in a decentralized landscape where interests matter more than invasive profiling algorithms.",
-            img: "/assets/feature-3.webp"
-          },
-          {
-            title: <><span>Own your content,</span> <br className="hidden sm:block"/> own your data.</>,
-            desc: "Monetize your creativity directly through secure, peer-to-peer support, skipping the ad-tech surveillance machine.",
-            img: "/assets/feature-4.webp"
-          }
-        ].map((feature, i) => (
-          <motion.section 
-            key={i}
-            {...sectionVariants}
-            className="py-16 sm:py-32 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center text-center"
-          >
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-              {feature.title}
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 sm:mb-16">
-              {feature.desc}
-            </p>
-            <div className="relative w-full max-w-xs sm:max-w-md mx-auto aspect-[0.7] rounded-[2.5rem] overflow-hidden border border-border shadow-2xl group">
-              <img 
-                src={feature.img} 
-                alt="" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-            </div>
-          </motion.section>
-        ))}
-
-        {/* Section 6: Built for freedom */}
-        <motion.section 
-          {...sectionVariants}
-          className="relative py-32 sm:py-64 px-4 sm:px-6 flex flex-col items-center text-center overflow-hidden border-t border-border"
-        >
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0 opacity-20 sm:opacity-40">
-            <img 
-              src="/assets/globe.webp" 
-              alt="Globe" 
-              className="w-full h-full object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
-          </div>
+          {/* --- Phone Top Surface --- */}
+          <rect x="-120" y="-240" width="240" height="480" rx="32" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
           
-          <div className="relative z-10 max-w-4xl mx-auto">
-            <h2 className="text-4xl sm:text-7xl lg:text-8xl font-bold mb-6 tracking-tight">
-              Privacy is <span className="text-primary">a right.</span>
-            </h2>
-            <p className="text-lg sm:text-3xl text-muted-foreground">
-              Secure. Sovereign. Yours.
-            </p>
-          </div>
-        </motion.section>
+          {/* Screen */}
+          <rect x="-105" y="-225" width="210" height="450" rx="20" fill="#050505" stroke="#222" strokeWidth="2" />
+          {/* Notch */}
+          <rect x="-35" y="-215" width="70" height="16" rx="8" fill="#111" stroke="#222" strokeWidth="1" />
+          
+          {/* UI Elements inside screen */}
+          <rect x="-80" y="-160" width="160" height="60" rx="8" fill="none" stroke="#222" strokeWidth="2" />
+          <circle cx="-60" cy="-130" r="10" fill="#222" />
+          <rect x="-30" y="-140" width="80" height="8" rx="4" fill="#222" />
+          <rect x="-30" y="-125" width="50" height="8" rx="4" fill="#111" />
 
-        {/* Call to Action Footer */}
-        <motion.section 
-          {...sectionVariants}
-          className="py-24 sm:py-32 px-4 sm:px-6 flex flex-col items-center text-center bg-card"
-        >
-          <h2 className="text-3xl sm:text-5xl font-bold mb-10 tracking-tight">Take Control of Your Data</h2>
-          <a 
-            href="https://zos.zero.tech/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="bg-primary text-primary-foreground font-bold text-lg px-10 py-5 rounded-full hover:scale-105 transition-all duration-300 shadow-xl shadow-primary/20"
-          >
-            Start Your Private Journey
-          </a>
-        </motion.section>
+          <rect x="-80" y="-80" width="70" height="70" rx="8" fill="none" stroke="#222" strokeWidth="2" />
+          <rect x="10" y="-80" width="70" height="70" rx="8" fill="none" stroke="#222" strokeWidth="2" />
 
-        {/* Footer Links */}
-        <footer className="border-t border-border pt-20 pb-10 px-4 sm:px-6 bg-background">
-          <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-            
-            {/* Column 1 */}
-            <div className="flex flex-col gap-4 sm:gap-5">
-              <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Resources</h3>
-              {["Zine", "Whitepaper", "Press Kit", "Deck"].map(link => (
-                <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
-              ))}
-            </div>
+          {/* Glowing active box on screen */}
+          <motion.rect initial={{ strokeDasharray: "0 400" }} animate={{ strokeDasharray: "400 0" }} transition={{ duration: 2, ease: "easeOut", delay: 0.5 }} x="-80" y="10" width="160" height="120" rx="12" fill="none" stroke="#333" strokeWidth="2" />
+          <path d="M -20 50 L 20 90 M 20 50 L -20 90" stroke="#333" strokeWidth="2" strokeLinecap="round" />
 
-            {/* Column 2 */}
-            <div className="flex flex-col gap-4 sm:gap-5">
-              <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Audits</h3>
-              {["M Token", "M NS", "M FI"].map(link => (
-                <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
-              ))}
-            </div>
+          <circle cx="-60" cy="180" r="12" fill="#01f4cb" filter="drop-shadow(0 0 5px rgba(1,244,203,0.5))" />
+          <circle cx="-20" cy="180" r="12" fill="#222" />
+          <circle cx="20" cy="180" r="12" fill="#222" />
+          <circle cx="60" cy="180" r="12" fill="#222" />
 
-            {/* Column 3 */}
-            <div className="flex flex-col gap-4 sm:gap-5">
-              <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Products</h3>
-              {["Messenger", "Social", "MySys ID"].map(link => (
-                <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
-              ))}
-            </div>
+          {/* --- Nodes (Floating Apps/Features) --- */}
 
-            {/* Column 4 */}
-            <div className="flex flex-col gap-4 sm:gap-5">
-              <h3 className="font-bold tracking-widest uppercase text-xs text-foreground/50">Legal</h3>
-              {["Privacy Policy", "T&C", "EULA"].map(link => (
-                <a key={link} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">{link}</a>
-              ))}
-            </div>
+          {/* Node 1 (Active Chat - Cyan) */}
+          <g transform="translate(-240, -120)">
+            <rect x="-40" y="-40" width="80" height="80" rx="20" fill="none" stroke="#004d40" strokeWidth="2" transform="translate(0, 15)" />
+            <motion.rect animate={floatAnimation} x="-40" y="-40" width="80" height="80" rx="20" fill="#01f4cb" fillOpacity="0.05" stroke="#01f4cb" strokeWidth="2" filter="url(#glow)" />
+            {/* Chat Bubble Icon */}
+            <motion.path animate={floatAnimation} d="M -15 -10 h 30 a 5 5 0 0 1 5 5 v 15 a 5 5 0 0 1 -5 5 h -5 l -10 10 v -10 h -15 a 5 5 0 0 1 -5 -5 v -15 a 5 5 0 0 1 5 -5 z" fill="none" stroke="#01f4cb" strokeWidth="2" strokeLinejoin="round" />
+          </g>
 
-          </div>
+          {/* Node 2 (Rocket/Speed) */}
+          <motion.g animate={floatAnimation} transition={{ delay: 0.5 }} transform="translate(-200, 60)">
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="none" stroke="#111" strokeWidth="2" transform="translate(0, 10)" />
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+            <path d="M -10 10 L 15 -15 M 15 -15 C 15 -15 20 -5 10 5 C 0 15 15 -15 15 -15 Z" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </motion.g>
 
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between border-t border-border/50 pt-10 text-muted-foreground">
-            <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">M</div>
-              <span className="text-sm font-medium">&copy; 2026 MySys Inc.</span>
-            </div>
-            <div className="flex items-center gap-6 sm:gap-8">
-              <a href="#" className="hover:text-primary transition-colors"><Twitter size={20} /></a>
-              <a href="#" className="hover:text-primary transition-colors"><Github size={20} /></a>
-              <a href="#" className="hover:text-primary transition-colors"><MessageSquare size={20} /></a>
-              <a href="#" className="hover:text-primary transition-colors"><Send size={20} /></a>
-            </div>
-          </div>
-        </footer>
-      </div>
+          {/* Node 3 (Shield/Privacy) */}
+          <motion.g animate={floatAnimation} transition={{ delay: 1 }} transform="translate(-200, 180)">
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="none" stroke="#111" strokeWidth="2" transform="translate(0, 10)" />
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+            <path d="M -12 -10 L 0 -15 L 12 -10 v 10 c 0 8 -12 15 -12 15 c 0 0 -12 -7 -12 -15 z" fill="none" stroke="#aaa" strokeWidth="2" strokeLinejoin="round" />
+          </motion.g>
+
+          {/* Node 4 (Globe/Network) */}
+          <motion.g animate={floatAnimation} transition={{ delay: 0.2 }} transform="translate(220, -120)">
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="none" stroke="#111" strokeWidth="2" transform="translate(0, 10)" />
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+            <circle cx="0" cy="0" r="15" fill="none" stroke="#aaa" strokeWidth="2" />
+            <ellipse cx="0" cy="0" rx="6" ry="15" fill="none" stroke="#aaa" strokeWidth="2" />
+            <line x1="-15" y1="0" x2="15" y2="0" stroke="#aaa" strokeWidth="2" />
+          </motion.g>
+
+          {/* Node 5 (Vault/Data) */}
+          <motion.g animate={floatAnimation} transition={{ delay: 0.8 }} transform="translate(220, 100)">
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="none" stroke="#111" strokeWidth="2" transform="translate(0, 10)" />
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+            <rect x="-12" y="-5" width="24" height="18" rx="3" fill="none" stroke="#aaa" strokeWidth="2" />
+            <path d="M -7 -5 v -6 a 7 7 0 0 1 14 0 v 6" fill="none" stroke="#aaa" strokeWidth="2" />
+          </motion.g>
+
+          {/* Node 6 (M Logo) */}
+          <motion.g animate={floatAnimation} transition={{ delay: 1.2 }} transform="translate(220, 220)">
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="none" stroke="#111" strokeWidth="2" transform="translate(0, 10)" />
+            <rect x="-35" y="-35" width="70" height="70" rx="16" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+            <text x="0" y="7" fontFamily="sans-serif" fontSize="22" fontWeight="bold" fill="#aaa" textAnchor="middle">M</text>
+          </motion.g>
+
+          {/* --- Isometric Text --- */}
+          <text x="-240" y="280" fontFamily="sans-serif" fontSize="48" fontWeight="800" fill="none" stroke="#333" strokeWidth="2" letterSpacing="10">MySYs</text>
+          
+          <motion.text 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}
+            x="-240" y="-180" fontFamily="monospace" fontSize="20" fontWeight="bold" fill="#01f4cb" letterSpacing="4" filter="url(#glow)">
+            CHAT
+          </motion.text>
+          <motion.path initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }} d="M -220 -170 L -240 -150" stroke="#01f4cb" strokeWidth="2" />
+
+        </g>
+      </svg>
       
-      {/* Global Style overrides */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .spline-container canvas {
-          width: 100% !important;
-          height: 100% !important;
-        }
-      `}} />
-    </PageTransition>
+      {/* Background ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 bg-[#01f4cb] opacity-[0.04] blur-[80px] rounded-full pointer-events-none"></div>
+    </motion.div>
   );
 };
 
-export default Home;
+// --- Reusable Feature Wireframe Graphic ---
+const WireframeGraphic = ({ type }: { type: string }) => {
+  return (
+    <motion.div 
+      animate={floatAnimation}
+      className="relative w-full max-w-[280px] sm:max-w-sm md:max-w-md mx-auto aspect-[0.85] rounded-3xl overflow-hidden border border-[#222] bg-[#080808] shadow-2xl group flex items-center justify-center"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#151515] via-[#050505] to-[#050505] z-0"></div>
+      
+      <svg viewBox="-200 -250 400 500" className="w-full h-full z-10 group-hover:scale-105 transition-transform duration-700">
+        <g transform="scale(1, 0.577) rotate(-45)">
+          {/* Base Grid Pattern */}
+          <path d="M -150 -150 L 150 -150 L 150 150 L -150 150 Z" fill="none" stroke="#151515" strokeWidth="1" />
+          <path d="M -75 -150 L -75 150 M 0 -150 L 0 150 M 75 -150 L 75 150" stroke="#151515" strokeWidth="1" />
+          <path d="M -150 -75 L 150 -75 M -150 0 L 150 0 M -150 75 L 150 75" stroke="#151515" strokeWidth="1" />
+
+          {type === 'chat' && (
+            <>
+              <rect x="-80" y="-100" width="120" height="60" rx="15" fill="#0a0a0a" stroke="#333" strokeWidth="2" />
+              <rect x="-60" y="-80" width="60" height="6" rx="3" fill="#444" />
+              <rect x="-60" y="-65" width="40" height="6" rx="3" fill="#222" />
+              
+              <rect x="-40" y="-10" width="120" height="60" rx="15" fill="#01f4cb" fillOpacity="0.05" stroke="#01f4cb" strokeWidth="2" filter="drop-shadow(0 0 8px rgba(1,244,203,0.2))" />
+              <rect x="-20" y="10" width="60" height="6" rx="3" fill="#01f4cb" fillOpacity="0.8" />
+              <rect x="-20" y="25" width="80" height="6" rx="3" fill="#01f4cb" fillOpacity="0.4" />
+              
+              <rect x="-100" y="80" width="100" height="60" rx="15" fill="#0a0a0a" stroke="#333" strokeWidth="2" />
+            </>
+          )}
+
+          {type === 'feed' && (
+            <>
+              <rect x="-100" y="-120" width="200" height="100" rx="10" fill="#0a0a0a" stroke="#333" strokeWidth="2" />
+              <circle cx="-70" cy="-90" r="10" fill="#333" />
+              <rect x="-45" y="-95" width="80" height="10" rx="5" fill="#222" />
+              <rect x="-80" y="-60" width="160" height="20" rx="4" fill="#1a1a1a" />
+
+              <rect x="-100" y="0" width="200" height="100" rx="10" fill="#01f4cb" fillOpacity="0.05" stroke="#01f4cb" strokeWidth="2" filter="drop-shadow(0 0 8px rgba(1,244,203,0.2))" />
+              <circle cx="-70" cy="30" r="10" fill="#01f4cb" fillOpacity="0.8" />
+              <rect x="-45" y="25" width="80" height="10" rx="5" fill="#01f4cb" fillOpacity="0.4" />
+              <rect x="-80" y="60" width="160" height="20" rx="4" fill="#01f4cb" fillOpacity="0.2" />
+            </>
+          )}
+
+          {type === 'vault' && (
+            <>
+              <circle cx="0" cy="0" r="80" fill="#0a0a0a" stroke="#333" strokeWidth="2" strokeDasharray="10 5" />
+              <circle cx="0" cy="0" r="60" fill="none" stroke="#01f4cb" strokeWidth="2" filter="drop-shadow(0 0 8px rgba(1,244,203,0.3))" />
+              <rect x="-25" y="-10" width="50" height="40" rx="5" fill="#050505" stroke="#01f4cb" strokeWidth="2" />
+              <path d="M -15 -10 v -10 a 15 15 0 0 1 30 0 v 10" fill="none" stroke="#01f4cb" strokeWidth="2" />
+              <circle cx="0" cy="10" r="4" fill="#01f4cb" />
+            </>
+          )}
+
+          {type === 'network' && (
+            <>
+              <path d="M 0 -80 L -80 40 L 80 40 Z" fill="none" stroke="#333" strokeWidth="2" />
+              <path d="M 0 0 L 0 -80 M 0 0 L -80 40 M 0 0 L 80 40" fill="none" stroke="#01f4cb" strokeWidth="2" filter="drop-shadow(0 0 5px rgba(1,244,203,0.4))" />
+              
+              <circle cx="0" cy="-80" r="15" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+              <circle cx="-80" cy="40" r="15" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+              <circle cx="80" cy="40" r="15" fill="#0a0a0a" stroke="#444" strokeWidth="2" />
+              
+              <circle cx="0" cy="0" r="20" fill="#050505" stroke="#01f4cb" strokeWidth="3" filter="drop-shadow(0 0 10px rgba(1,244,203,0.5))" />
+              <circle cx="0" cy="0" r="6" fill="#01f4cb" />
+            </>
+          )}
+        </g>
+      </svg>
+    </motion.div>
+  );
+};
+
+// --- Main Components ---
+
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <nav className={`glass-nav fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'py-4 shadow-2xl' : 'py-6 border-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 rounded-lg border border-[#01f4cb]/50 flex items-center justify-center text-[#01f4cb] font-bold text-xl group-hover:bg-[#01f4cb] group-hover:text-[#050505] transition-all duration-300 shadow-[0_0_15px_rgba(1,244,203,0.15)]">
+            M
+          </div>
+          <span className="font-semibold tracking-widest text-lg hidden sm:block text-[#e0e0e0]">MySYs</span>
+        </a>
+
+        <div className="hidden md:flex items-center gap-8">
+          {['Messenger', 'Feed', 'Vault', 'Protocol'].map((item) => (
+            <a key={item} href="#" className="text-[#a0a0a0] hover:text-[#01f4cb] transition-colors duration-200 text-sm font-medium tracking-wide">
+              {item}
+            </a>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="hidden lg:flex items-center gap-5 text-[#666]">
+            <a href="#" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
+            <a href="#" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
+          </div>
+          <a href="#" className="bg-transparent border border-[#01f4cb]/50 text-[#01f4cb] hover:bg-[#01f4cb] hover:text-[#050505] transition-all duration-300 px-5 py-2 sm:px-6 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(1,244,203,0.1)] hover:shadow-[0_0_25px_rgba(1,244,203,0.3)] whitespace-nowrap">
+            Claim Handle
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+const HeroSection = () => {
+  return (
+    <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-4 sm:px-6 min-h-[90vh] flex items-center overflow-hidden bg-grid">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/50 via-transparent to-[#050505] z-0"></div>
+      
+      <div className="max-w-7xl mx-auto w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-8 z-10">
+        
+        {/* Left: Text Content */}
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden" 
+          animate="visible" 
+          className="flex-1 text-center lg:text-left pt-10 lg:pt-0"
+        >
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#222] bg-[#111] text-[#a0a0a0] text-xs font-mono mb-6 md:mb-8">
+            <Shield className="w-3.5 h-3.5 text-[#01f4cb]" /> <span>End-to-end encrypted by default</span>
+          </motion.div>
+          
+          <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 text-[#e0e0e0] leading-[1.1]">
+            Social Media. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#01f4cb] to-[#00897b] text-glow">
+              Redefined for Privacy.
+            </span>
+          </motion.h1>
+          
+          <motion.p variants={fadeUp} className="text-base sm:text-lg md:text-xl text-[#a0a0a0] max-w-xl mx-auto lg:mx-0 mb-8 md:mb-10 leading-relaxed">
+            Your digital life, truly yours. A decentralized network built on absolute privacy, zero-knowledge encryption, and true data ownership.
+          </motion.p>
+
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <a href="#" className="w-full sm:w-auto bg-[#01f4cb] text-[#050505] font-bold text-base px-8 py-3.5 rounded-lg hover:bg-[#02e0bb] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(1,244,203,0.3)] flex items-center justify-center gap-2">
+              Get Started <ArrowRight className="w-4 h-4" />
+            </a>
+            <a href="#" className="w-full sm:w-auto bg-transparent text-[#e0e0e0] border border-[#333] font-medium text-base px-8 py-3.5 rounded-lg hover:bg-[#111] hover:border-[#555] transition-all duration-300 flex items-center justify-center">
+              Read Whitepaper
+            </a>
+          </motion.div>
+        </motion.div>
+        
+        {/* Right: Graphic */}
+        <div className="flex-1 w-full">
+          <IsometricHero />
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+interface FeatureSectionProps {
+  titleLight: string;
+  titleCyan: string;
+  description: string;
+  icon: LucideIcon;
+  wireframeType: string;
+  reverse?: boolean;
+}
+
+const FeatureSection = ({ titleLight, titleCyan, description, icon: Icon, wireframeType, reverse }: FeatureSectionProps) => (
+  <motion.section 
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+    variants={staggerContainer}
+    className={`py-16 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12 lg:gap-20`}
+  >
+    <motion.div variants={fadeUp} className="flex-1 text-center lg:text-left">
+      <div className="w-14 h-14 rounded-2xl bg-[#0a0a0a] border border-[#222] flex items-center justify-center mb-6 md:mb-8 mx-auto lg:mx-0 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <Icon className="w-7 h-7 text-[#01f4cb]" />
+      </div>
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight text-[#e0e0e0] leading-tight">
+        {titleLight} <span className="text-[#01f4cb]">{titleCyan}</span>
+      </h2>
+      <p className="text-base sm:text-lg text-[#a0a0a0] max-w-xl mx-auto lg:mx-0 leading-relaxed">
+        {description}
+      </p>
+    </motion.div>
+    
+    <motion.div variants={fadeUp} className="flex-1 w-full px-4 sm:px-0">
+      <WireframeGraphic type={wireframeType} />
+    </motion.div>
+  </motion.section>
+);
+
+const GlobeCTA = () => (
+  <motion.section 
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+    variants={fadeUp}
+    className="relative py-24 md:py-40 px-4 sm:px-6 flex flex-col items-center text-center overflow-hidden border-t border-[#111] mt-10 md:mt-20 bg-grid"
+  >
+    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-0 pointer-events-none"></div>
+    
+    <div className="relative z-10 max-w-4xl mx-auto bg-[#0a0a0a]/90 backdrop-blur-xl border border-[#222] p-8 sm:p-12 md:p-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full">
+      <div className="w-16 h-16 bg-[#01f4cb]/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-[#01f4cb]/30">
+        <Shield className="w-8 h-8 text-[#01f4cb]" />
+      </div>
+      <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 tracking-tight text-[#e0e0e0]">
+        Take back <span className="text-[#01f4cb]">control.</span>
+      </h2>
+      <p className="text-base sm:text-lg md:text-xl text-[#a0a0a0] mb-10 max-w-2xl mx-auto">
+        Stop being the product. Join the network where your data remains encrypted, local, and completely in your hands.
+      </p>
+      <a href="#" className="inline-block bg-[#01f4cb] text-[#050505] font-bold text-base sm:text-lg px-8 py-3.5 sm:px-12 sm:py-4 rounded-xl hover:bg-[#02e0bb] hover:-translate-y-1 transition-all duration-300 shadow-[0_0_30px_rgba(1,244,203,0.2)] hover:shadow-[0_0_50px_rgba(1,244,203,0.5)] whitespace-nowrap">
+        Create Secure Account
+      </a>
+    </div>
+  </motion.section>
+);
+
+const Footer = () => (
+  <footer className="border-t border-[#111] pt-16 pb-8 px-4 sm:px-6 bg-[#050505]">
+    <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
+      
+      <div className="flex flex-col gap-4 md:gap-5">
+        <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Platform</h3>
+        {['Messenger', 'Feed', 'Vault', 'Nodes'].map(link => (
+          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        ))}
+      </div>
+      <div className="flex flex-col gap-4 md:gap-5">
+        <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Developers</h3>
+        {['Documentation', 'GitHub', 'Open Source', 'Bounties'].map(link => (
+          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        ))}
+      </div>
+      <div className="flex flex-col gap-4 md:gap-5">
+        <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Company</h3>
+        {['About', 'Blog', 'Manifesto', 'Careers'].map(link => (
+          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        ))}
+      </div>
+      <div className="flex flex-col gap-4 md:gap-5">
+        <h3 className="text-[#e0e0e0] font-semibold tracking-widest uppercase text-xs">Legal</h3>
+        {['Privacy Policy', 'Terms of Service', 'Transparency Report'].map(link => (
+          <a key={link} href="#" className="text-sm text-[#777] hover:text-[#01f4cb] transition-colors">{link}</a>
+        ))}
+      </div>
+
+    </div>
+
+    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between border-t border-[#111] pt-8 text-[#555]">
+      <div className="flex items-center gap-3 mb-6 md:mb-0">
+        <div className="w-8 h-8 rounded-lg border border-[#333] flex items-center justify-center text-[#555] font-bold text-sm bg-[#0a0a0a]">
+          M
+        </div>
+        <span className="text-sm tracking-wide">&copy; {new Date().getFullYear()} MySYs INC. All rights reserved.</span>
+      </div>
+      <div className="flex items-center gap-6">
+        <a href="#" className="hover:text-[#01f4cb] transition-colors"><Twitter className="w-5 h-5" /></a>
+        <a href="#" className="hover:text-[#01f4cb] transition-colors"><Github className="w-5 h-5" /></a>
+        <a href="#" className="hover:text-[#01f4cb] transition-colors"><MessageSquare className="w-5 h-5" /></a>
+      </div>
+    </div>
+  </footer>
+);
+
+// --- Main App Component ---
+
+export default function App() {
+  return (
+    <div className="font-sans bg-[#050505] min-h-screen text-[#e0e0e0] selection:bg-[#01f4cb] selection:text-[#050505]">
+      <GlobalStyles />
+      <Navbar />
+      
+      <main>
+        <HeroSection />
+
+        <div className="mt-12 md:mt-24 space-y-12 md:space-y-0 relative z-20">
+          <FeatureSection 
+            icon={Lock}
+            titleLight="Zero-Knowledge" 
+            titleCyan="Messaging."
+            description="End-to-end encrypted chats where only you and your friends hold the keys. No servers in the middle can read your messages. Ever."
+            wireframeType="chat"
+            reverse={false}
+          />
+
+          <FeatureSection 
+            icon={EyeOff}
+            titleLight="Algorithmic" 
+            titleCyan="Freedom."
+            description="No algorithms manipulating your attention. No advertisers tracking your clicks. Just a clean, chronological feed of the people you actually care about."
+            wireframeType="feed"
+            reverse={true}
+          />
+
+          <FeatureSection 
+            icon={Shield}
+            titleLight="Your Data," 
+            titleCyan="Your Vault."
+            description="Store your memories and posts securely. You own your data natively, and you can take it anywhere with your decentralized identity."
+            wireframeType="vault"
+            reverse={false}
+          />
+
+          <FeatureSection 
+            icon={Server}
+            titleLight="Uncensorable &" 
+            titleCyan="Decentralized."
+            description="Run on a distributed peer-to-peer network that cannot be taken down, throttled, or controlled by any single corporate entity."
+            wireframeType="network"
+            reverse={true}
+          />
+        </div>
+
+        <GlobeCTA />
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
