@@ -68,7 +68,7 @@ export const ProIcon: React.FC<{
   [key: string]: any;
 }> = ({ size = 24, className = "", ...props }) => (
   <img
-    src="/pro.gif"
+    src="https://media.tenor.com/Ib_8vbFkAXsAAAAm/verifiedwhite.webp"
     alt="Pro"
     width={size}
     height={size}

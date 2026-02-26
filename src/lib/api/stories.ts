@@ -61,3 +61,15 @@ export const addStory = async (
   if (error) throw error;
   return transformStory(data?.[0]);
 };
+
+export const incrementStoryViews = async (storyId: string) => {
+  const { data, error } = await (supabase.rpc as any)("increment_story_views", {
+    s_id: storyId,
+  });
+
+  if (error) {
+    console.error("RPC increment_story_views failed:", error);
+    return null;
+  }
+  return data;
+};

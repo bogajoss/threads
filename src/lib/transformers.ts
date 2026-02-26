@@ -137,6 +137,7 @@ export const transformStory = (s: any): Story | null => {
     ...s,
     media: s.media_url,
     user: user,
+    views_count: s.views_count || 0,
   };
 };
 

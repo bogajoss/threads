@@ -774,6 +774,7 @@ export type Database = {
           media_url: string;
           type: string | null;
           user_id: string;
+          views_count: number | null;
         };
         Insert: {
           created_at?: string | null;
@@ -782,6 +783,7 @@ export type Database = {
           media_url: string;
           type?: string | null;
           user_id: string;
+          views_count?: number | null;
         };
         Update: {
           created_at?: string | null;
@@ -790,10 +792,47 @@ export type Database = {
           media_url?: string;
           type?: string | null;
           user_id?: string;
+          views_count?: number | null;
         };
         Relationships: [
           {
             foreignKeyName: "stories_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      story_views: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          story_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          story_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          story_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey";
+            columns: ["story_id"];
+            isOneToOne: false;
+            referencedRelation: "stories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "story_views_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";
@@ -959,6 +998,7 @@ export type Database = {
         }[];
       };
       increment_post_views: { Args: { post_id: string }; Returns: undefined };
+      increment_story_views: { Args: { s_id: string }; Returns: undefined };
       is_conversation_participant: {
         Args: { conv_id: string };
         Returns: boolean;

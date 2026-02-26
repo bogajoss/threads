@@ -39,8 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const lastFetchedUserIdRef = useRef<string | null>(null);
 
   const fetchUserProfileData = useCallback(async (user: any, isInitial: boolean = false) => {
+    if (lastFetchedUserIdRef.current === user.id && !isInitial) return;
+    lastFetchedUserIdRef.current = user.id;
+
     if (isInitial) setLoading(true);
     try {
       const data = await fetchUserProfile(user.id);
@@ -130,7 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchUserProfileData, currentUser]);
+  }, [fetchUserProfileData]);
 
   const login = useCallback(async ({ email, password }: any) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -165,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setCurrentUser(null);
+    lastFetchedUserIdRef.current = null;
   }, []);
 
   const forgotPassword = useCallback(async (email: string) => {

@@ -122,6 +122,7 @@ export interface Story {
   created_at: string;
   expires_at: string;
   user: User;
+  views_count?: number;
 }
 
 export interface Community {

@@ -185,11 +185,12 @@ const UserManagement: React.FC = () => {
                           {user.name[0]?.toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      {user.verified && (
+                      {user.verified ? (
                         <VerifiedIcon size={20} className="absolute -bottom-2 -right-2 rounded-full bg-white p-0.5" />
-                      )}
-                      {user.isPro && (
-                        <ProIcon size={20} className="absolute -bottom-2 -left-2 rounded-full bg-white p-0.5" />
+                      ) : (
+                        user.isPro && (
+                          <ProIcon size={20} className="absolute -bottom-2 -right-2 rounded-full bg-white p-0.5" />
+                        )
                       )}
                     </div>
                     <div className="min-w-0 flex-1">

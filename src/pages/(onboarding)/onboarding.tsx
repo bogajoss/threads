@@ -250,11 +250,10 @@ function UserItem({ user, currentUser }: { user: User; currentUser: User }) {
             <span className="font-semibold text-sm md:text-[15px] leading-tight truncate">
               {user.handle}
             </span>
-            {user.verified && (
+            {user.verified ? (
               <VerifiedIcon size={12} className="shrink-0" />
-            )}
-            {user.isPro && (
-              <ProIcon size={12} className="shrink-0" />
+            ) : (
+              user.isPro && <ProIcon size={12} className="shrink-0" />
             )}
           </div>
           <span className="text-zinc-500 text-xs md:text-[14px] leading-tight truncate">

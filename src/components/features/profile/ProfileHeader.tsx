@@ -13,6 +13,7 @@ import {
   Button,
   VerifiedIcon,
   AdminIcon,
+  ProIcon,
   Avatar,
   AvatarImage,
   AvatarFallback,
@@ -294,8 +295,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {profile.role === "admin" && (
               <AdminIcon size={28} />
             )}
-            {profile.verified && (
+            {profile.verified ? (
               <VerifiedIcon size={20} />
+            ) : (
+              profile.isPro && <ProIcon size={20} />
             )}
             {profile.isBanned && (
               <span className="flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-600 dark:bg-rose-500/10 dark:text-rose-500">

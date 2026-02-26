@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { VerifiedIcon, AdminIcon, ProIcon } from "./custom-icons";
 
 interface ProfileCardProps {
   profile: {
@@ -10,6 +11,9 @@ interface ProfileCardProps {
     bio?: string | null;
     member_count?: number;
     membersCount?: number;
+    verified?: boolean;
+    role?: string;
+    isPro?: boolean;
   };
   onUserClick?: (handle: string) => void;
   isCommunity?: boolean;
@@ -38,9 +42,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       </Avatar>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          {title}
-        </p>
+        <div className="flex items-center gap-1">
+          <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {title}
+          </p>
+          {profile.role === "admin" && (
+            <AdminIcon size={24} />
+          )}
+          {profile.verified ? (
+            <VerifiedIcon size={16} />
+          ) : (
+            profile.isPro && <ProIcon size={16} />
+          )}
+        </div>
         <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{subtitle}</p>
         {profile.bio ? (
           <p className="mt-1 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-300">

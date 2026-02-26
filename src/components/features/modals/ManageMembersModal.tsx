@@ -6,6 +6,7 @@ import {
   AvatarFallback,
   VerifiedIcon,
   AdminIcon,
+  ProIcon,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -145,8 +146,10 @@ export default function ManageMembersModal({
                     {m.user.role === "admin" && (
                       <AdminIcon size={18} />
                     )}
-                    {m.user.is_verified && (
+                    {m.user.is_verified ? (
                       <VerifiedIcon size={14} />
+                    ) : (
+                      m.user.is_pro && <ProIcon size={14} />
                     )}
                   </div>
                   <span className="text-xs font-medium text-zinc-500">

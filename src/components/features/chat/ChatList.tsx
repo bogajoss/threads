@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@/types";
 import { cn, formatTimeAgo } from "@/lib/utils";
-import { Button, VerifiedIcon, AdminIcon } from "@/components/ui";
+import { Button, VerifiedIcon, AdminIcon, ProIcon } from "@/components/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,8 +84,12 @@ const ConversationItem = React.memo(({
             {!conv.isGroup && conv.user?.role === "admin" && (
               <AdminIcon size={22} className="shrink-0" />
             )}
-            {!conv.isGroup && conv.user?.verified && (
-              <VerifiedIcon size={14} className="shrink-0" />
+            {!conv.isGroup && (
+              conv.user?.verified ? (
+                <VerifiedIcon size={14} className="shrink-0" />
+              ) : (
+                conv.user?.isPro && <ProIcon size={14} className="shrink-0" />
+              )
             )}
           </div>
           <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
@@ -156,8 +160,10 @@ const UserSearchResultItem = React.memo(({
         {user.role === "admin" && (
           <AdminIcon size={22} className="shrink-0" />
         )}
-        {user.verified && (
+        {user.verified ? (
           <VerifiedIcon size={14} className="shrink-0" />
+        ) : (
+          user.isPro && <ProIcon size={14} className="shrink-0" />
         )}
       </div>
       <p className="truncate text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">

@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
+import { X, Eye } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { incrementStoryViews } from "@/lib/api/stories";
 
 interface Story {
   id: string;
   media: string;
   content?: string;
   created_at: string;
+  views_count?: number;
 }
 
 interface StoryGroup {
@@ -33,6 +35,14 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    storyGroup.stories.forEach((s) => {
+      initial[s.id] = s.views_count || 0;
+    });
+    return initial;
+  });
+  const [seenInSession] = useState(new Set<string>());
 
   const dragY = useMotionValue(0);
   const opacity = useTransform(dragY, [0, 200], [1, 0.5]);
@@ -40,6 +50,27 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
   const stories = storyGroup.stories;
   const currentStory = stories[currentIndex];
+
+  useEffect(() => {
+    if (currentStory && !seenInSession.has(currentStory.id)) {
+      seenInSession.add(currentStory.id);
+
+      // Optimistic increment
+      setViewCounts((prev) => ({
+        ...prev,
+        [currentStory.id]: (prev[currentStory.id] || 0) + 1,
+      }));
+
+      incrementStoryViews(currentStory.id).then((newCount) => {
+        if (newCount !== null) {
+          setViewCounts((prev) => ({
+            ...prev,
+            [currentStory.id]: newCount,
+          }));
+        }
+      });
+    }
+  }, [currentStory?.id, seenInSession]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < stories.length - 1) {
@@ -127,12 +158,20 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
               <span className="text-sm font-bold shadow-black drop-shadow-md">
                 {storyGroup.user.handle}
               </span>
-              <span className="text-[10px] text-white/60 shadow-black drop-shadow-md">
-                {new Date(currentStory.created_at).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
+              <div className="flex items-center gap-1 text-[10px] text-white/60 shadow-black drop-shadow-md">
+                <span>
+                  {new Date(currentStory.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                {viewCounts[currentStory.id] !== undefined && (
+                  <>
+                    <span>•</span>
+                    <span>{viewCounts[currentStory.id]} views</span>
+                  </>
+                )}
+              </div>
             </div>
           </Link>
           <button
