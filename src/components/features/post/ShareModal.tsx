@@ -206,7 +206,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
               placeholder="Search people..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-2xl border border-black/5 bg-black/5 py-3 pl-11 pr-4 text-[15px] outline-none transition-all focus:bg-white/50 focus:ring-4 focus:ring-violet-500/10 dark:border-white/5 dark:bg-white/5 dark:focus:bg-black/50"
+              className="w-full rounded-2xl border border-black/5 bg-black/5 py-3 pl-11 pr-4 text-[15px] outline-none transition-all focus:ring-4 focus:ring-violet-500/10 dark:border-white/5 dark:bg-white/5 dark:focus:bg-black/50"
             />
           </div>
         </div>

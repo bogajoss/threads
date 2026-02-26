@@ -225,7 +225,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Group name"
-                  className="h-10 rounded-xl border-black/5 bg-black/5 focus:bg-white dark:border-white/5 dark:bg-white/5 dark:focus:bg-zinc-800"
+                  className="h-10 rounded-xl border-black/5 bg-black/5 focus:ring-violet-500/20 dark:border-white/5 dark:bg-white/5 dark:focus:bg-zinc-800"
                 />
                 <Button
                   size="sm"

@@ -1,9 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/admin";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 
 export const useAdmin = () => {
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = 50;
 
   // Queries
   const stats = useQuery({
@@ -12,8 +16,8 @@ export const useAdmin = () => {
   });
 
   const users = useQuery({
-    queryKey: ["admin", "users"],
-    queryFn: () => adminApi.getAllUsers(),
+    queryKey: ["admin", "users", page],
+    queryFn: () => adminApi.getAllUsers(page, limit),
   });
 
   const posts = useQuery({
@@ -22,8 +26,8 @@ export const useAdmin = () => {
   });
 
   const reports = useQuery({
-    queryKey: ["admin", "reports"],
-    queryFn: () => adminApi.getReports(),
+    queryKey: ["admin", "reports", page],
+    queryFn: () => adminApi.getReports(page, limit),
   });
 
   const analytics = useQuery({

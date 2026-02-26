@@ -121,15 +121,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        // Only show loading if we haven't finished the initial session check
-        // or if explicitly signing in without a current session.
-        const shouldShowLoading = !hasLoadedRef.current || (event === 'SIGNED_IN' && !currentUser);
-        fetchUserProfileData(session.user, shouldShowLoading);
-        if (shouldShowLoading) hasLoadedRef.current = true;
+        // Handle session events
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          const shouldShowLoading = !hasLoadedRef.current || (event === 'SIGNED_IN' && !currentUser);
+          fetchUserProfileData(session.user, shouldShowLoading);
+          if (shouldShowLoading) hasLoadedRef.current = true;
+        }
       } else {
-        setCurrentUser(null);
-        setLoading(false);
-        hasLoadedRef.current = true;
+        if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+          setLoading(false);
+          hasLoadedRef.current = true;
+          lastFetchedUserIdRef.current = null;
+          queryClient.clear(); // Clear all cached data on logout for security
+        } else {
+          // No session but check if we finished initial loading
+          setLoading(false);
+          hasLoadedRef.current = true;
+        }
       }
     });
 

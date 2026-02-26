@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { incrementStoryViews } from "@/lib/api/stories";
+import { shouldIncrementView } from "@/lib/utils";
 
 interface Story {
   id: string;
@@ -55,20 +56,23 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
     if (currentStory && !seenInSession.has(currentStory.id)) {
       seenInSession.add(currentStory.id);
 
-      // Optimistic increment
-      setViewCounts((prev) => ({
-        ...prev,
-        [currentStory.id]: (prev[currentStory.id] || 0) + 1,
-      }));
+      // Check if we should increment (24h throttle)
+      if (shouldIncrementView(currentStory.id, 'story')) {
+        // Optimistic increment
+        setViewCounts((prev) => ({
+          ...prev,
+          [currentStory.id]: (prev[currentStory.id] || 0) + 1,
+        }));
 
-      incrementStoryViews(currentStory.id).then((newCount) => {
-        if (newCount !== null) {
-          setViewCounts((prev) => ({
-            ...prev,
-            [currentStory.id]: newCount,
-          }));
-        }
-      });
+        incrementStoryViews(currentStory.id).then((newCount) => {
+          if (newCount !== null) {
+            setViewCounts((prev) => ({
+              ...prev,
+              [currentStory.id]: newCount,
+            }));
+          }
+        });
+      }
     }
   }, [currentStory?.id, seenInSession]);
 

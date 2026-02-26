@@ -3,12 +3,15 @@ import { transformUser, transformPost } from "@/lib/transformers";
 
 export const adminApi = {
   // User Management
-  async getAllUsers(limit = 50) {
+  async getAllUsers(page = 1, limit = 50) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
     const { data, error } = await supabase
       .from("users")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(limit);
+      .range(from, to);
     if (error) throw error;
     return (data || []).map(transformUser);
   },
@@ -88,12 +91,15 @@ export const adminApi = {
   },
 
   // Reports Management
-  async getReports(limit = 50) {
+  async getReports(page = 1, limit = 50) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
     const { data, error } = await supabase
       .from("reports")
       .select("*, reporter:users!reporter_id(*)")
       .order("created_at", { ascending: false })
-      .limit(limit);
+      .range(from, to);
     if (error) throw error;
     return data;
   },

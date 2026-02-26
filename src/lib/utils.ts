@@ -5,6 +5,50 @@ import { useLocation } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { Clipboard } from "@capacitor/clipboard";
 
+/**
+ * Checks if an item should have its view count incremented.
+ * Prevents duplicates within a 24-hour window using localStorage with auto-cleanup.
+ */
+export function shouldIncrementView(id: string, type: 'post' | 'story'): boolean {
+  try {
+    const CACHE_KEY = `view_history_${type}`;
+    const now = Date.now();
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+    // Get existing history
+    const rawData = localStorage.getItem(CACHE_KEY);
+    const history: Record<string, number> = rawData ? JSON.parse(rawData) : {};
+
+    // 1. Cleanup expired entries (Older than 24h)
+    const cleanedHistory: Record<string, number> = {};
+    let hasChanges = false;
+
+    Object.entries(history).forEach(([storedId, timestamp]) => {
+      if (now - timestamp < TWENTY_FOUR_HOURS) {
+        cleanedHistory[storedId] = timestamp;
+      } else {
+        hasChanges = true;
+      }
+    });
+
+    // 2. Check if current ID is already viewed within 24h
+    if (cleanedHistory[id]) {
+      if (hasChanges) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cleanedHistory));
+      }
+      return false; // Already viewed
+    }
+
+    // 3. Add new view and save
+    cleanedHistory[id] = now;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cleanedHistory));
+    return true;
+  } catch (e) {
+    console.error("View cache error:", e);
+    return true; // Fallback to true so we don't block views on error
+  }
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

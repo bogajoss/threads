@@ -51,7 +51,7 @@ import { usePostInteraction, useComments, useMediaQuery } from "@/hooks";
 import { useReportModal } from "@/context/ReportContext";
 import { usePosts } from "@/context/PostContext";
 import { uploadFile, incrementPostViews, votePoll } from "@/lib/api";
-import { extractUrl } from "@/lib/utils";
+import { extractUrl, shouldIncrementView } from "@/lib/utils";
 import { useInView } from "react-intersection-observer";
 import type { User, Media, CommunityShort } from "@/types";
 
@@ -478,7 +478,9 @@ const Post: React.FC<PostProps> = ({
   useEffect(() => {
     if (inView && !isComment && id && !id.startsWith("temp-")) {
       const timer = setTimeout(() => {
-        incrementPostViews(id).catch(console.error);
+        if (shouldIncrementView(id, 'post')) {
+          incrementPostViews(id).catch(console.error);
+        }
       }, 1500);
       return () => clearTimeout(timer);
     }

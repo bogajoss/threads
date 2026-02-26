@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "@/hooks/useAdmin";
-import { Button, Skeleton } from "@/components/ui";
+import { Skeleton } from "@/components/ui";
 import {
   Select,
   SelectTrigger,
@@ -117,21 +117,22 @@ const ReportsManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-600 text-white">
-            <Flag className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight">
-              Reports Queue
-            </h1>
-            <p className="text-sm text-zinc-500">
-              Monitor and resolve community reported content
-            </p>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+            Moderation Queue
+          </h1>
+          <p className="text-sm font-medium text-zinc-500">
+            Review and resolve community reported content
+          </p>
+        </div>
+        <div className="flex items-center gap-2 rounded-2xl bg-white p-1 shadow-sm dark:bg-zinc-900 border border-zinc-200/50 dark:border-white/5">
+           <div className="px-4 py-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Total Reports</p>
+              <p className="text-xl font-black text-rose-600">{allReports.length}</p>
+           </div>
         </div>
       </div>
 
@@ -139,11 +140,12 @@ const ReportsManagement: React.FC = () => {
       <div className="grid gap-4 sm:grid-cols-3">
         {[
           {
-            label: "Pending",
+            label: "Action Required",
             count: statusCounts.pending,
             icon: Clock,
             color: "text-amber-600 dark:text-amber-400",
             bg: "bg-amber-500/10",
+            border: "border-amber-500/20",
           },
           {
             label: "Resolved",
@@ -151,6 +153,7 @@ const ReportsManagement: React.FC = () => {
             icon: CheckCircle,
             color: "text-emerald-600 dark:text-emerald-400",
             bg: "bg-emerald-500/10",
+            border: "border-emerald-500/20",
           },
           {
             label: "Dismissed",
@@ -158,186 +161,159 @@ const ReportsManagement: React.FC = () => {
             icon: AlertCircle,
             color: "text-zinc-600 dark:text-zinc-400",
             bg: "bg-zinc-500/10",
+            border: "border-zinc-500/20",
           },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-black"
+            className={cn(
+              "group relative overflow-hidden rounded-[2rem] border bg-white p-6 shadow-sm transition-all duration-300 dark:bg-zinc-900/50",
+              stat.border
+            )}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn("rounded-xl p-2", stat.bg)}>
-                  <stat.icon className={cn("h-5 w-5", stat.color)} />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                    {stat.label}
-                  </p>
-                  <p className="text-2xl font-black text-foreground">
-                    {stat.count}
-                  </p>
-                </div>
+            <div className="flex items-center gap-4">
+              <div className={cn("rounded-2xl p-3 shadow-inner transition-transform group-hover:scale-110", stat.bg)}>
+                <stat.icon className={cn("h-6 w-6", stat.color)} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                  {stat.label}
+                </p>
+                <p className="text-3xl font-black text-foreground">
+                  {stat.count}
+                </p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Filter */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
-          Showing {filteredReports.length} report
-          {filteredReports.length !== 1 ? "s" : ""}
+      {/* Filter and Stats */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200/50 pb-6 dark:border-white/5">
+        <p className="text-sm font-bold text-zinc-500">
+          Showing <span className="text-zinc-900 dark:text-white">{filteredReports.length}</span> individual reports
         </p>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[150px] rounded-xl border-zinc-200 dark:border-zinc-800">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl dark:bg-zinc-900">
-            <SelectItem value="all">All Reports</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-            <SelectItem value="dismissed">Dismissed</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-11 w-[160px] rounded-xl border-zinc-200/50 bg-white font-bold shadow-sm dark:border-white/5 dark:bg-zinc-900">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl dark:bg-zinc-900">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+              <SelectItem value="dismissed">Dismissed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Reports List */}
       {filteredReports.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-zinc-200 bg-white py-16 dark:border-zinc-800 dark:bg-black">
-          <div className="rounded-2xl bg-emerald-500/10 p-4">
-            <CheckCircle className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+        <div className="flex flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-zinc-200 bg-white py-24 dark:border-white/5 dark:bg-zinc-900/20">
+          <div className="relative">
+             <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
+             <div className="relative rounded-[2rem] bg-emerald-500/10 p-8 shadow-inner">
+               <CheckCircle className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+             </div>
           </div>
-          <h3 className="mt-4 font-bold text-foreground">Queue is empty</h3>
-          <p className="mt-1 text-sm text-zinc-500">
-            Great job! All reports have been cleared.
+          <h3 className="mt-8 text-2xl font-black text-zinc-900 dark:text-white">All Clear</h3>
+          <p className="mt-2 max-w-[280px] text-center font-medium text-zinc-500">
+            Great job! No reports are currently waiting for your attention.
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-4 xl:grid-cols-2">
           {filteredReports.map((report: any) => (
             <div
               key={report.id}
-              className="overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-all hover:border-zinc-300 dark:border-zinc-800 dark:bg-black dark:hover:border-zinc-700"
+              className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-zinc-200/50 bg-white shadow-sm transition-all duration-300 hover:border-violet-500/30 hover:shadow-xl hover:shadow-violet-500/5 dark:border-white/5 dark:bg-zinc-900/50 dark:hover:bg-zinc-900"
             >
-              {/* Report Header */}
-              <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex gap-4 min-w-0 flex-1">
-                  {/* Icon */}
-                  <div className="relative h-12 w-12 shrink-0">
-                    <div className="flex h-full w-full items-center justify-center rounded-xl bg-rose-500/10">
-                      <Flag className="h-6 w-6 text-rose-600 dark:text-rose-400" />
-                    </div>
+              {/* Status Header */}
+              <div className="flex items-center justify-between p-6 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 shadow-inner">
+                    <Flag className="h-6 w-6 text-rose-600 dark:text-rose-400" />
                   </div>
-
-                  {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-rose-500/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
-                        {report.target_type || "unknown"}
-                      </span>
-                      <span className="text-xs text-zinc-500">
-                        • {formatTimeAgo(report.created_at)}
-                      </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Target Type</span>
+                       <span className="rounded-lg bg-zinc-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-600 dark:bg-white/5 dark:text-zinc-400">
+                         {report.target_type || "unknown"}
+                       </span>
                     </div>
-                    <h3 className="mt-2 truncate font-semibold text-foreground">
+                    <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-tight mt-0.5">
                       Report by @{report.reporter?.username || "anonymous"}
                     </h3>
-                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
-                      {report.reason || "No additional context provided."}
-                    </p>
                   </div>
                 </div>
-
-                {/* Status Badge */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <span
+                <div className="hidden sm:block">
+                   <span
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider whitespace-nowrap",
+                      "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-wider shadow-sm transition-colors",
                       report.status === "pending"
-                        ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                        ? "bg-amber-500 text-white shadow-amber-500/20"
                         : report.status === "resolved"
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : "bg-zinc-500/10 text-zinc-700 dark:text-zinc-400",
+                          ? "bg-emerald-500 text-white shadow-emerald-500/20"
+                          : "bg-zinc-500 text-white shadow-zinc-500/20",
                     )}
                   >
-                    {report.status === "pending" && (
-                      <Clock className="h-3 w-3" />
-                    )}
-                    {report.status === "resolved" && (
-                      <CheckCircle className="h-3 w-3" />
-                    )}
-                    {report.status === "dismissed" && (
-                      <AlertCircle className="h-3 w-3" />
-                    )}
                     {report.status}
                   </span>
                 </div>
               </div>
 
-              {/* Target Info */}
-              <div className="border-t border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                      Target ID
-                    </p>
-                    <p className="mt-1 font-mono text-sm text-zinc-600 dark:text-zinc-400">
-                      {report.target_id}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleViewContent(report)}
-                    className="w-full gap-2 rounded-lg sm:w-auto"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    View Content
-                  </Button>
+              {/* Content Body */}
+              <div className="px-6 pb-6 flex-1">
+                <div className="rounded-3xl bg-zinc-50/50 p-5 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+                   <p className="text-[11px] font-black uppercase tracking-[0.15em] text-zinc-400 mb-2">Reason</p>
+                   <p className="text-[15px] font-medium text-zinc-700 dark:text-zinc-300 leading-relaxed italic">
+                     "{report.reason || "No additional context provided."}"
+                   </p>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-between text-xs font-bold text-zinc-400 px-2">
+                   <span>ID: {report.target_id.slice(0, 12)}...</span>
+                   <span>{formatTimeAgo(report.created_at)}</span>
                 </div>
               </div>
 
-              {/* Actions */}
-              {report.status === "pending" && (
-                <div className="border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-black">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        actions.updateReportStatus({
-                          reportId: report.id,
-                          status: "dismissed",
-                        })
-                      }
-                      className="rounded-lg"
-                      disabled={deletingReportId === report.id}
-                    >
-                      <AlertCircle className="mr-2 h-4 w-4" />
-                      Dismiss
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleResolveReport(report)}
-                      disabled={deletingReportId === report.id}
-                      className="rounded-lg bg-rose-600 hover:bg-rose-700"
-                    >
-                      {deletingReportId === report.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Resolving...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Resolve
-                        </>
-                      )}
-                    </Button>
-                  </div>
+              {/* Action Footer */}
+              <div className="mt-auto border-t border-zinc-100 bg-zinc-50/30 p-4 px-6 dark:border-white/5 dark:bg-zinc-950/20">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    onClick={() => handleViewContent(report)}
+                    className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white px-6 text-sm font-black text-zinc-700 shadow-sm transition-all hover:bg-zinc-100 active:scale-95 dark:border-white/5 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Inspect Content
+                  </button>
+
+                  {report.status === "pending" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => actions.updateReportStatus({ reportId: report.id, status: "dismissed" })}
+                        className="flex-1 sm:flex-none h-11 items-center justify-center rounded-2xl px-5 text-sm font-black text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white active:scale-95"
+                        disabled={deletingReportId === report.id}
+                      >
+                        Dismiss
+                      </button>
+                      <button
+                        onClick={() => handleResolveReport(report)}
+                        disabled={deletingReportId === report.id}
+                        className="flex-1 sm:flex-none flex h-11 items-center justify-center gap-2 rounded-2xl bg-rose-600 px-6 text-sm font-black text-white shadow-lg shadow-rose-500/20 transition-all hover:bg-rose-700 active:scale-95 disabled:opacity-50"
+                      >
+                        {deletingReportId === report.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        Resolve
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>

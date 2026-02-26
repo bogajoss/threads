@@ -12,25 +12,25 @@ const AdminLayout: React.FC = () => {
   return (
     <div
       className={cn(
-        "min-h-screen flex flex-col bg-white text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-200 dark:bg-black",
+        "min-h-screen flex flex-col bg-zinc-50 text-foreground font-english selection:bg-violet-500 selection:text-white transition-colors duration-200 dark:bg-[#050505]",
         darkMode && "dark",
       )}
     >
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-black lg:hidden md:hidden">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-zinc-200/50 bg-white/80 px-4 py-3 backdrop-blur-xl dark:border-white/5 dark:bg-black/80 lg:hidden md:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white shadow-lg shadow-violet-500/20">
             <ShieldAlert className="h-5 w-5" />
           </div>
-          <span className="text-lg font-bold tracking-tight">Admin</span>
+          <span className="text-lg font-black tracking-tighter">Admin</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-foreground hover:bg-zinc-200 transition-colors dark:bg-zinc-900 dark:hover:bg-zinc-800">
-            <Bell className="h-5 w-5" />
+          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-foreground hover:bg-zinc-200 transition-colors dark:bg-zinc-900 dark:hover:bg-zinc-800">
+            <Bell className="h-5 w-5 text-zinc-500" />
           </button>
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-all active:scale-95 shadow-lg shadow-violet-500/20"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -46,7 +46,7 @@ const AdminLayout: React.FC = () => {
 
         {/* Content Area */}
         <div className="flex-1 lg:ml-72 transition-all duration-300">
-          <main className="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <main className="mx-auto w-full px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
             <Outlet />
           </main>
         </div>
