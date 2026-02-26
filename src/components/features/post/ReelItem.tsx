@@ -106,7 +106,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         }, 1500);
         return () => clearTimeout(timer);
       }
-    }, [videoUrl, isActive]);
+    }, [videoUrl, isActive, hasPlayedOnce]);
 
     // Ref to track the pending play timeout so we can cancel it
     const playTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -157,6 +157,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
           player.pause();
           // Reset to beginning to prevent audio from continuing
           if (typeof player.currentTime !== "undefined") {
+            // eslint-disable-next-line react-hooks/immutability
             player.currentTime = 0;
           }
           // Clear global lock if this was the playing video
@@ -177,6 +178,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         if (p && typeof p.pause === "function") {
           p.pause();
           if (typeof p.currentTime !== "undefined") {
+            // eslint-disable-next-line react-hooks/immutability
             p.currentTime = 0;
           }
           // Clear global lock if this was the playing video
@@ -199,6 +201,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         if (p && typeof p.pause === "function") {
           p.pause();
           // Reset video to beginning to ensure clean state
+          // eslint-disable-next-line react-hooks/immutability
           p.currentTime = 0;
           // Clear global lock if this was the playing video
           if (getCurrentlyPlayingPlayer() === p) {

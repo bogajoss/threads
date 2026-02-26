@@ -55,24 +55,28 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   useEffect(() => {
     if (currentStory && !seenInSession.has(currentStory.id)) {
       seenInSession.add(currentStory.id);
+      
+      // We'll use a timeout to move the state update out of the render effect
+      const timeout = setTimeout(() => {
+        if (shouldIncrementView(currentStory.id, 'story')) {
+          // Optimistic increment
+          setViewCounts((prev) => ({
+            ...prev,
+            [currentStory.id]: (prev[currentStory.id] || 0) + 1,
+          }));
 
-      // Check if we should increment (24h throttle)
-      if (shouldIncrementView(currentStory.id, 'story')) {
-        // Optimistic increment
-        setViewCounts((prev) => ({
-          ...prev,
-          [currentStory.id]: (prev[currentStory.id] || 0) + 1,
-        }));
-
-        incrementStoryViews(currentStory.id).then((newCount) => {
-          if (newCount !== null) {
-            setViewCounts((prev) => ({
-              ...prev,
-              [currentStory.id]: newCount,
-            }));
-          }
-        });
-      }
+          incrementStoryViews(currentStory.id).then((newCount) => {
+            if (newCount !== null) {
+              setViewCounts((prev) => ({
+                ...prev,
+                [currentStory.id]: newCount,
+              }));
+            }
+          });
+        }
+      }, 0);
+      
+      return () => clearTimeout(timeout);
     }
   }, [currentStory?.id, seenInSession]);
 

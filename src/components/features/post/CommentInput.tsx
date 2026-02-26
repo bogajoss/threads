@@ -69,9 +69,11 @@ const CommentInput: React.FC<CommentInputProps> = ({
     if (!audioBlob && audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
-      setIsPreviewPlaying(false);
+      if (isPreviewPlaying) {
+        setIsPreviewPlaying(false);
+      }
     }
-  }, [audioBlob]);
+  }, [audioBlob, isPreviewPlaying]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

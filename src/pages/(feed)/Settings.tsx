@@ -28,6 +28,44 @@ import {
 import { useSettings } from "@/hooks";
 import { cn } from "@/lib/utils";
 
+const SettingRow = ({
+  icon: Icon,
+  label,
+  children,
+  onClick,
+  showChevron = true,
+  className,
+}: {
+  icon: any;
+  label: string;
+  children?: React.ReactNode;
+  onClick?: () => void;
+  showChevron?: boolean;
+  className?: string;
+}) => (
+  <div
+    onClick={onClick}
+    className={cn(
+      "flex min-h-[56px] w-full items-center gap-3 px-4 py-3 transition-colors active:bg-accent/50",
+      onClick && "cursor-pointer",
+      className,
+    )}
+  >
+    <div className="flex size-7 items-center justify-center text-foreground/70">
+      <Icon size={20} strokeWidth={2} />
+    </div>
+    <span className="flex-1 text-[16px] font-medium tracking-tight text-foreground">
+      {label}
+    </span>
+    <div className="flex items-center gap-2">
+      {children}
+      {showChevron && !children && (
+        <ChevronRight size={18} className="text-muted-foreground/50" />
+      )}
+    </div>
+  </div>
+);
+
 const Settings: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -59,44 +97,6 @@ const Settings: React.FC = () => {
       </div>
     );
   }
-
-  const SettingRow = ({
-    icon: Icon,
-    label,
-    children,
-    onClick,
-    showChevron = true,
-    className,
-  }: {
-    icon: any;
-    label: string;
-    children?: React.ReactNode;
-    onClick?: () => void;
-    showChevron?: boolean;
-    className?: string;
-  }) => (
-    <div
-      onClick={onClick}
-      className={cn(
-        "flex min-h-[56px] w-full items-center gap-3 px-4 py-3 transition-colors active:bg-accent/50",
-        onClick && "cursor-pointer",
-        className,
-      )}
-    >
-      <div className="flex size-7 items-center justify-center text-foreground/70">
-        <Icon size={20} strokeWidth={2} />
-      </div>
-      <span className="flex-1 text-[16px] font-medium tracking-tight text-foreground">
-        {label}
-      </span>
-      <div className="flex items-center gap-2">
-        {children}
-        {showChevron && !children && (
-          <ChevronRight size={18} className="text-muted-foreground/50" />
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/30 md:rounded-2xl md:border md:border-border">
