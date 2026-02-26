@@ -371,6 +371,18 @@ export const leaveConversation = async (
   if (error) throw error;
 };
 
+export const removeParticipant = async (
+  conversationId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await (supabase.from("conversation_participants") as any)
+    .delete()
+    .eq("conversation_id", conversationId)
+    .eq("user_id", userId);
+
+  if (error) throw error;
+};
+
 export const deleteMessage = async (messageId: string): Promise<void> => {
   const { data: message } = await (supabase
     .from("messages")
@@ -393,7 +405,12 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
 
 export const fetchConversationParticipants = async (
   conversationId: string,
+  page: number = 1,
+  limit: number = 50,
 ): Promise<any[]> => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
   const { data, error } = await (supabase
     .from("conversation_participants")
     .select(
@@ -406,7 +423,8 @@ export const fetchConversationParticipants = async (
             )
         `,
     )
-    .eq("conversation_id", conversationId) as any);
+    .eq("conversation_id", conversationId)
+    .range(from, to) as any);
 
   if (error) throw error;
   return (data || []).map((p: any) => p.user);

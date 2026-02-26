@@ -465,16 +465,7 @@ const CreatePost: React.FC = () => {
                   value={selectedCommunity?.id || "none"}
                 >
                   <SelectTrigger className="h-7 px-3 py-0 border-none bg-neutral-100 dark:bg-neutral-900 text-[12px] font-bold rounded-full w-auto gap-1.5 focus:ring-0 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
-                    {selectedCommunity ? (
-                      <Avatar className="w-4 h-4 mr-0.5">
-                        <AvatarImage src={selectedCommunity.avatar} />
-                        <AvatarFallback className="text-[8px]">
-                          {selectedCommunity.name?.[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <Users size={12} className="text-neutral-500" />
-                    )}
+                    {!selectedCommunity && <Users size={12} className="text-neutral-500" />}
                     <SelectValue placeholder="Anyone" />
                   </SelectTrigger>
                   <SelectContent

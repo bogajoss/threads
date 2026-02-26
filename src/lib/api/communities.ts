@@ -3,12 +3,52 @@ import { transformPost, transformCommunity } from "@/lib/transformers";
 import type { Community, Post } from "@/types/index";
 import { deleteFileFromUrl } from "./storage";
 
+export const fetchExploreCommunities = async (
+  page: number = 1,
+): Promise<Community[]> => {
+  const topLimit = 5;
+  const randomLimit = 5;
+  const offset = (page - 1) * topLimit;
+
+  // 1. Fetch top communities by member count
+  const { data: topData, error: topError } = await (supabase.from("communities") as any)
+    .select("*")
+    .order("members_count", { ascending: false })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + topLimit - 1);
+
+  if (topError) throw topError;
+
+  const topCommunities = (topData || []).map(transformCommunity).filter(Boolean) as Community[];
+
+  // 2. Fetch random communities
+  // Supabase doesn't have a direct 'order by random' without custom functions,
+  // so we'll fetch some recent ones and shuffle, or use a seed if available.
+  // For simplicity and efficiency, we fetch from a larger pool and shuffle.
+  const { data: randomData, error: randomError } = await (supabase.from("communities") as any)
+    .select("*")
+    .limit(50); // Fetch a pool to randomize from
+
+  if (randomError) throw randomError;
+
+  let allRandom = (randomData || [])
+    .map(transformCommunity)
+    .filter((c: any) => c && !topCommunities.find(tc => tc.id === c.id)) as Community[];
+  
+  // Simple shuffle
+  allRandom = allRandom.sort(() => Math.random() - 0.5).slice(0, randomLimit);
+
+  // Combine and return
+  return [...topCommunities, ...allRandom];
+};
+
 export const fetchCommunities = async (
   lastTimestamp: string | null = null,
   limit: number = 10,
 ): Promise<Community[]> => {
   let query = (supabase.from("communities") as any)
     .select("*")
+    .order("members_count", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
 

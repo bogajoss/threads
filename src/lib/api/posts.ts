@@ -618,6 +618,84 @@ export const searchPosts = async (
   return (data || []).map(transformPost).filter((p): p is Post => p !== null);
 };
 
+export const fetchExplorePosts = async (
+  page: number = 1,
+): Promise<Post[]> => {
+  const topLimit = 5;
+  const randomLimit = 5;
+  const offset = (page - 1) * topLimit;
+
+  // 1. Fetch top posts based on views
+  const { data: topData, error: topError } = await supabase
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                role,
+                roles,
+                is_pro
+            ),
+            communities (
+                id,
+                handle,
+                name,
+                avatar_url
+            )
+        `,
+    )
+    .neq("type", "reel")
+    .order("views_count", { ascending: false })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + topLimit - 1);
+
+  if (topError) throw topError;
+  const topPosts = (topData || []).map(transformPost).filter(Boolean) as Post[];
+
+  // 2. Fetch random posts
+  // We fetch a pool and shuffle
+  const { data: randomData, error: randomError } = await supabase
+    .from("posts")
+    .select(
+      `
+            *,
+            user:users!user_id (
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                role,
+                roles,
+                is_pro
+            ),
+            communities (
+                id,
+                handle,
+                name,
+                avatar_url
+            )
+        `,
+    )
+    .neq("type", "reel")
+    .limit(50);
+
+  if (randomError) throw randomError;
+
+  let allRandom = (randomData || [])
+    .map(transformPost)
+    .filter((p: any) => p && !topPosts.find(tp => tp.id === p.id)) as Post[];
+  
+  allRandom = allRandom.sort(() => Math.random() - 0.5).slice(0, randomLimit);
+
+  return [...topPosts, ...allRandom];
+};
+
 export const fetchCommunityExplorePosts = async (
   lastTimestamp: string | null = null,
   limit: number = POSTS_PER_PAGE,

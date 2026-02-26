@@ -19,6 +19,7 @@ import {
 import { useCommunity } from "@/hooks/pages/useCommunity";
 import { SkeletonPost } from "@/components/ui";
 import ProfileSkeleton from "@/components/features/profile/skeleton-profile";
+import { cn } from "@/lib/utils";
 
 interface CommunityProps {
   onPostInCommunity: (community: any) => void;
@@ -137,12 +138,24 @@ const Community: React.FC<CommunityProps> = ({ onPostInCommunity }) => {
                   variant={isMember ? "outline" : "primary"}
                   onClick={handleJoinToggle}
                   loading={isJoining}
-                  className={`flex h-10 items-center justify-center gap-2 rounded-full px-4 font-bold transition-all ${isMember ? "border-zinc-200 hover:border-rose-100 hover:bg-rose-50 hover:text-rose-500 dark:border-zinc-800 dark:hover:bg-rose-900/20" : "bg-zinc-950 text-white hover:scale-105 dark:bg-white dark:text-zinc-950"}`}
+                  className={cn(
+                    "flex h-10 items-center justify-center gap-2 rounded-full px-4 font-bold transition-all",
+                    isMember 
+                      ? "group/join border-zinc-200 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-800 dark:hover:bg-rose-900/20 dark:hover:border-rose-900/30" 
+                      : "bg-zinc-950 text-white hover:scale-105 dark:bg-white dark:text-zinc-950"
+                  )}
                 >
                   {isMember ? (
                     <>
-                      <FollowingIcon size={18} />
-                      <span className="hidden sm:inline">Joined</span>
+                      <div className="relative h-5 w-auto flex items-center justify-center">
+                        <span className="group-hover/join:opacity-0 transition-opacity duration-200 flex items-center gap-2">
+                          <FollowingIcon size={18} />
+                          <span className="hidden sm:inline">Joined</span>
+                        </span>
+                        <span className="absolute inset-0 opacity-0 group-hover/join:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                          Leave
+                        </span>
+                      </div>
                     </>
                   ) : (
                     <>

@@ -3,9 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import {
-  fetchCommunities,
+  fetchExploreCommunities,
+  fetchExplorePosts,
   searchPosts,
-  fetchCommunityExplorePosts,
   searchUsers,
 } from "@/lib/api";
 import type { Community } from "@/types";
@@ -56,11 +56,11 @@ export const useExplore = () => {
     isLoading: isCommunitiesLoading,
   } = useInfiniteQuery({
     queryKey: ["explore", "communities"],
-    queryFn: ({ pageParam }) => fetchCommunities(pageParam, 10),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => {
+    queryFn: ({ pageParam }) => fetchExploreCommunities(pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
       if (!lastPage || lastPage.length < 10) return undefined;
-      return lastPage[lastPage.length - 1].createdAt;
+      return allPages.length + 1;
     },
   });
 
@@ -81,14 +81,14 @@ export const useExplore = () => {
     queryKey: ["explore", "posts", searchQuery],
     queryFn: ({ pageParam }) => {
       if (searchQuery) {
-        return searchPosts(searchQuery, pageParam, 20, false);
+        return searchPosts(searchQuery, null, 20, false);
       }
-      return fetchCommunityExplorePosts(pageParam, 20);
+      return fetchExplorePosts(pageParam as number);
     },
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 20) return undefined;
-      return lastPage[lastPage.length - 1].sort_timestamp;
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length < 10) return undefined;
+      return allPages.length + 1;
     },
   });
 

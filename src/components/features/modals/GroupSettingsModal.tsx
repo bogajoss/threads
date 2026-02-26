@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   LogOut,
   Trash2,
+  UserMinus,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
@@ -23,9 +24,10 @@ import {
   leaveConversation,
   fetchConversationParticipants,
   updateConversation,
+  removeParticipant,
 } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 interface GroupSettingsModalProps {
@@ -55,12 +57,25 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isCreator = currentUser?.id === conversation.creatorId;
 
-  const { data: participants = [], isLoading: loadingParts } = useQuery({
+  const { 
+    data: participantsData, 
+    isLoading: loadingParts, 
+    fetchNextPage: loadMoreParticipants, 
+    hasNextPage: hasMoreParticipants, 
+    isFetchingNextPage: isFetchingMoreParticipants 
+  } = useInfiniteQuery({
     queryKey: ["conversation-participants", conversation.id],
-    queryFn: () => fetchConversationParticipants(conversation.id),
+    queryFn: ({ pageParam = 1 }) => fetchConversationParticipants(conversation.id, pageParam as number, 50),
     enabled: isOpen && !!conversation.id,
-    staleTime: 1000 * 60,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === 50 ? allPages.length + 1 : undefined;
+    },
   });
+
+  const participants = React.useMemo(() => {
+    return participantsData?.pages.flatMap(page => page) || [];
+  }, [participantsData]);
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => updateConversation(conversation.id, data),
@@ -88,6 +103,17 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
       setSearchResults([]);
     },
     onError: () => addToast("Failed to add member", "error"),
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (userId: string) => removeParticipant(conversation.id, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["conversation-participants", conversation.id],
+      });
+      addToast("Member removed from group");
+    },
+    onError: () => addToast("Failed to remove member", "error"),
   });
 
   const leaveMutation = useMutation({
@@ -180,6 +206,13 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
     )
       return;
     deleteMutation.mutate();
+  };
+
+  const handleRemoveMember = (userId: string, userName: string) => {
+    if (!isCreator) return;
+    if (window.confirm(`Remove ${userName} from this group?`)) {
+      removeMemberMutation.mutate(userId);
+    }
   };
 
   return (
@@ -363,6 +396,16 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                       @{user.username}
                     </div>
                   </div>
+                  {isCreator && user.id !== currentUser?.id && (
+                    <button
+                      onClick={() => handleRemoveMember(user.id, user.display_name)}
+                      disabled={removeMemberMutation.isPending}
+                      className="rounded-full p-2 text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-500 dark:hover:bg-rose-900/20 active:scale-90"
+                      title="Remove Member"
+                    >
+                      <UserMinus size={18} />
+                    </button>
+                  )}
                   {user.id === currentUser?.id && (
                     <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[9px] font-black text-zinc-500 dark:bg-zinc-800">
                       YOU
@@ -371,6 +414,17 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                 </div>
               ))
             )}
+            {hasMoreParticipants && (
+              <div className="flex justify-center p-4">
+                <button
+                  onClick={() => loadMoreParticipants()}
+                  disabled={isFetchingMoreParticipants}
+                  className="text-[13px] font-bold text-violet-600 hover:text-violet-700 disabled:opacity-50"
+                >
+                  {isFetchingMoreParticipants ? "Loading..." : "Load More Members"}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Action buttons */}
@@ -378,7 +432,7 @@ const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
             <button
               onClick={handleLeaveGroup}
               disabled={leaveMutation.isPending}
-              className="flex h-14 w-full items-center justify-center text-[17px] font-semibold text-zinc-700 transition-colors active:bg-black/5 dark:text-zinc-200 dark:active:bg-white/5"
+              className="flex h-14 w-full items-center justify-center text-[17px] font-semibold text-rose-600 transition-colors active:bg-rose-500/10 dark:text-rose-500 dark:active:bg-rose-500/20"
             >
               <LogOut size={18} className="mr-2" />
               Leave Group

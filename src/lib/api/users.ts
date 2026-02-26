@@ -24,6 +24,8 @@ export const fetchProfiles = async (
   let query = supabase
     .from("users")
     .select("*")
+    .order("is_verified", { ascending: false })
+    .order("follower_count", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
 

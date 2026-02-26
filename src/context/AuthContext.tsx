@@ -193,6 +193,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (error) throw error;
   }, []);
 
+  const autoJoinGlobalInbox = useCallback(async (userId: string) => {
+    const GLOBAL_INBOX_ID = "84fa6f5b-10ce-42bf-8a16-fa59b1ceb039";
+    try {
+      // Check if already a participant in the messaging group
+      const { data: existing } = await supabase
+        .from("conversation_participants")
+        .select("user_id")
+        .eq("conversation_id", GLOBAL_INBOX_ID)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("conversation_participants").insert([
+          {
+            conversation_id: GLOBAL_INBOX_ID,
+            user_id: userId,
+          },
+        ]);
+        console.log("User auto-joined global inbox group");
+      }
+    } catch (err) {
+      console.error("Failed to auto-join global inbox group:", err);
+    }
+  }, []);
+
   const verifyOtp = useCallback(
     async (email: string, token: string, type: "signup" | "recovery") => {
       const { data, error } = await supabase.auth.verifyOtp({
@@ -201,9 +226,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type,
       });
       if (error) throw error;
+
+      // If it's a signup verification, auto-join the global messaging group
+      if (type === "signup" && data?.user?.id) {
+        await autoJoinGlobalInbox(data.user.id);
+      }
+
       return data;
     },
-    [],
+    [autoJoinGlobalInbox],
   );
 
   const handleUpdateProfile = useCallback(
