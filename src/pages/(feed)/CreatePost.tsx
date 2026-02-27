@@ -774,7 +774,7 @@ const CreatePost: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] sticky bottom-0 z-20">
+      <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] fixed bottom-0 left-0 right-0 z-20 md:sticky">
         <Select value={replySetting} onValueChange={setReplySetting}>
           <SelectTrigger className="border-none bg-transparent p-0 h-auto w-auto text-neutral-500 text-[14px] font-semibold hover:text-[--foreground] transition-colors gap-1.5 focus:ring-0">
             {replySetting === "anyone" && <Globe size={14} />}

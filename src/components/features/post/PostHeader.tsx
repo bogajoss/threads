@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { VerifiedIcon, AdminIcon, ProIcon, ChevronTagIcon } from "@/components/ui";
+import { VerifiedIcon, AdminIcon, ProIcon } from "@/components/ui";
 import type { User, CommunityShort } from "@/types";
 
 interface PostHeaderProps {
@@ -98,10 +98,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
 
               {community && (
                 <div className="flex min-w-0 items-center gap-1 text-zinc-500">
-                  <ChevronTagIcon
-                    size={isDetail ? 14 : 12}
-                    className="shrink-0 text-zinc-400"
-                  />
+                  <span className="text-zinc-400">›</span>
                   <button
                     className={`flex items-center gap-1 font-bold text-zinc-900 hover:underline dark:text-zinc-100 ${
                       isDetail ? "text-[14px] sm:text-[15px]" : "text-[13px]"
