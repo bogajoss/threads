@@ -178,12 +178,22 @@ const EditProfile: React.FC = () => {
 
       const cleanedWebsite = sanitizeWebsite(editProfileData?.website);
 
-      await updateProfile({
-        ...editProfileData,
-        avatar: avatarUrl,
-        cover: coverUrl,
+      const updatePayload: any = {
+        name: editProfileData.name,
+        bio: editProfileData.bio,
+        location: editProfileData.location,
         website: cleanedWebsite,
-      });
+      };
+
+      if (avatarUrl && avatarUrl !== "/default-avatar.webp") {
+        updatePayload.avatar = avatarUrl;
+      }
+
+      if (coverUrl && coverUrl !== "/welcome-banner.webp") {
+        updatePayload.cover = coverUrl;
+      }
+
+      await updateProfile(updatePayload);
 
       if (draftStorageKey) {
         sessionStorage.removeItem(draftStorageKey);
