@@ -107,21 +107,76 @@ export const fetchPostsByUserId = async (
   limit: number = POSTS_PER_PAGE,
   type: string | null = null,
 ): Promise<Post[]> => {
+  // Normalize type: 'posts' means null (non-reel posts)
+  const normalizedType = type === 'posts' ? null : type;
+  
+  // Try the RPC first
   const { data, error } = await supabase.rpc("get_profile_feed", {
     target_user_id: userId,
     limit_val: limit,
     last_item_time: lastTimestamp || undefined,
-    p_type: type || undefined,
+    filter_mode: normalizedType,
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error("RPC get_profile_feed failed:", error);
+    // Fallback to direct query if RPC fails
+    let query = supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        user:users!user_id (
+          id,
+          username,
+          display_name,
+          avatar_url,
+          is_verified,
+          bio,
+          follower_count,
+          following_count,
+          role,
+          roles,
+          is_pro
+        ),
+        communities (
+          id,
+          handle,
+          name,
+          avatar_url
+        )
+      `,
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (normalizedType === 'reel') {
+      query = query.eq("type", "reel");
+    } else if (normalizedType === 'all') {
+      // No type filter
+    } else {
+      // Default: exclude reels
+      query = query.neq("type", "reel");
+    }
+
+    if (lastTimestamp) {
+      query = query.lt("created_at", lastTimestamp);
+    }
+
+    const { data: fallbackData, error: fallbackError } = await query;
+
+    if (fallbackError) throw fallbackError;
+    return (fallbackData || [])
+      .map((p: any) => transformPost(p))
+      .filter((p): p is Post => p !== null);
+  }
+
   return (data || [])
     .map((p: any) =>
       transformPost({
         ...p,
         // RPC returns flat structure, transformPost handles it if we map clearly
-        // transformPost might need "user" object or "author_data"
-        // The RPC returns "author_data" jsonb which transformPost supports (lines 48: post.author_data || post.user)
       }),
     )
     .filter((p): p is Post => p !== null);

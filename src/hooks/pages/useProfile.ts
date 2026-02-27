@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +27,7 @@ export const useProfile = () => {
     hasNextPage: hasMorePosts,
     isFetchingNextPage: isFetchingMorePosts,
     isLoading: loadingPosts,
+    refetch: refetchPosts,
   } = useInfiniteQuery({
     queryKey: ["posts", "user", profile?.id, activeProfileTab],
     queryFn: ({ pageParam }) =>
@@ -40,12 +41,17 @@ export const useProfile = () => {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < 20) return undefined;
-      return (
-        lastPage[lastPage.length - 1].sort_timestamp ||
-        lastPage[lastPage.length - 1].created_at
-      );
+      const lastPost = lastPage[lastPage.length - 1];
+      return lastPost.sort_timestamp || lastPost.created_at;
     },
   });
+
+  // Refetch posts when tab changes to get fresh data for that tab
+  useEffect(() => {
+    if (profile?.id) {
+      refetchPosts();
+    }
+  }, [activeProfileTab, profile?.id, refetchPosts]);
 
   const userPosts = useMemo(() => {
     return postsData?.pages.flatMap((page) => page) || [];
@@ -70,14 +76,14 @@ export const useProfile = () => {
   };
 
   const filteredPosts = useMemo(() => {
-    // Since we now filter at the RPC level for Reels vs Posts,
-    // we just need to handle the community/parent filtering for the main feed
+    // The RPC already filters by type (reel vs posts)
+    // For feed tab, we filter out community posts and replies (show only original posts)
     if (activeProfileTab === "feed") {
       return userPosts.filter(
-        (p) => p.community_id === null && p.parent_id === null,
+        (p) => !p.community_id && !p.parent_id,
       );
     }
-    // Reels are already filtered by the RPC
+    // For reels tab, RPC already returns only reels
     return userPosts;
   }, [userPosts, activeProfileTab]);
 

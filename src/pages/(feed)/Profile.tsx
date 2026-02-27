@@ -113,7 +113,7 @@ const Profile: React.FC = () => {
               <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/20 px-2.5 py-1 backdrop-blur-md">
                 <Play size={12} fill="white" className="text-white" />
                 <span className="text-xs font-bold text-white">
-                  {reel.stats?.views || 0}
+                  {reel.stats?.views ?? 0}
                 </span>
               </div>
               <StoryAuthor className="p-3">
@@ -123,7 +123,7 @@ const Profile: React.FC = () => {
                   className="size-6"
                 />
                 <StoryAuthorName className="text-xs">
-                  {reel.user?.handle}
+                  {reel.user?.name || reel.user?.handle}
                 </StoryAuthorName>
               </StoryAuthor>
             </div>
