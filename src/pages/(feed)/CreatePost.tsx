@@ -412,9 +412,9 @@ const CreatePost: React.FC = () => {
   const showWarning = postContent.length > MAX_CHARS - 20;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[--background] text-[--foreground] md:rounded-xl">
+    <div className="flex flex-col h-screen bg-[--background] text-[--foreground] md:rounded-xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border] rounded-t-xl">
+      <div className="flex items-center justify-between px-6 py-4 bg-[--background]/90 backdrop-blur-xl z-20 border-b border-[--border] rounded-t-xl shrink-0">
         <button
           onClick={() => navigate(-1)}
           className="text-[15px] font-medium text-neutral-500 hover:text-[--foreground] transition-colors"
@@ -433,7 +433,7 @@ const CreatePost: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="flex px-6 pt-6 pb-20">
+        <div className="flex px-6 pt-6">
           {/* Left Column (Avatar) */}
           <div className="flex flex-col items-center mr-4 pt-1">
             <Avatar className="w-10 h-10 border-[3px] border-[--background] ring-1 ring-[--border]">
@@ -774,7 +774,7 @@ const CreatePost: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] fixed bottom-0 left-0 right-0 z-20 md:sticky">
+      <div className="flex items-center justify-between px-6 py-5 bg-[--background] border-t border-[--border] z-20 shrink-0">
         <Select value={replySetting} onValueChange={setReplySetting}>
           <SelectTrigger className="border-none bg-transparent p-0 h-auto w-auto text-neutral-500 text-[14px] font-semibold hover:text-[--foreground] transition-colors gap-1.5 focus:ring-0">
             {replySetting === "anyone" && <Globe size={14} />}
