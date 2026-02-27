@@ -71,8 +71,10 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
     }, [reel.media, reel.url]);
 
     useEffect(() => {
+      // Only reset states if the video URL has changed to avoid flickering
       setIsVideoLoaded(false);
       setHasPlayedOnce(false);
+      
       const player = playerRef.current?.plyr;
 
       if (player && typeof player.on === "function") {
@@ -86,7 +88,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
         // Safety timeout to hide skeleton if events don't fire
         const safetyTimeout = setTimeout(() => {
-          if (!hasPlayedOnce && isActive) setHasPlayedOnce(true);
+          if (isActive) setHasPlayedOnce(true);
         }, 3000);
 
         return () => {
@@ -106,7 +108,7 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         }, 1500);
         return () => clearTimeout(timer);
       }
-    }, [videoUrl, isActive, hasPlayedOnce]);
+    }, [videoUrl]); // Only trigger on video URL change, NOT on isActive or hasPlayedOnce
 
     // Ref to track the pending play timeout so we can cancel it
     const playTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -220,10 +222,17 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
 
       const checkStatus = async () => {
         try {
-          const [liked, following] = await Promise.all([
-            checkIfLiked(currentUser.id, reel.id),
-            checkIfFollowing(currentUser.id, reel.user?.id),
-          ]);
+          if (!reel.id || reel.id.toString().startsWith("temp-")) return;
+          
+          const promises: Promise<any>[] = [checkIfLiked(currentUser.id, reel.id)];
+          
+          if (reel.user?.id && reel.user.id !== "undefined") {
+            promises.push(checkIfFollowing(currentUser.id, reel.user.id));
+          } else {
+            promises.push(Promise.resolve(false));
+          }
+
+          const [liked, following] = await Promise.all(promises);
           setIsLiked(liked);
           setIsFollowing(following);
         } catch (err) {

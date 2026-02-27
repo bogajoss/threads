@@ -173,7 +173,7 @@ export const checkIfFollowing = async (
   followerId: string,
   followingId: string,
 ): Promise<boolean> => {
-  if (!followerId) return false;
+  if (!followerId || !followingId || followingId === "undefined") return false;
   const { data } = await supabase
     .from("follows")
     .select("*")

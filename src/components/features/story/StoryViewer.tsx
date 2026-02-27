@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -49,8 +49,31 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const opacity = useTransform(dragY, [0, 200], [1, 0.5]);
   const scale = useTransform(dragY, [0, 200], [1, 0.9]);
 
+  const [videoDuration, setVideoDuration] = useState(5000); // Default 5s
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const stories = storyGroup.stories;
   const currentStory = stories[currentIndex];
+  const isVideo = currentStory.media.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || currentStory.media.includes("video");
+
+  useEffect(() => {
+    setVideoDuration(5000); // Reset for each story
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (isVideo && videoRef.current) {
+      if (isPaused) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  }, [isPaused, isVideo, currentIndex]);
+
+  const handleVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const duration = e.currentTarget.duration * 1000;
+    if (duration > 0) setVideoDuration(duration);
+  };
 
   useEffect(() => {
     if (currentStory && !seenInSession.has(currentStory.id)) {
@@ -85,7 +108,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       setCurrentIndex((prev) => prev + 1);
       setProgress(0);
     } else {
-      onClose(storyGroup.user.id);
+      // Use setTimeout to avoid "Cannot update a component while rendering a different component"
+      setTimeout(() => onClose(storyGroup.user.id), 0);
     }
   }, [currentIndex, stories.length, onClose, storyGroup.user.id]);
 
@@ -104,24 +128,27 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   useEffect(() => {
     if (isPaused) return;
 
+    const step = 50;
+    const increment = (step / videoDuration) * 100;
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           handleNext();
           return 100;
         }
-        return prev + 1;
+        return prev + increment;
       });
-    }, 50);
+    }, step);
     return () => clearInterval(timer);
-  }, [handleNext, currentIndex, isPaused]);
+  }, [handleNext, currentIndex, isPaused, videoDuration]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={() => onClose(storyGroup.user.id)}
+      onClick={() => setTimeout(() => onClose(storyGroup.user.id), 0)}
       className="fixed inset-0 z-[9999] bg-black/90"
     >
       <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
@@ -185,7 +212,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onClose(storyGroup.user.id);
+              setTimeout(() => onClose(storyGroup.user.id), 0);
             }}
             className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
           >
@@ -201,7 +228,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         style={{ y: dragY, opacity, scale }}
         onDragEnd={(_, info) => {
           if (info.offset.y > 100 || info.velocity.y > 500) {
-            onClose(storyGroup.user.id);
+            setTimeout(() => onClose(storyGroup.user.id), 0);
           }
         }}
         onClick={(e) => e.stopPropagation()}
@@ -216,11 +243,23 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="relative flex h-full w-full items-center justify-center"
           >
-            <img
-              src={currentStory.media}
-              className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
-              alt=""
-            />
+            {isVideo ? (
+              <video
+                ref={videoRef}
+                src={currentStory.media}
+                onLoadedMetadata={handleVideoMetadata}
+                className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
+                playsInline
+                autoPlay
+                muted
+              />
+            ) : (
+              <img
+                src={currentStory.media}
+                className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
+                alt=""
+              />
+            )}
             {currentStory.content && (
               <div className="absolute bottom-16 left-0 right-0 px-8 pb-4 z-30">
                 <div className="bg-black/40 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 shadow-lg">

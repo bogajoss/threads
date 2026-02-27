@@ -246,29 +246,28 @@ const Reels = () => {
       <div
         ref={containerRef}
         className="no-scrollbar h-full w-full snap-y snap-mandatory overflow-y-auto"
-        key={activeReelId || "reels-container"}
       >
-        {reels.map((reel: any) => (
-          <div
-            key={reel.feed_id || reel.id}
-            ref={(el) => setReelRef(reel.id, el)}
-            data-id={reel.id}
-            className="snap-start snap-always h-full w-full"
-          >
-            <ReelItem
-              reel={reel}
-              isActive={activeReelId === reel.id}
-              volume={volume}
-              shouldLoad={
-                // Load current, previous, and next videos
-                Math.abs(
-                  reels.findIndex((r: any) => r.id === activeReelId) -
-                  reels.findIndex((r: any) => r.id === reel.id),
-                ) <= 1
-              }
-            />
-          </div>
-        ))}
+        {(() => {
+          const activeIndex = reels.findIndex((r: any) => r.id === activeReelId);
+          return reels.map((reel: any, index: number) => (
+            <div
+              key={reel.feed_id || reel.id}
+              ref={(el) => setReelRef(reel.id, el)}
+              data-id={reel.id}
+              className="snap-start snap-always h-full w-full"
+            >
+              <ReelItem
+                reel={reel}
+                isActive={activeReelId === reel.id}
+                volume={volume}
+                shouldLoad={
+                  // Load current, previous, and next videos
+                  activeIndex === -1 || Math.abs(activeIndex - index) <= 1
+                }
+              />
+            </div>
+          ));
+        })()}
         {loadingMore && (
           <div className="flex h-[100dvh] w-full snap-start items-center justify-center bg-black">
             <SkeletonReel />

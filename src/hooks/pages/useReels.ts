@@ -60,11 +60,13 @@ export const useReels = () => {
     }
   }
 
+  const hasScrolledToTarget = useRef(false);
   useEffect(() => {
-    if (reels.length > 0 && targetId) {
+    if (reels.length > 0 && targetId && !hasScrolledToTarget.current) {
       const element = reelRefs.current.get(targetId);
       if (element) {
         element.scrollIntoView({ behavior: "instant" });
+        hasScrolledToTarget.current = true;
       }
     }
   }, [reels.length, targetId]);
@@ -116,8 +118,6 @@ export const useReels = () => {
 
     return () => {
       observer.disconnect();
-      // Clear active reel when observer is disconnected (page unmount)
-      setActiveReelId(null);
     };
   }, [reels.length]);
 
