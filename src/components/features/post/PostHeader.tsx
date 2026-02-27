@@ -63,8 +63,8 @@ const PostHeader: React.FC<PostHeaderProps> = ({
           </button>
         )}
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex flex-wrap items-center gap-x-1.5 leading-none">
-            <div className="flex min-w-0 max-w-full items-center gap-1.5">
+          <div className="flex flex-wrap items-start gap-x-1.5 leading-none sm:items-center">
+            <div className="flex min-w-0 max-w-full flex-col gap-y-1 sm:flex-row sm:items-center sm:gap-x-1.5">
               <button
                 className={`flex shrink-0 items-center gap-1 font-bold text-zinc-900 hover:underline dark:text-white ${
                   isDetail
