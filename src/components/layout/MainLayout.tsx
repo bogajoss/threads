@@ -22,7 +22,8 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
     location.pathname === "/settings" ||
     location.pathname === "/edit-profile" ||
     (location.pathname.startsWith("/m") &&
-      location.pathname.split("/").length > 2);
+      (location.pathname.split("/").length > 2 ||
+        location.search.includes("with")));
 
   return (
     <div

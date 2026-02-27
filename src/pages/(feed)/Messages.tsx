@@ -61,7 +61,7 @@ const Messages: React.FC = () => {
 
   return (
     <div
-      className={`flex ${id ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} w-full max-w-full box-border overscroll-none overflow-x-hidden overflow-y-hidden bg-white shadow-2xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-[#0f0f0f] dark:shadow-none md:h-[calc(100vh-1.5rem)] md:rounded-3xl md:border md:border-zinc-200/50`}
+      className={`flex ${selectedConversation ? "h-[100dvh]" : "h-[calc(100dvh-4rem)]"} w-full max-w-full box-border overscroll-none overflow-x-hidden overflow-y-hidden bg-white shadow-2xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-[#0f0f0f] dark:shadow-none md:h-[calc(100vh-1.5rem)] md:rounded-3xl md:border md:border-zinc-200/50`}
     >
       <div
         className={`flex-col md:flex md:w-[420px] ${selectedConversation ? "hidden" : "flex"} h-full min-h-0 min-w-0 flex-1 md:flex-none bg-white dark:bg-[#0f0f0f] border-r border-zinc-100 dark:border-zinc-800 z-10`}

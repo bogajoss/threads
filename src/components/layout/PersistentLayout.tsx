@@ -9,7 +9,6 @@ const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
-const EditProfile = lazy(() => import("@/pages/(feed)/EditProfile"));
 
 interface PersistentLayoutProps {
   onStoryClick?: (story: any) => void;
@@ -21,8 +20,7 @@ type PersistentTabKey =
   | "reels"
   | "messages"
   | "notifications"
-  | "create"
-  | "editProfile";
+  | "create";
 
 const normalizePath = (pathname: string): string =>
   pathname.length > 1 && pathname.endsWith("/")
@@ -38,7 +36,6 @@ const getPersistentTabKey = (pathname: string): PersistentTabKey | null => {
   if (path === "/m") return "messages";
   if (path === "/notifications") return "notifications";
   if (path === "/create") return "create";
-  if (path === "/edit-profile") return "editProfile";
 
   return null;
 };
@@ -177,17 +174,6 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
           <Suspense fallback={null}>
             <PageTransition mode="none">
               <CreatePost />
-            </PageTransition>
-          </Suspense>
-        </div>
-      )}
-
-      {/* EDIT PROFILE */}
-      {visitedPages.has("editProfile") && (
-        <div className={activeTabKey === "editProfile" ? "block min-h-[100dvh]" : "hidden"}>
-          <Suspense fallback={null}>
-            <PageTransition mode="none">
-              <EditProfile />
             </PageTransition>
           </Suspense>
         </div>
