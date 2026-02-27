@@ -228,7 +228,8 @@ const ChatWindow = ({
 
           {messages.map((msg, i) => {
             const isMe = msg.sender === "me" || msg.sender_id === currentUser.id;
-            const isLastInGroup = i === messages.length - 1 || messages[i + 1]?.sender !== msg.sender;
+            const isLastInGroup = i === messages.length - 1 || (messages[i + 1]?.senderId || messages[i + 1]?.sender_id) !== (msg.senderId || msg.sender_id);
+            const isFirstInGroup = i === 0 || (messages[i - 1]?.senderId || messages[i - 1]?.sender_id) !== (msg.senderId || msg.sender_id);
             const showAvatar = !isMe && isLastInGroup;
 
             return (
@@ -237,6 +238,8 @@ const ChatWindow = ({
                 message={msg}
                 isMe={isMe}
                 isLastInGroup={isLastInGroup}
+                isFirstInGroup={isFirstInGroup}
+                isGroup={conversation.isGroup}
                 showAvatar={showAvatar}
                 onReply={setReplyingTo}
                 onEdit={isMe ? () => setEditingMessage(msg) : undefined}

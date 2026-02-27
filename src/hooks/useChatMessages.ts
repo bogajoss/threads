@@ -19,6 +19,7 @@ import { useToast } from "@/context/ToastContext";
 interface FormattedMessage {
   id: string;
   sender: "me" | "them";
+  senderId: string;
   senderAvatar?: string;
   senderName?: string;
   text: string;
@@ -78,6 +79,7 @@ export const useChatMessages = (
         return {
           id: m.id,
           sender: m.sender_id === currentUser?.id ? "me" : "them",
+          senderId: m.sender_id,
           senderAvatar: m.sender?.avatar,
           senderName: m.sender?.name,
           text: m.content || "",

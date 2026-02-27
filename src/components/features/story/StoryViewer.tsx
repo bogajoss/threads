@@ -57,7 +57,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const isVideo = currentStory.media.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || currentStory.media.includes("video");
 
   useEffect(() => {
-    setVideoDuration(5000); // Reset for each story
+    // Reset video duration for each story using a timeout or microtask to avoid 
+    // "Calling setState synchronously within an effect" warning
+    const t = setTimeout(() => setVideoDuration(5000), 0);
+    return () => clearTimeout(t);
   }, [currentIndex]);
 
   useEffect(() => {

@@ -15,6 +15,8 @@ interface MessageProps {
   message: any;
   isMe: boolean;
   isLastInGroup: boolean;
+  isFirstInGroup?: boolean;
+  isGroup?: boolean;
   showAvatar: boolean;
   onReply: (msg: any) => void;
   onEdit?: (msg: any) => void;
@@ -26,6 +28,8 @@ const Message = ({
   message,
   isMe,
   isLastInGroup,
+  isFirstInGroup,
+  isGroup,
   showAvatar,
   onReply,
   onEdit,
@@ -134,6 +138,11 @@ const Message = ({
         )}
 
         <div className={cn("flex flex-col min-w-0", isMe ? "items-end" : "items-start")}>
+          {!isMe && isGroup && isFirstInGroup && (
+            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 ml-1 mb-0.5">
+              {message.senderName}
+            </span>
+          )}
           {/* Reply Preview */}
           {message.replyTo && (
             <div
