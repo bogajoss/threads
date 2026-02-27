@@ -256,15 +256,17 @@
   html {
     @apply scrollbar-hide;
     scroll-behavior: smooth;
-    font-size: var(--app-font-size, 14px);
+    font-size: 14px;
   }
 
   body {
     @apply bg-background text-foreground scrollbar-hide;
   }
 
-  @media (min-width: 1024px) {
-    html {}
+  @media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
   }
 }
 
