@@ -58,7 +58,7 @@ const UserManagement: React.FC = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   const filteredUsers = useMemo(() => {
-    let result = (users.data || []).filter((user: any) => {
+    const result = (users.data || []).filter((user: any) => {
       if (!user) return false;
 
       const matchesSearch =

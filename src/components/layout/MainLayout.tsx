@@ -7,7 +7,7 @@ import FeedHeader from "./FeedHeader";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
-interface MainLayoutProps {}
+type MainLayoutProps = Record<string, never>;
 
 const MainLayout: React.FC<MainLayoutProps> = () => {
   const location = useLocation();

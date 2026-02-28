@@ -2,6 +2,26 @@ import { supabase } from "@/lib/supabase";
 import { transformStory } from "@/lib/transformers";
 import type { Story } from "@/types/index";
 
+export const fetchRandomStories = async (limit: number = 9): Promise<Story[]> => {
+  const { data, error } = await (supabase.rpc as any)("get_random_stories", {
+    limit_count: limit,
+  });
+
+  if (error) {
+    console.error("Error fetching random stories:", error);
+    throw error;
+  }
+
+  return (data || [])
+    .map((story: any) =>
+      transformStory({
+        ...story,
+        user: story.user_data,
+      }),
+    )
+    .filter((s: Story | null): s is Story => s !== null);
+};
+
 export const fetchStories = async (
   lastTimestamp: string | null = null,
   limit: number = 10,
@@ -31,7 +51,7 @@ export const fetchStories = async (
   const { data, error } = await query;
 
   if (error) throw error;
-  return (data || []).map(transformStory).filter((s): s is Story => s !== null);
+  return (data || []).map(transformStory).filter((s: Story | null): s is Story => s !== null);
 };
 
 export const addStory = async (

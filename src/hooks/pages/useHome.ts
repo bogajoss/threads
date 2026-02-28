@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostContext";
 import { useToast } from "@/context/ToastContext";
-import { fetchStories } from "@/lib/api";
+import { fetchRandomStories } from "@/lib/api";
 import type { Story } from "@/types";
 
 export const useHome = () => {
@@ -20,19 +20,14 @@ export const useHome = () => {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const { data: storiesData, isLoading: isStoriesLoading } = useInfiniteQuery({
+  const { data: storiesData, isLoading: isStoriesLoading } = useQuery({
     queryKey: ["stories"],
-    queryFn: ({ pageParam }) => fetchStories(pageParam, 10),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 10) return undefined;
-      return lastPage[lastPage.length - 1].created_at;
-    },
+    queryFn: () => fetchRandomStories(9),
     refetchInterval: 1000 * 60,
   });
 
   const groupedStories = useMemo(() => {
-    const allStories = storiesData?.pages.flatMap((page) => page) || [];
+    const allStories = storiesData || [];
     const seenStories = JSON.parse(localStorage.getItem("seenStories") || "[]");
 
     const grouped = allStories.reduce((acc: any[], story: Story) => {

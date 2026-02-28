@@ -116,7 +116,9 @@ const CreatePost: React.FC = () => {
           const parsed = JSON.parse(rawDraft);
           draftId = parsed.selectedCommunityId;
         }
-      } catch(e) {}
+      } catch (e) {
+        // eslint-disable-next-line no-empty
+      }
 
       const targetId = initialComm?.id || draftId;
       if (targetId) {
