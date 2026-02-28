@@ -93,6 +93,15 @@ const Message = ({
 
   const displayTime = message.time || "Just now";
 
+  const groupedReactions = React.useMemo(() => {
+    if (!message.reactions) return [];
+    const groups: Record<string, number> = {};
+    message.reactions.forEach((r: any) => {
+      groups[r.emoji] = (groups[r.emoji] || 0) + 1;
+    });
+    return Object.entries(groups).map(([emoji, count]) => ({ emoji, count }));
+  }, [message.reactions]);
+
   return (
     <motion.div
       className={cn(
@@ -467,14 +476,22 @@ const Message = ({
           )}
 
           {/* Reactions */}
-          {message.reactions && message.reactions.length > 0 && (
+          {groupedReactions.length > 0 && (
             <div className={cn(
               "mt-1 flex flex-wrap gap-1",
               isMe ? "justify-end" : "justify-start"
             )}>
-              {message.reactions.map((reaction: any, idx: number) => (
-                <span key={idx} className="px-1.5 py-0.5 text-xs bg-zinc-100 dark:bg-zinc-800 rounded-full border border-zinc-200 dark:border-zinc-700">
-                  {reaction.emoji}
+              {groupedReactions.map((group, idx) => (
+                <span 
+                  key={idx} 
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs bg-zinc-100 dark:bg-zinc-800 rounded-full border border-zinc-200 dark:border-zinc-700 shadow-sm transition-transform hover:scale-110"
+                >
+                  <span>{group.emoji}</span>
+                  {group.count > 1 && (
+                    <span className="font-semibold text-[10px] text-zinc-600 dark:text-zinc-400">
+                      {group.count}
+                    </span>
+                  )}
                 </span>
               ))}
             </div>
