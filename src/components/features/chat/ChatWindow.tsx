@@ -76,7 +76,7 @@ const ChatWindow = ({
     }
   }, [messages.length, isTyping]);
 
-  const displayName = conversation.isGroup ? conversation.name : conversation.user?.name;
+  const displayName = (conversation.isGroup ? conversation.name : conversation.user?.name) || "Chat";
   const displayAvatar = conversation.isGroup ? conversation.avatar : conversation.user?.avatar;
 
   const handleSend = async (text: string, attachments: File[], audioBlob: Blob | undefined) => {
@@ -147,17 +147,17 @@ const ChatWindow = ({
       >
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-zinc-800 dark:bg-[#09090b]/80 z-30">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden -ml-2"
+            className="md:hidden -ml-2 shrink-0"
             onClick={onBack}
           >
             <ArrowLeft size={20} />
           </Button>
 
-          <div className="relative cursor-pointer" onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}>
+          <div className="relative shrink-0 cursor-pointer" onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}>
             <Avatar className="h-10 w-10 border border-zinc-200 dark:border-zinc-800">
               <AvatarImage src={displayAvatar} />
               <AvatarFallback>{displayName?.[0]}</AvatarFallback>
@@ -168,13 +168,13 @@ const ChatWindow = ({
           </div>
 
           <div
-            className="flex flex-col cursor-pointer"
+            className="flex flex-col cursor-pointer min-w-0"
             onClick={() => conversation.user && navigate(`/u/${conversation.user.handle}`)}
           >
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-none">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-none truncate">
               {displayName}
             </h3>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
               {(() => {
                 if (conversation.isGroup) return `${conversation.members?.length || 0} members`;
                 if (isOnline) return "Active now";
@@ -194,7 +194,7 @@ const ChatWindow = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <Button variant="ghost" size="icon" className="text-zinc-500 dark:text-zinc-400" onClick={() => setShowSettings(true)}>
             <MoreHorizontal size={20} />
           </Button>
@@ -217,7 +217,7 @@ const ChatWindow = ({
               </Avatar>
               <div>
                 <h3 className="text-lg font-semibold">Say hello!</h3>
-                <p className="text-sm">Start the conversation with {displayName.split(" ")[0]}.</p>
+                <p className="text-sm">Start the conversation with {displayName.split(" ")[0] || "this user"}.</p>
               </div>
             </div>
           )}

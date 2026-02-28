@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { Search, MoreVertical, MessageSquarePlus } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DMSettingsModal from "../modals/DMSettingsModal";
+import GroupSettingsModal from "../modals/GroupSettingsModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
 
 interface ChatListProps {
   conversations: any[];
@@ -30,14 +34,32 @@ const ConversationItem = React.memo(({
   isSelected, 
   isOnline, 
   isTyping, 
-  onClick 
+  onClick,
+  onLongPress 
 }: { 
   conv: any, 
   isSelected: boolean, 
   isOnline: boolean, 
   isTyping: boolean, 
-  onClick: () => void 
+  onClick: () => void,
+  onLongPress: (conv: any) => void
 }) => {
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startLongPress = () => {
+    longPressTimer.current = setTimeout(() => {
+      onLongPress(conv);
+      if (navigator.vibrate) navigator.vibrate(50);
+    }, 600);
+  };
+
+  const endLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
   const displayName = conv.isGroup ? conv.name : conv.user?.name || "Unknown User";
   const displayAvatar = conv.isGroup ? conv.avatar : conv.user?.avatar;
   
@@ -53,6 +75,11 @@ const ConversationItem = React.memo(({
   return (
     <div
       onClick={onClick}
+      onMouseDown={startLongPress}
+      onMouseUp={endLongPress}
+      onMouseLeave={endLongPress}
+      onTouchStart={startLongPress}
+      onTouchEnd={endLongPress}
       className={cn(
         "group relative flex w-full cursor-pointer items-center gap-3 rounded-xl p-3 transition-all",
         isSelected 
@@ -76,7 +103,7 @@ const ConversationItem = React.memo(({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 min-w-0">
             <h4 className={cn(
-              "truncate text-[15px] font-semibold",
+              "truncate min-w-0 text-[15px] font-semibold",
               isSelected ? "text-violet-900 dark:text-violet-100" : "text-zinc-900 dark:text-zinc-100"
             )}>
               {displayName}
@@ -100,19 +127,21 @@ const ConversationItem = React.memo(({
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1 min-w-0 flex items-center gap-1">
              {isTyping ? (
-               <p className="truncate text-[13px] leading-relaxed text-violet-600 dark:text-violet-400 font-medium italic">
+               <p className="truncate min-w-0 text-[13px] leading-relaxed text-violet-600 dark:text-violet-400 font-medium italic">
                  Typing...
                </p>
              ) : (
                 <p className={cn(
-                  "truncate text-[13px] leading-relaxed",
+                  "truncate min-w-0 text-[13px] leading-relaxed",
                   conv.unread > 0 ? "font-semibold text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400"
                 )}>
                   {conv.lastMessageSender && conv.isGroup && (
                     <span className="mr-1 font-medium">{conv.lastMessageSender}:</span>
                   )}
                   {conv.currentUserSent && <span className="mr-1">You:</span>}
-                  {conv.lastMessage || "Start a conversation"}
+                  {conv.lastMessage 
+                    ? (conv.lastMessage.length > 40 ? conv.lastMessage.substring(0, 40) + "..." : conv.lastMessage)
+                    : "Start a conversation"}
                 </p>
              )}
           </div>
@@ -154,7 +183,7 @@ const UserSearchResultItem = React.memo(({
     </div>
     <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
       <div className="flex items-center gap-1 min-w-0">
-        <h4 className="truncate text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
+        <h4 className="truncate min-w-0 text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
           {user.name}
         </h4>
         {user.role === "admin" && (
@@ -166,8 +195,8 @@ const UserSearchResultItem = React.memo(({
           user.isPro && <ProIcon size={14} className="shrink-0" />
         )}
       </div>
-      <p className="truncate text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
-        @{user.handle}
+      <p className="truncate min-w-0 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+        @{user.handle.length > 40 ? user.handle.substring(0, 40) + "..." : user.handle}
       </p>
     </div>
   </div>
@@ -185,7 +214,10 @@ const ChatList: React.FC<ChatListProps> = ({
   typingStatus = {},
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
   const [filter, setFilter] = useState<'all' | 'unread' | 'groups'>('all');
+  const [managingConv, setManagingConv] = useState<any | null>(null);
 
   const filteredConversations = useMemo(() => {
     let result = conversations;
@@ -203,9 +235,9 @@ const ChatList: React.FC<ChatListProps> = ({
     <div className="flex h-full w-full flex-col bg-white dark:bg-[#09090b] overflow-hidden">
        {/* Header */}
       <div className="flex flex-col gap-4 border-b border-zinc-100 p-4 dark:border-zinc-800/50 shrink-0">
-        <div className="flex items-center justify-between">
-           <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Messages</h2>
-           <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-4">
+           <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white truncate">Messages</h2>
+           <div className="flex items-center gap-1 shrink-0">
              <Button 
                 variant="ghost" 
                 size="icon" 
@@ -301,12 +333,33 @@ const ChatList: React.FC<ChatListProps> = ({
                   isOnline={!conv.isGroup && conv.user && onlineUsers.has(conv.user.id)}
                   isTyping={!!typingStatus[conv.id]}
                   onClick={() => onSelect(conv)}
+                  onLongPress={setManagingConv}
                 />
               ))}
             </>
            )}
         </div>
       </ScrollArea>
+
+      {managingConv && (
+        managingConv.isGroup ? (
+          <GroupSettingsModal
+            isOpen={!!managingConv}
+            onClose={() => setManagingConv(null)}
+            conversation={managingConv}
+            onUpdate={() => {
+              queryClient.invalidateQueries({ queryKey: ["conversations", currentUser?.id] });
+            }}
+          />
+        ) : (
+          <DMSettingsModal
+            isOpen={!!managingConv}
+            onClose={() => setManagingConv(null)}
+            user={managingConv.user}
+            conversationId={managingConv.id}
+          />
+        )
+      )}
     </div>
   );
 };
