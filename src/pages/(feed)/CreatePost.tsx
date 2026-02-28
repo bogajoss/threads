@@ -68,7 +68,6 @@ const CreatePost: React.FC = () => {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
-  const initialCommunity = location.state?.initialCommunity;
   const isStory = location.state?.isStory || false;
   const draftStorageKey = currentUser
     ? `create-post-draft:${currentUser.id}:${isStory ? "story" : "post"}`
@@ -91,9 +90,46 @@ const CreatePost: React.FC = () => {
   //   duration: "1 day",
   // });
   const [loading, setLoading] = useState(false);
-  const [selectedCommunity, setSelectedCommunity] = useState<any | null>(
-    initialCommunity || null,
-  );
+  const [selectedCommunity, setSelectedCommunity] = useState<any | null>(null);
+
+  const { data: userCommunities = [] } = useQuery({
+    queryKey: ["user-communities", currentUser?.id],
+    queryFn: () => fetchUserCommunities(currentUser!.id),
+    enabled: !!currentUser?.id,
+  });
+
+  const postableCommunities = React.useMemo(() => {
+    return userCommunities.filter((comm: any) => {
+      return !comm.isPrivate || comm.myRole === "admin";
+    });
+  }, [userCommunities]);
+
+  // Set initial community from state or draft once communities are loaded
+  useEffect(() => {
+    if (userCommunities.length > 0 && !selectedCommunity) {
+      const initialComm = location.state?.initialCommunity;
+      const rawDraft = draftStorageKey ? sessionStorage.getItem(draftStorageKey) : null;
+      let draftId = null;
+      
+      try {
+        if (rawDraft) {
+          const parsed = JSON.parse(rawDraft);
+          draftId = parsed.selectedCommunityId;
+        }
+      } catch(e) {}
+
+      const targetId = initialComm?.id || draftId;
+      if (targetId) {
+        const postable = postableCommunities.find((c: any) => c.id === targetId);
+        if (postable) {
+          setSelectedCommunity(postable);
+        } else {
+          addToast("You don't have permission to post in that community.", "error");
+        }
+      }
+    }
+  }, [userCommunities, postableCommunities, selectedCommunity, location.state?.initialCommunity, draftStorageKey, addToast]);
+
   const [replySetting, setReplySetting] = useState("anyone");
   const [showHashtagDialog, setShowHashtagDialog] = useState(false);
   const [hashtagInput, setHashtagInput] = useState("");
@@ -108,12 +144,6 @@ const CreatePost: React.FC = () => {
   const textareaRef = useAutoResizeTextArea(postContent, 44, 400);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { data: userCommunities = [] } = useQuery({
-    queryKey: ["user-communities", currentUser?.id],
-    queryFn: () => fetchUserCommunities(currentUser!.id),
-    enabled: !!currentUser?.id,
-  });
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -454,10 +484,10 @@ const CreatePost: React.FC = () => {
                 {currentUser.name}
               </span>
 
-              {!isStory && userCommunities.length > 0 && (
+              {!isStory && postableCommunities.length > 0 && (
                 <Select
                   onValueChange={(val) => {
-                    const comm = userCommunities.find(
+                    const comm = postableCommunities.find(
                       (c: any) => c.id === val,
                     );
                     setSelectedCommunity(comm || null);
@@ -483,7 +513,7 @@ const CreatePost: React.FC = () => {
                         <span>Public (Anyone)</span>
                       </div>
                     </SelectItem>
-                    {userCommunities.map((comm: any) => (
+                    {postableCommunities.map((comm: any) => (
                       <SelectItem
                         key={comm.id}
                         value={comm.id}
