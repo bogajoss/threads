@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
+import { X, Volume2, VolumeX } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { incrementStoryViews } from "@/lib/api/stories";
 import { shouldIncrementView } from "@/lib/utils";
@@ -36,6 +36,15 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => {
+    const saved = localStorage.getItem("story-muted");
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("story-muted", JSON.stringify(isMuted));
+  }, [isMuted]);
+
   const [viewCounts, setViewCounts] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
     storyGroup.stories.forEach((s) => {
@@ -212,15 +221,29 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
               </div>
             </div>
           </Link>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setTimeout(() => onClose(storyGroup.user.id), 0);
-            }}
-            className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-1">
+            {isVideo && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
+                title={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setTimeout(() => onClose(storyGroup.user.id), 0);
+              }}
+              className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -254,7 +277,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
                 className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
                 playsInline
                 autoPlay
-                muted
+                muted={isMuted}
               />
             ) : (
               <img
