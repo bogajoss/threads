@@ -139,7 +139,7 @@ BEGIN
 
     -- USER'S REPOSTS
     SELECT
-      md5((r.post_id::text || r.user_id::text)::uuid::text)::uuid as f_id,
+      md5(r.post_id::text || r.user_id::text)::uuid as f_id,
       p.id as p_id,
       r.created_at as sort_time,
       u.id as u_id, 
