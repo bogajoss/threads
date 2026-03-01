@@ -401,7 +401,6 @@ const Post: React.FC<PostProps> = ({
   const navigate = useNavigate();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
-  const [pinned, setPinned] = useState(is_pinned);
 
   const {
     liked,
@@ -421,12 +420,11 @@ const Post: React.FC<PostProps> = ({
 
   const handleTogglePin = async () => {
     try {
-      const newPinned = !pinned;
+      const newPinned = !is_pinned;
       await updatePost(id, {
         is_pinned: newPinned,
         pinned_at: newPinned ? new Date().toISOString() : null,
       });
-      setPinned(newPinned);
       
       // Invalidate profile queries to refresh order
       queryClient.invalidateQueries({ queryKey: ["posts", "user", user.id] });
@@ -640,14 +638,14 @@ const Post: React.FC<PostProps> = ({
             onUserClick={onUserClick}
             isDetail={true}
             showAvatar={true}
-            isPinned={pinned}
+            isPinned={is_pinned}
             actionsMenu={
               <PostActionsMenu
                 id={id}
                 user={user}
                 isCurrentUser={isCurrentUser}
                 isComment={isComment}
-                isPinned={pinned}
+                isPinned={is_pinned}
                 onEdit={() => setIsEditing(true)}
                 onDelete={() => setIsDeleteDialogOpen(true)}
                 onTogglePin={handleTogglePin}
@@ -903,14 +901,14 @@ const Post: React.FC<PostProps> = ({
             community={community}
             onUserClick={onUserClick}
             isComment={isComment}
-            isPinned={pinned}
+            isPinned={is_pinned}
             actionsMenu={
               <PostActionsMenu
                 id={id}
                 user={user}
                 isCurrentUser={isCurrentUser}
                 isComment={isComment}
-                isPinned={pinned}
+                isPinned={is_pinned}
                 onEdit={() => setIsEditing(true)}
                 onDelete={() => setIsDeleteDialogOpen(true)}
                 onTogglePin={handleTogglePin}
@@ -1095,6 +1093,7 @@ function arePropsEqual(prevProps: PostProps, nextProps: PostProps) {
     prevProps.stats.comments === nextProps.stats.comments &&
     prevProps.stats.reposts === nextProps.stats.reposts &&
     prevProps.currentUser?.id === nextProps.currentUser?.id &&
+    prevProps.is_pinned === nextProps.is_pinned &&
     !!mediaEqual &&
     !!repostedByEqual
   );
