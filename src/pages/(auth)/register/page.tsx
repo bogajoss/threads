@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <PageTransition>
+      <PageTransition noBackground className="flex items-center justify-center">
         <AuthForm
           type="signup"
           onComplete={() => {

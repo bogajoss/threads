@@ -2,13 +2,23 @@ import React from "react";
 import { motion, useIsPresent } from "motion/react";
 import { useMediaQuery } from "@/hooks";
 import { motionTokens } from "@/config/motion";
+import { cn } from "@/lib/utils";
 
 interface PageTransitionProps {
   children: React.ReactNode;
   mode?: "default" | "none";
+  className?: string;
+  style?: React.CSSProperties;
+  noBackground?: boolean;
 }
 
-const PageTransition: React.FC<PageTransitionProps> = ({ children, mode = "default" }) => {
+const PageTransition: React.FC<PageTransitionProps> = ({ 
+  children, 
+  mode = "default", 
+  className, 
+  style,
+  noBackground = false
+}) => {
   const isPresent = useIsPresent();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -53,14 +63,15 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children, mode = "defau
             duration: 0.2,
           }
       }
-      className="w-full h-full"
+      className={cn("w-full h-full", className)}
       style={{
         position: isMobile && !isPresent ? "absolute" : "relative",
         top: 0,
         left: 0,
-        background: "var(--background)",
+        background: noBackground ? "transparent" : "var(--background)",
         boxShadow: isMobile && isPresent ? "-10px 0 20px rgba(0,0,0,0.1)" : "none",
         willChange: "transform",
+        ...style,
       }}
     >
       {/* Dimming overlay for exiting page */}
