@@ -42,7 +42,8 @@ export const useProfile = () => {
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < 20) return undefined;
       const lastPost = lastPage[lastPage.length - 1];
-      return lastPost.sort_timestamp || lastPost.created_at;
+      // Use the actual timestamp from the database for reliable pagination
+      return lastPost.created_at;
     },
   });
 

@@ -107,6 +107,12 @@ export const fetchPostsByUserId = async (
   limit: number = POSTS_PER_PAGE,
   type: string | null = null,
 ): Promise<Post[]> => {
+  // Guard against invalid UUIDs
+  if (!userId || !isValidUUID(userId)) {
+    console.warn("fetchPostsByUserId called with invalid userId:", userId);
+    return [];
+  }
+
   // Normalize type: 'posts' means null (non-reel posts)
   const normalizedType = type === 'posts' ? null : type;
   
