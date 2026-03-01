@@ -46,9 +46,9 @@ export const transformPost = (post: any): Post | null => {
   // RPC feeds return post_id; direct queries return id
   const postId = post.id || post.post_id;
 
-  const baseKey =
-    post.feed_id || (reposterId ? `${postId}-${reposterId}` : `${postId}-orig`);
-  const uniqueKey = `${baseKey}-${timestamp}`;
+  // Use feed_id if it's already a valid UUID, otherwise construct uniqueKey
+  const baseKey = post.feed_id || (reposterId ? `${postId}-${reposterId}` : `${postId}-orig`);
+  const uniqueKey = post.feed_id ? post.feed_id : `${baseKey}-${timestamp}`;
 
   const user = transformUser(post.author_data || post.user);
   if (!user) return null;
