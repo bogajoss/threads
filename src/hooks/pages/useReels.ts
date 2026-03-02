@@ -92,34 +92,38 @@ export const useReels = () => {
   }, [reels, activeReelId]);
 
   useEffect(() => {
-    if (reels.length === 0) return;
+    if (reels.length === 0 || !containerRef.current) return;
 
     const options = {
       root: containerRef.current,
-      threshold: 0.6,
+      threshold: [0, 0.25, 0.5, 0.75, 1.0],
     };
 
     const callback = (entries: IntersectionObserverEntry[]) => {
-      // Find the entry with the highest intersection ratio
-      const visibleEntry = entries.reduce((max, entry) => {
-        return entry.intersectionRatio > max.intersectionRatio ? entry : max;
-      }, entries[0]);
-
-      // Only set the most visible reel as active
-      if (visibleEntry?.isIntersecting) {
-        const id = visibleEntry.target.getAttribute("data-id");
-        if (id) setActiveReelId(id);
+      // Filter only entries that are actually intersecting above a certain threshold
+      const visibleEntries = entries.filter(entry => entry.isIntersecting);
+      
+      if (visibleEntries.length > 0) {
+        // Sort by intersection ratio descending to find the most visible one
+        visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        
+        const bestEntry = visibleEntries[0];
+        const id = bestEntry.target.getAttribute("data-id");
+        if (id && id !== activeReelId) {
+          setActiveReelId(id);
+        }
       }
     };
 
     const observer = new IntersectionObserver(callback, options);
 
+    // Observe all reel elements currently in the map
     reelRefs.current.forEach((el) => observer.observe(el));
 
     return () => {
       observer.disconnect();
     };
-  }, [reels.length]);
+  }, [reels.length, containerRef.current, activeReelId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

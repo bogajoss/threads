@@ -30,55 +30,32 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
   build: {
-    target: "esnext",
+    // Targeting Chrome 100+ ensures compatibility with modern Android WebViews 
+    // while allowing for modern JS features and smaller polyfills.
+    target: ["chrome100", "safari15"],
     minify: "esbuild",
     cssMinify: "lightningcss",
     cssCodeSplit: true,
-    reportCompressedSize: true,
-    chunkSizeWarningLimit: 1000,
+    sourcemap: false, // Ensure sourcemaps are off for production to reduce bundle size
+    reportCompressedSize: false, // Speed up build time
+    chunkSizeWarningLimit: 2000,
     modulePreload: {
-      polyfill: true,
+      polyfill: false,
     },
     rollupOptions: {
       output: {
+        // Grouping into fewer, larger chunks is often faster for local file:// loading in Capacitor
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
-            if (
-              /node_modules\/(react|react-dom|react-router-dom|scheduler)/.test(
-                id,
-              )
-            ) {
-              return "framework";
-            }
-            if (/node_modules\/(@supabase|supabase-js)/.test(id)) {
-              return "database";
-            }
-            if (/node_modules\/@tanstack/.test(id)) {
-              return "query";
-            }
-            if (
-              /node_modules\/(motion|motion-dom|motion-utils)/.test(id)
-            ) {
-              return "animations";
-            }
-            if (
-              /node_modules\/(@radix-ui|lucide-react|clsx|tailwind-merge|sonner)/.test(
-                id,
-              )
-            ) {
-              return "ui-libs";
-            }
-            if (
-              /node_modules\/(plyr|plyr-react|wavesurfer.js|browser-image-compression|wavesurfer)/.test(
-                id,
-              )
-            ) {
-              return "media-libs";
-            }
-            if (/node_modules\/(linkifyjs|linkify-react)/.test(id)) {
-              return "text-processing";
-            }
+            if (/(react|react-dom|react-router-dom|scheduler)/.test(id)) return "vendor-core";
+            if (/(@supabase|supabase-js)/.test(id)) return "vendor-db";
+            if (/(@tanstack|video\.js|wavesurfer\.js|motion)/.test(id)) return "vendor-heavy";
+            if (/(@radix-ui|lucide-react|framer-motion)/.test(id)) return "vendor-ui";
+            return "vendor-others";
           }
         },
       },
@@ -93,7 +70,7 @@ export default defineConfig({
       "@tanstack/react-query",
       "lucide-react",
       "motion",
-      "plyr",
+      "video.js",
       "wavesurfer.js",
       "@dnd-kit/core",
       "@dnd-kit/sortable",

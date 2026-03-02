@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useLocation } from "react-router-dom";
+import videojs from "video.js";
 
 import SkeletonReel from "@/components/features/reels/skeleton-reel";
 
@@ -28,23 +29,11 @@ const Reels = () => {
     const isReelsRoute = (path: string) => path.startsWith("/r");
 
     if (isReelsRoute(prevLocation) && !isReelsRoute(currentLocation)) {
-      // Pause all Plyr video instances
-      const videoElements = document.querySelectorAll(".plyr");
-      videoElements.forEach((video) => {
-        const player = (video as any).plyr;
-        if (player && typeof player.pause === "function") {
+      // Pause all Video.js player instances
+      videojs.getAllPlayers().forEach((player) => {
+        if (player && !player.paused()) {
           player.pause();
-          player.currentTime = 0;
-          player.muted = true;
-        }
-      });
-
-      // Also pause any HTML5 video elements directly
-      const htmlVideos = document.querySelectorAll("video");
-      htmlVideos.forEach((video) => {
-        if (!video.paused) {
-          video.pause();
-          video.currentTime = 0;
+          player.currentTime(0);
         }
       });
 
@@ -58,23 +47,11 @@ const Reels = () => {
   // Cleanup on unmount (when Reels page component unmounts)
   useEffect(() => {
     return () => {
-      // Pause all Plyr video instances
-      const videoElements = document.querySelectorAll(".plyr");
-      videoElements.forEach((video) => {
-        const player = (video as any).plyr;
-        if (player && typeof player.pause === "function") {
+      // Pause all Video.js player instances
+      videojs.getAllPlayers().forEach((player) => {
+        if (player && !player.paused()) {
           player.pause();
-          player.currentTime = 0;
-          player.muted = true;
-        }
-      });
-
-      // Also pause any HTML5 video elements directly
-      const htmlVideos = document.querySelectorAll("video");
-      htmlVideos.forEach((video) => {
-        if (!video.paused) {
-          video.pause();
-          video.currentTime = 0;
+          player.currentTime(0);
         }
       });
 
@@ -101,21 +78,10 @@ const Reels = () => {
 
   const handleBack = () => {
     // Cleanup videos before navigating away
-    const videoElements = document.querySelectorAll(".plyr");
-    videoElements.forEach((video) => {
-      const player = (video as any).plyr;
-      if (player && typeof player.pause === "function") {
+    videojs.getAllPlayers().forEach((player) => {
+      if (player && !player.paused()) {
         player.pause();
-        player.currentTime = 0;
-        player.muted = true;
-      }
-    });
-
-    const htmlVideos = document.querySelectorAll("video");
-    htmlVideos.forEach((video) => {
-      if (!video.paused) {
-        video.pause();
-        video.currentTime = 0;
+        player.currentTime(0);
       }
     });
 

@@ -13,5 +13,5 @@ export { default as Post } from "./Post";
 export { default as ShareModal } from "./ShareModal";
 export { default as ReelItem } from "./ReelItem";
 export { default as ReelCommentsModal } from "./ReelCommentsModal";
-export { default as VideoPlayer } from "./VideoPlayer";
+export { default as VideoJSPlayer } from "./VideoJSPlayer";
 export { default as FileCard } from "./FileCard";

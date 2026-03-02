@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import EmojiPicker from "@/components/ui/emoji-picker";
 import { motion, useMotionValue, useTransform } from "motion/react";
-import VideoPlayer from "@/components/features/post/VideoPlayer";
+import { VideoJSPlayer } from "@/components/features/post";
 import VoiceMessage from "./VoiceMessage";
 import RichText from "@/components/ui/rich-text";
 import { useMediaQuery } from "@/hooks";
@@ -187,7 +187,7 @@ const Message = ({
                       {message.media.map((item: any, idx: number) => (
                         <div key={idx} className="relative">
                           {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                            <VideoPlayer src={item.url} />
+                            <VideoJSPlayer src={item.url} showControls={true} autoplay={false} />
                           ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
                             <div className="px-2 py-1">
                               <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
@@ -327,9 +327,8 @@ const Message = ({
                     {message.media.map((item: any, idx: number) => (
                       <div key={idx} className="relative">
                         {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                          <VideoPlayer src={item.url} />
-                        ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
-                          <div className="px-2 py-1">
+                          <VideoJSPlayer src={item.url} showControls={true} autoplay={false} />
+                        ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (                          <div className="px-2 py-1">
                             <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
                           </div>
                         ) : (item.type === 'image' || (typeof item.url === 'string' && (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/i)))) ? (

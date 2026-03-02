@@ -3,9 +3,7 @@
 import type {
   ComponentProps,
   HTMLAttributes,
-  VideoHTMLAttributes,
 } from "react";
-import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Carousel,
@@ -13,6 +11,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
+import { VideoJSPlayer } from "@/components/features/post";
 
 export type StoriesProps = ComponentProps<typeof Carousel>;
 
@@ -62,95 +61,24 @@ export const Story = ({ className, ...props }: StoryProps) => (
   </CarouselItem>
 );
 
-export type StoryVideoProps = VideoHTMLAttributes<HTMLVideoElement>;
+interface StoryVideoProps {
+  src: string;
+  poster?: string;
+  className?: string;
+}
 
-const tRegex = /t=(\d+(?:\.\d+)?)/;
-
-export const StoryVideo = ({ className, ...props }: StoryVideoProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const initialTimeRef = useRef<number>(0);
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const src = (props.src ?? "") as string;
-    let initialTime = 0;
-    if (typeof src === "string") {
-      const hashIndex = src.indexOf("#");
-      if (hashIndex !== -1) {
-        const hash = src.slice(hashIndex + 1);
-        const tMatch = hash.match(tRegex);
-        if (tMatch) {
-          initialTime = Number.parseFloat(tMatch[1]);
-        }
-      }
-    }
-    initialTimeRef.current = initialTime;
-  }, [props.src]);
-
-  // Ensure video always stops when this component leaves the DOM (e.g., navigation)
-  useEffect(() => {
-    const video = videoRef.current;
-    return () => {
-      if (video) {
-        video.pause();
-      }
-    };
-  }, []);
-
-  const handleMouseOver = () => {
-    videoRef.current?.play();
-  };
-
-  const handleMouseOut = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = initialTimeRef.current;
-    }
-  };
-
-  const handleFocus = () => {
-    videoRef.current?.play();
-  };
-
-  const handleBlur = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = initialTimeRef.current;
-    }
-  };
-
-  const handleCanPlay = () => {
-    setIsReady(true);
-  };
-
+export const StoryVideo = ({ src, poster, className }: StoryVideoProps) => {
   return (
-    <div className="absolute inset-0 size-full bg-zinc-900 overflow-hidden">
-      {!isReady && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
-        </div>
-      )}
-      <video
-        className={cn(
-          "absolute inset-0 size-full object-cover",
-          "transition-opacity duration-500",
-          isReady ? "opacity-100" : "opacity-0",
-          "group-hover:opacity-90",
-          className,
-        )}
-        loop
-        muted
-        playsInline
-        webkit-playsinline="true"
-        onBlur={handleBlur}
-        onFocus={handleFocus}
-        onMouseOut={handleMouseOut}
-        onMouseOver={handleMouseOver}
-        onCanPlay={handleCanPlay}
-        preload="metadata"
-        ref={videoRef}
-        tabIndex={0}
-        {...props}
+    <div className={cn("absolute inset-0 size-full bg-zinc-900 overflow-hidden", className)}>
+      <VideoJSPlayer
+        src={src}
+        poster={poster}
+        autoplay={false}
+        showControls={false}
+        aspectRatio="9:16"
+        className="size-full"
+        muted={true}
+        loop={true}
       />
     </div>
   );

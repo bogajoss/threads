@@ -9,7 +9,6 @@ import { ToastProvider } from "@/context/ToastContext";
 import { PostProvider } from "@/context/PostContext";
 import { LightboxProvider } from "@/context/LightboxContext";
 import { ReportProvider } from "@/context/ReportContext";
-import "plyr/dist/plyr.css";
 import "@/index.css";
 import App from "@/App";
 

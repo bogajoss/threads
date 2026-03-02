@@ -4,6 +4,8 @@ import { X, Volume2, VolumeX } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { incrementStoryViews } from "@/lib/api/stories";
 import { shouldIncrementView } from "@/lib/utils";
+import { VideoJSPlayer } from "@/components/features/post";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 
 interface Story {
   id: string;
@@ -26,8 +28,6 @@ interface StoryViewerProps {
   story: StoryGroup;
   onClose: (storyId?: string) => void;
 }
-
-import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
 
 const StoryViewer: React.FC<StoryViewerProps> = ({
   story: storyGroup,
@@ -58,69 +58,18 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const opacity = useTransform(dragY, [0, 200], [1, 0.5]);
   const scale = useTransform(dragY, [0, 200], [1, 0.9]);
 
-  const [videoDuration, setVideoDuration] = useState(5000); // Default 5s
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoDuration, setVideoDuration] = useState(5000);
+  const playerRef = useRef<any>(null);
 
   const stories = storyGroup.stories;
   const currentStory = stories[currentIndex];
   const isVideo = currentStory.media.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || currentStory.media.includes("video");
-
-  useEffect(() => {
-    // Reset video duration for each story using a timeout or microtask to avoid 
-    // "Calling setState synchronously within an effect" warning
-    const t = setTimeout(() => setVideoDuration(5000), 0);
-    return () => clearTimeout(t);
-  }, [currentIndex]);
-
-  useEffect(() => {
-    if (isVideo && videoRef.current) {
-      if (isPaused) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play().catch(() => {});
-      }
-    }
-  }, [isPaused, isVideo, currentIndex]);
-
-  const handleVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const duration = e.currentTarget.duration * 1000;
-    if (duration > 0) setVideoDuration(duration);
-  };
-
-  useEffect(() => {
-    if (currentStory && !seenInSession.has(currentStory.id)) {
-      seenInSession.add(currentStory.id);
-      
-      // We'll use a timeout to move the state update out of the render effect
-      const timeout = setTimeout(() => {
-        if (shouldIncrementView(currentStory.id, 'story')) {
-          // Optimistic increment
-          setViewCounts((prev) => ({
-            ...prev,
-            [currentStory.id]: (prev[currentStory.id] || 0) + 1,
-          }));
-
-          incrementStoryViews(currentStory.id).then((newCount) => {
-            if (newCount !== null) {
-              setViewCounts((prev) => ({
-                ...prev,
-                [currentStory.id]: newCount,
-              }));
-            }
-          });
-        }
-      }, 0);
-      
-      return () => clearTimeout(timeout);
-    }
-  }, [currentStory?.id, seenInSession]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < stories.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setProgress(0);
     } else {
-      // Use setTimeout to avoid "Cannot update a component while rendering a different component"
       setTimeout(() => onClose(storyGroup.user.id), 0);
     }
   }, [currentIndex, stories.length, onClose, storyGroup.user.id]);
@@ -135,14 +84,16 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const togglePause = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setIsPaused((prev) => !prev);
-  }, []);
+    if (playerRef.current) {
+      if (!isPaused) playerRef.current.pause();
+      else playerRef.current.play()?.catch(() => {});
+    }
+  }, [isPaused]);
 
   useEffect(() => {
     if (isPaused) return;
-
     const step = 50;
     const increment = (step / videoDuration) * 100;
-
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -155,92 +106,74 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
     return () => clearInterval(timer);
   }, [handleNext, currentIndex, isPaused, videoDuration]);
 
+  const handlePlayerReady = (player: any) => {
+    playerRef.current = player;
+    player.on('loadedmetadata', () => {
+      const duration = player.duration() * 1000;
+      if (duration > 0) setVideoDuration(duration);
+    });
+    player.muted(isMuted);
+  };
+
+  useEffect(() => {
+    if (playerRef.current) {
+      playerRef.current.muted(isMuted);
+    }
+  }, [isMuted]);
+
+  useEffect(() => {
+    if (currentStory && !seenInSession.has(currentStory.id)) {
+      seenInSession.add(currentStory.id);
+      const timeout = setTimeout(() => {
+        if (shouldIncrementView(currentStory.id, 'story')) {
+          setViewCounts((prev) => ({ ...prev, [currentStory.id]: (prev[currentStory.id] || 0) + 1 }));
+          incrementStoryViews(currentStory.id).then((newCount) => {
+            if (newCount !== null) setViewCounts((prev) => ({ ...prev, [currentStory.id]: newCount }));
+          });
+        }
+      }, 0);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentStory?.id, seenInSession]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={() => setTimeout(() => onClose(storyGroup.user.id), 0)}
-      className="fixed inset-0 z-[9999] bg-black/90"
+      className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md"
     >
       <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
           {stories.map((_, idx) => (
-            <div
-              key={idx}
-              className="h-full flex-1 overflow-hidden rounded-full bg-white/30"
-            >
+            <div key={idx} className="h-full flex-1 overflow-hidden rounded-full bg-white/30">
               <div
                 className="h-full bg-white transition-all duration-100"
-                style={{
-                  width:
-                    idx < currentIndex
-                      ? "100%"
-                      : idx === currentIndex
-                        ? `${progress}%`
-                        : "0%",
-                }}
-              ></div>
+                style={{ width: idx < currentIndex ? "100%" : idx === currentIndex ? `${progress}%` : "0%" }}
+              />
             </div>
           ))}
         </div>
 
         <div className="flex items-center justify-between pointer-events-auto">
-          <Link
-            to={`/u/${storyGroup.user.handle}`}
-            className="flex items-center gap-3 transition-opacity hover:opacity-80"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Avatar className="size-10 border border-white/20 shadow-sm">
-              <AvatarImage
-                src={storyGroup.user.avatar}
-                alt={storyGroup.user.handle}
-                className="object-cover"
-              />
-              <AvatarFallback>
-                {storyGroup.user.handle?.[0]?.toUpperCase()}
-              </AvatarFallback>
+          <Link to={`/u/${storyGroup.user.handle}`} className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+            <Avatar className="size-10 border border-white/20">
+              <AvatarImage src={storyGroup.user.avatar} alt="" className="object-cover" />
+              <AvatarFallback>{storyGroup.user.handle?.[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col text-white">
-              <span className="text-sm font-bold shadow-black drop-shadow-md">
-                {storyGroup.user.handle}
-              </span>
-              <div className="flex items-center gap-1 text-[10px] text-white/60 shadow-black drop-shadow-md">
-                <span>
-                  {new Date(currentStory.created_at).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-                {viewCounts[currentStory.id] !== undefined && (
-                  <>
-                    <span>•</span>
-                    <span>{viewCounts[currentStory.id]} views</span>
-                  </>
-                )}
-              </div>
+              <span className="text-sm font-bold drop-shadow-md">@{storyGroup.user.handle}</span>
+              <span className="text-[10px] text-white/60">{viewCounts[currentStory.id]} views</span>
             </div>
           </Link>
           <div className="flex items-center gap-1">
             {isVideo && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuted(!isMuted);
-                }}
-                className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
-                title={isMuted ? "Unmute" : "Mute"}
-              >
+              <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} className="rounded-full p-2 text-white hover:bg-white/10">
                 {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
               </button>
             )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setTimeout(() => onClose(storyGroup.user.id), 0);
-              }}
-              className="rounded-full p-2 text-white transition-colors hover:bg-white/10 active:scale-90"
-            >
+            <button onClick={(e) => { e.stopPropagation(); setTimeout(() => onClose(storyGroup.user.id), 0); }} className="rounded-full p-2 text-white hover:bg-white/10">
               <X size={24} />
             </button>
           </div>
@@ -250,72 +183,51 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       <motion.div
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ top: 0, bottom: 0.8 }}
         style={{ y: dragY, opacity, scale }}
-        onDragEnd={(_, info) => {
-          if (info.offset.y > 100 || info.velocity.y > 500) {
-            setTimeout(() => onClose(storyGroup.user.id), 0);
-          }
-        }}
+        onDragEnd={(_, info) => { if (info.offset.y > 100) setTimeout(() => onClose(storyGroup.user.id), 0); }}
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-full w-full max-w-xl items-center justify-center p-2 touch-none"
+        className="relative flex h-full w-full max-w-lg items-center justify-center p-4 touch-none mx-auto"
       >
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStory.id}
-            initial={{ opacity: 0, scale: 0.9, x: 20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 1.1, x: -20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative flex h-full w-full items-center justify-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            className="relative flex aspect-[9/16] w-full max-h-[85vh] items-center justify-center overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl"
           >
             {isVideo ? (
-              <video
-                ref={videoRef}
+              <VideoJSPlayer
                 src={currentStory.media}
-                onLoadedMetadata={handleVideoMetadata}
-                className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
-                playsInline
-                autoPlay
+                autoplay={!isPaused}
+                showControls={false}
+                aspectRatio="9:16"
+                className="h-full w-full object-contain"
+                onReady={handlePlayerReady}
                 muted={isMuted}
+                loop={false}
               />
             ) : (
-              <img
-                src={currentStory.media}
-                className="h-full max-h-full w-full object-contain rounded-xl shadow-2xl"
-                alt=""
+              <img 
+                src={currentStory.media} 
+                className="h-full w-full object-contain" 
+                alt="" 
               />
             )}
             {currentStory.content && (
-              <div className="absolute bottom-16 left-0 right-0 px-8 pb-4 z-30">
-                <div className="bg-black/40 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/10 shadow-lg">
-                  <p className="text-white text-sm font-medium leading-relaxed drop-shadow-sm text-center">
-                    {currentStory.content}
-                  </p>
+              <div className="absolute bottom-10 left-0 right-0 px-6 z-30">
+                <div className="bg-black/60 backdrop-blur-md px-4 py-3 rounded-xl border border-white/10 text-center">
+                  <p className="text-white text-sm font-medium leading-relaxed">{currentStory.content}</p>
                 </div>
-              </div>
-            )}
-            {isPaused && (
-              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs font-bold text-white backdrop-blur-md"
-                >
-                  PAUSED
-                </motion.div>
               </div>
             )}
           </motion.div>
         </AnimatePresence>
 
         <div className="absolute inset-0 z-20 flex">
-          <div className="w-[30%] cursor-w-resize" onClick={handlePrev}></div>
-          <div
-            className="flex w-[40%] cursor-pointer items-center justify-center"
-            onClick={togglePause}
-          ></div>
-          <div className="w-[30%] cursor-e-resize" onClick={handleNext}></div>
+          <div className="w-[30%] cursor-w-resize" onClick={handlePrev} />
+          <div className="flex w-[40%] cursor-pointer" onClick={togglePause} />
+          <div className="w-[30%] cursor-e-resize" onClick={handleNext} />
         </div>
       </motion.div>
     </motion.div>
