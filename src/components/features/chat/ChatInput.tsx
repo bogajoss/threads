@@ -166,6 +166,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
+    
+    // Check for large files (> 50MB)
+    const tooLarge = files.some(file => file.size > 50 * 1024 * 1024);
+    if (tooLarge) {
+      alert("Some files are too large. Maximum size is 50MB.");
+      return;
+    }
+
     setAttachments((prev) => [...prev, ...files]);
   };
 
@@ -202,10 +210,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     <Play size={20} className="text-white opacity-50" />
                   </div>
                 ) : (
-                  <img
-                    src={URL.createObjectURL(file)}
-                    className="size-full object-cover"
-                  />
+                  <AttachmentPreview file={file} />
                 )}
                 <button
                   type="button"
@@ -419,3 +424,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
 };
 
 export default ChatInput;
+
+const AttachmentPreview = ({ file }: { file: File }) => {
+  const [url, setUrl] = React.useState<string>("");
+  
+  React.useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  if (!url) return null;
+  return (
+    <img
+      src={url}
+      className="size-full object-cover"
+      alt="attachment preview"
+    />
+  );
+};

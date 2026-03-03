@@ -13,6 +13,7 @@ import { uploadFile } from "@/lib/api/storage";
 import { formatTimeAgo } from "@/lib/utils";
 import { useMobileViewport } from "@/hooks/useMobileViewport";
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/context/ToastContext";
 
 interface ChatWindowProps {
   conversation: any;
@@ -51,6 +52,7 @@ const ChatWindow = ({
 }: ChatWindowProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [replyingTo, setReplyingTo] = useState<any | null>(null);
   const [editingMessage, setEditingMessage] = useState<any | null>(null);
@@ -104,9 +106,9 @@ const ChatWindow = ({
         uploadedMedia.push(upload);
         type = "voice";
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to upload media:", error);
-      // Ideally show a toast here
+      addToast(error.message || "Failed to upload media. The file might be too large.", "error");
       return;
     }
 

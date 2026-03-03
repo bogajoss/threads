@@ -9,8 +9,8 @@ export const generateVideoThumbnail = (
 
     const timeout = setTimeout(() => {
       cleanup();
-      reject(new Error("Thumbnail generation timed out"));
-    }, 10000);
+      reject(new Error("Thumbnail generation timed out. Your video might be too large or incompatible."));
+    }, 30000);
 
     const cleanup = () => {
       clearTimeout(timeout);
@@ -25,6 +25,7 @@ export const generateVideoThumbnail = (
     video.muted = true;
     video.playsInline = true;
     video.src = URL.createObjectURL(file);
+    video.load();
 
     video.onloadedmetadata = () => {
       let targetTime = seekTo;

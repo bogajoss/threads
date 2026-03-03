@@ -20,12 +20,13 @@ interface VideoJSPlayerProps {
   muted?: boolean;
   volume?: number;
   className?: string;
-  aspectRatio?: "16:9" | "9:16" | "1:1";
+  aspectRatio?: "16:9" | "9:16" | "1:1" | "4:5";
   onReady?: (player: Player) => void;
   showControls?: boolean;
   fillContainer?: boolean;
   enableDoubleTapSkip?: boolean;
   enableTapPause?: boolean;
+  objectFit?: "cover" | "contain";
 }
 
 const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
@@ -42,6 +43,7 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
   fillContainer = false,
   enableDoubleTapSkip = true,
   enableTapPause = true,
+  objectFit = "contain",
 }) => {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
@@ -242,7 +244,12 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
       ref={containerRef}
       className={cn(
         "relative w-full bg-zinc-950 overflow-hidden group flex items-center justify-center select-none",
-        fillContainer ? "h-full" : (aspectRatio === "16:9" ? "aspect-video" : aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-square"),
+        fillContainer ? "h-full" : (
+          aspectRatio === "16:9" ? "aspect-video" : 
+          aspectRatio === "9:16" ? "aspect-[9/16]" : 
+          aspectRatio === "4:5" ? "aspect-[4/5]" :
+          "aspect-square"
+        ),
         className
       )}
       onMouseMove={triggerUIShow}
@@ -384,7 +391,7 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
       </AnimatePresence>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .vjs-custom-skin .vjs-tech { object-fit: contain !important; }
+        .vjs-custom-skin .vjs-tech { object-fit: ${objectFit} !important; }
         video::-webkit-media-controls { display:none !important; }
       `}} />
     </div>

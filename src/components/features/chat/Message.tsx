@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Actionsheet, ActionsheetItem } from "@/components/ui/actionsheet";
 import EmojiPicker from "@/components/ui/emoji-picker";
 import { motion, useMotionValue, useTransform } from "motion/react";
-import { VideoJSPlayer } from "@/components/features/post";
+import { MediaGrid } from "@/components/features/post";
 import VoiceMessage from "./VoiceMessage";
 import RichText from "@/components/ui/rich-text";
 import { useMediaQuery } from "@/hooks";
@@ -183,24 +183,14 @@ const Message = ({
                 >
                   {/* Media Attachments */}
                   {message.media && message.media.length > 0 && (
-                    <div className={cn("mb-2 -mx-2 -mt-2 overflow-hidden rounded-xl", message.text ? "mb-2" : "-mb-2")}>
-                      {message.media.map((item: any, idx: number) => (
-                        <div key={idx} className="relative">
-                          {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                            <VideoJSPlayer 
-                              src={item.url} 
-                              poster={item.poster}
-                              showControls={true} 
-                              autoplay={false}
-                              aspectRatio="16:9"
-                              className="rounded-lg overflow-hidden"
-                            />
-                          ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
-                            <div className="px-2 py-1">
-                              <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
-                            </div>
-                          ) : (item.type === 'image' || (typeof item.url === 'string' && (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/i)))) ? (
-                            <img src={item.url} className="w-full h-auto object-cover max-h-[300px]" alt="Attachment" />
+                    <div className={cn("mb-2 -mx-2 -mt-2", message.text ? "mb-2" : "-mb-2")}>
+                      <MediaGrid items={message.media.filter((m: any) => m.type === 'image' || m.type === 'video')} />
+                      
+                      {/* Non-grid media (voice, files) */}
+                      {message.media.filter((m: any) => m.type !== 'image' && m.type !== 'video').map((item: any, idx: number) => (
+                        <div key={idx} className="relative mt-2 px-2">
+                          {(item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
+                            <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
                           ) : (
                             // Generic File
                             <a
@@ -330,23 +320,16 @@ const Message = ({
               >
                 {/* Media Attachments */}
                 {message.media && message.media.length > 0 && (
-                  <div className={cn("mb-2 -mx-2 -mt-2 overflow-hidden rounded-xl", message.text ? "mb-2" : "-mb-2")}>
-                    {message.media.map((item: any, idx: number) => (
-                      <div key={idx} className="relative">
-                        {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                          <VideoJSPlayer 
-                            src={item.url} 
-                            poster={item.poster}
-                            showControls={true} 
-                            autoplay={false}
-                            aspectRatio="16:9"
-                            className="rounded-lg overflow-hidden"
-                          />
-                        ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (                          <div className="px-2 py-1">
+                  <div className={cn("mb-2 -mx-2 -mt-2", message.text ? "mb-2" : "-mb-2")}>
+                    <MediaGrid items={message.media.filter((m: any) => m.type === 'image' || m.type === 'video')} />
+                    
+                    {/* Non-grid media (voice, files) */}
+                    {message.media.filter((m: any) => m.type !== 'image' && m.type !== 'video').map((item: any, idx: number) => (
+                      <div key={idx} className="relative mt-2 px-2">
+                        {(item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
+                          <div className="px-2 py-1">
                             <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
                           </div>
-                        ) : (item.type === 'image' || (typeof item.url === 'string' && (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/i)))) ? (
-                          <img src={item.url} className="w-full h-auto object-cover max-h-[300px]" alt="Attachment" />
                         ) : (
                           // Generic File
                           <a
