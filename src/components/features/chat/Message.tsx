@@ -187,7 +187,14 @@ const Message = ({
                       {message.media.map((item: any, idx: number) => (
                         <div key={idx} className="relative">
                           {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                            <VideoJSPlayer src={item.url} showControls={true} autoplay={false} />
+                            <VideoJSPlayer 
+                              src={item.url} 
+                              poster={item.poster}
+                              showControls={true} 
+                              autoplay={false}
+                              aspectRatio="16:9"
+                              className="rounded-lg overflow-hidden"
+                            />
                           ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (
                             <div className="px-2 py-1">
                               <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
@@ -327,7 +334,14 @@ const Message = ({
                     {message.media.map((item: any, idx: number) => (
                       <div key={idx} className="relative">
                         {(item.type === 'video' || (typeof item.url === 'string' && item.url.endsWith('.mp4'))) ? (
-                          <VideoJSPlayer src={item.url} showControls={true} autoplay={false} />
+                          <VideoJSPlayer 
+                            src={item.url} 
+                            poster={item.poster}
+                            showControls={true} 
+                            autoplay={false}
+                            aspectRatio="16:9"
+                            className="rounded-lg overflow-hidden"
+                          />
                         ) : (item.type === 'audio' || item.type === 'voice' || (typeof item.url === 'string' && (item.url.endsWith('.webm') || item.url.endsWith('.mp3')))) ? (                          <div className="px-2 py-1">
                             <VoiceMessage url={item.url} isMe={isMe} duration={item.duration} />
                           </div>
