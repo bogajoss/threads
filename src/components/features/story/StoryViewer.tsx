@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { X, Volume2, VolumeX } from "lucide-react";
+import { X, Volume2, VolumeX, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { incrementStoryViews } from "@/lib/api/stories";
 import { shouldIncrementView } from "@/lib/utils";
 import { VideoJSPlayer } from "@/components/features/post";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "motion/react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Story {
   id: string;
@@ -27,12 +28,15 @@ interface StoryGroup {
 interface StoryViewerProps {
   story: StoryGroup;
   onClose: (storyId?: string) => void;
+  onDelete: (storyId: string) => void;
 }
 
 const StoryViewer: React.FC<StoryViewerProps> = ({
   story: storyGroup,
   onClose,
+  onDelete,
 }) => {
+  const { currentUser } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -142,7 +146,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={() => setTimeout(() => onClose(storyGroup.user.id), 0)}
-      className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md"
+      className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center"
     >
       <div className="absolute left-0 right-0 top-0 z-[110] flex flex-col gap-4 p-4 pointer-events-none">
         <div className="flex h-0.5 w-full gap-1.5 bg-transparent">
@@ -168,6 +172,19 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             </div>
           </Link>
           <div className="flex items-center gap-1">
+            {currentUser?.id === storyGroup.user.id && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm("Are you sure you want to delete this story?")) {
+                    onDelete(currentStory.id);
+                  }
+                }}
+                className="rounded-full p-2 text-white hover:bg-white/10"
+              >
+                <Trash2 size={24} />
+              </button>
+            )}
             {isVideo && (
               <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} className="rounded-full p-2 text-white hover:bg-white/10">
                 {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
@@ -194,7 +211,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            className="relative flex aspect-[9/16] w-full max-h-[85vh] items-center justify-center overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl"
+            className="relative aspect-[9/16] w-full max-h-[85vh] overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl"
           >
             {isVideo ? (
               <VideoJSPlayer
@@ -202,10 +219,12 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
                 autoplay={!isPaused}
                 showControls={false}
                 aspectRatio="9:16"
-                className="h-full w-full object-contain"
                 onReady={handlePlayerReady}
                 muted={isMuted}
                 loop={false}
+                fillContainer={true}
+                enableDoubleTapSkip={false}
+                enableTapPause={false}
               />
             ) : (
               <img 

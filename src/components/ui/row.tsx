@@ -76,9 +76,9 @@ export const StoryVideo = ({ src, poster, className }: StoryVideoProps) => {
         autoplay={false}
         showControls={false}
         aspectRatio="9:16"
-        className="size-full"
         muted={true}
         loop={true}
+        fillContainer={true}
       />
     </div>
   );

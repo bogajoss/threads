@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import {
   ArrowLeft,
   Volume2,
@@ -6,7 +6,6 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { useLocation } from "react-router-dom";
 import videojs from "video.js";
 
@@ -15,6 +14,7 @@ import SkeletonReel from "@/components/features/reels/skeleton-reel";
 import ReelItem from "@/components/features/post/ReelItem";
 import { resetCurrentlyPlayingPlayer } from "@/lib/video-state";
 import { useReels } from "@/hooks/pages/useReels";
+import { Slider } from "@/components/ui/slider";
 
 const Reels = () => {
   const location = useLocation();
@@ -73,9 +73,6 @@ const Reels = () => {
     scrollToPrev,
   } = useReels();
 
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const volumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const handleBack = () => {
     // Cleanup videos before navigating away
     videojs.getAllPlayers().forEach((player) => {
@@ -89,15 +86,9 @@ const Reels = () => {
     navigate(-1);
   };
 
-  const handleVolumeInteract = (e?: React.MouseEvent) => {
-    if (e?.type === "click") {
-      setShowVolumeSlider((prev) => !prev);
-    } else {
-      setShowVolumeSlider(true);
-    }
-
-    if (volumeTimer.current) clearTimeout(volumeTimer.current);
-    volumeTimer.current = setTimeout(() => setShowVolumeSlider(false), 4000);
+  const handleDelete = () => {
+    // After a reel is deleted, scroll to the next one
+    scrollToNext();
   };
 
   if (loading) {
@@ -132,12 +123,21 @@ const Reels = () => {
         <ArrowLeft size={24} strokeWidth={2.5} />
       </button>
 
-      <div className="absolute right-6 top-[max(1.5rem,env(safe-area-inset-top)+1.5rem)] z-50 flex flex-col items-center gap-2">
+      <div className="absolute right-6 top-[max(1.5rem,env(safe-area-inset-top)+1.5rem)] z-50 flex items-center gap-3" dir="ltr">
+        <div className="flex h-10 w-32 items-center justify-center rounded-full border border-white/10 bg-black/20 px-4 py-2 shadow-xl backdrop-blur-md" dir="ltr">
+          <Slider
+            value={[volume * 100]}
+            max={100}
+            step={1}
+            onValueChange={([val]) => setVolume(val / 100)}
+            className="w-24"
+          />
+        </div>
+
         <button
-          onClick={handleVolumeInteract}
-          onMouseEnter={() => handleVolumeInteract()}
+          onClick={() => setVolume(volume === 0 ? 0.5 : 0)}
           className="rounded-full border border-white/10 bg-black/20 p-2.5 text-white shadow-xl backdrop-blur-md transition-all hover:bg-black/40 active:scale-90"
-          title="Volume"
+          title="Toggle Mute"
         >
           {volume === 0 ? (
             <VolumeX size={24} strokeWidth={2.5} />
@@ -145,43 +145,6 @@ const Reels = () => {
             <Volume2 size={24} strokeWidth={2.5} />
           )}
         </button>
-
-        <AnimatePresence>
-          {showVolumeSlider && (
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              onMouseEnter={() => {
-                if (volumeTimer.current) clearTimeout(volumeTimer.current);
-              }}
-              onMouseLeave={() => {
-                volumeTimer.current = setTimeout(
-                  () => setShowVolumeSlider(false),
-                  2000,
-                );
-              }}
-              className="flex h-32 w-10 items-center justify-center rounded-full border border-white/10 bg-black/20 p-2 shadow-xl backdrop-blur-md"
-            >
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume * 100}
-                onChange={(e) => {
-                  setVolume(Number(e.target.value) / 100);
-                  handleVolumeInteract();
-                }}
-                className="h-24 w-1 cursor-pointer appearance-none rounded-lg bg-white/20 accent-white transition-all hover:bg-white/30"
-                style={{
-                  writingMode: "vertical-lr",
-                  direction: "rtl",
-                  WebkitAppearance: "slider-vertical",
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       <div className="absolute right-6 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-4 md:flex">
@@ -226,6 +189,7 @@ const Reels = () => {
                 reel={reel}
                 isActive={activeReelId === reel.id}
                 volume={volume}
+                onDelete={handleDelete}
                 shouldLoad={
                   // Load current, previous, and next videos
                   activeIndex === -1 || Math.abs(activeIndex - index) <= 1

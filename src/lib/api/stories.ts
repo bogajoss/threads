@@ -93,3 +93,12 @@ export const incrementStoryViews = async (storyId: string) => {
   }
   return data;
 };
+
+export const deleteStory = async (storyId: string) => {
+  const { error } = await supabase.from("stories").delete().eq("id", storyId);
+  if (error) {
+    console.error("Error deleting story:", error);
+    throw error;
+  }
+  return true;
+};

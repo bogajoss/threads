@@ -1,15 +1,17 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Music, Play, Pause, Flag } from "lucide-react";
+import { Heart, Music, Play, Pause, Flag, Trash2 } from "lucide-react";
 import { VideoJSPlayer } from "@/components/features/post";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import RichText from "@/components/ui/rich-text";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { ReelCommentsModal, ShareModal } from "@/components/features/post";
 import { useReportModal } from "@/context/ReportContext";
 import SkeletonReel from "@/components/features/reels/skeleton-reel";
-import { toggleLike, checkIfLiked, incrementPostViews } from "@/lib/api/posts";
+import { toggleLike, checkIfLiked, incrementPostViews, deletePost } from "@/lib/api/posts";
 import { toggleFollow, checkIfFollowing } from "@/lib/api/users";
 import {
   ShareIcon,
@@ -24,20 +26,22 @@ interface ReelItemProps {
   volume: number;
   onVolumeChange?: (volume: number) => void;
   shouldLoad?: boolean;
+  onDelete: (reelId: string) => void;
 }
 
 const ReelItem: React.FC<ReelItemProps> = React.memo(
-  ({ reel, isActive, volume, shouldLoad = true }) => {
+  ({ reel, isActive, volume, shouldLoad = true, onDelete }) => {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
     const { openReport } = useReportModal();
+    const queryClient = useQueryClient();
     const playerRef = useRef<any>(null);
     const [showHeart, setShowHeart] = useState(false);
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [showPlayPauseIcon, setShowPlayPauseIcon] = useState<
-      "play" | "pause" | null
+      "play" | "pause" | "forward" | "rewind" | null
     >(null);
     const [isLiked, setIsLiked] = useState(false);
     const [likesCount, setLikesCount] = useState(reel.stats?.likes || 0);
@@ -50,6 +54,24 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
         ? reel.media[0]?.src || reel.media[0]?.url
         : reel.media?.src || reel.media?.url || reel.url;
     }, [reel.media, reel.url]);
+
+    const handleDeleteReel = async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!currentUser || reel.user.id !== currentUser.id) return;
+  
+      if (window.confirm("Are you sure you want to delete this reel? This action cannot be undone.")) {
+        const toastId = toast.loading("Deleting reel...");
+        try {
+          await deletePost(reel.id);
+          toast.success("Reel deleted successfully.", { id: toastId });
+          onDelete(reel.id);
+          queryClient.invalidateQueries({ queryKey: ["reels"] });
+        } catch (error) {
+          toast.error("Failed to delete reel.", { id: toastId });
+          console.error("Failed to delete reel:", error);
+        }
+      }
+    };
 
     // Track views
     useEffect(() => {
@@ -105,16 +127,42 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
       )
         return;
 
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const width = rect.width;
+
       if (clickTimer.current) {
         clearTimeout(clickTimer.current);
         clickTimer.current = null;
-        handleDoubleLike();
+        
+        // Check where the double tap happened
+        if (x < width / 3) {
+          handleSkip(-10);
+        } else if (x > (width * 2) / 3) {
+          handleSkip(10);
+        } else {
+          handleDoubleLike();
+        }
       } else {
         clickTimer.current = setTimeout(() => {
           clickTimer.current = null;
           handleTogglePlay();
         }, 250);
       }
+    };
+
+    const handleSkip = (seconds: number) => {
+      const player = playerRef.current;
+      if (!player || player.isDisposed()) return;
+      
+      const currentTime = player.currentTime();
+      const duration = player.duration();
+      const newTime = Math.min(Math.max(0, currentTime + seconds), duration);
+      player.currentTime(newTime);
+      
+      // Feedback
+      setShowPlayPauseIcon(seconds > 0 ? "forward" : "rewind" as any);
+      setTimeout(() => setShowPlayPauseIcon(null), 800);
     };
 
     const handleTogglePlay = () => {
@@ -213,11 +261,13 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 autoplay={isActive}
                 showControls={false}
                 aspectRatio="9:16"
-                className="w-full h-full"
                 onReady={handlePlayerReady}
                 volume={volume}
                 muted={volume === 0}
                 loop={true}
+                fillContainer={true}
+                enableDoubleTapSkip={false}
+                enableTapPause={false}
               />
             ) : (
               <div className="aspect-[9/16] w-full bg-zinc-900">
@@ -262,11 +312,24 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
                 exit={{ scale: 1.5, opacity: 0 }}
                 className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
               >
-                <div className="rounded-full bg-black/20 p-8 backdrop-blur-md">
-                  {showPlayPauseIcon === "play" ? (
-                    <Play size={50} fill="white" className="ml-1.5 text-white" />
-                  ) : (
-                    <Pause size={50} fill="white" className="text-white" />
+                <div className="rounded-full bg-black/40 p-10 backdrop-blur-md flex flex-col items-center gap-2">
+                  {showPlayPauseIcon === "play" && <Play size={50} fill="white" className="ml-1.5 text-white" />}
+                  {showPlayPauseIcon === "pause" && <Pause size={50} fill="white" className="text-white" />}
+                  {showPlayPauseIcon === "forward" && (
+                    <>
+                      <motion.div initial={{ x: -10 }} animate={{ x: 10 }} transition={{ repeat: Infinity, duration: 0.5 }}>
+                        <Play size={50} fill="white" className="text-white" />
+                      </motion.div>
+                      <span className="text-xs font-bold text-white tracking-widest">+10s</span>
+                    </>
+                  )}
+                  {showPlayPauseIcon === "rewind" && (
+                    <>
+                      <motion.div initial={{ x: 10 }} animate={{ x: -10 }} transition={{ repeat: Infinity, duration: 0.5 }}>
+                        <Play size={50} fill="white" className="rotate-180 text-white" />
+                      </motion.div>
+                      <span className="text-xs font-bold text-white tracking-widest">-10s</span>
+                    </>
                   )}
                 </div>
               </motion.div>
@@ -324,10 +387,20 @@ const ReelItem: React.FC<ReelItemProps> = React.memo(
             <button className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md" onClick={(e) => { e.stopPropagation(); openReport("reel", reel.id); }}>
               <Flag size={28} />
             </button>
+            {currentUser?.id === reel.user?.id && (
+              <button
+                className="rounded-full bg-zinc-800/50 p-3 text-white backdrop-blur-md"
+                onClick={handleDeleteReel}
+              >
+                <Trash2 size={28} />
+              </button>
+            )}
           </div>
 
-          <div className="absolute bottom-0 left-0 z-50 h-[3px] w-full bg-white/20 transition-all cursor-pointer group hover:h-1.5" onClick={handleSeek}>
-            <div className="h-full bg-white shadow-[0_0_8px_white] transition-all duration-100" style={{ width: `${progress}%` }} />
+          <div className="absolute bottom-0 left-0 z-50 h-1.5 w-full bg-white/10 transition-all cursor-pointer group/progress" onClick={handleSeek}>
+            <div className="h-full bg-white shadow-[0_0_12px_white] transition-all duration-100 relative" style={{ width: `${progress}%` }}>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 size-3 bg-white rounded-full scale-0 group-hover/progress:scale-100 transition-transform shadow-lg border border-white/20" />
+            </div>
           </div>
         </div>
         

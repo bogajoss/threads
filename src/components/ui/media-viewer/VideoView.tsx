@@ -21,7 +21,8 @@ const VideoView: React.FC<VideoViewProps> = ({ url, poster }) => {
                     poster={poster} 
                     autoplay={true} 
                     showControls={true}
-                    className="w-full h-full"
+                    className="w-full h-auto"
+                    fillContainer={false}
                     aspectRatio="16:9"
                 />
             </div>

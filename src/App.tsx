@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, Suspense, lazy } from "react";
-import {
-  Routes,
-  Route,
-  useNavigate
-} from "react-router-dom";
-
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner"; // Import toast from sonner
 
 import { useLightbox } from "@/context/LightboxContext";
+import { useToast } from "@/context/ToastContext";
 import { VideoPlaybackProvider } from "@/context/VideoPlaybackContext";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
+import { deleteStory } from "@/lib/api/stories";
 
 import {
   MainLayout,
@@ -68,11 +67,27 @@ export default function Mysys() {
   const navigate = useNavigate();
   const { isOpen, images, currentIndex, closeLightbox, setIndex } =
     useLightbox();
+  useToast();
+  const queryClient = useQueryClient();
 
   const [viewingStory, setViewingStory] = useState(null);
 
   useKeyboardShortcuts();
   useDeepLinks(); // Handle deep links
+
+  const handleDeleteStory = async (storyId: string) => {
+    const toastId = toast.loading("Deleting story...");
+    try {
+      await deleteStory(storyId);
+      toast.success("Story deleted successfully.", { id: toastId });
+      setViewingStory(null);
+      queryClient.invalidateQueries({ queryKey: ["stories"] });
+    } catch (error) {
+      toast.error("Failed to delete story. Please try again.", {
+        id: toastId,
+      });
+    }
+  };
 
   return (
     <VideoPlaybackProvider>
@@ -194,6 +209,7 @@ export default function Mysys() {
       {viewingStory && (
         <StoryViewer
           story={viewingStory}
+          onDelete={handleDeleteStory}
           onClose={(userId) => {
             if (userId) {
               const seenStories = JSON.parse(
