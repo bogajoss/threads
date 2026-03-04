@@ -5,7 +5,6 @@ import PageTransition from "./PageTransition";
 // Lazy load the pages
 const Feed = lazy(() => import("@/pages/(feed)/Feed"));
 const Explore = lazy(() => import("@/pages/(feed)/Explore"));
-const Reels = lazy(() => import("@/pages/(feed)/Reels"));
 const Messages = lazy(() => import("@/pages/(feed)/Messages"));
 const Notifications = lazy(() => import("@/pages/(feed)/Notifications"));
 const CreatePost = lazy(() => import("@/pages/(feed)/CreatePost"));
@@ -17,7 +16,6 @@ interface PersistentLayoutProps {
 type PersistentTabKey =
   | "feed"
   | "explore"
-  | "reels"
   | "messages"
   | "notifications"
   | "create";
@@ -32,7 +30,6 @@ const getPersistentTabKey = (pathname: string): PersistentTabKey | null => {
 
   if (path === "/" || path === "/feed" || path === "/home") return "feed";
   if (path === "/explore") return "explore";
-  if (path === "/r") return "reels";
   if (path === "/m") return "messages";
   if (path === "/notifications") return "notifications";
   if (path === "/create") return "create";
@@ -130,17 +127,6 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = ({ onStoryClick }) => 
           <Suspense fallback={null}>
             <PageTransition mode="none">
               <Explore />
-            </PageTransition>
-          </Suspense>
-        </div>
-      )}
-
-      {/* REELS */}
-      {visitedPages.has("reels") && (
-        <div className={activeTabKey === "reels" ? "block min-h-[100dvh]" : "hidden bg-black"}>
-          <Suspense fallback={null}>
-            <PageTransition mode="none">
-              <Reels />
             </PageTransition>
           </Suspense>
         </div>
