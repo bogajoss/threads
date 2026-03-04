@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { 
   setCurrentlyPlayingPlayer 
 } from "@/lib/video-state";
-import { Play, Pause, FastForward, Rewind, Maximize, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, FastForward, Rewind, Maximize, Minimize, Volume2, VolumeX, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Slider } from "@/components/ui/slider";
 
@@ -63,6 +63,7 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
   const [feedback, setFeedback] = useState<"play" | "pause" | "forward" | "rewind" | null>(null);
   const [internalVolume, setInternalVolume] = useState(volume);
   const [showVolume, setShowVolume] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const uiTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -120,6 +121,19 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
     feedbackTimer.current = setTimeout(() => setFeedback(null), 800);
   }, []);
 
+  const toggleFullscreen = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!containerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
   const handleInteraction = (e: React.MouseEvent) => {
     if (enableDoubleTapSkip || enableTapPause) {
       e.stopPropagation();
@@ -160,6 +174,15 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
         setShowUI(false);
       }
     }, 3000);
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   useEffect(() => {
@@ -244,11 +267,13 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
       ref={containerRef}
       className={cn(
         "relative w-full bg-zinc-950 overflow-hidden group flex items-center justify-center select-none",
-        fillContainer ? "h-full" : (
-          aspectRatio === "16:9" ? "aspect-video" : 
-          aspectRatio === "9:16" ? "aspect-[9/16]" : 
-          aspectRatio === "4:5" ? "aspect-[4/5]" :
-          "aspect-square"
+        isFullscreen ? "h-screen w-screen" : (
+          fillContainer ? "h-full" : (
+            aspectRatio === "16:9" ? "aspect-video" : 
+            aspectRatio === "9:16" ? "aspect-[9/16]" : 
+            aspectRatio === "4:5" ? "aspect-[4/5]" :
+            "aspect-square"
+          )
         ),
         className
       )}
@@ -296,6 +321,18 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
           >
             {/* Top Shadow */}
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent" />
+            
+            {/* Fullscreen Exit Button (Top Right) */}
+            {isFullscreen && (
+              <div className="absolute right-4 top-4 z-30 pointer-events-auto">
+                <button
+                  onClick={toggleFullscreen}
+                  className="rounded-full bg-black/40 p-2 text-white backdrop-blur-md transition-all hover:bg-black/60 active:scale-90 border border-white/10"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            )}
             
             {/* Bottom Controls Area */}
             <div className="relative p-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-auto">
@@ -375,13 +412,10 @@ const VideoJSPlayer: React.FC<VideoJSPlayerProps> = ({
 
                 <div className="flex items-center gap-4">
                   <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      containerRef.current?.requestFullscreen();
-                    }}
+                    onClick={toggleFullscreen}
                     className="text-white hover:scale-110 transition-transform"
                   >
-                    <Maximize size={20} />
+                    {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                   </button>
                 </div>
               </div>
